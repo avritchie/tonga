@@ -1,0 +1,203 @@
+package mainPackage;
+
+import java.awt.Color;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map.Entry;
+import javafx.scene.effect.BlendMode;
+
+public class Settings {
+
+    private static TongaFrame host;
+    private static BlendMode blendmode;
+    private static Autoscale autoscale;
+    private static HashMap<Integer, Boolean> neverShow;
+
+    public enum Autoscale {
+        NONE, CHANNEL, IMAGE;
+    }
+
+    protected static void boot() {
+        host = Tonga.frame();
+        setBlendMode();
+        setAutoscale();
+        loadConfigFiles();
+    }
+
+    public static boolean getNeverShow(int hash) {
+        if (neverShow.containsKey(hash)) {
+            return true; //neverShow.get(hash);
+        } else {
+            return false;
+        }
+    }
+
+    public static void setNeverShow(int hash, boolean selection) {
+        neverShow.put(hash, selection);
+    }
+
+    public static BlendMode settingBlendMode() {
+        return blendmode;
+    }
+
+    public static Autoscale settingAutoscaleType() {
+        return autoscale;
+    }
+
+    public static boolean settingAutoscaleAggressive() {
+        return host.boxSettingAutoscale1.isSelected();
+    }
+
+    public static boolean settingResultsAppend() {
+        return host.boxSettingResultsAppend.isSelected();
+    }
+
+    public static boolean settingBatchProcessing() {
+        return host.boxSettingNoRAM.isSelected();
+    }
+
+    public static boolean settingOpenAfterExport() {
+        return host.boxSettingOpenAfter.isSelected();
+    }
+
+    public static boolean settingsAlphaBackground() {
+        return host.boxSettingAlphaBG.isSelected();
+    }
+
+    public static Color settingAlphaBackgroundColor() {
+        return host.layerBackColor.getBackground();
+    }
+
+    public static boolean settingsMultithreading() {
+        return host.boxSettingMultiThreading.isSelected();
+    }
+
+    static void setAutoscale() {
+        switch (host.autoscaleCombo.getSelectedIndex()) {
+            case 0:
+                autoscale = Autoscale.NONE;
+                break;
+            case 1:
+                autoscale = Autoscale.CHANNEL;
+                break;
+            case 2:
+                autoscale = Autoscale.IMAGE;
+                break;
+        }
+    }
+
+    static void setBlendMode() {
+        BlendMode mode = BlendMode.ADD;
+        switch (host.stackCombo.getSelectedIndex()) {
+            case 0:
+                mode = BlendMode.ADD;
+                break;
+            case 1:
+                mode = BlendMode.MULTIPLY;
+                break;
+            case 2:
+                mode = BlendMode.EXCLUSION;
+                break;
+            case 3:
+                mode = BlendMode.DIFFERENCE;
+                break;
+            case 4:
+                mode = BlendMode.LIGHTEN;
+                break;
+            case 5:
+                mode = BlendMode.DARKEN;
+                break;
+            case 6:
+                mode = BlendMode.OVERLAY;
+                break;
+        }
+        blendmode = mode;
+    }
+
+    private static void loadConfigFiles() {
+        File file = new File(Tonga.getAppDataPath());
+        file.mkdirs();
+        File dconf = new File(file + "/dialog.conf");
+        File sconf = new File(file + "/settings.conf");
+        neverShow = new HashMap<>();
+        if (dconf.exists()) {
+            try {
+                try ( DataInputStream in = new DataInputStream(new FileInputStream(dconf))) {
+                    while (in.available() >= 5) {
+                        int key = in.readInt();
+                        boolean value = in.readByte() != 0;
+                        neverShow.put(key, value);
+                    }
+                }
+            } catch (IOException ex) {
+                Tonga.catchError(ex, "The dialog config file could not be read.");
+            }
+        }
+        if (sconf.exists()) {
+            try {
+                try ( DataInputStream in = new DataInputStream(new FileInputStream(sconf))) {
+                    byte gs = in.readByte();
+                    host.boxSettingAutoscale1.setSelected(((gs) & 1) == 1);
+                    host.boxSettingResultsAppend.setSelected(((gs >> 1) & 1) == 1);
+                    //host.boxSettingNoRAM.setSelected(((gs >> 2) & 1) == 1);
+                    host.boxSettingOpenAfter.setSelected(((gs >> 3) & 1) == 1);
+                    host.boxSettingAlphaBG.setSelected(((gs >> 4) & 1) == 1);
+                    host.boxSettingMultiThreading.setSelected(((gs >> 5) & 1) == 1);
+                    host.layerBackColor.setBackground(new Color(in.readInt()));
+                    byte cs = in.readByte();
+                    host.autoscaleCombo.setSelectedIndex(((cs) & 3));
+                    host.stackCombo.setSelectedIndex(((cs >> 2) & 7));
+                }
+            } catch (IOException ex) {
+                Tonga.catchError(ex, "The setting file could not be read.");
+            }
+        }
+
+    }
+
+    public static void saveConfigFiles() {
+        File file = new File(Tonga.getAppDataPath());
+        file.mkdirs();
+        File dconf = new File(file + "/dialog.conf");
+        File sconf = new File(file + "/settings.conf");
+        try {
+            try ( DataOutputStream out = new DataOutputStream(new FileOutputStream(dconf))) {
+                Iterator<Entry<Integer, Boolean>> esi = neverShow.entrySet().iterator();
+                while (esi.hasNext()) {
+                    Entry es = esi.next();
+                    int key = (Integer) es.getKey();
+                    boolean value = (Boolean) es.getValue();
+                    out.writeInt(key);
+                    out.writeByte(value ? 1 : 0);
+                }
+                out.flush();
+            }
+        } catch (IOException ex) {
+            Tonga.catchError(ex, "The dialog config file could not be saved.");
+        }
+        try {
+            try ( DataOutputStream out = new DataOutputStream(new FileOutputStream(sconf))) {
+                byte gs = (byte) ((host.boxSettingAutoscale1.isSelected() ? 1 : 0)
+                        | (host.boxSettingResultsAppend.isSelected() ? 1 : 0) << 1
+                        //| (host.boxSettingNoRAM.isSelected() ? 1 : 0) << 2
+                        | (host.boxSettingOpenAfter.isSelected() ? 1 : 0) << 3
+                        | (host.boxSettingAlphaBG.isSelected() ? 1 : 0) << 4
+                        | (host.boxSettingMultiThreading.isSelected() ? 1 : 0) << 5);
+                out.writeByte(gs);
+                out.writeInt(host.layerBackColor.getBackground().getRGB());
+                byte cs = (byte) (host.autoscaleCombo.getSelectedIndex()
+                        | host.stackCombo.getSelectedIndex() << 2);
+                out.writeByte(cs);
+                out.flush();
+            }
+        } catch (IOException ex) {
+            Tonga.catchError(ex, "The setting file could not be saved.");
+        }
+    }
+}
