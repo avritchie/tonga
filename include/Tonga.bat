@@ -1,0 +1,1 @@
+@java --module-path "%cd%\lib\jfx" --add-modules "javafx.base,javafx.graphics,javafx.swing" -jar "%cd%\Tonga.main"
