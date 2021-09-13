@@ -2,6 +2,7 @@ package mainPackage.protocols;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import javafx.scene.paint.Color;
@@ -30,17 +31,19 @@ public class ObjectsSeparated extends Protocol {
     @Override
     protected Processor getProcessor() {
         Color bg = param.color[0];
-        return new ProcessorFast("Separated Objects") {
+        return new ProcessorFast(2, new String[]{"Separated Objects", "Non-separated Objects"}) {
 
             @Override
             protected void pixelProcessor() {
                 ROISet separSet = new ImageTracer(sourceLayer[0], bg).trace();
                 ImageTracer origSet = new ImageTracer(sourceLayer[1], bg);
                 List<ROI> newRois = new ArrayList<>();
+                List<ROI> oldRois = new ArrayList<>();
                 Map<Integer, ROI> detcPos = new HashMap<>();
                 separSet.list.forEach(roi -> {
                     ROI newRoi = origSet.traceSingleObjectAtPoint(roi.xcenter, roi.ycenter);
                     if (newRoi != null) {
+                        oldRois.add(newRoi);
                         Integer code = newRoi.ycenter * sourceWidth[0] + newRoi.xcenter;
                         if (detcPos.containsKey(code)) {
                             newRois.add(roi);
@@ -53,7 +56,15 @@ public class ObjectsSeparated extends Protocol {
                         }
                     }
                 });
-                setOutputBy(new ROISet(newRois, sourceWidth[0], sourceHeight[0]).drawToImageData());
+                Iterator<ROI> oldIt = oldRois.iterator();
+                while (oldIt.hasNext()) {
+                    ROI cRoi = oldIt.next();
+                    if (newRois.contains(cRoi)) {
+                        oldIt.remove();
+                    }
+                }
+                setOutputBy(new ROISet(newRois, sourceWidth[0], sourceHeight[0]).drawToImageData(), 0);
+                setOutputBy(new ROISet(oldRois, sourceWidth[0], sourceHeight[0]).drawToImageData(), 1);
             }
         };
     }

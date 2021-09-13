@@ -13,7 +13,7 @@ import mainPackage.ImageData;
 import mainPackage.Iterate;
 import mainPackage.utils.STAT;
 import mainPackage.Tonga;
-import mainPackage.filters.Filters;
+import static mainPackage.morphology.Segmentor.segmentedSomething;
 import mainPackage.utils.RGB;
 
 public class ROISet {
@@ -112,9 +112,10 @@ public class ROISet {
                 }
             }
 
+            @Override
             void drawingMethod(ROI o) {
                 Iterate.areaPixels(o, (int pos) -> {
-                    out[pos] = (o.area.annotations[(pos % width) - o.area.xstart][(pos / width) - o.area.ystart] && !noEffects) ? COL.GRAY : COL.WHITE;;
+                    out[pos] = (o.area.annotations[(pos % width) - o.area.xstart][(pos / width) - o.area.ystart] && !noEffects) ? COL.GRAY : COL.WHITE;
                 });
                 if (!noEffects) {
                     if (o.outEdge != null) {
@@ -163,20 +164,37 @@ public class ROISet {
         }.draw();
     }
 
+    public int[] drawMaskArray() {
+        // render the set by marking masks and their overlaps
+        return new setRenderer() {
+            @Override
+            void preDrawingMethod(ROI o) {
+                if (o.mask != null) {
+                    Iterate.areaPixels(o.mask, (int pos) -> {
+                        out[pos] = out[pos] == COL.BLACK ? COL.DGRAY : COL.GRAY;
+                    });
+                }
+            }
+
+            @Override
+            void drawingMethod(ROI o) {
+                Iterate.areaPixels(o, (int pos) -> {
+                    out[pos] = COL.WHITE;
+                });
+            }
+        }.draw();
+    }
+
     public int[] drawStainArray() {
         // render the set by giving each shape colour based on the staining intensity
         return new setRenderer() {
+            @Override
             void drawingMethod(ROI o) {
-                for (int x = 0; x < o.getWidth(); x++) {
-                    for (int y = 0; y < o.getHeight(); y++) {
-                        if (o.area.area[x][y]) {
-                            int val = 255 - ((int) (o.getStainAvg() * 255));
-                            int color = 0xFFFF0000 | val << 8 | val;
-                            //int color = RGB.argb((int) (o.getStain() * 255));
-                            out[width * (y + o.area.ystart) + (x + o.area.xstart)] = color;
-                        }
-                    }
-                }
+                Iterate.areaPixels(o, (int pos) -> {
+                    int val = 255 - ((int) (o.getStainAvg() * 255));
+                    int color = 0xFFFF0000 | val << 8 | val;
+                    out[pos] = color;
+                });
             }
         }.draw();
     }
@@ -184,16 +202,13 @@ public class ROISet {
     public int[] drawStainArray(double binThreshold) {
         // render the set by giving each shape either gray or white based on staining intensity and threshold
         return new setRenderer() {
+            @Override
             void drawingMethod(ROI o) {
-                for (int x = 0; x < o.getWidth(); x++) {
-                    for (int y = 0; y < o.getHeight(); y++) {
-                        if (o.area.area[x][y]) {
-                            boolean pos = o.getStainAvg() > binThreshold;
-                            int color = pos ? COL.WHITE : COL.GRAY;
-                            out[width * (y + o.area.ystart) + (x + o.area.xstart)] = color;
-                        }
-                    }
-                }
+                Iterate.areaPixels(o, (int pos) -> {
+                    boolean positive = o.getStainAvg() > binThreshold;
+                    int color = positive ? COL.WHITE : COL.GRAY;
+                    out[pos] = color;
+                });
             }
         }.draw();
     }
@@ -235,6 +250,22 @@ public class ROISet {
         });
     }
 
+    public void filterCornersNotTouching(ImageData mMask) {
+        list.forEach(o -> {
+            // do analyze corners first
+            o.filterCornersNotTouching(o.edgeData.cornerPoints, mMask);
+            o.filterCornersNotTouching(o.edgeData.cornerCandidates, mMask);
+        });
+    }
+
+    public void filterUnsureCorners() {
+        //removes all unsure corners, leave only the sure ones
+        list.forEach(o -> {
+            // do analyze corners first
+            o.edgeData.cornerCandidates = new ArrayList<>();
+        });
+    }
+
     public final void analyzeCorners() {
         // will also supplement outer edge data with angle/direction info
         // corner points will get line functions based on the direction
@@ -250,10 +281,12 @@ public class ROISet {
         });
     }
 
-    public final void segment(boolean full) {
+    public final boolean segment(int mode) {
+        Segmentor.segmentedSomething = false;
         list.forEach(o -> {
-            o.sectionBasedOnIntersections(this, full);
+            o.sectionBasedOnIntersections(this, mode);
         });
+        return Segmentor.segmentedSomething;
     }
 
     public void imageEdgeFixer(boolean separate) {
@@ -433,11 +466,11 @@ public class ROISet {
         }
     }
 
-    public final void filterOutDimObjects(double percentage) {
+    public final void filterOutDimObjects(double limit) {
         Iterator<? extends ROI> it = list.iterator();
         while (it.hasNext()) {
             ROI roi = it.next();
-            if (roi.getStainAvg() * 100 < percentage) {
+            if (roi.getStainAvg() < limit) {
                 it.remove();
             }
         }
@@ -479,8 +512,8 @@ public class ROISet {
         }
         avgSTD = avgSTD / list.size();//26.45;//
         avgDiaRat = avgDiaRat / list.size();//34.14;//
-        System.out.println(avgSize + " " + avgStain + " " + avgSTD + " " + avgDiaRat);
-        while (it.hasNext()) {
+        System.out.println("AVERAGES: " + avgSize + " " + avgStain + " " + avgSTD + " " + avgDiaRat);
+        while (it.hasNext() && !Thread.currentThread().isInterrupted()) {
             ROI roi = it.next();
             STAT stat = roi.getStainSTAT();
             int totalPixels = roi.edgeData.cornerCandidates.size() + roi.edgeData.cornerPoints.size();
@@ -493,14 +526,24 @@ public class ROISet {
             System.out.println(roi.getSize() + " | " + dimratio + " | " + roi.getStainAvg() + " | " + angles + " | " + pixelSize + " | "
                     + roi.edgeData.totalSharpPoints + " | " + roi.edgeData.cornerCandidates.size() + " | " + roi.edgeData.cornerPoints.size() + " | "
                     + stat.getStdDev() + " | " + stat.getVariance() + " | " + stat.getMean() + " | " + stat.getMedian());
-            if ((stain * 100 + std > 1.85 * (avgStain * 100 + avgSTD))
-                    //|| (stain > 1.75 * avgStain && std > 1.5 * avgSTD && roi.edgeData.totalSharpPoints > 2)
-                    || (size < 0.67 * avgSize && stain > 1.75 * avgStain)
-                    || (size < avgSize && dimratio < 0.67 * avgDiaRat && std > 1.5 * avgSTD)
-                    || (size < 1.1 * avgSize && totalPixels > 0 && stain > avgStain && std > 2 * avgSTD)
-                    || (size < 1.1 * avgSize && totalPixels > 0 && pixelSize < 200 && angles > 25)
-                    || (size < 0.5 * avgSize && stain > 1.2 * avgStain && std > 1.5 * avgSTD)) {
-                System.out.println("REMOVED " + roi.getSize());
+            if (stain * 100 + std > 1.85 * (avgStain * 100 + avgSTD)) {
+                System.out.println("REMOVED because ev 1 " + roi.getSize() + " x" + roi.xcenter + " y" + roi.ycenter);
+                it.remove();
+            } else if (size < 0.67 * avgSize && stain > 1.75 * avgStain) {
+                System.out.println("REMOVED because ev 2 " + roi.getSize() + " x" + roi.xcenter + " y" + roi.ycenter);
+                it.remove();
+            } else if (size < avgSize && dimratio < 0.67 * avgDiaRat && std > 1.5 * avgSTD) {
+                System.out.println("REMOVED because ev 3 " + roi.getSize() + " x" + roi.xcenter + " y" + roi.ycenter);
+                it.remove();
+            } else if (size < 1.1 * avgSize && totalPixels > 0 && stain > avgStain && std > 2 * avgSTD) {
+                System.out.println("REMOVED because ev 4 " + roi.getSize() + " x" + roi.xcenter + " y" + roi.ycenter);
+                it.remove();
+                //too many false positives
+                /*} else if (size < 1.1 * avgSize && totalPixels > 0 && pixelSize < 200 && angles > 25) {
+                System.out.println("REMOVED because ev 5 " + roi.getSize() + " x" + roi.xcenter + " y" + roi.ycenter);
+                it.remove();*/
+            } else if (size < 0.5 * avgSize && stain > 1.2 * avgStain && std > 1.5 * avgSTD) {
+                System.out.println("REMOVED because ev 6 " + roi.getSize() + " x" + roi.xcenter + " y" + roi.ycenter);
                 it.remove();
             }
         }
@@ -613,7 +656,7 @@ public class ROISet {
         }
     }
 
-    private double avgStain() {
+    public double avgStain() {
         try {
             return list.stream().mapToDouble(l -> l.getStainAvg()).average().getAsDouble();
         } catch (NoSuchElementException ex) {

@@ -85,7 +85,7 @@ public class HETissueSeparation extends Protocol {
                 layer2 = Filters.thresholdBright().runSingle(layer2, threshEosin);
                 outImage[3].pixels32 = layer2.pixels32;
                 layer2 = new ImageData(TongaRender.renderWithMode(layer.toFXImage(), layer2.toFXImage(), BlendMode.MULTIPLY));
-                layer = FiltersPass.filterObjectSize().runSingle(layer2, 60, 0, true, 250 * magn);
+                layer = FiltersPass.filterObjectSize().runSingle(layer2, COL.BLACK, 60, true, 250 * magn);
                 outImage[4].pixels32 = layer.pixels32;
             }
         };

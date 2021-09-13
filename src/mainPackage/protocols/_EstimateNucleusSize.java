@@ -35,10 +35,6 @@ public class _EstimateNucleusSize extends Protocol {
 
             @Override
             protected void pixelProcessor() {
-            }
-
-            @Override
-            protected void methodFinal() {
                 initTableData(new String[]{"Image", "Ø", "Size"});
                 //guess the size of the cells
                 boolean finished = false;
@@ -132,8 +128,6 @@ public class _EstimateNucleusSize extends Protocol {
                     System.out.println(mp);
                 }
                 Tonga.loader().continueAppending();
-                
-                nucleusSize = (int) (sourceWidth[0] / 10.);
                 Object[] newRow = data.newRow(sourceImage.imageName);
                 newRow[1] = (Integer) nucleusSize;
                 newRow[2] = (Integer) GEO.circleArea(nucleusSize);

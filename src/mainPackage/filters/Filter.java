@@ -78,7 +78,7 @@ public abstract class Filter {
         Tonga.loader().setIterations(calculateIterations(true));
         //List<Integer> procImgs = new ArrayList<>();
         for (int imageIndex = 0; imageIndex < totalImages; imageIndex++) {
-            if (Thread.interrupted()) {
+            if (Thread.currentThread().isInterrupted()) {
                 return null;
             }
             if (Tonga.layerStructureMatches(Tonga.getImageIndex(), imageIndex, selectedIndexes)
@@ -223,7 +223,7 @@ public abstract class Filter {
 
     public static void publish(ImageData[][] images, String name) {
         Tonga.loader().maxProgress();
-        if (Thread.interrupted()) {
+        if (Thread.currentThread().isInterrupted()) {
             return;
         }
         for (int image = 0; image < images.length; image++) {

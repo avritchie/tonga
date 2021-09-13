@@ -14,7 +14,6 @@ import mainPackage.utils.IMG;
 import mainPackage.utils.GEO;
 import mainPackage.ImageData;
 import mainPackage.Iterate;
-import mainPackage.PanelCreator;
 import mainPackage.PanelCreator.ControlReference;
 import static mainPackage.PanelCreator.ControlType.*;
 import static mainPackage.filters.Filter.noParams;
@@ -34,7 +33,7 @@ public class FiltersPass {
     public static FilterFast fillInnerAreas() {
         return new FilterFast("Area Filler", new ControlReference[]{
             new ControlReference(COLOUR, "Background colour", -2),
-            new PanelCreator.ControlReference(TOGGLE, "Fix broken objects on image edges", 1)}) {
+            new ControlReference(TOGGLE, "Fix broken objects on image edges", 1)}) {
 
             @Override
             protected void processor() {
@@ -43,7 +42,7 @@ public class FiltersPass {
                     set.imageEdgeFixer(false);
                 }
                 set.fillInnerHoles();
-                outData.pixels32 = set.drawToArray(true);
+                setOutputBy(set.drawToImageData(true));
             }
 
             @Override
@@ -54,10 +53,10 @@ public class FiltersPass {
     }
 
     public static FilterFast fillInnerAreasSizeShape() {
-        return new FilterFast("Area Filler", new PanelCreator.ControlReference[]{
-            new PanelCreator.ControlReference(COLOUR, "Background colour", -2),
-            new PanelCreator.ControlReference(SPINNER, "Remove smaller than (pixels)", 100),
-            new PanelCreator.ControlReference(SLIDER, "Or rounder than (%)", 90)}) {
+        return new FilterFast("Area Filler", new ControlReference[]{
+            new ControlReference(COLOUR, "Background colour", -2),
+            new ControlReference(SPINNER, "Remove smaller than (pixels)", 100),
+            new ControlReference(SLIDER, "Or rounder than (%)", 90)}, 4) {
 
             @Override
             protected void processor() {
@@ -68,7 +67,7 @@ public class FiltersPass {
                 ImageData origSet = set.drawToImageData(true);
                 ROISet innerSet = new ImageTracer(origSet, COL.WHITE).traceInnerObjects(set);
                 innerSet.filterOutLargeAndNonRound(param.spinner[0], param.slider[0] / 100.);
-                outData.pixels32 = innerSet.drawToImageData(true).pixels32;
+                setOutputBy(innerSet.drawToImageData(true));
                 Iterate.pixels(this, (int pos) -> {
                     outData.pixels32[pos] = outData.pixels32[pos] == COL.WHITE || origSet.pixels32[pos] == COL.WHITE ? COL.WHITE : COL.BLACK;
                 });
@@ -82,8 +81,8 @@ public class FiltersPass {
     }
 
     public static FilterFast innerAreas() {
-        return new FilterFast("Inner Areas", new PanelCreator.ControlReference[]{
-            new PanelCreator.ControlReference(COLOUR, "Background colour", -2)}) {
+        return new FilterFast("Inner Areas", new ControlReference[]{
+            new ControlReference(COLOUR, "Background colour", -2)}) {
 
             @Override
             protected void processor() {
@@ -92,7 +91,7 @@ public class FiltersPass {
                 set.findInnerEdges();
                 ImageData origSet = set.drawToImageData(true);
                 ROISet innerSet = new ImageTracer(origSet, COL.WHITE).traceInnerObjects(set);
-                outData.pixels32 = innerSet.drawToImageData(true).pixels32;
+                setOutputBy(innerSet.drawToImageData(true));
             }
 
             @Override
@@ -104,11 +103,11 @@ public class FiltersPass {
 
     public static FilterFast filterObjectSize() {
         return new FilterFast("Size Filter",
-                new PanelCreator.ControlReference[]{
-                    new PanelCreator.ControlReference(SPINNER, "Minimum size", 100),
-                    new PanelCreator.ControlReference(COLOUR, "Background colour", -2),
-                    new PanelCreator.ControlReference(TOGGLE, "Also do for the background", 0, new int[]{3, 1}),
-                    new PanelCreator.ControlReference(SPINNER, "Background minimum size", 100)}) {
+                new ControlReference[]{
+                    new ControlReference(COLOUR, "Background colour", -2),
+                    new ControlReference(SPINNER, "Minimum size", 100),
+                    new ControlReference(TOGGLE, "Also do for the background", 0, new int[]{3, 1}),
+                    new ControlReference(SPINNER, "Background minimum size", 100)}) {
 
             @Override
             protected void processor() {
@@ -121,7 +120,7 @@ public class FiltersPass {
                     set.filterOutSmallObjects((int) (param.spinner[1]));
                     drawing = Filters.invert().runSingle(set.drawToImageData());
                 }
-                outData.pixels32 = drawing.pixels32;
+                setOutputBy(drawing);
             }
 
             @Override
@@ -138,11 +137,11 @@ public class FiltersPass {
 
     public static FilterFast filterObjectDimension() {
         return new FilterFast("Dimension Filter",
-                new PanelCreator.ControlReference[]{
-                    new PanelCreator.ControlReference(COLOUR, "Background colour", -2),
-                    new PanelCreator.ControlReference(SPINNER, "Minimum width or height", 10),
-                    new PanelCreator.ControlReference(TOGGLE, "Also do for the background", 0, new int[]{3, 1}),
-                    new PanelCreator.ControlReference(SPINNER, "Background minimum width or height", 10)}) {
+                new ControlReference[]{
+                    new ControlReference(COLOUR, "Background colour", -2),
+                    new ControlReference(SPINNER, "Minimum width or height", 10),
+                    new ControlReference(TOGGLE, "Also do for the background", 0, new int[]{3, 1}),
+                    new ControlReference(SPINNER, "Background minimum width or height", 10)}) {
 
             @Override
             protected void processor() {
@@ -155,7 +154,7 @@ public class FiltersPass {
                     set.filterOutByDimension((int) (param.spinner[1]));
                     drawing = Filters.invert().runSingle(set.drawToImageData());
                 }
-                outData.pixels32 = drawing.pixels32;
+                setOutputBy(drawing);
             }
 
             @Override
@@ -172,13 +171,13 @@ public class FiltersPass {
 
     public static FilterFast filterObjectSizeDimension() {
         return new FilterFast("Size/dimension Filter",
-                new PanelCreator.ControlReference[]{
-                    new PanelCreator.ControlReference(SPINNER, "Minimum size", 100),
-                    new PanelCreator.ControlReference(SPINNER, "Minimum width or height", 10),
-                    new PanelCreator.ControlReference(COLOUR, "Background colour", -2),
-                    new PanelCreator.ControlReference(TOGGLE, "Also do for the background", 0, new int[]{4, 1, 5, 1}),
-                    new PanelCreator.ControlReference(SPINNER, "Background minimum size", 100),
-                    new PanelCreator.ControlReference(SPINNER, "Background minimum width or height", 10)}) {
+                new ControlReference[]{
+                    new ControlReference(SPINNER, "Minimum size", 100),
+                    new ControlReference(SPINNER, "Minimum width or height", 10),
+                    new ControlReference(COLOUR, "Background colour", -2),
+                    new ControlReference(TOGGLE, "Also do for the background", 0, new int[]{4, 1, 5, 1}),
+                    new ControlReference(SPINNER, "Background minimum size", 100),
+                    new ControlReference(SPINNER, "Background minimum width or height", 10)}) {
 
             @Override
             protected void processor() {
@@ -193,7 +192,7 @@ public class FiltersPass {
                     set.filterOutByDimension((int) (param.spinner[3]));
                     drawing = Filters.invert().runSingle(set.drawToImageData());
                 }
-                outData.pixels32 = drawing.pixels32;
+                setOutputBy(drawing);
             }
 
             @Override
@@ -209,17 +208,68 @@ public class FiltersPass {
     }
 
     public static FilterFast filterObjectSizeShape() {
-        return new FilterFast("Size/shape Filter", new PanelCreator.ControlReference[]{
-            new PanelCreator.ControlReference(COLOUR, "Background colour", -2),
-            new PanelCreator.ControlReference(SPINNER, "Remove smaller than (pixels)", 100),
-            new PanelCreator.ControlReference(SLIDER, "If also rounder than (%)", 90)}) {
+        return new FilterFast("Size/shape filter", new ControlReference[]{
+            new ControlReference(COLOUR, "Background colour", -2),
+            new ControlReference(SPINNER, "Remove smaller than (pixels)", 100),
+            new ControlReference(SLIDER, "If also rounder than (%)", 90)}) {
 
             @Override
             protected void processor() {
                 ROISet set = new ImageTracer(inData, param.color[0]).trace();
-                ImageData drawing = set.drawToImageData(true);
                 set.filterOutSmallAndRound(param.spinner[0], param.slider[0] / 100.);
-                outData.pixels32 = set.drawToImageData(true).pixels32;
+                setOutputBy(set.drawToImageData(true));
+            }
+
+            @Override
+            protected void processor16() {
+                throw new UnsupportedOperationException("No 16-bit version available");
+            }
+        };
+    }
+
+    public static FilterFast filterEdgeTouchers() {
+        return new FilterFast("Edge toucher filter", new ControlReference[]{
+            new ControlReference(COLOUR, "Background colour", -2)}) {
+
+            @Override
+            protected void processor() {
+                ROISet set = new ImageTracer(inData, param.color[0]).trace();
+                set.removeEdgeTouchers();
+                setOutputBy(set.drawToImageData(true));
+            }
+
+            @Override
+            protected void processor16() {
+                throw new UnsupportedOperationException("No 16-bit version available");
+            }
+        };
+    }
+
+    public static FilterFast fillSmallEdgeHoles() {
+        return new FilterFast("Edge filler", new ControlReference[]{
+            new ControlReference(COLOUR, "Background colour", -2),
+            new ControlReference(SPINNER, "Dilation radius", 1),
+            new ControlReference(SPINNER, "Size smaller than (pixels)", 50),
+            new ControlReference(TOGGLE, "Pre-remove small objects", 1),
+            new ControlReference(TOGGLE, "Return only the filling", 0)}, 4) {
+            ImageData mMask, sMask;
+
+            @Override
+            protected void processor() {
+                if (param.toggle[0]) {
+                    mMask = FiltersPass.filterObjectSize().runSingle(inData, COL.BLACK, param.spinner[1], false, 0);
+                }
+                mMask = FiltersPass.edgeDilate().runSingle(param.toggle[0] ? mMask : inData, param.colorARGB[0], param.spinner[0], false);
+                sMask = FiltersPass.fillInnerAreasSizeShape().runSingle(mMask, param.colorARGB[0], param.spinner[1], 80);
+                sMask = FiltersRender.blendStack().runSingle(new ImageData[]{mMask, sMask}, 2);
+                sMask = FiltersPass.edgeDilate().runSingle(sMask, COL.BLACK, param.spinner[0] + 1, false);
+                if (param.toggle[1]) {
+                    setOutputBy(sMask);
+                } else {
+                    Iterate.pixels(inData, (int p) -> {
+                        outData.pixels32[p] = inData.pixels32[p] != param.colorARGB[0] || sMask.pixels32[p] == COL.WHITE ? COL.WHITE : COL.BLACK;
+                    });
+                }
             }
 
             @Override
@@ -230,14 +280,14 @@ public class FiltersPass {
     }
 
     public static FilterFast connectLineObjects() {
-        return new FilterFast("Size/shape Filter", new PanelCreator.ControlReference[]{
-            new PanelCreator.ControlReference(COLOUR, "Background colour", -2),
-            new PanelCreator.ControlReference(SPINNER, "Maximum distance allowed", 20)}) {
+        return new FilterFast("Size/shape Filter", new ControlReference[]{
+            new ControlReference(COLOUR, "Background colour", -2),
+            new ControlReference(SPINNER, "Maximum distance allowed", 20)}) {
 
             @Override
             protected void processor() {
                 ROISet set = new ImageTracer(inData, param.color[0]).trace();
-                outData.pixels32 = set.drawToImageData().pixels32;
+                setOutputBy(set.drawToImageData());
                 ArrayList<Point> points = set.connectLongAndThinObjects();
                 for (int i = 0; i < points.size() / 2; i += 2) {
                     if (GEO.getDist(points.get(i), points.get(i + 1)) < param.spinner[0]) {
@@ -267,11 +317,11 @@ public class FiltersPass {
 
     public static FilterFast edgeErode() {
         return new FilterFast("Eroded",
-                new PanelCreator.ControlReference[]{
-                    new PanelCreator.ControlReference(COLOUR, "Background colour", -2),
-                    new PanelCreator.ControlReference(SPINNER, "Radius (px)", 2),
-                    new PanelCreator.ControlReference(TOGGLE, "Diagonal erosion", 0),
-                    new PanelCreator.ControlReference(TOGGLE, "No border erosion", 1)}) {
+                new ControlReference[]{
+                    new ControlReference(COLOUR, "Background colour", -2),
+                    new ControlReference(SPINNER, "Radius (px)", 2),
+                    new ControlReference(TOGGLE, "Diagonal erosion", 0),
+                    new ControlReference(TOGGLE, "No border erosion", 1)}) {
 
             @Override
             protected void processor() {
@@ -356,10 +406,10 @@ public class FiltersPass {
 
     public static FilterFast edgeDilate() {
         return new FilterFast("Dilated",
-                new PanelCreator.ControlReference[]{
-                    new PanelCreator.ControlReference(COLOUR, "Background colour", -2),
-                    new PanelCreator.ControlReference(SPINNER, "Radius (px)", 2),
-                    new PanelCreator.ControlReference(TOGGLE, "Circular dilation", 0)}, 3) {
+                new ControlReference[]{
+                    new ControlReference(COLOUR, "Background colour", -2),
+                    new ControlReference(SPINNER, "Radius (px)", 2),
+                    new ControlReference(TOGGLE, "Circular dilation", 0)}, 3) {
 
             @Override
             protected void processor() {
@@ -401,9 +451,9 @@ public class FiltersPass {
 
     public static FilterFast gaussSmoothing() {
         return new FilterFast("Smoothing",
-                new PanelCreator.ControlReference[]{
-                    new PanelCreator.ControlReference(SPINNER, "Radius (px)", 2),
-                    new PanelCreator.ControlReference(SPINNER, "Repeat x times", 5)}) {
+                new ControlReference[]{
+                    new ControlReference(SPINNER, "Radius (px)", 2),
+                    new ControlReference(SPINNER, "Repeat x times", 5)}) {
 
             @Override
             protected void processor() {
@@ -412,7 +462,7 @@ public class FiltersPass {
                     id = Filters.gaussApprox().runSingle(id, param.spinner[0]);
                     id = Filters.thresholdBright().runSingle(id, 50);
                 }
-                outData.pixels32 = id.pixels32;
+                setOutputBy(id);
             }
 
             @Override
@@ -436,7 +486,7 @@ public class FiltersPass {
                 id = Filters.gamma().runSingle(id, 0.5);
                 //id = Filters.illuminationCorrection().runSingle(id);
                 id = Filters.autoscale().runSingle(id);
-                outData.pixels32 = id.pixels32;
+                setOutputBy(id);
             }
 
             @Override
@@ -452,7 +502,7 @@ public class FiltersPass {
             @Override
             protected void processor() {
                 ImageData id = Protocol.load(NucleusEdUCounter::new).runSilent(Tonga.getImage(), inData, new Object[]{null, null, false, null, 0})[0];
-                outData.pixels32 = id.pixels32;
+                setOutputBy(id);
             }
 
             @Override
@@ -463,8 +513,8 @@ public class FiltersPass {
     }
 
     public static FilterFast getEdgeMask() {
-        return new FilterFast("Edges", new PanelCreator.ControlReference[]{
-            new PanelCreator.ControlReference(COLOUR, "Background colour", -2)}) {
+        return new FilterFast("Edges", new ControlReference[]{
+            new ControlReference(COLOUR, "Background colour", -2)}) {
 
             @Override
             protected void processor() {
@@ -472,7 +522,49 @@ public class FiltersPass {
                 set.imageEdgeFixer(false);
                 set.findOuterEdges();
                 set.findInnerEdges();
-                outData.pixels32 = set.drawToImageData().pixels32;
+                setOutputBy(set.drawToImageData());
+            }
+
+            @Override
+            protected void processor16() {
+                throw new UnsupportedOperationException("No 16-bit version available");
+            }
+        };
+    }
+
+    public static FilterFast getExtendedMask() {
+        return new FilterFast("Edges", new ControlReference[]{
+            new ControlReference(COLOUR, "Background colour", -2),
+            new ControlReference(SPINNER, "Radius (px)", 5)}) {
+
+            @Override
+            protected void processor() {
+                ROISet set = new ImageTracer(inData, param.color[0]).trace();
+                set.getExtendedMasks(param.spinner[0]);
+                set.findOuterMaskEdges();
+                setOutputBy(set.drawToImageData());
+            }
+
+            @Override
+            protected void processor16() {
+                throw new UnsupportedOperationException("No 16-bit version available");
+            }
+        };
+    }
+
+    public static FilterFast getRadiusOverlap() {
+        return new FilterFast("Edges", new ControlReference[]{
+            new ControlReference(COLOUR, "Background colour", -2),
+            new ControlReference(SPINNER, "Radius (px)", 5)}) {
+
+            @Override
+            protected void processor() {
+                ROISet set = new ImageTracer(inData, param.color[0]).trace();
+                set.getExtendedMasks(param.spinner[0]);
+                int[] vals = set.drawMaskArray();
+                Iterate.pixels(inData, (int p) -> {
+                    outData.pixels32[p] = vals[p] == COL.GRAY ? COL.WHITE : COL.BLACK;
+                });
             }
 
             @Override

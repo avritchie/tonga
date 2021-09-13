@@ -174,7 +174,7 @@ public class InSituRNA extends Protocol {
                         layer = Filters.thresholdBright().runSingle(layer, (int) threshTissue);
                         layer = Filters.gaussApprox().runSingle(layer, 4.);
                         layer = Filters.thresholdBright().runSingle(layer, 67);
-                        layer = FiltersPass.filterObjectSize().runSingle(layer, 500, 0, false, 0);
+                        layer = FiltersPass.filterObjectSize().runSingle(layer, COL.BLACK, 500, false, 0);
                     }
                     break;
                     case 1: {//lowcontrast
@@ -189,9 +189,9 @@ public class InSituRNA extends Protocol {
                         layer = FiltersRender.renderStack().runSingle(new ImageData[]{layer, layer3});
                         layer = Filters.gaussApprox().runSingle(layer, 9.);
                         layer = Filters.thresholdBright().runSingle(layer, (int) (threshTissue / 5.));
-                        layer = FiltersPass.filterObjectSize().runSingle(layer, 500, 0, false, 0);
+                        layer = FiltersPass.filterObjectSize().runSingle(layer, COL.BLACK, 500, false, 0);
                         layer = Filters.invert().runSingle(layer);
-                        layer = FiltersPass.filterObjectSize().runSingle(layer, 500, 0, false, 0);
+                        layer = FiltersPass.filterObjectSize().runSingle(layer, COL.BLACK, 500, false, 0);
                     }
                     break;
                     case 2: {//shitstains
@@ -209,9 +209,9 @@ public class InSituRNA extends Protocol {
                         layer = Filters.thresholdBright().runSingle(layer, 15);
                         layer = Filters.gaussApprox().runSingle(layer, 4.);
                         layer = Filters.thresholdBright().runSingle(layer, (int) (threshTissue / 1.25));
-                        layer = FiltersPass.filterObjectSize().runSingle(layer, 500, 0, false, 0);
+                        layer = FiltersPass.filterObjectSize().runSingle(layer, COL.BLACK, 500, false, 0);
                         layer = Filters.invert().runSingle(layer);
-                        layer = FiltersPass.filterObjectSize().runSingle(layer, 500, 0, false, 0);
+                        layer = FiltersPass.filterObjectSize().runSingle(layer, COL.BLACK, 500, false, 0);
                     }
                     break;
                 }

@@ -651,17 +651,19 @@ public class Filters {
         int rad = (int) radd;
         double[] meanarr = new double[in.length];
         double[] stdarr = new double[in.length];
-        int hits, lx, ly, p;
+        int hits, sum, lx, ly, p;
         double[] vals = new double[(int) Math.pow(rad * 2 + 1, 2)];
         for (int i = 0; i < in.length; i++) {
             lx = i % width;
             ly = i / width;
             hits = 0;
+            sum = 0;
             for (int ix = -rad; ix <= rad; ix++) {
                 for (int iy = -rad; iy <= rad; iy++) {
                     p = (lx + ix) + (ly + iy) * width;
                     try {
                         vals[hits] = in[p];
+                        sum += in[p];
                         hits++;
                     } catch (IndexOutOfBoundsException e) {
                     }
@@ -669,9 +671,13 @@ public class Filters {
             }
             if (i % 1000 == 0) {
                 Tonga.loader().appendProgress(4. / in.length * 1000);
+                if (Tonga.loader().getTask().isInterrupted()) {
+                    return new double[][]{meanarr, stdarr};
+                }
             }
             STAT stats = new STAT(Arrays.copyOfRange(vals, 0, hits));
-            meanarr[i] = stats.getMean();
+            meanarr[i] = sum / (double) hits;
+            stats.mean = meanarr[i];
             stdarr[i] = stats.getStdDev();
         }
         return new double[][]{meanarr, stdarr};
@@ -1217,7 +1223,7 @@ public class Filters {
         };
     }
 
-    public static FilterFast dotRemove() {
+    public static FilterFast dotConnectRemove() {
         return new FilterFast("Dot Remover",
                 new ControlReference[]{
                     new ControlReference(COLOUR, "Background colour", -2),
@@ -1256,6 +1262,39 @@ public class Filters {
                     if (!param.toggle[0]) {
                         nope = false;
                     }
+                }
+            }
+
+            @Override
+            protected void processor16() {
+                throw new UnsupportedOperationException("No 16-bit version available");
+            }
+        };
+    }
+
+    public static FilterFast dotRemove() {
+        return new FilterFast("Dot Remover",
+                new ControlReference[]{
+                    new ControlReference(COLOUR, "Background colour", -2)}) {
+
+            @Override
+            protected void processor() {
+                Iterate.pixels(this, (int pos) -> {
+                    out32[pos] = in32[pos];
+                    if (in32[pos] != param.colorARGB[0]) {
+                        if (isIt(pos - 1) && isIt(pos + 1) && isIt(pos - width) && isIt(pos + width)
+                                && isIt(pos - 1 - width) && isIt(pos + 1 + width) && isIt(pos + 1 - width) && isIt(pos - 1 + width)) {
+                            out32[pos] = param.colorARGB[0];
+                        }
+                    }
+                });
+            }
+
+            private boolean isIt(int pos) {
+                try {
+                    return in32[pos] == param.colorARGB[0];
+                } catch (IndexOutOfBoundsException ex) {
+                    return true;
                 }
             }
 

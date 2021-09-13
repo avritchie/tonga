@@ -351,7 +351,7 @@ public class CachedImage extends BufferedImage {
             clean(buffer);
             file.delete();
             Tonga.cachedData.remove(this);
-            System.out.println("Freeing " + file.getName());
+            //System.out.println("Freeing " + file.getName());
         }
 
         private void clean(MappedByteBuffer b) {

@@ -68,7 +68,7 @@ public class SetCounters {
     }
 
     public static SetCounter countObjectsImage(ROISet set) {
-        return new SetCounter("Count objects", new String[]{"Image", "Objects", "Avg.Size", "Tot.Size", "Std.Size", "Med.Size", "MM.Ratio"}) {
+        return new SetCounter("Count objects", new String[]{"Image", "Objects", "Avg.Size", "Tot.Size", "Std.Size", "Med.Size"}) {
 
             @Override
             protected void processor(Object[] row) {
@@ -78,7 +78,6 @@ public class SetCounters {
                 row[3] = set.totalAreaSize();
                 row[4] = set.statsForTotalSize().getStdDev();
                 row[5] = set.statsForTotalSize().getMedian();
-                row[6] = set.statsForTotalSize().getMMRatio();
             }
         };
     }

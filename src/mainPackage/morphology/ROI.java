@@ -4,6 +4,7 @@ import java.awt.Point;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import mainPackage.utils.GEO;
 import mainPackage.utils.DRAW.lineDrawer;
@@ -200,8 +201,6 @@ public class ROI {
     protected void getExtendedROI(int r) {
         boolean[][] newArea = new boolean[area.width + r * 2][area.height + r * 2];
         boolean[][] outArea = getOutArea().area;
-        long tt = System.nanoTime();
-        System.out.println("!!!!!");
         outEdge.list.forEach(pp -> {
             for (int xx = -r; xx <= r; xx++) {
                 for (int yy = -r; yy <= r; yy++) {
@@ -216,7 +215,6 @@ public class ROI {
                 }
             }
         });
-        System.out.println(System.nanoTime() - tt);
         int axs = area.xstart < r ? Math.abs(area.xstart - r) : 0;
         int ays = area.ystart < r ? Math.abs(area.ystart - r) : 0;
         int axe = area.xstart - r + newArea.length;
@@ -414,12 +412,23 @@ public class ROI {
         });
     }
 
-    public void sectionBasedOnIntersections(ROISet set, boolean full) {
-        Segmentor segmentor = new Segmentor(this, set);
-        if (full) {
-            segmentor.segment();
-        } else {
-            segmentor.segmentSure();
+    public void sectionBasedOnIntersections(ROISet set, int mode) {
+        try {
+            Segmentor segmentor = new Segmentor(this, set);
+            switch (mode) {
+                case 0:
+                    segmentor.segment();
+                    break;
+                case 1:
+                    segmentor.segmentSure();
+                    break;
+                case 2:
+                    segmentor.segmentSuperSure();
+                    break;
+            }
+        } catch (Exception ex) {
+            System.out.println("Pairing issue for the object x" + this.xcenter + " y" + this.ycenter);
+            Tonga.catchError(ex, "The concave point pairing logic crashed.");
         }
     }
 
@@ -533,7 +542,6 @@ public class ROI {
                     dmin = dist;
                     //fin = i;
                 }
-
             }
             if (fpnt != null) {
                 double newDirection = GEO.getDirection(point, fpnt);
@@ -687,6 +695,30 @@ public class ROI {
         innEdge = EdgeTracer.innerEdges(this);
     }
 
+    protected void filterCornersNotTouching(List<EdgePoint> points, ImageData mMask) {
+        // remove edgepoints which are not touching white on the mMask
+        Iterator<? extends Point> pIt = points.iterator();
+        while (pIt.hasNext()) {
+            Point t = pIt.next();
+            int p = mMask.width * (t.y + area.ystart) + (t.x + area.xstart);
+            if (mMask.pixels32[p] != COL.WHITE) {
+                pIt.remove();
+            }
+        }
+    }
+
+    @Deprecated
+    protected void filterUnsureCorners(ListArea larea) {
+        // remove edgepoints which are not touching white on the mMask
+        Iterator<? extends Point> pIt = larea.list.iterator();
+        while (pIt.hasNext()) {
+            EdgePoint t = (EdgePoint) pIt.next();
+            if (t.isUnsure) {
+                pIt.remove();
+            }
+        }
+    }
+
     private void evaluatePositionForFriendBuddy(Point point, EdgePoint thisPoint, int i) {
         if (!point.equals(thisPoint)) {
             if (thisPoint.pairings.isPossiblePairing(point) && thisPoint.pairings.closestFriend == null) {
@@ -716,7 +748,7 @@ public class ROI {
             @Override
             public void action(int x, int y) {
                 try {
-                    if (outEdge.area[x][y]) {
+                    if (outEdge.area[x][y] || (innEdge != null && innEdge.area[x][y])) {
                         px = x;
                         py = y;
                     }

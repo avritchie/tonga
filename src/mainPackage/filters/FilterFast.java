@@ -74,4 +74,12 @@ public abstract class FilterFast extends Filter {
     protected ImageData[] getIDArray(Object o) {
         return ((ImageData[]) o);
     }
+
+    protected void setOutputBy(ImageData id) {
+        outData.pixels32 = id.pixels32;
+    }
+
+    protected void setOutputBy(int[] id) {
+        outData.pixels32 = id;
+    }
 }

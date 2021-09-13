@@ -78,6 +78,10 @@ public class Settings {
         return host.boxSettingMultiThreading.isSelected();
     }
 
+    public static boolean settingsOverrideSizeEstimate() {
+        return Tonga.frame().jCheckBoxMenuItem1.isSelected();
+    }
+
     static void setAutoscale() {
         switch (host.autoscaleCombo.getSelectedIndex()) {
             case 0:

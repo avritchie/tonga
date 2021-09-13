@@ -83,7 +83,7 @@ public class InfoDialog extends javax.swing.JFrame {
         jLabel5.setVerticalAlignment(javax.swing.SwingConstants.TOP);
 
         jLabel7.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
-        jLabel7.setText("GNU General Public License v3.0");
+        jLabel7.setText("GNU General Public License");
 
         jLabel8.setText("<html><a href=\\\"\\\">GitHub page</a>!</html>");
         jLabel8.setVerticalAlignment(javax.swing.SwingConstants.TOP);

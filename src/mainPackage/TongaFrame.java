@@ -54,8 +54,6 @@ import mainPackage.CachedImage.CacheBuffer;
 import mainPackage.JRangeSlider.RangeSliderUI;
 import mainPackage.PanelCreator.ControlReference;
 import mainPackage.PanelCreator.ControlType;
-import static mainPackage.Tonga.removeImage;
-import mainPackage.utils.GEO;
 
 /**
  *
@@ -665,7 +663,7 @@ public class TongaFrame extends javax.swing.JFrame {
         this.setVisible(false);
         try {
             ArrayList<CacheBuffer> remainingCache = new ArrayList<>(Tonga.cachedData);
-            System.out.println(remainingCache.toString());
+            //System.out.println(remainingCache.toString());
             remainingCache.forEach(f -> {
                 f.freeCache();
             });
@@ -875,13 +873,16 @@ public class TongaFrame extends javax.swing.JFrame {
         jSeparator10 = new javax.swing.JPopupMenu.Separator();
         jMenu10 = new javax.swing.JMenu();
         jMenu20 = new javax.swing.JMenu();
+        jMenuItem53 = new javax.swing.JMenuItem();
         menuDotRemove = new javax.swing.JMenuItem();
         menuFillArea = new javax.swing.JMenuItem();
         jMenuItem43 = new javax.swing.JMenuItem();
+        jMenuItem40 = new javax.swing.JMenuItem();
         menuFilterSmallSize = new javax.swing.JMenuItem();
         menuFilterSmallDimension = new javax.swing.JMenuItem();
         jMenuItem5 = new javax.swing.JMenuItem();
         jMenuItem67 = new javax.swing.JMenuItem();
+        jMenuItem77 = new javax.swing.JMenuItem();
         jMenu21 = new javax.swing.JMenu();
         menuSpreadEdge = new javax.swing.JMenuItem();
         menuShrinkEdge = new javax.swing.JMenuItem();
@@ -894,6 +895,8 @@ public class TongaFrame extends javax.swing.JFrame {
         jMenuItem25 = new javax.swing.JMenuItem();
         jSeparator5 = new javax.swing.JPopupMenu.Separator();
         jMenuItem69 = new javax.swing.JMenuItem();
+        jMenuItem73 = new javax.swing.JMenuItem();
+        jMenuItem75 = new javax.swing.JMenuItem();
         jMenuItem58 = new javax.swing.JMenuItem();
         jMenuItem15 = new javax.swing.JMenuItem();
         jMenuItem63 = new javax.swing.JMenuItem();
@@ -926,6 +929,7 @@ public class TongaFrame extends javax.swing.JFrame {
         jMenuItem1 = new javax.swing.JMenuItem();
         jSeparator16 = new javax.swing.JPopupMenu.Separator();
         jMenuItem8 = new javax.swing.JMenuItem();
+        jMenuItem78 = new javax.swing.JMenuItem();
         jMenuItem71 = new javax.swing.JMenuItem();
         jMenu8 = new javax.swing.JMenu();
         jMenu9 = new javax.swing.JMenu();
@@ -953,7 +957,9 @@ public class TongaFrame extends javax.swing.JFrame {
         debugTestProtocols = new javax.swing.JMenu();
         jMenuItem3 = new javax.swing.JMenuItem();
         jMenuItem36 = new javax.swing.JMenuItem();
+        jMenuItem76 = new javax.swing.JMenuItem();
         jMenuItem7 = new javax.swing.JMenuItem();
+        jCheckBoxMenuItem1 = new javax.swing.JCheckBoxMenuItem();
 
         contLayRename.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_F2, 0));
         contLayRename.setText("Rename");
@@ -2489,7 +2495,15 @@ public class TongaFrame extends javax.swing.JFrame {
 
         jMenu20.setText("Remove");
 
-        menuDotRemove.setText("Dots");
+        jMenuItem53.setText("Solitary dots");
+        jMenuItem53.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jMenuItem53ActionPerformed(evt);
+            }
+        });
+        jMenu20.add(jMenuItem53);
+
+        menuDotRemove.setText("Connected dots");
         menuDotRemove.setToolTipText("Remove small dots");
         menuDotRemove.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -2515,6 +2529,14 @@ public class TongaFrame extends javax.swing.JFrame {
             }
         });
         jMenu20.add(jMenuItem43);
+
+        jMenuItem40.setText("Inner holes on object edges");
+        jMenuItem40.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jMenuItem40ActionPerformed(evt);
+            }
+        });
+        jMenu20.add(jMenuItem40);
 
         menuFilterSmallSize.setText("Small objects (by area size)");
         menuFilterSmallSize.setToolTipText("Remove small objects by defining a minimum size");
@@ -2551,6 +2573,14 @@ public class TongaFrame extends javax.swing.JFrame {
             }
         });
         jMenu20.add(jMenuItem67);
+
+        jMenuItem77.setText("Objects touching the edges");
+        jMenuItem77.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jMenuItem77ActionPerformed(evt);
+            }
+        });
+        jMenu20.add(jMenuItem77);
 
         jMenu10.add(jMenu20);
 
@@ -2646,6 +2676,22 @@ public class TongaFrame extends javax.swing.JFrame {
             }
         });
         jMenu10.add(jMenuItem69);
+
+        jMenuItem73.setText("Find extended edges");
+        jMenuItem73.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jMenuItem73ActionPerformed(evt);
+            }
+        });
+        jMenu10.add(jMenuItem73);
+
+        jMenuItem75.setText("Find object overlap");
+        jMenuItem75.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jMenuItem75ActionPerformed(evt);
+            }
+        });
+        jMenu10.add(jMenuItem75);
 
         jMenuItem58.setText("Find inner areas");
         jMenuItem58.addActionListener(new java.awt.event.ActionListener() {
@@ -2870,6 +2916,14 @@ public class TongaFrame extends javax.swing.JFrame {
         });
         jMenu7.add(jMenuItem8);
 
+        jMenuItem78.setText("Remove dead and dividing cells");
+        jMenuItem78.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jMenuItem78ActionPerformed(evt);
+            }
+        });
+        jMenu7.add(jMenuItem78);
+
         jMenuItem71.setText("Estimate nucleus size");
         jMenuItem71.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -3052,6 +3106,14 @@ public class TongaFrame extends javax.swing.JFrame {
         });
         debugTestProtocols.add(jMenuItem36);
 
+        jMenuItem76.setText("Segment cells at mask (strict)");
+        jMenuItem76.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jMenuItem76ActionPerformed(evt);
+            }
+        });
+        debugTestProtocols.add(jMenuItem76);
+
         jMenuItem7.setText("Construct the final mask");
         jMenuItem7.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -3059,6 +3121,9 @@ public class TongaFrame extends javax.swing.JFrame {
             }
         });
         debugTestProtocols.add(jMenuItem7);
+
+        jCheckBoxMenuItem1.setText("Override nucleus size estimation");
+        debugTestProtocols.add(jCheckBoxMenuItem1);
 
         menuDebug.add(debugTestProtocols);
 
@@ -3246,7 +3311,7 @@ public class TongaFrame extends javax.swing.JFrame {
     }//GEN-LAST:event_menuExportAllImagesActionPerformed
 
     private void contImgDeleteActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_contImgDeleteActionPerformed
-        removeImage();
+        Tonga.removeImage();
     }//GEN-LAST:event_contImgDeleteActionPerformed
 
     private void jMenuItem10ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem10ActionPerformed
@@ -3335,7 +3400,7 @@ public class TongaFrame extends javax.swing.JFrame {
     }//GEN-LAST:event_menuHiCutPeakActionPerformed
 
     private void menuDotRemoveActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_menuDotRemoveActionPerformed
-        launchFilter(Filters::dotRemove, evt);
+        launchFilter(Filters::dotConnectRemove, evt);
     }//GEN-LAST:event_menuDotRemoveActionPerformed
 
     private void menuDoGActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_menuDoGActionPerformed
@@ -3874,6 +3939,34 @@ public class TongaFrame extends javax.swing.JFrame {
         launchProtocol(ObjectsSeparated::new, evt);
     }//GEN-LAST:event_jMenuItem15ActionPerformed
 
+    private void jMenuItem40ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem40ActionPerformed
+        launchFilter(FiltersPass::fillSmallEdgeHoles, evt);
+    }//GEN-LAST:event_jMenuItem40ActionPerformed
+
+    private void jMenuItem53ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem53ActionPerformed
+        launchFilter(Filters::dotRemove, evt);
+    }//GEN-LAST:event_jMenuItem53ActionPerformed
+
+    private void jMenuItem73ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem73ActionPerformed
+        launchFilter(FiltersPass::getExtendedMask, evt);
+    }//GEN-LAST:event_jMenuItem73ActionPerformed
+
+    private void jMenuItem75ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem75ActionPerformed
+        launchFilter(FiltersPass::getRadiusOverlap, evt);
+    }//GEN-LAST:event_jMenuItem75ActionPerformed
+
+    private void jMenuItem76ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem76ActionPerformed
+        launchProtocol(__ObjectSegmentStrict::new, evt);
+    }//GEN-LAST:event_jMenuItem76ActionPerformed
+
+    private void jMenuItem77ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem77ActionPerformed
+        launchFilter(FiltersPass::filterEdgeTouchers, evt);
+    }//GEN-LAST:event_jMenuItem77ActionPerformed
+
+    private void jMenuItem78ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem78ActionPerformed
+        launchProtocol(__DeadDividing::new, evt);
+    }//GEN-LAST:event_jMenuItem78ActionPerformed
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
     protected javax.swing.JComboBox<String> autoscaleCombo;
     protected javax.swing.JLabel autoscaleLabel;
@@ -3929,6 +4022,7 @@ public class TongaFrame extends javax.swing.JFrame {
     protected javax.swing.JPanel imageBig;
     protected javax.swing.JPanel imageZoom;
     public javax.swing.JList<String> imagesList;
+    protected javax.swing.JCheckBoxMenuItem jCheckBoxMenuItem1;
     protected javax.swing.JLabel jLabel2;
     protected javax.swing.JList<String> jList4;
     protected javax.swing.JMenu jMenu1;
@@ -3989,6 +4083,7 @@ public class TongaFrame extends javax.swing.JFrame {
     protected javax.swing.JMenuItem jMenuItem38;
     protected javax.swing.JMenuItem jMenuItem39;
     protected javax.swing.JMenuItem jMenuItem4;
+    protected javax.swing.JMenuItem jMenuItem40;
     protected javax.swing.JMenuItem jMenuItem41;
     protected javax.swing.JMenuItem jMenuItem42;
     protected javax.swing.JMenuItem jMenuItem43;
@@ -4002,6 +4097,7 @@ public class TongaFrame extends javax.swing.JFrame {
     protected javax.swing.JMenuItem jMenuItem50;
     protected javax.swing.JMenuItem jMenuItem51;
     protected javax.swing.JMenuItem jMenuItem52;
+    protected javax.swing.JMenuItem jMenuItem53;
     protected javax.swing.JMenuItem jMenuItem54;
     protected javax.swing.JMenuItem jMenuItem55;
     protected javax.swing.JMenuItem jMenuItem56;
@@ -4023,7 +4119,12 @@ public class TongaFrame extends javax.swing.JFrame {
     protected javax.swing.JMenuItem jMenuItem70;
     protected javax.swing.JMenuItem jMenuItem71;
     protected javax.swing.JMenuItem jMenuItem72;
+    protected javax.swing.JMenuItem jMenuItem73;
     protected javax.swing.JMenuItem jMenuItem74;
+    protected javax.swing.JMenuItem jMenuItem75;
+    protected javax.swing.JMenuItem jMenuItem76;
+    protected javax.swing.JMenuItem jMenuItem77;
+    protected javax.swing.JMenuItem jMenuItem78;
     protected javax.swing.JMenuItem jMenuItem8;
     protected javax.swing.JMenuItem jMenuItem9;
     protected javax.swing.JPanel jPanel1;

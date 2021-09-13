@@ -93,11 +93,7 @@ public class Key {
                     deleteEvent();
                     break;
                 case KeyEvent.VK_F2:
-                    if (Tonga.frame().layersList.hasFocus()) {
-                        Tonga.renameLayers();
-                    } else if (Tonga.frame().imagesList.hasFocus()) {
-                        Tonga.renameImage();
-                    }
+                    renameEvent();
                     break;
                 case KeyEvent.VK_TAB:
                     Tonga.switchLayer();
@@ -106,11 +102,19 @@ public class Key {
         }
     }
 
-    private static void deleteEvent() {
+    protected static void deleteEvent() {
         if (Tonga.frame().imagesList.hasFocus()) {
             Tonga.removeImage();
         } else if (Tonga.frame().layersList.hasFocus()) {
             Tonga.removeLayer();
+        }
+    }
+
+    protected static void renameEvent() {
+        if (Tonga.frame().layersList.hasFocus()) {
+            Tonga.renameLayers();
+        } else if (Tonga.frame().imagesList.hasFocus()) {
+            Tonga.renameImage();
         }
     }
 

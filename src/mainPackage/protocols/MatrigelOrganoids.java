@@ -48,7 +48,7 @@ public class MatrigelOrganoids extends Protocol {
                 layer = Filters.invert().runSingle(layer);
                 layer = ConnectEdges.run().runSingle(layer);
                 layer = ConnectEdges.run().runSingle(layer);
-                layer = FiltersPass.filterObjectSize().runSingle(layer, limit, 0, false, 0);
+                layer = FiltersPass.filterObjectSize().runSingle(layer, COL.BLACK, limit, false, 0);
                 work = new __NucleusFinalMask().runSilent(sourceImage,
                         new ImageData[]{layer, inImage[0], inImage[0]},
                         new Object[]{Color.BLACK, limit, false, 0, false})[0];

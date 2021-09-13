@@ -328,7 +328,7 @@ public class EdgeAnalyzer {
         targetSize = size; //expected/average cell width
         spanSize = (int) (Math.pow(targetSize, 0.8) / 1.75); // 12 , span to look front/back for calculating corners
         minDist = Math.max(1.42, Math.pow(targetSize, 0.8) / 10.); // 1.42 (hyp c for a=1,b=1) , minimum concaveness to consider
-        pointGapJoin = (int) (targetSize / 6.5); // 9 , combine points closer than this to each other if similar direction
+        pointGapJoin = (int) Math.max(2, (targetSize * 0.18)); // 9 , combine points closer than this to each other if similar direction
         pointGapMax = Math.max(1, targetSize / 50); // 1 , gap allowed to still considering a corner area to be the same
         //System.out.println("Sizes: " + targetSize + " | " + spanSize + " | " + minDist + " | " + pointGapJoin + " | " + pointGapMax);
     }

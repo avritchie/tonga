@@ -64,7 +64,7 @@ public abstract class Processor {
         pixelProcessor();
         methodFinal();
         processorFinalize();
-        if (Thread.interrupted()) {
+        if (Thread.currentThread().isInterrupted()) {
             return null;
         }
         return getProcessedImages();

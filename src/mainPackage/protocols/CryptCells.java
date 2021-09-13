@@ -5,7 +5,6 @@ import mainPackage.ImageData;
 import mainPackage.PanelCreator.ControlReference;
 import static mainPackage.PanelCreator.ControlType.COMBO;
 import static mainPackage.PanelCreator.ControlType.LAYER;
-import mainPackage.counters.Counters;
 import mainPackage.counters.SetCounters;
 import mainPackage.filters.ConnectEdges;
 import mainPackage.filters.ShapenEdges;
@@ -14,6 +13,7 @@ import mainPackage.filters.Filters;
 import mainPackage.filters.FiltersPass;
 import mainPackage.morphology.ImageTracer;
 import mainPackage.morphology.ROISet;
+import mainPackage.utils.COL;
 
 public class CryptCells extends Protocol {
 
@@ -97,9 +97,9 @@ public class CryptCells extends Protocol {
                 layer = Filters.box().runSingle(layer, 1.);
                 layer = Filters.niblack().runSingle(layer, 0, 20, 10);
                 layer = ConnectEdges.run().runSingle(layer);
-                layer = FiltersPass.filterObjectSize().runSingle(layer, 200, 0, false, 0);
+                layer = FiltersPass.filterObjectSize().runSingle(layer, COL.BLACK, 200, false, 0);
                 layer = Filters.invert().runSingle(layer);
-                layer = FiltersPass.filterObjectSize().runSingle(layer, 200, 0, false, 0);
+                layer = FiltersPass.filterObjectSize().runSingle(layer, COL.BLACK, 200, false, 0);
                 layer2 = new ImageData(dapiVals, sourceWidth[0], sourceHeight[0]);
                 layer2 = Filters.distanceTransform().runSingle(layer2);
                 for (int y = 0; y < sourceHeight[0]; y++) {

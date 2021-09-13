@@ -14,6 +14,7 @@ public class Segmentor {
     private ROISet SET;
     private int avgObjSize;
     private int lineThickness;
+    public static boolean segmentedSomething;
 
     Segmentor(ROI myself, ROISet set) {
         ROI = myself;
@@ -59,27 +60,47 @@ public class Segmentor {
         }.pair(ROI);
     }
 
+    private formPairs ultraCloseParallel() {
+        return new formPairs() {
+            @Override
+            void logic(EdgePoint point) {
+                // pair those that are very closest and very parallel
+                if (!p.pairingMap.isEmpty()) {
+                    EdgePoint cc = p.closest(0);
+                    Pairing pc = p.pairingMap.get(cc);
+                    if ((pc.parallelity < 0.2 && pc.rawDistance < partOfAvg(20))
+                            || (pc.parallelity < 0.1 && pc.rawDistance < partOfAvg(15))) {
+                        justPair(point, cc, "ultraclose");
+                    }
+                }
+            }
+        };
+    }
+
     private formPairs primaryCloseParallel() {
         return new formPairs() {
             @Override
             void logic(EdgePoint point) {
                 // pair those that are very closest and very parallel
-                if (!p.pairingMap.isEmpty() && p.closest.size() > 1) {
-                    EdgePoint cc1, cc2;
-                    cc1 = p.closest(0);
-                    cc2 = p.closest(1);
-                    if (p.pairingMap.get(cc1).parallelity < 0.1
-                            && p.pairingMap.get(cc1).rawDistance * 3 < p.pairingMap.get(cc2).rawDistance
-                            && p.pairingMap.get(cc1).rawDistance < partOfAvg(10)) {
-                        justPair(point, cc1, "primary raw closest item");
+                if (!p.pairingMap.isEmpty()) {
+                    if (p.closest.size() > 1) {
+                        Pairing cc1, cc2;
+                        EdgePoint ep1;
+                        ep1 = p.closest(0);
+                        cc1 = p.pairingMap.get(ep1);
+                        cc2 = p.pairingMap.get(p.closest(1));
+                        if (cc1.parallelity < 0.1
+                                && cc1.rawDistance * 3 < cc2.rawDistance
+                                && cc1.rawDistance < partOfAvg(10)) {
+                            justPair(point, ep1, "primary raw closest item");
+                        }
+                        // if only one other point and that is very close/parallel
                     } else {
-                        cc1 = p.closestEdge(0);
-                        cc2 = p.closestEdge(1);
-                        if (p.pairingMap.get(cc1).parallelity < 0.1
-                                && p.closestLine(0) == cc1
-                                && p.pairingMap.get(cc1).edgeDistance * 3 < p.pairingMap.get(cc2).edgeDistance
-                                && p.pairingMap.get(cc1).lineDistance * 2 < p.pairingMap.get(cc2).lineDistance) {
-                            justPair(point, cc1, "primary edge/line closest item");
+                        EdgePoint cc = p.closest(0);
+                        Pairing pc = p.pairingMap.get(cc);
+                        if ((pc.parallelity < 0.2 && pc.rawDistance < partOfAvg(15))
+                                || (pc.parallelity < 0.1 && pc.rawDistance < partOfAvg(10))) {
+                            justPair(point, cc, "primary raw only item");
                         }
                     }
                 }
@@ -120,11 +141,25 @@ public class Segmentor {
             @Override
             void logic(EdgePoint point) {
                 // both are each others closest and also parallel
+                // raw distance does not matter
                 if (!p.pairingMap.isEmpty()) {
-                    EdgePoint cc = p.closest(0);
-                    if (cc.pairings.closest(0).equals(point)) {
-                        if (p.pairingMap.get(cc).parallelity < 0.15) {
-                            justPair(point, cc, "both-sided closeness and parallelity");
+                    EdgePoint ep;
+                    if (p.closest.size() > 1) {
+                        Pairing cc1, cc2;
+                        ep = p.closestEdge(0);
+                        cc1 = p.pairingMap.get(ep);
+                        cc2 = p.pairingMap.get(p.closestEdge(1));
+                        if (cc1.parallelity < 0.1
+                                && p.closestLine(0) == ep
+                                && cc1.edgeDistance * 3 < cc2.edgeDistance
+                                && cc1.lineDistance * 2 < cc2.lineDistance) {
+                            justPair(point, ep, "edge/line closest pair");
+                        }
+                    }
+                    ep = p.closest(0);
+                    if (!point.hasBeenPairedYet && (point.isUnsure || ep.pairings.closest(0).equals(point))) {
+                        if (p.pairingMap.get(ep).parallelity < 0.15) {
+                            justPair(point, ep, "both-sided closeness and parallelity");
                         }
                     }
                 }
@@ -289,7 +324,10 @@ public class Segmentor {
 
     protected void segmentSure() {
         primaryCloseParallel().pair(ROI);
-        closePairs().pair(ROI);
+    }
+
+    protected void segmentSuperSure() {
+        ultraCloseParallel().pair(ROI);
     }
 
     @Deprecated
@@ -614,6 +652,7 @@ public class Segmentor {
             System.out.println("Paired " + p.x + "x," + p.y + "y with end (" + p.line.end.x + "x," + p.line.end.y + ") as " + desc);
             drawSegmentLine(p, p.line.end);
             p.hasBeenPairedYet = true;
+            segmentedSomething = true;
         } else {
             System.out.println("Pairing failed (" + p.x + "x," + p.y + "y with end)");
         }
@@ -655,6 +694,7 @@ public class Segmentor {
         else {
             System.out.println("Midpoint pairing " + desc + " for " + pool);
             Point midPoint = GEO.createCommonMidpoint(pool);
+            segmentedSomething = true;
             pool.forEach(pp -> {
                 drawSegmentLine(pp, midPoint);
                 pp.hasBeenPairedYet = true;
@@ -709,6 +749,7 @@ public class Segmentor {
     private void markPaired(EdgePoint p1, EdgePoint p2) {
         p1.hasBeenPairedYet = true;
         p2.hasBeenPairedYet = true;
+        segmentedSomething = true;
     }
 
     private void drawSegmentLine(Point p1, Point p2) {

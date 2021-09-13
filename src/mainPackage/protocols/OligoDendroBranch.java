@@ -77,13 +77,13 @@ public class OligoDendroBranch extends Protocol {
                 bodyLayer = Filters.multiplyColBright().runSingle(bodyLayer, 280.);
                 bodyLayer = Filters.thresholdBright().runSingle(bodyLayer, 15);
                 bodyLayer = FiltersPass.edgeErode().runSingle(bodyLayer, COL.BLACK, 1, false, true);
-                bodyLayer = FiltersPass.filterObjectSize().runSingle(bodyLayer, 500, 0, false, 0);
+                bodyLayer = FiltersPass.filterObjectSize().runSingle(bodyLayer, COL.BLACK, 500, false, 0);
                 bodyLayer = ConnectEdges.run().runSingle(bodyLayer);
                 bodyLayer = Filters.gaussApprox().runSingle(bodyLayer, 4.0);
                 bodyLayer = Filters.thresholdBright().runSingle(bodyLayer, 30);
                 bodyLayer = Filters.distanceTransform().runSingle(bodyLayer);
                 bodyLayer = Filters.thresholdBright().runSingle(bodyLayer, 4);
-                bodyLayer = FiltersPass.filterObjectSize().runSingle(bodyLayer, 500, 0, false, 0);
+                bodyLayer = FiltersPass.filterObjectSize().runSingle(bodyLayer, COL.BLACK, 500, false, 0);
                 bodyLayer = FiltersRender.renderStack().runSingle(
                         new ImageData[]{nucleusSeparator, bodyLayer});
                 bodyLayer = FiltersPass.edgeDilate().runSingle(bodyLayer, COL.BLACK, 5, false);

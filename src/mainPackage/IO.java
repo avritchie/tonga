@@ -100,14 +100,18 @@ public class IO {
                 boolean formatissue = false;
                 int count = picList.size();
                 for (int i = 0; i < files.size(); i++) {
-                    if (Thread.interrupted()) {
+                    if (Thread.currentThread().isInterrupted()) {
                         return;
                     }
                     File file = files.get(i);
                     try {
                         importStack(file);
                     } catch (IOException | ServiceException | FormatException ex) {
-                        Tonga.catchError(ex, "Image file can not be imported.");
+                        if (file.isDirectory()) {
+                            Tonga.catchError(ex, "Folder importing is not supported.");
+                        } else {
+                            Tonga.catchError(ex, "Image file can not be imported.");
+                        }
                         failures++;
                         if (ex instanceof FormatException) {
                             formatissue = true;
@@ -163,7 +167,7 @@ public class IO {
                     int mod = files.size() / imgEnts;
                     for (int i = 0; i < imgEnts; i++) {
                         for (int j = 0; j < mod; j++) {
-                            if (Thread.interrupted()) {
+                            if (Thread.currentThread().isInterrupted()) {
                                 return;
                             }
                             File file = files.get(i * mod + j);
@@ -175,7 +179,11 @@ public class IO {
                                     Tonga.loader().appendProgress(1.0);
                                 }
                             } catch (Exception ex) {
-                                Tonga.catchError(ex, "Image file can not be imported.");
+                                if (file.isDirectory()) {
+                                    Tonga.catchError(ex, "Folder importing is not supported.");
+                                } else {
+                                    Tonga.catchError(ex, "Image file can not be imported.");
+                                }
                                 failures++;
                                 if (ex instanceof FormatException) {
                                     formatissue = true;
@@ -226,7 +234,7 @@ public class IO {
                 int stacks = 0;
                 int images = 0;
                 for (int i = 0; i < files.size(); i++) {
-                    if (Thread.interrupted()) {
+                    if (Thread.currentThread().isInterrupted()) {
                         return;
                     }
                     File file = files.get(i);
@@ -240,7 +248,11 @@ public class IO {
                             Tonga.loader().appendProgress(1.0);
                         }
                     } catch (Exception ex) {
-                        Tonga.catchError(ex, "Image file can not be imported.");
+                        if (file.isDirectory()) {
+                            Tonga.catchError(ex, "Folder importing is not supported.");
+                        } else {
+                            Tonga.catchError(ex, "Image file can not be imported.");
+                        }
                         failures++;
                         if (ex instanceof FormatException) {
                             formatissue = true;
@@ -287,7 +299,7 @@ public class IO {
                     TongaImage image = new TongaImage(files.get(0));
                     try {
                         for (int i = 0; i < files.size(); i++) {
-                            if (Thread.interrupted()) {
+                            if (Thread.currentThread().isInterrupted()) {
                                 return;
                             }
                             File file = files.get(i);
@@ -304,7 +316,11 @@ public class IO {
                             } catch (ClosedChannelException ex) {
                                 System.out.println("Interrupted wile BFIO importing.");
                             } catch (Exception ex) {
-                                Tonga.catchError(ex, "Image file can not be imported.");
+                                if (file.isDirectory()) {
+                                    Tonga.catchError(ex, "Folder importing is not supported.");
+                                } else {
+                                    Tonga.catchError(ex, "Image file can not be imported.");
+                                }
                                 failures++;
                                 if (ex instanceof FormatException) {
                                     formatissue = true;
@@ -372,10 +388,10 @@ public class IO {
                 ? new Thread(() -> {
                     Tonga.loader().loaderProgress(0, picList.size());
                     int layer = Tonga.getLayerIndex();
-                    if (picList.stream().mapToInt((i) -> i.layerList.size()).distinct().count() == 1
+                    if (picList.stream().mapToInt((i) -> i.layerList.size()).min().getAsInt() == Tonga.getLayerList().size()
                             && picList.stream().map((i) -> i.layerList.get(layer).layerName).distinct().count() == 1) {
                         picList.forEach((p) -> {
-                            if (Thread.interrupted()) {
+                            if (Thread.currentThread().isInterrupted()) {
                                 return;
                             }
                             exportImage(p, layer);
@@ -401,7 +417,7 @@ public class IO {
                     Tonga.loader().loaderProgress(0, picList.size());
                     picList.forEach((p) -> {
                         p.layerList.forEach((l) -> {
-                            if (Thread.interrupted()) {
+                            if (Thread.currentThread().isInterrupted()) {
                                 return;
                             }
                             exportImage(p, p.layerList.indexOf(l));
@@ -415,7 +431,7 @@ public class IO {
                     Tonga.loader().loaderProgress(0, picList.size());
                     TongaImage p = Tonga.getImage();
                     p.layerList.forEach((l) -> {
-                        if (Thread.interrupted()) {
+                        if (Thread.currentThread().isInterrupted()) {
                             return;
                         }
                         exportImage(p, p.layerList.indexOf(l));

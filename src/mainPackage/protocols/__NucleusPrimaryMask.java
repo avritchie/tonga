@@ -8,6 +8,7 @@ import mainPackage.ImageData;
 import mainPackage.Iterate;
 import mainPackage.PanelCreator.ControlReference;
 import static mainPackage.PanelCreator.ControlType.*;
+import mainPackage.Settings;
 import mainPackage.filters.Filters;
 import mainPackage.filters.FiltersPass;
 import mainPackage.morphology.ImageTracer;
@@ -36,30 +37,28 @@ public class __NucleusPrimaryMask extends Protocol {
         return new ProcessorFast(14, new String[]{"Nucleus Mask"}, 62) {
 
             ImageData layerCorrect, layerBackground, layerNuclei, layerComb;
-            // first gaussian
-            int minNucl = (int) Math.max(1, nucleusSize * 0.06); // 2
-            // second gaussian for detecting nuclei edges
-            int maxNucl = (int) (nucleusSize * 0.3); // 15
-            // second gaussian for nuclei edge mask
-            int maxInn = (int) (nucleusSize * 1.6); // 80
-            // second gaussian for detecting background
-            int maxBack = (int) (maxNucl * 10); // 60 and 90
-            // second gaussian for detecting edges
-            int maxEdge = (int) (nucleusSize * 0.2); // 10
-            // second gaussian for detecting edges
-            int smooth = (int) Math.pow(nucleusSize * 0.2, 0.8); // 2
-            // initial noise filtering radius
-            int noise = (int) Math.pow(nucleusSize * 0.03, 0.7); // 2
 
             @Override
             protected void methodFinal() {
+                int nuclSize = Settings.settingsOverrideSizeEstimate() ? (int) (sourceWidth[0] / 10.) : nucleusSize;
+                // first gaussian
+                int minNucl = (int) Math.max(1, nuclSize * 0.06); // 2
+                // second gaussian for detecting nuclei edges
+                int maxNucl = (int) (nuclSize * 0.3); // 15
+                // second gaussian for nuclei edge mask
+                int maxInn = (int) (nuclSize * 1.6); // 80
+                // second gaussian for detecting background
+                int maxBack = (int) (maxNucl * 10); // 60 and 90
+                // second gaussian for detecting edges
+                int maxEdge = (int) (nuclSize * 0.2); // 10
+                // second gaussian for detecting edges
+                int smooth = (int) Math.pow(nuclSize * 0.2, 0.8); // 2
+                // initial noise filtering radius
+                int noise = (int) Math.pow(nuclSize * 0.03, 0.7); // 2
                 layerComb = new ImageData(sourceWidth[0], sourceHeight[0]);
                 // illumination/contrast-corrected version of the image
                 layerCorrect = FiltersPass.evenIllumination().runSingle(sourceLayer[0]);
                 IMG.copyPixels(layerCorrect.pixels32, outImage[1].pixels32);
-                System.out.println("Nucleus size: " + nucleusSize);
-                //layerGamma = Filters.gaussApprox().runSingle(layerGamma, 2, true);
-                //DRAW.copyPixels(layerGamma.pixels32, outImage[2].pixels32);
                 // process with different difference of gaussians -settings
                 if (noise > 0) {
                     layerCorrect = Filters.gaussApprox().runSingle(layerCorrect, noise);
@@ -74,14 +73,13 @@ public class __NucleusPrimaryMask extends Protocol {
                 layerBackground = Filters.dog().runSingle(layerCorrect, minNucl + 1, maxBack, true);
                 IMG.copyPixels(layerBackground.pixels32, outImage[5].pixels32);
                 // substract the second combination from the newly created final gaussian
-                Iterate.pixels(layerNuclei, (int p) -> {
-                    //int val = (layerNuclei.pixels32[p] & 0xFF) - ((layerBackground.pixels32[p] & 0xFF) * 6);
+                Iterate.pixels(inImage[0], (int p) -> {
                     layerComb.pixels32[p] = (layerNuclei.pixels32[p] & 0xFF) > 1 && (layerBackground.pixels32[p] & 0xFF) < 1 ? COL.WHITE : COL.BLACK;
                 });
                 IMG.copyPixels(layerComb.pixels32, outImage[6].pixels32);
                 ROISet set = new ImageTracer(layerComb, Color.BLACK).trace();
-                set.quantifyStainAgainstChannel(Filters.dog().runSingle(layerCorrect, minNucl, nucleusSize, false));
-                set.filterOutDimObjects(5);
+                set.quantifyStainAgainstChannel(Filters.dog().runSingle(layerCorrect, minNucl, nuclSize, false));
+                set.filterOutDimObjects(set.avgStain() * 0.1);
                 layerComb = set.drawToImageData(true);
                 IMG.copyPixels(layerComb.pixels32, outImage[7].pixels32);
                 //layerComb = FiltersPass.fillInnerAreasSizeShape().runSingle(layerComb, COL.WHITE, GEO.circleArea(nucleusSize) / 5, 90);
@@ -100,25 +98,28 @@ public class __NucleusPrimaryMask extends Protocol {
                 layerBackground = Filters.thresholdBright().runSingle(layerBackground, 5);
                 DRAW.copyPixels(layerBackground.pixels32, outImage[15].pixels32);*/
                 // stack
-                Iterate.pixels(layerNuclei, (int p) -> {
-                    layerComb.pixels32[p] = ((layerBackground.pixels32[p] & 0xFF) >= 1 || layerComb.pixels32[p] == COL.BLACK) ? COL.BLACK : COL.WHITE;
+                Iterate.pixels(inImage[0], (int p) -> {
+                    layerNuclei.pixels32[p] = ((layerBackground.pixels32[p] & 0xFF) >= 1 || layerComb.pixels32[p] == COL.BLACK) ? COL.BLACK : COL.WHITE;
                 });
-                IMG.copyPixels(layerComb.pixels32, outImage[11].pixels32);
-                /*if (noise > 0) {
-                    layerComb = FiltersPass.gaussSmoothing().runSingle(layerComb, noise, 1);
-                }*/
-                layerBackground = FiltersPass.fillInnerAreasSizeShape().runSingle(layerComb, COL.BLACK, GEO.circleArea(nucleusSize) / 5, 90);
-                //layerComb = FiltersPass.filterObjectSizeDimension().runSingle(layerComb, limit, Math.sqrt(limit), 0, false, 0, 0);
+                IMG.copyPixels(layerNuclei.pixels32, outImage[11].pixels32);
+                layerBackground = FiltersPass.fillInnerAreasSizeShape().runSingle(layerNuclei, COL.BLACK, GEO.circleArea(nuclSize) / 5, 90);
+                // remove nuclei or other irregular holes on nuclei edges
+                if (noise > 0) {
+                    layerBackground = FiltersPass.fillSmallEdgeHoles().runSingle(layerBackground, COL.BLACK, noise, Math.sqrt(GEO.circleArea(nuclSize)), false, false);
+                    layerBackground = FiltersPass.gaussSmoothing().runSingle(layerBackground, noise, 1);
+                    layerBackground = FiltersPass.fillInnerAreasSizeShape().runSingle(layerBackground, COL.BLACK, GEO.circleArea(nuclSize) / 5, 90);
+                }
                 IMG.copyPixels(layerBackground.pixels32, outImage[12].pixels32);
-                // additional stuff ends
+                // smooth the masks but on convex areas only
                 if (smooth > 0) {
-                    layerComb = Filters.gaussApprox().runSingle(layerBackground, smooth, true);
-                    Iterate.pixels(layerNuclei, (int p) -> {
-                        layerBackground.pixels32[p] = (layerComb.pixels32[p] & 0xFF) < 127 && layerBackground.pixels32[p] == COL.WHITE ? COL.BLACK : layerBackground.pixels32[p];
+                    layerNuclei = Filters.gaussApprox().runSingle(layerBackground, smooth, true);
+                    Iterate.pixels(inImage[0], (int p) -> {
+                        layerBackground.pixels32[p] = (layerNuclei.pixels32[p] & 0xFF) < 127 && layerBackground.pixels32[p] == COL.WHITE ? COL.BLACK : layerBackground.pixels32[p];
                     });
                 }
                 IMG.copyPixels(layerBackground.pixels32, outImage[13].pixels32);
-                layerBackground = FiltersPass.filterObjectSize().runSingle(layerBackground, limit, 0, false, 0);
+                //layerComb = new ObjectsSeparated().runSilent(sourceImage, new ImageData[]{layerBackground, layerNuclei}, COL.BLACK)[0];
+                layerBackground = FiltersPass.filterObjectSize().runSingle(layerBackground, COL.BLACK, limit, false, 0);
                 IMG.copyPixels(layerBackground.pixels32, outImage[0].pixels32);
             }
         };

@@ -14,6 +14,7 @@ public abstract class Exporter {
     File file;
 
     public boolean export(String n, String ext) {
+        n = legalName(n);
         file = new File(Tonga.formatPath(Tonga.frame().filePathField.getText() + "\\" + n + "." + ext));
         System.out.println(file);
         int id = 0;
@@ -41,4 +42,12 @@ public abstract class Exporter {
     }
 
     abstract void write() throws IOException;
+
+    private String legalName(String n) {
+        n = n.replaceAll("[^a-zA-Z0-9]", "");
+        if (n.isEmpty()) {
+            n = "null";
+        }
+        return n;
+    }
 }

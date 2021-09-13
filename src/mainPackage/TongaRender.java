@@ -333,7 +333,7 @@ public class TongaRender {
         }
         bgRenderThread = new Thread(() -> {
             thingsToRender.entrySet().forEach(imgs -> {
-                if (Thread.interrupted()) {
+                if (Thread.currentThread().isInterrupted()) {
                     //cancel the work
                     return;
                 }

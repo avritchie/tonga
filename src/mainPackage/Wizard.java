@@ -16,6 +16,10 @@ import javax.swing.ImageIcon;
 import javax.swing.JList;
 import mainPackage.protocols._NucleusCounterIntensity;
 import mainPackage.protocols.Protocol;
+import mainPackage.protocols._NucleusCounterDoubleIntensity;
+import mainPackage.protocols._NucleusCounterNumber;
+import mainPackage.protocols._NucleusCounterPositivity;
+import mainPackage.protocols._NucleusCounterSurroundIntensity;
 import mainPackage.protocols._ObjectCount;
 import mainPackage.protocols._ObjectSegmentCount;
 
@@ -24,6 +28,7 @@ public class Wizard extends javax.swing.JFrame {
     int id;
     int ls;
     boolean[] a; // answers given, true if first, false if second
+    boolean launchStatus; // has a protocol been launched yes/no
     WizardEntry[] entries;
     DefaultListModel listModel;
 
@@ -48,12 +53,12 @@ public class Wizard extends javax.swing.JFrame {
         entries[1] = new WizardEntry(1, "What do you want to measure?", "Measure", "Areas", "Objects",
                 "An area to measure, typically tissues.",
                 "Individual objects to measure, typically cells or organoids.");
-        entries[2] = new WizardEntry(2, "What kind of microscopy was used?", "Microscopy", "Fluorescence", "Light",
+        entries[2] = new WizardEntry(2, "What kind of microscopy was used?", "Microscopy", "Fluorescence", "Brightfield",
                 "Fluorescence microscopy. Dark background and fluorescent dyes.",
-                "Light microscopy. Light background and histochemical stains.");
+                "Brightfield microscopy. Light background and histochemical stains.");
         entries[3] = new WizardEntry(3, "What do you want to know?", "Calculate", "Area with a certain staining", "Just the tissue area",
                 "The tissue has areas stained with a separate fluorescent dye. How much staining is there? How big part of the tissue has the stain?",
-                "How much tissue there is in total, regardless of the stain?");
+                "How much tissue there is in total, regardless of the stain? What is the tissue area?");
         entries[4] = new WizardEntry(4, "How do you want to quantify the stain?", "Staining", "Binary", "Intensity",
                 "Mark areas as either positive or negative for the stain(s) and calculate the proportion of tissue which is positive.",
                 "Calculate the total amount of staining in the area using the intensity.");
@@ -168,9 +173,84 @@ public class Wizard extends javax.swing.JFrame {
                 return a[7] ? 14 : 23;
             case 23:
                 return 14;
-            default:
+            default: 
                 return id + 1;
         }
+    }
+
+    private void selectProtocol() {
+        launchStatus = false;
+        if (a[0]) { //new images
+            if (a[1]) { //tissue
+                //TODO
+            } else { //objects
+                if (a[9]) { //segment
+                    if (a[7]) { //numbersize
+                        if (a[8]) { //fluorescence
+                            launchProtocol(_NucleusCounterNumber::new, new Object[]{a[22], null, a[14], a[10]});
+                        } else { //phase contrast
+                            //TODO
+                        }
+                    } else { //stainings
+                        if (a[11]) { //positivity
+                            launchProtocol(_NucleusCounterPositivity::new, new Object[]{null, a[23], a[22], a[14], a[10]});
+                        } else { //intensity
+                            if (a[12]) { //object themselves
+                                if (a[13]) { // whole/single stain
+                                    launchProtocol(_NucleusCounterIntensity::new, new Object[]{a[23], a[22], a[14], a[10]});
+                                } else { // separate/two stains
+                                    launchProtocol(_NucleusCounterDoubleIntensity::new, new Object[]{a[23], a[22], a[14], a[10]});
+                                }
+                            } else { //object surroundings
+                                launchProtocol(_NucleusCounterSurroundIntensity::new, new Object[]{a[22], a[14], null, a[10]});
+                            }
+                        }
+                    }
+                } else { //dont segment
+                    if (a[7]) { //numbersize
+                        if (a[8]) { //fluorescence
+                            //NON SEGM launchProtocol(_NucleusCounterNumber::new, new Object[]{a[22], null, a[14],a[10]});
+                        } else { //phase contrast
+                            //TODO
+                        }
+                    } else { //stainings
+                        if (a[11]) { //positivity
+                            //NON SEGM launchProtocol(_NucleusCounterPositivity::new, new Object[]{null,a[23], a[22], a[14],a[10]});
+                        } else { //intensity
+                            if (a[12]) { //object themselves
+                                if (a[13]) { // whole/single stain
+                                    //NON SEGM launchProtocol(_NucleusCounterIntensity::new, new Object[]{a[23], a[22], a[14],a[10]});
+                                } else { // separate/two stains
+                                    //NON SEGMN launchProtocol(_NucleusCounterDoubleIntensity::new, new Object[]{a[23], a[22], a[14],a[10]});
+                                }
+                            } else { //object surroundings
+                                //NON SEGM launchProtocol(_NucleusCounterSurroundIntensity::new, new Object[]{a[22], a[14],null,a[10]});
+                            }
+                        }
+                    }
+                }
+            }
+        } else { //masks
+            if (a[17]) { //how many
+                if (a[9]) { //touching
+                    launchProtocol(_ObjectSegmentCount::new, new Object[]{null, null});
+                } else { //not touching
+                    launchProtocol(_ObjectCount::new, new Object[]{null});
+                }
+            } else { //how much
+            }
+        }
+        if (!launchStatus) {
+            Tonga.catchError(new UnsupportedOperationException(), "The protocol for this outcome is not available yet, we apologize.");
+        }
+        Tonga.frame().closeDialog(this);
+    }
+
+    private void launchProtocol(Supplier<Protocol> supp, Object[] params) {
+        Tonga.frame().launchProtocol(supp, null);
+        Protocol cp = Tonga.frame().currentProtocol;
+        cp.param.setControlParameters(cp.panelCreator, params);
+        launchStatus = true;
     }
 
     private void answerQuestion(boolean b) {
@@ -239,32 +319,6 @@ public class Wizard extends javax.swing.JFrame {
             listModel.remove(i);
         }
         loadEntry(r.id);
-    }
-
-    private void selectProtocol() {
-        if (a[0]) { //new images
-            if (a[1]) { //tissue
-
-            } else { //objects
-                launchProtocol(_NucleusCounterIntensity::new, new Object[]{a[11], null, null, a[14]});
-            }
-        } else { //masks
-            if (a[17]) { //how many
-                if (a[9]) { //touching
-                    launchProtocol(_ObjectSegmentCount::new, new Object[]{null, null});
-                } else { //not touching
-                    launchProtocol(_ObjectCount::new, new Object[]{null});
-                }
-            } else { //how much
-            }
-        }
-        Tonga.frame().closeDialog(this);
-    }
-
-    private void launchProtocol(Supplier<Protocol> supp, Object[] params) {
-        Tonga.frame().launchProtocol(supp, null);
-        Protocol cp = Tonga.frame().currentProtocol;
-        cp.param.setControlParameters(cp.panelCreator, params);
     }
 
     private class WizardEntry {

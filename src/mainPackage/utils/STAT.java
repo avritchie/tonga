@@ -9,6 +9,10 @@ public class STAT {
     int[] dataInt;
     int size;
 
+    public Double mean;
+    public Double median;
+    public Double variance;
+
     public STAT(double[] data) {
         this.dataDouble = data;
         this.dataInt = null;
@@ -43,33 +47,42 @@ public class STAT {
     }
 
     public double getMean() {
-        double ret = 0;
-        double fact = 1. / size;
-        if (dataDouble == null) {
-            for (int a : dataInt) {
-                ret += a * fact;
-            }
-        } else {
-            for (double a : dataDouble) {
-                ret += a * fact;
+        if (mean == null) {
+            double ret = 0;
+            if (dataDouble == null) {
+                for (int a : dataInt) {
+                    ret += a;
+                }
+                mean = ret / (double) size;
+            } else {
+                for (double a : dataDouble) {
+                    ret += a;
+                }
+                mean = ret / (double) size;
             }
         }
-        return ret;
+        return mean;
     }
 
     public double getVariance() {
-        double mean = getMean();
-        double temp = 0;
-        if (dataDouble == null) {
-            for (int a : dataInt) {
-                temp += (a - mean) * (a - mean);
+        if (variance == null) {
+            double mean = getMean();
+            double val = 0;
+            double temp = 0;
+            if (dataDouble == null) {
+                for (int a : dataInt) {
+                    val = a - mean;
+                    temp += val * val;
+                }
+            } else {
+                for (double a : dataDouble) {
+                    val = a - mean;
+                    temp += val * val;
+                }
             }
-        } else {
-            for (double a : dataDouble) {
-                temp += (a - mean) * (a - mean);
-            }
+            variance = temp / (size - 1);
         }
-        return temp / (size - 1);
+        return variance;
     }
 
     public double getStdDev() {
@@ -89,26 +102,29 @@ public class STAT {
     }
 
     public double getMedian() {
-        if (dataDouble == null) {
-            try {
-                Arrays.sort(dataInt);
-                if (dataInt.length % 2 == 0) {
-                    return (dataInt[(dataInt.length / 2) - 1] + dataInt[dataInt.length / 2]) / 2.0;
+        if (median == null) {
+            if (dataDouble == null) {
+                try {
+                    Arrays.sort(dataInt);
+                    if (dataInt.length % 2 == 0) {
+                        median = (dataInt[(dataInt.length / 2) - 1] + dataInt[dataInt.length / 2]) / 2.0;
+                    }
+                    median = (double) dataInt[dataInt.length / 2];
+                } catch (ArrayIndexOutOfBoundsException ex) {
+                    median = NaN;
                 }
-                return dataInt[dataInt.length / 2];
-            } catch (ArrayIndexOutOfBoundsException ex) {
-                return NaN;
-            }
-        } else {
-            try {
-                Arrays.sort(dataDouble);
-                if (dataDouble.length % 2 == 0) {
-                    return (dataDouble[(dataDouble.length / 2) - 1] + dataDouble[dataDouble.length / 2]) / 2.0;
+            } else {
+                try {
+                    Arrays.sort(dataDouble);
+                    if (dataDouble.length % 2 == 0) {
+                        median = (dataDouble[(dataDouble.length / 2) - 1] + dataDouble[dataDouble.length / 2]) / 2.0;
+                    }
+                    median = dataDouble[dataDouble.length / 2];
+                } catch (ArrayIndexOutOfBoundsException ex) {
+                    median = NaN;
                 }
-                return dataDouble[dataDouble.length / 2];
-            } catch (ArrayIndexOutOfBoundsException ex) {
-                return NaN;
             }
         }
+        return median;
     }
 }
