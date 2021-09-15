@@ -29,6 +29,22 @@ public class STAT {
         return size;
     }
 
+    public double getMax() {
+        if (dataDouble == null) {
+            return Arrays.stream(dataInt).max().getAsInt();
+        } else {
+            return Arrays.stream(dataDouble).max().getAsDouble();
+        }
+    }
+
+    public double getMin() {
+        if (dataDouble == null) {
+            return Arrays.stream(dataInt).min().getAsInt();
+        } else {
+            return Arrays.stream(dataDouble).min().getAsDouble();
+        }
+    }
+
     public double getMMRatio() {
         //high if a lot of very small objects and yet also very large objects
         double dec = 0;
@@ -48,17 +64,10 @@ public class STAT {
 
     public double getMean() {
         if (mean == null) {
-            double ret = 0;
             if (dataDouble == null) {
-                for (int a : dataInt) {
-                    ret += a;
-                }
-                mean = ret / (double) size;
+                mean = Arrays.stream(dataInt).sum() / (double) size;
             } else {
-                for (double a : dataDouble) {
-                    ret += a;
-                }
-                mean = ret / (double) size;
+                mean = Arrays.stream(dataDouble).sum() / (double) size;
             }
         }
         return mean;

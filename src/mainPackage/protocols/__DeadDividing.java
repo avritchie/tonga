@@ -1,10 +1,12 @@
 package mainPackage.protocols;
 
+import mainPackage.Iterate;
 import mainPackage.PanelCreator.ControlReference;
 import static mainPackage.PanelCreator.ControlType.COLOUR;
 import static mainPackage.PanelCreator.ControlType.LAYER;
 import mainPackage.morphology.ImageTracer;
 import mainPackage.morphology.ROISet;
+import mainPackage.utils.COL;
 
 public class __DeadDividing extends Protocol {
 
@@ -35,11 +37,11 @@ public class __DeadDividing extends Protocol {
                 int preCount = set.list.size();
                 set.filterDeadDividing(inImage[1]);
                 int postCount = set.list.size();
-                setOutputBy(set.drawToImageData(true));
-                Object[] newRow = data.newRow(sourceImage.imageName);
-                newRow[1] = (Integer) postCount;
-                newRow[2] = (Integer) (preCount - postCount);
-                newRow[3] = (Integer) preCount;
+                int[] rem = set.drawToArray(true);
+                Iterate.pixels(inImage[0], (int pos) -> {
+                    outImage[0].pixels32[pos] = inImage[0].pixels32[pos] != sourceCol ? rem[pos] == COL.BLACK ? COL.WHITE : COL.GRAY : COL.BLACK;
+                });
+                newResultRow(postCount, preCount - postCount, preCount);
             }
         };
     }

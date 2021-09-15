@@ -185,13 +185,25 @@ public class ROISet {
         }.draw();
     }
 
-    public int[] drawStainArray() {
+    private double getMaxStain() {
+        return list.stream().mapToDouble(o -> o.getStain()).max().getAsDouble();
+    }
+
+    public int[] drawStainArray(boolean useAverage) {
         // render the set by giving each shape colour based on the staining intensity
         return new setRenderer() {
+            double max = getMaxStain();
+            double fact = 255 / max;
+
             @Override
             void drawingMethod(ROI o) {
                 Iterate.areaPixels(o, (int pos) -> {
-                    int val = 255 - ((int) (o.getStainAvg() * 255));
+                    int val;
+                    if (useAverage) {
+                        val = 255 - ((int) (o.getStainAvg() * 255));
+                    } else {
+                        val = 255 - ((int) (o.getStain() * fact));
+                    }
                     int color = 0xFFFF0000 | val << 8 | val;
                     out[pos] = color;
                 });
@@ -523,7 +535,7 @@ public class ROISet {
             int size = roi.getSize();
             double pixelSize = roi.edgeData.totalSharpPoints > 0 ? (size / (double) roi.edgeData.totalSharpPoints) : Integer.MAX_VALUE;
             double dimratio = roi.getSize() / (double) roi.getDimension();
-            System.out.println(roi.getSize() + " | " + dimratio + " | " + roi.getStainAvg() + " | " + angles + " | " + pixelSize + " | "
+            System.out.println("x" + roi.xcenter + " y" + roi.ycenter + " | " + roi.getSize() + " | " + dimratio + " | " + roi.getStainAvg() + " | " + angles + " | " + pixelSize + " | "
                     + roi.edgeData.totalSharpPoints + " | " + roi.edgeData.cornerCandidates.size() + " | " + roi.edgeData.cornerPoints.size() + " | "
                     + stat.getStdDev() + " | " + stat.getVariance() + " | " + stat.getMean() + " | " + stat.getMedian());
             if (stain * 100 + std > 1.85 * (avgStain * 100 + avgSTD)) {
@@ -538,13 +550,14 @@ public class ROISet {
             } else if (size < 1.1 * avgSize && totalPixels > 0 && stain > avgStain && std > 2 * avgSTD) {
                 System.out.println("REMOVED because ev 4 " + roi.getSize() + " x" + roi.xcenter + " y" + roi.ycenter);
                 it.remove();
-                //too many false positives
-                /*} else if (size < 1.1 * avgSize && totalPixels > 0 && pixelSize < 200 && angles > 25) {
-                System.out.println("REMOVED because ev 5 " + roi.getSize() + " x" + roi.xcenter + " y" + roi.ycenter);
-                it.remove();*/
             } else if (size < 0.5 * avgSize && stain > 1.2 * avgStain && std > 1.5 * avgSTD) {
                 System.out.println("REMOVED because ev 6 " + roi.getSize() + " x" + roi.xcenter + " y" + roi.ycenter);
                 it.remove();
+            }
+            //too many false positives
+            if (size < 1.1 * avgSize && totalPixels > 0 && pixelSize < 200 && angles > 25) {
+                System.out.println("NOT REMOVED because ev 5 " + roi.getSize() + " x" + roi.xcenter + " y" + roi.ycenter);
+                //it.remove();
             }
         }
     }

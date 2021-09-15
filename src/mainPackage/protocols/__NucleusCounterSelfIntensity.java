@@ -48,7 +48,7 @@ public class __NucleusCounterSelfIntensity extends Protocol {
                 Protocol asi = Protocol.load(_AreaStainIntensity::new);
                 mask = nc.runSilent(sourceImage, new ImageData[]{inImage[0]}, toucherMode, 50, deadMode);
                 mask = asi.runSilent(sourceImage, new ImageData[]{mask[0], inImage[1], inImage[0]},
-                        COL.BLACK, binMode, thresh, imgMode, bgMode);
+                        COL.BLACK, binMode, thresh, imgMode, false, bgMode);
                 setOutputBy(mask);
                 setDatasBy(asi);
             }

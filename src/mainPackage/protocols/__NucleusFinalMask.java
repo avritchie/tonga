@@ -39,7 +39,7 @@ public class __NucleusFinalMask extends Protocol {
         boolean removeEdge = param.toggle[0];
         boolean removeDead = param.toggle[1];
 
-        return new ProcessorFast(26, "Objects", 82) {
+        return new ProcessorFast(27, "Objects", 82) {
             ImageData mask, sMask, mMask, aMask;
 
             @Override
@@ -48,7 +48,8 @@ public class __NucleusFinalMask extends Protocol {
                 int minNucl = (int) Math.max(1, nuclSize * 0.06); // 2
                 int maxNucl = (int) (nuclSize * 0.8); // 40
                 int dimNucl = (int) Math.max(1, nuclSize * 0.3); // 10
-                int limit = (int) (nuclSize * 0.33 * nuclSize * 0.33); // 500
+                int smallLimit = (int) (nuclSize * 0.2 * nuclSize * 0.2); // 500
+                int largeLimit = (int) (nuclSize * 0.33 * nuclSize * 0.33); // 500
                 int local = (int) Math.pow(nuclSize * 0.3, 0.8); // 10
                 //erosion for Dim / dividing detection
                 int dimErode = (int) Math.pow(nuclSize * 0.12, 0.8); // 5
@@ -69,7 +70,7 @@ public class __NucleusFinalMask extends Protocol {
                 mask = Filters.invert().runSingle(mask);
                 IMG.copyPixels(mask.pixels32, outImage[3].pixels32);
                 //local thresholding of the intensity gradient for binarization
-                aMask = Filters.localThreshold().runSingle(mask, 10, local);
+                aMask = Filters.localThreshold().runConditional(mask, inImage[0], 10, local);
                 IMG.copyPixels(aMask.pixels32, outImage[4].pixels32);
                 //apply the thresholded gradient into the primary mask
                 Iterate.pixels(inImage[0], (int p) -> {
@@ -110,53 +111,54 @@ public class __NucleusFinalMask extends Protocol {
                 sMask = subsegm.runSilent(sourceImage, new ImageData[]{mask, mMask}, COL.BLACK, nuclSize)[0];
                 IMG.copyPixels(sMask.pixels32, outImage[13].pixels32);
                 //remove small shapes - possibly leftover pieces from the segmentation - otherwise interfering with the overlap mask
-                sMask = FiltersPass.filterObjectSize().runSingle(sMask, COL.BLACK, limit, false, 0);
+                sMask = FiltersPass.filterObjectSize().runSingle(sMask, COL.BLACK, smallLimit, false, 0);
+                IMG.copyPixels(sMask.pixels32, outImage[14].pixels32);
                 //detect the gaps between the separate nuclei - separated by either the segmenting right before this..
                 //..or passively occuring segmentation due to nucleus-separating shapes from the intensity gradient + connection
                 //this is for future reference, to be able to remember which shapes are supposed to be separated
                 sMask = FiltersPass.getRadiusOverlap().runSingle(sMask, COL.BLACK, overlapRad);
-                IMG.copyPixels(sMask.pixels32, outImage[14].pixels32);
+                IMG.copyPixels(sMask.pixels32, outImage[15].pixels32);
                 //next proceed with shaping the nucleus edge as accurately as possible:
                 //start by combining the connected shapes from the intensity gradient to the original unprocessed binarized intensity gradient mask
                 //the point is to fill the holes etc. which were deemed insignificant, but yet still reverse the detail lost by the connecting etc.
                 //during the intensity gradient mask processing above, which is especially important in nucleus edges
                 mMask = FiltersRender.blendStack().runSingle(new ImageData[]{aMask, mask}, 0);
-                IMG.copyPixels(mMask.pixels32, outImage[15].pixels32);
+                IMG.copyPixels(mMask.pixels32, outImage[16].pixels32);
                 //remove inner shapes which are clearly inner, the ones left at this point cant be used to segmented further
                 mMask = FiltersPass.fillInnerAreas().runSingle(mMask, COL.BLACK, true);
-                IMG.copyPixels(mMask.pixels32, outImage[16].pixels32);
+                IMG.copyPixels(mMask.pixels32, outImage[17].pixels32);
                 //if any nuclei were separated during the secondary segmenting and intensity gradient processing, apply those separations..
                 //..by using the overlap mask created above, since those separations are not visible anymore as we are using the unprocessed mask now
                 Iterate.pixels(inImage[0], (int p) -> {
                     mMask.pixels32[p] = sMask.pixels32[p] == COL.WHITE || mMask.pixels32[p] == COL.BLACK ? COL.BLACK : COL.WHITE;
                 });
-                IMG.copyPixels(mMask.pixels32, outImage[17].pixels32);
+                IMG.copyPixels(mMask.pixels32, outImage[18].pixels32);
                 //prevent detecting overlap with debris by filling/removing holes and small objects
                 mask = FiltersPass.fillInnerAreas().runSingle(mMask, COL.BLACK, true);
-                mMask = FiltersPass.filterObjectSize().runSingle(mask, COL.BLACK, limit, false, 0);
-                IMG.copyPixels(mMask.pixels32, outImage[18].pixels32);
+                mMask = FiltersPass.filterObjectSize().runSingle(mask, COL.BLACK, smallLimit, false, 0);
+                IMG.copyPixels(mMask.pixels32, outImage[19].pixels32);
                 //get a new version of the overlap mask now when using the unfiltered original intensity gradient mask
                 //otherwise areas on nuclei edges might be missing from the mask and the separation may fail later
                 sMask = FiltersPass.getRadiusOverlap().runSingle(mMask, COL.BLACK, overlapRad);
-                IMG.copyPixels(sMask.pixels32, outImage[19].pixels32);
+                IMG.copyPixels(sMask.pixels32, outImage[20].pixels32);
                 //this filter uses dilation to detect and fill shapes that will be "enclosed" on the object edges
                 //essentially we try to remove holes which will distort the shape of the final nucleus mask
                 if (edgeFiller > 0) {
                     mask = FiltersPass.fillSmallEdgeHoles().runSingle(mask, COL.BLACK, edgeFiller, Math.sqrt(GEO.circleArea(nuclSize)), nuclSize > 70, false);
                 }
-                IMG.copyPixels(mask.pixels32, outImage[20].pixels32);
+                IMG.copyPixels(mask.pixels32, outImage[21].pixels32);
                 if (false) { //TODO THE CONDITIONAL CONNECTING HERE
                     mask = ConnectEdges.run().runSingle(mask, COL.BLACK);
                 }
                 //smoothen crispy edges, a side effect from the intensity gradient and local thresholding
                 mask = FiltersPass.gaussSmoothing().runSingle(mask, maxSmooth, 1);
-                IMG.copyPixels(mask.pixels32, outImage[21].pixels32);
+                IMG.copyPixels(mask.pixels32, outImage[22].pixels32);
                 //maintain the separation of segmented objects by combining the separations by the initial segmentation (original image)..
                 //..and the ones done by using the intensity gradient and secondary segmentation, saved on the overlap mask
                 Iterate.pixels(inImage[0], (int p) -> {
                     mask.pixels32[p] = sMask.pixels32[p] == COL.WHITE || inImage[0].pixels32[p] == COL.BLACK ? COL.BLACK : mask.pixels32[p];
                 });
-                IMG.copyPixels(mask.pixels32, outImage[22].pixels32);
+                IMG.copyPixels(mask.pixels32, outImage[23].pixels32);
 
 
                 //laugh at bad ideas which did not work
@@ -191,15 +193,15 @@ public class __NucleusFinalMask extends Protocol {
                 mask = FiltersPass.edgeErode().runSingle(mask, COL.BLACK, smoothErode, true, true);
                 //get the separation mask from the new smoother and eroded version to avoid accidental merging due to the smoothing
                 sMask = FiltersPass.getRadiusOverlap().runSingle(mask, COL.BLACK, overlapRad);
-                IMG.copyPixels(mask.pixels32, outImage[23].pixels32);
-                mask = FiltersPass.gaussSmoothing().runSingle(mask, finSmooth, 2);
                 IMG.copyPixels(mask.pixels32, outImage[24].pixels32);
+                mask = FiltersPass.gaussSmoothing().runSingle(mask, finSmooth, 2);
+                IMG.copyPixels(mask.pixels32, outImage[25].pixels32);
                 mask = FiltersPass.edgeDilate().runSingle(mask, COL.BLACK, smoothErode + 1, true);
                 //apply the overlap mask in case dilation and smoothing merged something
                 Iterate.pixels(inImage[0], (int p) -> {
                     mask.pixels32[p] = sMask.pixels32[p] == COL.WHITE || mask.pixels32[p] == COL.BLACK ? COL.BLACK : mask.pixels32[p];
                 });
-                IMG.copyPixels(mask.pixels32, outImage[25].pixels32);
+                IMG.copyPixels(mask.pixels32, outImage[26].pixels32);
                 //dividing and dim detection - unwanted outlier shapes by using intensity and morphology information
                 mMask = FiltersPass.edgeErode().runSingle(mask, COL.BLACK, dimErode, false, true);
                 ROISet set = new ImageTracer(mMask, COL.BLACK).trace();
@@ -212,7 +214,7 @@ public class __NucleusFinalMask extends Protocol {
                 if (removeEdge) {
                     set.removeEdgeTouchers();
                 }
-                set.filterOutSmallObjects(limit);
+                set.filterOutSmallObjects(largeLimit);
                 setOutputBy(set.drawToImageData(true));
             }
         };

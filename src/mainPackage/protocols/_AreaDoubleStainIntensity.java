@@ -56,7 +56,7 @@ public class _AreaDoubleStainIntensity extends Protocol {
                     stComb = new ImageData(combPixels, sourceWidth[0], sourceHeight[0]);
                 }
                 mask = asi.runSilent(sourceImage, new ImageData[]{inImage[0], stComb, inImage[3]},
-                        param.colorARGB[0], false, 0, imgMode, bgMode);
+                        param.colorARGB[0], false, 0, imgMode, false, bgMode);
                 setOutputBy(stComb, 1);
                 setOutputBy(mask[0], 0);
                 setDatasBy(asi);

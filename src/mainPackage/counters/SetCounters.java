@@ -83,7 +83,7 @@ public class SetCounters {
     }
 
     public static SetCounter countObjectStainsSingle(ROISet set) {
-        return new SetCounter("Count staining", new String[]{"Image", "Object", "Area", "<html><b>Stain %</b></html>", "Stain sum"}) {
+        return new SetCounter("Count staining", new String[]{"Image", "Object", "Area", "<html><b>Stain %</b></html>", "<html><b>Stain sum</b></html>"}) {
 
             @Override
             protected void processor(Object[] row) {

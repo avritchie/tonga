@@ -2,6 +2,7 @@ package mainPackage;
 
 import mainPackage.filters.Filter;
 import mainPackage.morphology.ROI;
+import mainPackage.utils.COL;
 
 /**
  *
@@ -23,14 +24,35 @@ public class Iterate {
     }
 
     public static void pixels(Filter f, Iterator i) {
-        Tonga.iteration();
-        for (int y = 0; y < f.height; y++) {
-            for (int x = 0; x < f.width; x++) {
-                i.iterate(y * f.width + x);
+        pixels(f, 1, i);
+    }
+
+    public static void pixels(Filter f, double iters, Iterator i) {
+        Tonga.iteration((int) iters);
+        //the filter is only executed on the given pixels
+        if (f.conditional) {
+            for (int y = 0; y < f.height; y++) {
+                for (int x = 0; x < f.width; x++) {
+                    int p = y * f.width + x;
+                    if (f.conditionalPixels[p] != COL.BLACK) {
+                        i.iterate(p);
+                    }
+                }
+                Tonga.loader().appendProgress(iters / f.height);
+                if (Tonga.loader().getTask().isInterrupted()) {
+                    return;
+                }
             }
-            Tonga.loader().appendProgress(f.height);
-            if (Tonga.loader().getTask().isInterrupted()) {
-                return;
+            //or just run the filter normally
+        } else {
+            for (int y = 0; y < f.height; y++) {
+                for (int x = 0; x < f.width; x++) {
+                    i.iterate(y * f.width + x);
+                }
+                Tonga.loader().appendProgress(iters / f.height);
+                if (Tonga.loader().getTask().isInterrupted()) {
+                    return;
+                }
             }
         }
     }

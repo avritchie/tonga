@@ -514,11 +514,7 @@ public class Filters {
         return new FilterFast("Mean Brightness", radius, 6) {
             @Override
             protected void processor() {
-                int[] gs = new int[inData.totalPixels()];
-                Iterate.pixels(this, (int pos) -> {
-                    gs[pos] = RGB.brightness(in32[pos]);
-                });
-                double[] means = meanStds(gs, width, param.spinner[0])[0];
+                double[] means = (double[]) meanStds(this, param.spinner[0])[1];
                 Iterate.pixels(this, (int pos) -> {
                     out32[pos] = RGB.argbc((int) means[pos], in32[pos]);
                 });
@@ -535,11 +531,7 @@ public class Filters {
         return new FilterFast("STD Edge Detection", radius, 6) {
             @Override
             protected void processor() {
-                int[] gs = new int[inData.totalPixels()];
-                Iterate.pixels(this, (int pos) -> {
-                    gs[pos] = RGB.brightness(in32[pos]);
-                });
-                double[] stds = meanStds(gs, width, param.spinner[0])[1];
+                double[] stds = (double[]) meanStds(this, param.spinner[0])[2];
                 Iterate.pixels(this, (int pos) -> {
                     out32[pos] = RGB.argbc((int) stds[pos], in32[pos]);
                 });
@@ -575,9 +567,8 @@ public class Filters {
     }
 
     public static FilterFast doubleThreshold() {
-        return new FilterFast("Double Threshold",
-                new ControlReference[]{
-                    new ControlReference(RANGE, new Integer[]{0, 255}, "Gray%White")}) {
+        return new FilterFast("Double Threshold", new ControlReference[]{
+            new ControlReference(RANGE, new Integer[]{0, 255}, "Gray%White")}) {
             @Override
             protected void processor() {
                 Iterate.pixels(this, (int pos) -> {
@@ -594,17 +585,14 @@ public class Filters {
     }
 
     public static FilterFast localThreshold() {
-        return new FilterFast("Local Threshold",
-                new ControlReference[]{
-                    new ControlReference(SLIDER, "Threshold"),
-                    new ControlReference(SPINNER, "Radius (px)", 10)}, 6) {
+        return new FilterFast("Local Threshold", new ControlReference[]{
+            new ControlReference(SLIDER, "Threshold"),
+            new ControlReference(SPINNER, "Radius (px)", 10)}, 6) {
             @Override
             protected void processor() {
-                int[] gs = new int[inData.totalPixels()];
-                Iterate.pixels(this, (int pos) -> {
-                    gs[pos] = RGB.brightness(in32[pos]);
-                });
-                double[] means = meanStds(gs, width, param.spinner[0])[0];
+                Object[] calc = meanStds(this, param.spinner[0]);
+                int[] gs = (int[]) calc[0];
+                double[] means = (double[]) calc[1];
                 Iterate.pixels(this, (int pos) -> {
                     out32[pos] = gs[pos] > means[pos] - param.slider[0] ? COL.WHITE : COL.BLACK;
                 });
@@ -618,21 +606,17 @@ public class Filters {
     }
 
     public static FilterFast niblack() {
-        return new FilterFast("Niblack Threshold",
-                new ControlReference[]{
-                    new ControlReference(SLIDER, "Threshold"),
-                    new ControlReference(SLIDER, "Adaptation level (k)"),
-                    new ControlReference(SPINNER, "Radius (px)", 10)}, 6) {
+        return new FilterFast("Niblack Threshold", new ControlReference[]{
+            new ControlReference(SLIDER, "Threshold"),
+            new ControlReference(SLIDER, "Adaptation level (k)"),
+            new ControlReference(SPINNER, "Radius (px)", 10)}, 6) {
             @Override
             protected void processor() {
                 double adapt = param.slider[1] / 100.;
-                int[] gs = new int[inData.totalPixels()];
-                Iterate.pixels(this, (int pos) -> {
-                    gs[pos] = RGB.brightness(in32[pos]);
-                });
-                double[][] calc = meanStds(gs, width, param.spinner[0]);
-                double[] means = calc[0];
-                double[] stds = calc[1];
+                Object[] calc = meanStds(this, param.spinner[0]);
+                int[] gs = (int[]) calc[0];
+                double[] means = (double[]) calc[1];
+                double[] stds = (double[]) calc[2];
                 Iterate.pixels(this, (int pos) -> {
                     // out = value > mean + k * std - offset
                     out32[pos] = gs[pos] > means[pos] + adapt * stds[pos] - param.slider[0] ? COL.WHITE : COL.BLACK;
@@ -646,41 +630,81 @@ public class Filters {
         };
     }
 
-    private static double[][] meanStds(int[] in, int width, double radd) {
+    @Deprecated
+    private static Object[] meanStdsSlow(FilterFast f, double radd) {
         Tonga.iteration(4);
         int rad = (int) radd;
-        double[] meanarr = new double[in.length];
-        double[] stdarr = new double[in.length];
-        int hits, sum, lx, ly, p;
-        double[] vals = new double[(int) Math.pow(rad * 2 + 1, 2)];
-        for (int i = 0; i < in.length; i++) {
-            lx = i % width;
-            ly = i / width;
-            hits = 0;
-            sum = 0;
+        int length = f.inData.totalPixels();
+        int[] brgharr = new int[length];
+        double[] meanarr = new double[length];
+        double[] stdarr = new double[length];
+        double[] vals = new double[(rad * 2 + 1) * (rad * 2 + 1)];
+        int fsize = f.width * f.height;
+        //set a value between 0-255 to each pixel
+        for (int i = 0; i < length; i++) {
+            brgharr[i] = RGB.brightness(f.in32[i]);
+        }
+        Iterate.pixels(f, 4, (int pos) -> {
+            int hits = 0, sum = 0, npos;
             for (int ix = -rad; ix <= rad; ix++) {
                 for (int iy = -rad; iy <= rad; iy++) {
-                    p = (lx + ix) + (ly + iy) * width;
-                    try {
-                        vals[hits] = in[p];
-                        sum += in[p];
-                        hits++;
-                    } catch (IndexOutOfBoundsException e) {
+                    npos = pos + ix + (iy * f.width);
+                    if (npos >= 0 && npos < fsize /*&& p / f.width == i / f.width + iy*/) {
+                        vals[hits++] = brgharr[npos];
+                        sum += brgharr[npos];
                     }
                 }
             }
-            if (i % 1000 == 0) {
-                Tonga.loader().appendProgress(4. / in.length * 1000);
-                if (Tonga.loader().getTask().isInterrupted()) {
-                    return new double[][]{meanarr, stdarr};
-                }
-            }
             STAT stats = new STAT(Arrays.copyOfRange(vals, 0, hits));
-            meanarr[i] = sum / (double) hits;
-            stats.mean = meanarr[i];
-            stdarr[i] = stats.getStdDev();
+            meanarr[pos] = sum / (double) hits;
+            stats.mean = meanarr[pos];
+            stdarr[pos] = stats.getStdDev();
+        });
+        return new Object[]{brgharr, meanarr, stdarr};
+    }
+
+    private static Object[] meanStds(FilterFast f, double radd) {
+        int rad = (int) radd;
+        int length = f.inData.totalPixels();
+        int[] brgharr = new int[length];
+        double[] meanarr = new double[length];
+        double[] stdarr = new double[length];
+        int rdist = rad * 2 + 1;
+        int[] vals = new int[rdist * rdist];
+        //set a value between 0-255 to each pixel
+        Tonga.iteration();
+        for (int i = 0; i < length; i++) {
+            brgharr[i] = RGB.brightness(f.in32[i]);
         }
-        return new double[][]{meanarr, stdarr};
+        Tonga.loader().appendProgress(1);
+        int minb = rad - 1 + f.width * rad, maxb = length - minb - 1;
+        Iterate.pixels(f, 4, (int pos) -> {
+            STAT stats;
+            if (rad > 4 && pos > minb && pos < maxb) {
+                for (int yy = -rad; yy <= rad; yy++) {
+                    System.arraycopy(brgharr, pos - rad + yy * f.width, vals, (yy + rad) * rdist, rdist);
+                }
+                stats = new STAT(vals);
+                meanarr[pos] = stats.getMean();
+            } else {
+                int hits = 0;
+                int npos, summ = 0;
+                for (int ix = -rad; ix <= rad; ix++) {
+                    for (int iy = -rad; iy <= rad; iy++) {
+                        npos = pos + ix + (iy * f.width);
+                        if (npos >= 0 && npos < length /*&& p / f.width == i / f.width + iy*/) {
+                            vals[hits++] = brgharr[npos];
+                            summ += brgharr[npos];
+                        }
+                    }
+                }
+                stats = new STAT(Arrays.copyOfRange(vals, 0, hits));
+                meanarr[pos] = summ / (double) hits;
+            }
+            stats.mean = meanarr[pos];
+            stdarr[pos] = stats.getStdDev();
+        });
+        return new Object[]{brgharr, meanarr, stdarr};
     }
 
     public static FilterFast distanceTransform() {
@@ -1317,19 +1341,28 @@ public class Filters {
                 Tonga.iteration();
                 Iterate.pixels(this, (int pos) -> {
                     int[] bs = edgeKernel(in32, pos, width, r);
-                    int max = 0, min = 0;
+                    int max = 0, min = 255;
                     switch (param.combo[0]) {
                         case 0:
-                            max = Arrays.stream(bs).map(i -> RGB.brightness(i)).max().getAsInt();
-                            min = Arrays.stream(bs).map(i -> RGB.brightness(i)).min().getAsInt();
+                            for (int i = 0; i < bs.length; i++) {
+                                bs[i] = RGB.brightness(bs[i]);
+                                max = Math.max(max, bs[i]);
+                                min = Math.min(min, bs[i]);
+                            }
                             break;
                         case 1:
-                            max = Arrays.stream(bs).map(i -> (int) (RGB.saturation(i) * 255)).max().getAsInt();
-                            min = Arrays.stream(bs).map(i -> (int) (RGB.saturation(i) * 255)).min().getAsInt();
+                            for (int i = 0; i < bs.length; i++) {
+                                bs[i] = (int) (RGB.saturation(bs[i]) * 255);
+                                max = Math.max(max, bs[i]);
+                                min = Math.min(min, bs[i]);
+                            }
                             break;
                         case 2:
-                            max = Arrays.stream(bs).map(i -> (int) (RGB.hue(i) * 255)).max().getAsInt();
-                            min = Arrays.stream(bs).map(i -> (int) (RGB.hue(i) * 255)).min().getAsInt();
+                            for (int i = 0; i < bs.length; i++) {
+                                bs[i] = (int) (RGB.hue(bs[i]) * 255);
+                                max = Math.max(max, bs[i]);
+                                min = Math.min(min, bs[i]);
+                            }
                             break;
                     }
                     int dif = max - min;

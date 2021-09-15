@@ -936,10 +936,10 @@ public class TongaFrame extends javax.swing.JFrame {
         jMenuItem19 = new javax.swing.JMenuItem();
         jMenuItem33 = new javax.swing.JMenuItem();
         jMenu16 = new javax.swing.JMenu();
-        jMenuItem74 = new javax.swing.JMenuItem();
         jMenuItem42 = new javax.swing.JMenuItem();
         jMenuItem12 = new javax.swing.JMenuItem();
         jMenuItem72 = new javax.swing.JMenuItem();
+        jMenuItem74 = new javax.swing.JMenuItem();
         menuCounting = new javax.swing.JMenu();
         jMenu1 = new javax.swing.JMenu();
         menuCountRGB = new javax.swing.JMenuItem();
@@ -2958,14 +2958,6 @@ public class TongaFrame extends javax.swing.JFrame {
 
         jMenu16.setText("Measure");
 
-        jMenuItem74.setText("Colour intensity of the object");
-        jMenuItem74.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jMenuItem74ActionPerformed(evt);
-            }
-        });
-        jMenu16.add(jMenuItem74);
-
         jMenuItem42.setText("Channel intensity on the object area");
         jMenuItem42.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -2989,6 +2981,14 @@ public class TongaFrame extends javax.swing.JFrame {
             }
         });
         jMenu16.add(jMenuItem72);
+
+        jMenuItem74.setText("Colour intensity of the object itself");
+        jMenuItem74.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jMenuItem74ActionPerformed(evt);
+            }
+        });
+        jMenu16.add(jMenuItem74);
 
         jMenu8.add(jMenu16);
 

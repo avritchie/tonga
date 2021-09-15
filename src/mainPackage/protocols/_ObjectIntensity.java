@@ -45,7 +45,7 @@ public class _ObjectIntensity extends Protocol {
                     outImage[0].pixels32 = set.drawStainArray(thresh);
                     datas.add(SetCounters.countObjectPositive(set, thresh).runSingle(sourceImage));
                 } else {
-                    outImage[0].pixels32 = set.drawStainArray();
+                    outImage[0].pixels32 = set.drawStainArray(true);
                     if (perimg) {
                         datas.add(SetCounters.countObjectStainsImage(set).runSingle(sourceImage));
                     } else {

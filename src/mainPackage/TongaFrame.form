@@ -1393,14 +1393,6 @@
                     <Property name="text" type="java.lang.String" value="Measure"/>
                   </Properties>
                   <SubComponents>
-                    <MenuItem class="javax.swing.JMenuItem" name="jMenuItem74">
-                      <Properties>
-                        <Property name="text" type="java.lang.String" value="Colour intensity of the object"/>
-                      </Properties>
-                      <Events>
-                        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jMenuItem74ActionPerformed"/>
-                      </Events>
-                    </MenuItem>
                     <MenuItem class="javax.swing.JMenuItem" name="jMenuItem42">
                       <Properties>
                         <Property name="text" type="java.lang.String" value="Channel intensity on the object area"/>
@@ -1423,6 +1415,14 @@
                       </Properties>
                       <Events>
                         <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jMenuItem72ActionPerformed"/>
+                      </Events>
+                    </MenuItem>
+                    <MenuItem class="javax.swing.JMenuItem" name="jMenuItem74">
+                      <Properties>
+                        <Property name="text" type="java.lang.String" value="Colour intensity of the object itself"/>
+                      </Properties>
+                      <Events>
+                        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jMenuItem74ActionPerformed"/>
                       </Events>
                     </MenuItem>
                   </SubComponents>

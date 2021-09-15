@@ -23,9 +23,10 @@ public class _AreaStainIntensity extends Protocol {
             new ControlReference(LAYER, "Track objects at which layer"),
             new ControlReference(LAYER, "The image with the stain"),
             new ControlReference(COLOUR, "Background is which color", new int[]{0}),
-            new ControlReference(TOGGLE, "Binary staining", 1, new int[]{4, 1, 6, 0}),
+            new ControlReference(TOGGLE, "Binary staining", 1, new int[]{4, 1, 7, 0}),
             new ControlReference(SLIDER, "Binary threshold (%)"),
             new ControlReference(TOGGLE, "Results as average per image", 0),
+            new ControlReference(TOGGLE, "Render the image using the average stain", 0),
             new ControlReference(TOGGLE, "Estimate and subtract the background", 0, new int[]{7, 1}),
             new ControlReference(LAYER, "The image with DAPI/Hoechst")};
     }
@@ -34,7 +35,8 @@ public class _AreaStainIntensity extends Protocol {
     protected Processor getProcessor() {
         boolean binst = param.toggle[0];
         boolean perimg = param.toggle[1];
-        boolean rembg = param.toggle[2];
+        boolean rendav = param.toggle[2];
+        boolean rembg = param.toggle[3];
         double thresh = param.slider[0] / 100.;
 
         return new ProcessorFast("Objects") {
@@ -62,7 +64,7 @@ public class _AreaStainIntensity extends Protocol {
 
                     }
                 } else {
-                    outImage[0].pixels32 = set.drawStainArray();
+                    outImage[0].pixels32 = set.drawStainArray(rendav);
                     if (rembg) {
                         if (perimg) {
                             datas.add(SetCounters.countObjectStainsBGImage(set, bgval).runSingle(sourceImage));

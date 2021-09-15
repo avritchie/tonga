@@ -124,4 +124,14 @@ public abstract class Processor {
     protected void setDatasBy(TableData prt) {
         datas.add(prt);
     }
+
+    protected void newResultRow(Object... cols) {
+        Object[] newRow = data.newRow(sourceImage.imageName);
+        for (int i = 0; i < cols.length; i++) {
+            Object cc = cols[i];
+            newRow[i + 1] = cc.getClass().equals(int.class) ? (Integer) cc
+                    : cc.getClass().equals(double.class) ? (Double) cc
+                    : cc.getClass().equals(String.class) ? (String) cc : cc;
+        }
+    }
 }

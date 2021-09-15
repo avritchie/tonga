@@ -6,7 +6,6 @@ import java.util.Arrays;
 import java.util.List;
 import javafx.scene.image.Image;
 import mainPackage.TongaLayer;
-import mainPackage.TongaImage;
 import javax.imageio.ImageIO;
 import mainPackage.CachedImage;
 import mainPackage.IO;
@@ -41,6 +40,8 @@ public abstract class Filter {
     public PanelParams param;
     public int iterations32, iterations16;
     public int width, height;
+    public boolean conditional; //execute only on given pixels
+    public int[] conditionalPixels; //the given pixels, must be black/other
 
     public Filter(String name, ControlReference[] params) {
         this(name, params, 1, 1);
@@ -192,6 +193,16 @@ public abstract class Filter {
     public ImageData runSingle(ImageData layer, Object... parameters) {
         param.setFilterParameters(parameterData, parameters);
         return runSingle(layer);
+    }
+
+    //run the filter only on pixels where condlayer is not black; both must be the same size (!)
+    public ImageData runConditional(ImageData layer, ImageData condlayer, Object... parameters) {
+        conditional = true;
+        conditionalPixels = condlayer.pixels32;
+        ImageData output = runSingle(layer, parameters);
+        conditional = false;
+        conditionalPixels = null;
+        return output;
     }
 
     private ImageData[] selectedImagesAsImageDataArray(int image) {
