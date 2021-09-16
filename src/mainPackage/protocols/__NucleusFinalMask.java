@@ -1,5 +1,6 @@
 package mainPackage.protocols;
 
+import javafx.scene.effect.BlendMode;
 import mainPackage.utils.COL;
 import mainPackage.utils.IMG;
 import mainPackage.ImageData;
@@ -7,10 +8,10 @@ import mainPackage.Iterate;
 import mainPackage.PanelCreator.ControlReference;
 import static mainPackage.PanelCreator.ControlType.*;
 import mainPackage.Settings;
+import mainPackage.TongaRender;
 import mainPackage.filters.ConnectEdges;
 import mainPackage.filters.Filters;
 import mainPackage.filters.FiltersPass;
-import mainPackage.filters.FiltersRender;
 import mainPackage.morphology.ImageTracer;
 import mainPackage.morphology.ROISet;
 import mainPackage.utils.GEO;
@@ -89,7 +90,7 @@ public class __NucleusFinalMask extends Protocol {
                 mMask = FiltersPass.gaussSmoothing().runSingle(mask, maxSmooth, 1);
                 IMG.copyPixels(mMask.pixels32, outImage[7].pixels32);
                 //the difference - what was considered "insignificant" and rounded away
-                mMask = FiltersRender.blendStack().runSingle(new ImageData[]{mMask, mask}, 2);
+                mMask = TongaRender.blend(mMask, mask, BlendMode.EXCLUSION);
                 IMG.copyPixels(mMask.pixels32, outImage[8].pixels32);
                 //connect these "insignificant" particles together to bigger shapes
                 mMask = ConnectEdges.run().runSingle(mMask, COL.BLACK);
@@ -122,7 +123,7 @@ public class __NucleusFinalMask extends Protocol {
                 //start by combining the connected shapes from the intensity gradient to the original unprocessed binarized intensity gradient mask
                 //the point is to fill the holes etc. which were deemed insignificant, but yet still reverse the detail lost by the connecting etc.
                 //during the intensity gradient mask processing above, which is especially important in nucleus edges
-                mMask = FiltersRender.blendStack().runSingle(new ImageData[]{aMask, mask}, 0);
+                mMask = TongaRender.blend(aMask, mask, BlendMode.ADD);
                 IMG.copyPixels(mMask.pixels32, outImage[16].pixels32);
                 //remove inner shapes which are clearly inner, the ones left at this point cant be used to segmented further
                 mMask = FiltersPass.fillInnerAreas().runSingle(mMask, COL.BLACK, true);

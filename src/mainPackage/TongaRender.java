@@ -47,6 +47,7 @@ public class TongaRender {
     static double zoomFactor = 2, mainFactor = 1;
     static int[] overlayIndices;
     static ImagePattern diamonds, stripes;
+    static Paint fill;
     static int zoomx = 0, zoomy = 0;
     static double posx = 0, posy = 0;
     static int mousx = 0, mousy = 0;
@@ -110,35 +111,28 @@ public class TongaRender {
     }
 
     private static void setZoomPosition() {
-        int zoomWidth = zoomPanel.getWidth(), zoomHeight = zoomPanel.getHeight();
-        int mx, my;
-        try {
-            Point mp = mainPanel.getMousePosition();
-            mx = (int) (mp.x / mainFactor);
-            my = (int) (mp.y / mainFactor);
-        } catch (NullPointerException ex) {
-            mx = 0;
-            my = 0;
-        }
-        if (!zoomFreeze) {
+        Point mp = mainPanel.getMousePosition();
+        if (mp != null && !zoomFreeze) {
+            int mx = (int) (mp.x / mainFactor);
+            int my = (int) (mp.y / mainFactor);
+            int zoomWidth = zoomPanel.getWidth(), zoomHeight = zoomPanel.getHeight();
             zoomx = Math.min(Math.max((int) posx + mx - (int) (zoomWidth / 2 / zoomFactor), 0), imageDimensions[0] - (int) (zoomWidth / zoomFactor));
             zoomy = Math.min(Math.max((int) posy + my - (int) (zoomHeight / 2 / zoomFactor), 0), imageDimensions[1] - (int) (zoomHeight / zoomFactor));
         }
     }
 
     private static void fillAndDraw() {
-        int zoomWidth = (int) zoomDraw.getCanvas().getWidth(), zoomHeight = (int) zoomDraw.getCanvas().getHeight();
-        int mainWidth = (int) mainDraw.getCanvas().getWidth(), mainHeight = (int) mainDraw.getCanvas().getHeight();
         double zoomLocalFactor = picList.isEmpty() ? 1 : zoomFactor;
         double mainLocalFactor = picList.isEmpty() ? 1 : mainFactor;
-        Paint fill = Settings.settingBatchProcessing() ? stripes : Settings.settingsAlphaBackground() ? COL.awt2FX(Settings.settingAlphaBackgroundColor()) : diamonds;
+        int zoomWidth = (int) zoomDraw.getCanvas().getWidth();
+        int zoomHeight = (int) zoomDraw.getCanvas().getHeight();
+        int mainWidth = Math.min((int) mainDraw.getCanvas().getWidth(), (int) (imageDimensions[0] * mainLocalFactor));
+        int mainHeight = Math.min((int) mainDraw.getCanvas().getHeight(), (int) (imageDimensions[1] * mainLocalFactor));
+        fill = Settings.settingBatchProcessing() ? stripes : Settings.settingsAlphaBackground() ? COL.awt2FX(Settings.settingAlphaBackgroundColor()) : diamonds;
         int newMainPHash = (int) (posx * mainWidth - posy * mainHeight - mainLocalFactor * 100);
         if (mainPHash != newMainPHash) {
             mainPHash = newMainPHash;
-            mainDraw.setFill(fill);
-            mainDraw.fillRect(0, 0,
-                    Math.min(mainWidth, imageDimensions[0] * mainLocalFactor),
-                    Math.min(mainHeight, imageDimensions[1] * mainLocalFactor));
+            clearGraphics(mainDraw, mainWidth, mainHeight);
             renderGraphics(mainDraw, (int) posx, (int) posy,
                     (int) Math.ceil(mainWidth / mainLocalFactor), (int) Math.ceil(mainHeight / mainLocalFactor),
                     0, 0, mainWidth, mainHeight);
@@ -146,17 +140,23 @@ public class TongaRender {
         int newZoomPHash = (int) (zoomx * zoomWidth - zoomy * zoomHeight - zoomLocalFactor * 100);
         if (zoomPHash != newZoomPHash) {
             zoomPHash = newZoomPHash;
-            zoomDraw.setFill(fill);
-            zoomDraw.fillRect(0, 0, zoomWidth, zoomHeight);
+            clearGraphics(zoomDraw, zoomWidth, zoomHeight);
             int izw = (int) (imageDimensions[0] * zoomLocalFactor), izh = (int) (imageDimensions[1] * zoomLocalFactor);
             boolean he = izw < zoomWidth, ve = izh < zoomHeight;
             int zbx = he ? (zoomWidth - izw) / 2 : 0, zby = ve ? (zoomHeight - izh) / 2 : 0;
             int zwx = he ? izw : zoomWidth, zwy = ve ? izh : zoomHeight;
             int zrx = he ? 0 : zoomx, zry = ve ? 0 : zoomy;
+            System.out.println("ZOOM: " + zoomx + " " + zoomy);
             int zux = he ? imageDimensions[0] : (int) (zoomWidth / zoomLocalFactor);
             int zuy = ve ? imageDimensions[1] : (int) (zoomHeight / zoomLocalFactor);
             renderGraphics(zoomDraw, zrx, zry, zux, zuy, zbx, zby, zwx, zwy);
         }
+    }
+
+    private static void clearGraphics(GraphicsContext cont, int w, int h) {
+        cont.setGlobalBlendMode(BlendMode.SRC_OVER);
+        cont.setFill(fill);
+        cont.fillRect(0, 0, w, h);
     }
 
     private static void initZoomPanel() {
@@ -524,25 +524,36 @@ public class TongaRender {
         }
     }
 
-    public static ImageData renderAsStack(ImageData[] layers) {
-        return new ImageData(blendImages(IMG.datasToImages(layers), Settings.settingBlendMode()));
+    private static WritableImage blendImages(Image[] layers, BlendMode mode) {
+        int[] dim = getMaxDim(layers);
+        int width = dim[0];
+        int height = dim[1];
+        Canvas canvas = new Canvas(width, height);
+        GraphicsContext cont = canvas.getGraphicsContext2D();
+        cont.setGlobalBlendMode(BlendMode.SRC_OVER);
+        Arrays.stream(layers).forEach(layer -> {
+            cont.drawImage(layer, 0, 0, width, height, 0, 0, width, height);
+            cont.setGlobalBlendMode(mode);
+        });
+        SnapshotParameters params = new SnapshotParameters();
+        params.setFill(Color.TRANSPARENT);
+        WritableImage[] wi = new WritableImage[1];
+        Platform.runLater(() -> wi[0] = canvas.snapshot(params, null));
+        IO.waitForRunLater();
+        return wi[0];
     }
 
-    public static ImageData renderAsStack(ImageData img1, ImageData img2) {
-        return renderAsStack(new ImageData[]{img1, img2});
+    public static ImageData blend(ImageData[] layers, BlendMode mode) {
+        //Image[] images = Arrays.stream(layers).map(l -> l.toFXImage()).toArray(Image[]::new);
+        return new ImageData(blendImages(IMG.datasToImages(layers), mode));
     }
 
-    public static WritableImage renderWithMode(Image img1, Image img2, BlendMode mode) {
-        return blendImages(new Image[]{img1, img2}, mode);
+    public static ImageData blend(ImageData img1, ImageData img2, BlendMode mode) {
+        return blend(new ImageData[]{img1, img2}, mode);
     }
 
-    public static ImageData renderWithMode(ImageData img1, ImageData img2, BlendMode mode) {
-        return renderWithMode(new ImageData[]{img1, img2}, mode);
-    }
-
-    public static ImageData renderWithMode(ImageData[] layers, BlendMode mode) {
-        Image[] images = Arrays.stream(layers).map(l -> l.toFXImage()).toArray(Image[]::new);
-        return new ImageData(blendImages(images, mode));
+    public static ImageData blend(ImageData img1, ImageData img2) {
+        return blend(new ImageData[]{img1, img2}, BlendMode.ADD);
     }
 
     static BufferedImage bitTobit8Color(int[] i, int slices, int bitdivider, int maxvalue, ome.xml.model.primitives.Color c, int w, int h) {
@@ -562,24 +573,5 @@ public class TongaRender {
             i[p] = (int) ((i[p] - s) * f);
         }
         return i;
-    }
-
-    private static WritableImage blendImages(Image[] layers, BlendMode mode) {
-        int[] dim = getMaxDim(layers);
-        int width = dim[0];
-        int height = dim[1];
-        Canvas canvas = new Canvas(width, height);
-        GraphicsContext cont = canvas.getGraphicsContext2D();
-        cont.setGlobalBlendMode(BlendMode.SRC_OVER);
-        Arrays.stream(layers).forEach(layer -> {
-            cont.drawImage(layer, 0, 0, width, height, 0, 0, width, height);
-            cont.setGlobalBlendMode(mode);
-        });
-        SnapshotParameters params = new SnapshotParameters();
-        params.setFill(Color.TRANSPARENT);
-        WritableImage[] wi = new WritableImage[1];
-        Platform.runLater(() -> wi[0] = canvas.snapshot(params, null));
-        IO.waitForRunLater();
-        return wi[0];
     }
 }

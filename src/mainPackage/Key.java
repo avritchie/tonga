@@ -3,7 +3,6 @@ package mainPackage;
 import java.awt.Component;
 import java.awt.KeyboardFocusManager;
 import java.awt.event.KeyEvent;
-import java.util.Arrays;
 import java.util.Set;
 import java.util.TreeSet;
 import javax.swing.JTextField;
@@ -14,6 +13,7 @@ public class Key {
     static Set<Integer> pressedKeys = new TreeSet<Integer>();
 
     public static void event(KeyEvent ke) {
+        System.out.println(ke.getKeyCode() + " " + ke.getID());
         Component fo = Tonga.frame().getFocusOwner();
         if (!Tonga.frame().isEnabled() && ke.getKeyCode() != KeyEvent.VK_ESCAPE) {
         } else if (fo == null) {

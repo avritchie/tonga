@@ -44,7 +44,7 @@ public class MatrigelOrganoids extends Protocol {
             protected void methodInit() {
                 layer = Filters.thresholdBright().runSingle(inImage[0], 34 + thresh * 3);
                 work = Filters.niblack().runSingle(inImage[0], 10, 16 + thresh * 2, 3 + thresh);
-                layer = TongaRender.renderWithMode(layer, work, BlendMode.MULTIPLY);
+                layer = TongaRender.blend(layer, work, BlendMode.MULTIPLY);
                 layer = Filters.invert().runSingle(layer);
                 layer = ConnectEdges.run().runSingle(layer);
                 layer = ConnectEdges.run().runSingle(layer);
@@ -55,7 +55,7 @@ public class MatrigelOrganoids extends Protocol {
                 l3 = Filters.bwSaturation().runSingle(work);
                 l2 = Filters.cutFilter().runSingle(l3, new Object[]{180, 57 + thresh * 9});
                 work = Filters.thresholdBright().runSingle(l2, 11 + thresh * 7);
-                layer = TongaRender.renderWithMode(layer, work, BlendMode.DIFFERENCE);
+                layer = TongaRender.blend(layer, work, BlendMode.DIFFERENCE);
                 layer = FiltersPass.edgeDilate().runSingle(layer, COL.BLACK, 1, false);
                 layer = FiltersPass.fillInnerAreas().runSingle(layer, false);
                 layer = FiltersPass.edgeErode().runSingle(layer, COL.BLACK, 3, false, true);

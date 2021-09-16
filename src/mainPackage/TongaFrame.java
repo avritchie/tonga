@@ -3275,7 +3275,7 @@ public class TongaFrame extends javax.swing.JFrame {
 
     private void layersListMouseReleased(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_layersListMouseReleased
         if (evt.getButton() == MouseEvent.BUTTON3) {
-            if (Tonga.getLayerIndexes().length == 1) {
+            if (Tonga.fullLayerIndexCount() == 1) {
                 contLayMerge.setText("Make a copy");
             } else {
                 contLayMerge.setText("Merge into one");

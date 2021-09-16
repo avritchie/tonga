@@ -4,8 +4,8 @@ import mainPackage.ImageData;
 import mainPackage.Iterate;
 import mainPackage.PanelCreator.ControlReference;
 import static mainPackage.PanelCreator.ControlType.*;
+import mainPackage.TongaRender;
 import mainPackage.counters.SetCounters;
-import mainPackage.filters.FiltersRender;
 import mainPackage.morphology.ImageTracer;
 import mainPackage.morphology.ROISet;
 import mainPackage.utils.COL;
@@ -50,7 +50,7 @@ public class _AreaStainIntensity extends Protocol {
                 set.quantifyStainAgainstChannel(inImage[1]);
                 if (rembg) {
                     // get the background mask and value
-                    ImageData r = FiltersRender.renderStack().runSingle(new ImageData[]{inImage[1], inImage[2]});
+                    ImageData r = TongaRender.blend(inImage[1], inImage[2]);
                     Protocol a = Protocol.load(_BackgroundArea::new);
                     bgid = a.runSilent(sourceImage, new ImageData[]{r, inImage[1]}, 80)[0];
                     bgval = (double) a.results.getVal(0, 3) / 100.;

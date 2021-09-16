@@ -8,6 +8,7 @@ package mainPackage.filters;
 import java.awt.Point;
 import java.util.ArrayList;
 import java.util.List;
+import javafx.scene.effect.BlendMode;
 import mainPackage.utils.COL;
 import mainPackage.Tonga;
 import mainPackage.utils.IMG;
@@ -16,6 +17,7 @@ import mainPackage.ImageData;
 import mainPackage.Iterate;
 import mainPackage.PanelCreator.ControlReference;
 import static mainPackage.PanelCreator.ControlType.*;
+import mainPackage.TongaRender;
 import static mainPackage.filters.Filter.noParams;
 import mainPackage.morphology.EdgeAnalyzer;
 import mainPackage.morphology.ImageTracer;
@@ -261,7 +263,7 @@ public class FiltersPass {
                 }
                 mMask = FiltersPass.edgeDilate().runSingle(param.toggle[0] ? mMask : inData, param.colorARGB[0], param.spinner[0], false);
                 sMask = FiltersPass.fillInnerAreasSizeShape().runSingle(mMask, param.colorARGB[0], param.spinner[1], 80);
-                sMask = FiltersRender.blendStack().runSingle(new ImageData[]{mMask, sMask}, 2);
+                sMask = TongaRender.blend(mMask, sMask, BlendMode.EXCLUSION);
                 sMask = FiltersPass.edgeDilate().runSingle(sMask, COL.BLACK, param.spinner[0] + 1, false);
                 if (param.toggle[1]) {
                     setOutputBy(sMask);

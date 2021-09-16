@@ -949,6 +949,14 @@ public class Tonga {
         }
     }
 
+    static int fullLayerIndexCount() {
+        if (Tonga.getImage().stack) {
+            return (int) Tonga.getLayerList().stream().filter(tl -> !tl.isGhost).count();
+        } else {
+            return Tonga.getLayerIndexes().length;
+        }
+    }
+
     public enum OS {
         WINDOWS, MAC, UNKNOWN;
     }

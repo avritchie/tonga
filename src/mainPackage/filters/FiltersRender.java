@@ -1,25 +1,27 @@
 package mainPackage.filters;
 
 import javafx.scene.effect.BlendMode;
-import mainPackage.utils.IMG;
 import mainPackage.ImageData;
 import mainPackage.PanelCreator.ControlReference;
 import static mainPackage.PanelCreator.ControlType.COMBO;
+import mainPackage.Settings;
 import mainPackage.TongaRender;
 import static mainPackage.filters.Filter.noParams;
 
 public class FiltersRender {
 
+    // never use this filter for protocols in any circumstances, use TongaRender.blend() directly
     public static FilterStack renderStack() {
         return new FilterStack("Stack", noParams) {
 
             @Override
             protected ImageData processor(ImageData[] layersarray) {
-                return TongaRender.renderAsStack(layersarray);
+                return TongaRender.blend(layersarray, Settings.settingBlendMode());
             }
         };
     }
 
+    // dont use this filter for protocols, use TongaRender.blend() directly
     public static FilterStack blendStack() {
         return new FilterStack("Blended", new ControlReference[]{
             new ControlReference(COMBO, new String[]{"Abstract", "Subtract", "Extract", "Multiply"}, "Rendering method")}) {
@@ -45,7 +47,7 @@ public class FiltersRender {
                         processName = "Multiplication";
                         break;
                 }
-                return TongaRender.renderWithMode(layersarray, blend);
+                return TongaRender.blend(layersarray, blend);
             }
         };
     }
