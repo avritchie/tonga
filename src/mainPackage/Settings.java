@@ -129,6 +129,7 @@ public class Settings {
         file.mkdirs();
         File dconf = new File(file + "/dialog.conf");
         File sconf = new File(file + "/settings.conf");
+        boolean fail = false;
         neverShow = new HashMap<>();
         if (dconf.exists()) {
             try {
@@ -140,6 +141,7 @@ public class Settings {
                     }
                 }
             } catch (IOException ex) {
+                fail = true;
                 Tonga.catchError(ex, "The dialog config file could not be read.");
             }
         }
@@ -159,17 +161,21 @@ public class Settings {
                     host.stackCombo.setSelectedIndex(((cs >> 2) & 7));
                 }
             } catch (IOException ex) {
+                fail = true;
                 Tonga.catchError(ex, "The setting file could not be read.");
             }
         }
-
+        if (!fail) {
+            Tonga.log.info("Configuration files loaded succesfully.");
+        }
     }
 
-    public static void saveConfigFiles() {
+    public static void saveConfigFiles() throws IOException {
         File file = new File(Tonga.getAppDataPath());
         file.mkdirs();
         File dconf = new File(file + "/dialog.conf");
         File sconf = new File(file + "/settings.conf");
+        boolean fail = false;
         try {
             try ( DataOutputStream out = new DataOutputStream(new FileOutputStream(dconf))) {
                 Iterator<Entry<Integer, Boolean>> esi = neverShow.entrySet().iterator();
@@ -183,7 +189,9 @@ public class Settings {
                 out.flush();
             }
         } catch (IOException ex) {
+            fail = true;
             Tonga.catchError(ex, "The dialog config file could not be saved.");
+            throw ex;
         }
         try {
             try ( DataOutputStream out = new DataOutputStream(new FileOutputStream(sconf))) {
@@ -201,7 +209,12 @@ public class Settings {
                 out.flush();
             }
         } catch (IOException ex) {
+            fail = true;
             Tonga.catchError(ex, "The setting file could not be saved.");
+            throw ex;
+        }
+        if (!fail) {
+            Tonga.log.info("Configuration files saved succesfully.");
         }
     }
 }

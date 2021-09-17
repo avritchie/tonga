@@ -218,7 +218,7 @@ public abstract class Protocol {
                         });
                         updateColorButtonColour(button, combo);
                     } else {
-                        System.out.println("The interaction parameter supplied to COLOUR must be of type LAYER");
+                        Tonga.log.warn("The interaction parameter supplied to COLOUR must be of type LAYER");
                     }
                 }
             }

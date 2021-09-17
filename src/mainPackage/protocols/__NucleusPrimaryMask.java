@@ -93,7 +93,7 @@ public class __NucleusPrimaryMask extends Protocol {
                 IMG.copyPixels(layerBackground.pixels32, outImage[10].pixels32);
                 /*layerBackground = Filters.maximumDiffEdge().runSingle(layerBackground, 0, 1, false, 0);
                 DRAW.copyPixels(layerBackground.pixels32, outImage[13].pixels32);
-                layerBackground = Filters.cutFilter().runSingle(layerBackground, new Object[]{25, 0});
+                layerBackground = Filters.cutFilter().runSingle(layerBackground, new Object[]{0,25});
                 DRAW.copyPixels(layerBackground.pixels32, outImage[14].pixels32);
                 layerBackground = Filters.thresholdBright().runSingle(layerBackground, 5);
                 DRAW.copyPixels(layerBackground.pixels32, outImage[15].pixels32);*/

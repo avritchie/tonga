@@ -173,7 +173,7 @@ public class Wizard extends javax.swing.JFrame {
                 return a[7] ? 14 : 23;
             case 23:
                 return 14;
-            default: 
+            default:
                 return id + 1;
         }
     }
@@ -269,7 +269,7 @@ public class Wizard extends javax.swing.JFrame {
         try {
             ic = new ImageIcon(getClass().getResource("/resourcePackage/wizard/" + id + "_" + i + ".png"));
         } catch (Exception ex) {
-            System.out.println("Missing an image for " + id + "_" + i);
+            Tonga.log.warn("Missing an image for {}_{}", id, i);
             return new ImageIcon(getClass().getResource("/resourcePackage/wizard/rikki.png"));
         }
         return ic;
@@ -302,7 +302,7 @@ public class Wizard extends javax.swing.JFrame {
                     if (evt.getClickCount() == 1) {
                         ls = list.getSelectedIndex();
                     } else if (evt.getClickCount() == 2 && ls == list.getSelectedIndex()) {
-                        System.out.println(((WizardReply) list.getSelectedValue()).text);
+                        Tonga.log.debug("Wizard reply: {}", ((WizardReply) list.getSelectedValue()).text);
                         revertTo(list.getSelectedIndex());
                     }
                 }
@@ -341,7 +341,7 @@ public class Wizard extends javax.swing.JFrame {
     private void loadEntry(int id) {
         WizardEntry we = entries[id];
         if (we == null) {
-            System.out.println("Entry number " + id + " does not exist.");
+            Tonga.catchError(new IllegalArgumentException(), "Entry number " + id + " does not exist.");
         } else {
             this.id = id;
             firstSelection.setText(we.opt[0]);

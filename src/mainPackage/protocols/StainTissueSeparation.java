@@ -50,7 +50,7 @@ public class StainTissueSeparation extends Protocol {
                 layer = Filters.bwBrightness().runSingle(inImage[0]);
                 layer2 = layer;
                 layer = Filters.autoscaleWithAdapt().runSingle(layer, 5);
-                layer = Filters.cutFilter().runSingle(layer, new Object[]{225, 0});
+                layer = Filters.cutFilter().runSingle(layer, new Object[]{0,225});
                 layer = Filters.invert().runSingle(layer);
                 layer3 = layer;
                 layer = Filters.multiply().runSingle(layer, 1600.);

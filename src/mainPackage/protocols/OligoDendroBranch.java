@@ -9,6 +9,7 @@ import javafx.scene.image.Image;
 import javafx.scene.image.PixelReader;
 import javafx.scene.image.PixelWriter;
 import javafx.scene.paint.Color;
+import mainPackage.Tonga;
 import mainPackage.utils.COL;
 import mainPackage.CachedImage;
 import mainPackage.utils.IMG;
@@ -68,7 +69,7 @@ public class OligoDendroBranch extends Protocol {
                 nucleiLayer = Filters.thresholdBright().runSingle(nucleiLayer, 50);
                 ROISet nuclei = new ImageTracer(nucleiLayer, sCol).trace();
                 List<Point> centers = nuclei.getCenterPoints();
-                System.out.println("There are: " + nuclei.objectsCount() + " nuclei");
+                Tonga.log.debug("There are {} nuclei", nuclei.objectsCount());
                 IMG.copyImage(nucleiLayer, outImage[0]);
                 // BADI
                 bodyLayer = FiltersRender.renderStack().runSingle(
@@ -97,11 +98,11 @@ public class OligoDendroBranch extends Protocol {
                 areaLayer = FiltersPass.filterObjectDimension().runSingle(areaLayer, COL.BLACK, 15, false, 0);
                 IMG.copyImage(areaLayer, outImage[2]);
                 //
-                System.out.println(centers.size());
+                Tonga.log.trace("There are {} centers", centers.size());
                 double[][] hitsMax = objectAreaTracing(centers,
                         new Image[]{areaLayer.toFXImage(), bodyLayer.toFXImage(), sourceLayer[1].layerImage.getFXImage(), outImage[3], outImage[4]},
                         radius, sCol, new PixelWriter[]{outWriter[3], outWriter[4]}, onlyOne);
-                System.out.println(hitsMax.length);
+                Tonga.log.trace("There are {} hitmaxes", centers.size());
                 for (int cell = 1; cell < hitsMax.length; cell++) {
                     Object[] dataRow = data.newRow(sourceImage.imageName);
                     dataRow[1] = cell;

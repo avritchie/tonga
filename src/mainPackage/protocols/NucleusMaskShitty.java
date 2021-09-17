@@ -66,13 +66,6 @@ public class NucleusMaskShitty extends Protocol {
                                 + (layerDoG3[p] & 0xFF)
                                 + (layerDoG4[p] & 0xFF)) * 1.05) - 10));
                         layerComb.pixels32[p] = RGB.argb(val);
-                        if (p == 1000) {
-                            System.out.println(layerDoG1[p] & 0xFF);
-                            System.out.println(layerDoG2[p] & 0xFF);
-                            System.out.println(layerDoG3[p] & 0xFF);
-                            System.out.println(layerDoG4[p] & 0xFF);
-                            System.out.println(val);
-                        }
                     }
                 }
                 // free memory

@@ -16,7 +16,7 @@ public abstract class Exporter {
     public boolean export(String n, String ext) {
         n = legalName(n);
         file = new File(Tonga.formatPath(Tonga.frame().filePathField.getText() + "\\" + n + "." + ext));
-        System.out.println(file);
+        Tonga.log.info("Exporting {} to {}", n, file);
         int id = 0;
         //!mainFrame.settingOverwrite()
         while (file.exists()) {

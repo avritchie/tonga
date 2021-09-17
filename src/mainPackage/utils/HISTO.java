@@ -55,7 +55,7 @@ public class HISTO {
     }
 
     public static int[] getHistogram(short[] px) {
-        // input image as ARGB INT pixel values
+        // input image as GRAYSCALE SHORT pixel values
         int[] hist = new int[65536];
         for (int i = 0; i < px.length; i++) {
             hist[px[i] & 0xFFFF]++;
@@ -130,7 +130,7 @@ public class HISTO {
                 li = i;
             }
         }
-        System.out.println("LOWEST: " + li + " | HIGHESTS: " + hFi + " & " + hSi);
+        Tonga.log.debug("Histo hills: LOWEST is {}, HIGHESTS are {} and {}", li, hFi, hSi);
         return new int[]{hFi, hSi, li};
     }
 
@@ -154,7 +154,7 @@ public class HISTO {
         // =only when the signal starts to be strong it is considered
         int max = histoData[getHighestPointIndex(histoData, true)];
         int adapt = (int) (max * (percentage / 100.));
-        System.out.println("Adaped autoscaling for " + histoData.length + "-sized histogram (" + percentage + "%): " + adapt + " limit, highest value is " + max);
+        Tonga.log.debug("Adaped autoscaling for {}-sized histogram ({}%): {} limit, highest value is {}", histoData.length, percentage, adapt, max);
         return getMinMaxAdaptValue(histoData, adapt);
     }
 
@@ -174,7 +174,7 @@ public class HISTO {
             }
         }
         if (up == -1 || low == -1) {
-            System.out.println("Autoscale error");
+            Tonga.log.warn("Autoscale index is negative");
         }
         return new int[]{low, up};
     }

@@ -434,6 +434,7 @@ public class ROISet {
                                                 r1p = new Point(x, y);
                                             }
                                         } catch (ArrayIndexOutOfBoundsException ex) {
+                                            Tonga.log.warn("Invalid array check when connecting lines.");
                                         }
                                     }
                                     if (r2p == null) {
@@ -442,13 +443,14 @@ public class ROISet {
                                                 r2p = new Point(x, y);
                                             }
                                         } catch (ArrayIndexOutOfBoundsException ex) {
+                                            Tonga.log.warn("Invalid array check when connecting lines.");
                                         }
                                     }
                                 }
                             }
                             r++;
                         }
-                        System.out.println(r1p + " | " + r2p);
+                        Tonga.log.trace("Long and thin object connection found between {} and {}", r1p, r2p);
                         points.add(r1p);
                         points.add(r2p);
                     }
@@ -524,7 +526,7 @@ public class ROISet {
         }
         avgSTD = avgSTD / list.size();//26.45;//
         avgDiaRat = avgDiaRat / list.size();//34.14;//
-        System.out.println("AVERAGES: " + avgSize + " " + avgStain + " " + avgSTD + " " + avgDiaRat);
+        Tonga.log.trace("Dead and dividing detection:\nAverages: size={}, stain={}, std={}, diarat={}", avgSize, avgStain, avgSTD, avgDiaRat);
         while (it.hasNext() && !Thread.currentThread().isInterrupted()) {
             ROI roi = it.next();
             STAT stat = roi.getStainSTAT();
@@ -535,28 +537,30 @@ public class ROISet {
             int size = roi.getSize();
             double pixelSize = roi.edgeData.totalSharpPoints > 0 ? (size / (double) roi.edgeData.totalSharpPoints) : Integer.MAX_VALUE;
             double dimratio = roi.getSize() / (double) roi.getDimension();
-            System.out.println("x" + roi.xcenter + " y" + roi.ycenter + " | " + roi.getSize() + " | " + dimratio + " | " + roi.getStainAvg() + " | " + angles + " | " + pixelSize + " | "
-                    + roi.edgeData.totalSharpPoints + " | " + roi.edgeData.cornerCandidates.size() + " | " + roi.edgeData.cornerPoints.size() + " | "
-                    + stat.getStdDev() + " | " + stat.getVariance() + " | " + stat.getMean() + " | " + stat.getMedian());
+            Tonga.log.trace("Nucleus x{}y{}, size={}, stain={}, dim={}, angles={}, pixels={}, sharps={}, surepoints={}, unsurepoints={}, stddev={}, var={}, mean={}, median={}",
+                    roi.xcenter, roi.ycenter, roi.getSize(), roi.getStainAvg(),
+                    dimratio, angles, pixelSize,
+                    roi.edgeData.totalSharpPoints, roi.edgeData.cornerCandidates.size(), roi.edgeData.cornerPoints.size(),
+                    stat.getStdDev(), stat.getVariance(), stat.getMean(), stat.getMedian());
             if (stain * 100 + std > 1.85 * (avgStain * 100 + avgSTD)) {
-                System.out.println("REMOVED because ev 1 " + roi.getSize() + " x" + roi.xcenter + " y" + roi.ycenter);
+                Tonga.log.trace("was REMOVED because of ev 1");
                 it.remove();
             } else if (size < 0.67 * avgSize && stain > 1.75 * avgStain) {
-                System.out.println("REMOVED because ev 2 " + roi.getSize() + " x" + roi.xcenter + " y" + roi.ycenter);
+                Tonga.log.trace("was REMOVED because of ev 2");
                 it.remove();
             } else if (size < avgSize && dimratio < 0.67 * avgDiaRat && std > 1.5 * avgSTD) {
-                System.out.println("REMOVED because ev 3 " + roi.getSize() + " x" + roi.xcenter + " y" + roi.ycenter);
+                Tonga.log.trace("was REMOVED because of ev 3");
                 it.remove();
             } else if (size < 1.1 * avgSize && totalPixels > 0 && stain > avgStain && std > 2 * avgSTD) {
-                System.out.println("REMOVED because ev 4 " + roi.getSize() + " x" + roi.xcenter + " y" + roi.ycenter);
+                Tonga.log.trace("was REMOVED because of ev 4");
                 it.remove();
             } else if (size < 0.5 * avgSize && stain > 1.2 * avgStain && std > 1.5 * avgSTD) {
-                System.out.println("REMOVED because ev 6 " + roi.getSize() + " x" + roi.xcenter + " y" + roi.ycenter);
+                Tonga.log.trace("was REMOVED because of ev 6");
                 it.remove();
             }
             //too many false positives
             if (size < 1.1 * avgSize && totalPixels > 0 && pixelSize < 200 && angles > 25) {
-                System.out.println("NOT REMOVED because ev 5 " + roi.getSize() + " x" + roi.xcenter + " y" + roi.ycenter);
+                Tonga.log.trace("was NOT REMOVED because of ev 5");
                 //it.remove();
             }
         }
@@ -567,14 +571,16 @@ public class ROISet {
             Iterator<? extends ROI> it = list.iterator();
             double avgSize = avgCornerlessSize();
             double circ = GEO.circleCircumference(avgSize) / 2;
-            //System.out.println("AOEIFA" + avgSize + " | " + circ);
+            Tonga.log.trace("Small and shapey detection:\nAverages: size={}, circ={}", avgSize, circ);
             while (it.hasNext()) {
                 ROI roi = it.next();
                 int ss = roi.edgeData.cornerCandidates.size() + roi.edgeData.cornerPoints.size();
-                //System.out.println(roi.getSize() + " | " + (roi.getSize() / (double) roi.edgeData.totalSharpPoints / ss) + " | " + roi.edgeData.totalSharpPoints + " | " + roi.edgeData.cornerCandidates.size() + " | " + roi.edgeData.cornerPoints.size());
+                Tonga.log.trace("Nucleus size={}, shapeyness={}, sharps={}, surepoints={}, unsurepoints={}",
+                        roi.getSize(), (roi.getSize() / (double) roi.edgeData.totalSharpPoints / ss),
+                        roi.edgeData.totalSharpPoints, roi.edgeData.cornerPoints.size(), roi.edgeData.cornerCandidates.size());
                 if (roi.getSize() < avgSize * 1.2 && roi.getSize() / (double) roi.edgeData.totalSharpPoints / ss < circ) {
-                    //System.out.println("REMOVED " + roi.getSize());
-                    //  it.remove();
+                    Tonga.log.trace("was NOT REMOVED");
+                    //it.remove();
                 }
             }
         }
@@ -604,14 +610,15 @@ public class ROISet {
         if (avgCornerlessSize() != 0) {
             Iterator<? extends ROI> it = list.iterator();
             double avgSize = avgCornerlessSize();
-            //System.out.println("AIUDHAIEF");
+            Tonga.log.trace("Filter out very variable:");
             while (it.hasNext()) {
                 ROI roi = it.next();
                 STAT stat = roi.getStainSTAT();
-                //System.out.println(roi.getSize() + " | " + stat.getStdDev() + " | " + stat.getVariance() + " | " + stat.getMean() + " | " + stat.median());
+                Tonga.log.trace("Nucleus size={}, stddev={}, var={}, mean={}, median={}",
+                        roi.getSize(), stat.getStdDev(), stat.getVariance(), stat.getMean(), stat.getMedian());
                 if (roi.getSize() < avgSize * 1.2 && stat.getStdDev() > 60) {
-                    //System.out.println("REMOVED " + roi.getSize());
-                    //    it.remove();
+                    Tonga.log.trace("was NOT REMOVED");
+                    //it.remove();
                 }
             }
         }
@@ -621,13 +628,13 @@ public class ROISet {
         double multiplier = 0.5 + ((100 - val) / 100.);
         double avgStain = avgStain();
         double avgSize = avgSize();
-        ////System.out.println("Dead filtering: avgStain " + avgStain + " avgSize " + avgSize);
+        Tonga.log.trace("Bright and small removal:\nAverages: stain={}, size={}", avgStain, avgSize);
         Iterator<? extends ROI> it = list.iterator();
         while (it.hasNext()) {
             ROI roi = it.next();
-            //System.out.println(roi.getStain() + " vs " + (avgStain * (2.5 * multiplier)) + " | " + (roi.getSize() * (0.5 + (0.5 * multiplier))) + " vs " + avgSize);
+            Tonga.log.trace("Nucleus stain={}, ={}, avgstainmult={}, size={}, avgsizemult={}", roi.getStain(), (avgStain * (2.5 * multiplier)), roi.getSize(), (avgSize * (0.5 + (0.5 * multiplier))));
             if (roi.getStainAvg() > avgStain * (2.5 * multiplier) && roi.getSize() * (0.5 + (0.5 * multiplier)) < avgSize) {
-                //System.out.println("REMOVED " + roi.getSize());
+                Tonga.log.trace("was NOT REMOVED");
                 //   it.remove();
             }
         }

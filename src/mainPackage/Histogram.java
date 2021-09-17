@@ -12,48 +12,75 @@ import mainPackage.utils.HISTO;
 
 public class Histogram {
 
-    private static Integer imageHash = null;
-    private static BufferedImage currentImage = null;
-    private static Color bgcol = Tonga.frame().histoImg.getBackground();
-    private static int[] histo = null;
-    private static int pwidth = 0;
+    private static Color histoCol;
+    private static JPanel histoPanel;
+    private static JLabel histoLabel;
+    private static JPanel histoImg;
+    private static Integer imageHash = -1;
+    private static int[] currentHisto;
     private static long lastStamp;
+    private static int pwidth = 0;
+
+    protected static void boot() {
+        histoPanel = Tonga.frame().histogramPanel;
+        histoLabel = Tonga.frame().histoLabel;
+        histoImg = Tonga.frame().histoImg;
+        histoCol = histoImg.getBackground();
+    }
 
     public static void update() {
-        JPanel histoPanel = Tonga.frame().histogramPanel;
-        JLabel histoLabel = Tonga.frame().histoLabel;
-        JPanel histoImg = Tonga.frame().histoImg;
         if (pwidth > histoPanel.getWidth()) {
-            histoImg.setBackground(Color.white);
-            histoLabel.setIcon(null);
+            clearHistogram(Color.white);
         }
         if (Settings.settingBatchProcessing()) {
-            histoImg.setBackground(bgcol);
-            histoLabel.setIcon(null);
-            return;
+            clearHistogram(histoCol);
+        } else {
+            updateHistogram();
         }
+    }
+
+    private static void clearHistogram(Color col) {
+        SwingUtilities.invokeLater(() -> {
+            histoImg.setBackground(col);
+            histoLabel.setIcon(null);
+        });
+    }
+
+    private static void updateHistogram() {
         Thread thread = new Thread(() -> {
             long stamp = System.currentTimeMillis();
-            lastStamp = stamp;
             try {
                 pwidth = histoPanel.getWidth();
-                Image imgSource = TongaRender.renderImages[Tonga.getLayerIndex()];
-                int imgHash = imgSource.hashCode();
-                if (imageHash == null || histo == null || imageHash != imgHash) {
-                    imageHash = imgHash;
-                    histo = HISTO.getHistogram(imgSource);
-                }
-                SwingUtilities.invokeLater(() -> {
-                    int width = histoLabel.getWidth();
-                    int height = histoLabel.getHeight();
-                    currentImage = renderHistogram(histo, width, height, (int) (imgSource.getHeight() * imgSource.getWidth()));
-                    if (stamp == lastStamp) {
-                        histoLabel.setIcon(new ImageIcon(currentImage));
+                if (Tonga.thereIsImage() && TongaRender.renderImages != null && TongaRender.renderImages.length > 0) {
+                    Image imgSource = TongaRender.renderImages[Tonga.getLayerIndex()];
+                    int imgHash = imgSource.hashCode();
+                    int[] renderHisto = currentHisto;
+                    if (imageHash != imgHash) {
+                        renderHisto = HISTO.getHistogram(imgSource);
+                        currentHisto = renderHisto;
+                        imageHash = imgHash;
+                        Tonga.log.trace("Calculate a histogram for {} by {}", imgHash, stamp);
                     }
-                });
+                    if (renderHisto != null) {
+                        Tonga.log.trace("Render a histogram for {} by {}", imgHash, stamp);
+                        BufferedImage currentImage = renderHistogram(renderHisto, histoLabel.getWidth(), histoLabel.getHeight(), (int) (imgSource.getHeight() * imgSource.getWidth()));
+                        if (stamp > lastStamp) {
+                            lastStamp = stamp;
+                            SwingUtilities.invokeLater(() -> {
+                                histoLabel.setIcon(new ImageIcon(currentImage));
+                            });
+                            Tonga.log.trace("Set a histogram for {} by {}", imgHash, stamp);
+                        } else {
+                            Tonga.log.trace("Discard a histogram for {} by {}", imgHash, stamp);
+                        }
+                    }
+                } else {
+                    Tonga.log.trace("No image by {}", stamp);
+                    clearHistogram(histoCol);
+                }
             } catch (NullPointerException | IndexOutOfBoundsException ex) {
-                histoImg.setBackground(bgcol);
-                histoLabel.setIcon(null);
+                Tonga.catchError(ex, "Histogram rendering error.");
+                clearHistogram(histoCol);
             }
         });
         thread.setName("Histogram");
@@ -75,5 +102,4 @@ public class Histogram {
         }
         return img;
     }
-
 }

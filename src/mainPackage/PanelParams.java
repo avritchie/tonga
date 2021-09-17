@@ -1,7 +1,6 @@
 package mainPackage;
 
 import java.awt.Color;
-import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JSlider;

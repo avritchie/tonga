@@ -46,7 +46,7 @@ public class HETissueSeparation extends Protocol {
                 collVals = new int[outImage[0].totalPixels()];
                 int[] histo = HISTO.getHistogram(inImage[0].pixels32);
                 int high = HISTO.getHighestPointIndex(histo, false);
-                layer = Filters.cutFilter().runSingle(inImage[0], new Object[]{high, 50});
+                layer = Filters.cutFilter().runSingle(inImage[0], new Object[]{50,high});
                 layer = Filters.invert().runSingle(layer);
                 layer = Filters.gaussApprox().runSingle(layer, 5 * magn);
                 layer = Filters.thresholdBright().runSingle(layer, threshHemxyl);

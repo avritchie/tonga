@@ -13,7 +13,7 @@ public class Key {
     static Set<Integer> pressedKeys = new TreeSet<Integer>();
 
     public static void event(KeyEvent ke) {
-        System.out.println(ke.getKeyCode() + " " + ke.getID());
+        Tonga.log.trace("KeyCode: {} ; KeyID: {}", ke.getKeyCode(), ke.getID());
         Component fo = Tonga.frame().getFocusOwner();
         if (!Tonga.frame().isEnabled() && ke.getKeyCode() != KeyEvent.VK_ESCAPE) {
         } else if (fo == null) {
@@ -54,7 +54,7 @@ public class Key {
                                 }*/
                                 if (Tonga.loader().threadTask != null
                                         && Tonga.loader().threadTask.isAlive()) {
-                                    System.out.println("Thread aborted.");
+                                    Tonga.log.info("Thread {} abortion request.", Tonga.loader().threadTask.getName());
                                     Tonga.loader().abort();
                                 }
                                 if (Tonga.loader().hasFocus()) {
@@ -119,7 +119,7 @@ public class Key {
     }
 
     private static void debug() {
-        System.out.println("Debug");
+        Tonga.log.debug("Debug function executed");
         Tonga.refreshCanvases();
     }
 
@@ -139,7 +139,7 @@ public class Key {
                     cc++;
                     if (cc == code.length) {
                         cc = 0;
-                        Tonga.frame().menuDebug.setVisible(true);
+                        Tonga.debugMode();
                     }
                 } else {
                     cc = 0;

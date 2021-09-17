@@ -46,7 +46,7 @@ public class Test {
                 out[y * width + x] = (a << 24) | (w << 16) | (w << 8) | w;
             }
         }
-        System.out.println(System.nanoTime() - timeStart);
+        Tonga.log.debug("Test timing: {}", System.nanoTime() - timeStart);
         CachedImage newImage = new ImageData(out, width, height).toImage();
         Tonga.injectNewLayer(new TongaLayer(newImage, "TESTI"));
         Tonga.refreshLayerList();

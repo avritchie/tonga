@@ -146,7 +146,6 @@ public class TongaRender {
             int zbx = he ? (zoomWidth - izw) / 2 : 0, zby = ve ? (zoomHeight - izh) / 2 : 0;
             int zwx = he ? izw : zoomWidth, zwy = ve ? izh : zoomHeight;
             int zrx = he ? 0 : zoomx, zry = ve ? 0 : zoomy;
-            System.out.println("ZOOM: " + zoomx + " " + zoomy);
             int zux = he ? imageDimensions[0] : (int) (zoomWidth / zoomLocalFactor);
             int zuy = ve ? imageDimensions[1] : (int) (zoomHeight / zoomLocalFactor);
             renderGraphics(zoomDraw, zrx, zry, zux, zuy, zbx, zby, zwx, zwy);
@@ -473,7 +472,7 @@ public class TongaRender {
             }
         }
         for (int i = 0; i < maxChannels; i++) {
-            System.out.println("Common scaling for channel " + i + " will be between " + min[i] + " and " + max[i]);
+            Tonga.log.debug("Common scaling for channel {} will be between {} and {}", i, min[i], max[i]);
         }
         for (TongaImage ti : returnableImages) {
             for (int j = 0; j < ti.layerList.size(); j++) {
@@ -510,7 +509,7 @@ public class TongaRender {
                 if (!stack || !layer.isGhost) {
                     if (TongaRender.renderImages[i] == null) {
                         TongaRender.renderImages[i] = layer.layerImage.getFXImage();
-                        System.out.println("This should not happen.");
+                        Tonga.log.warn("Render concurrency violation. This should not happen.");
                     }
                     double alpha = layer.isGhost ? 1.0 / indices.length : 1.0;
                     cont.setGlobalAlpha(alpha);
@@ -539,7 +538,7 @@ public class TongaRender {
         params.setFill(Color.TRANSPARENT);
         WritableImage[] wi = new WritableImage[1];
         Platform.runLater(() -> wi[0] = canvas.snapshot(params, null));
-        IO.waitForRunLater();
+        IO.waitForJFXRunLater();
         return wi[0];
     }
 
@@ -558,7 +557,7 @@ public class TongaRender {
 
     static BufferedImage bitTobit8Color(int[] i, int slices, int bitdivider, int maxvalue, ome.xml.model.primitives.Color c, int w, int h) {
         int cc = c.getRed() << 16 | c.getGreen() << 8 | c.getBlue() | 255 << 24;
-        System.out.println("There are " + slices + " slices and the divider is " + bitdivider + ", maxvalue " + maxvalue);
+        Tonga.log.debug("There are {} slices and the divider is {}, maxvalue {}", slices, bitdivider, maxvalue);
         int div = slices * bitdivider;
         for (int p = 0; p < i.length; p++) {
             i[p] = RGB.argbColored(Math.min(maxvalue * slices, i[p]) / div, cc);

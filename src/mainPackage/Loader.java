@@ -35,13 +35,13 @@ public class Loader extends javax.swing.JFrame {
             tbar = Taskbar.getTaskbar();
             resetProgress();
         } catch (NoClassDefFoundError | RuntimeException ex) {
-            System.out.println("The current JRE does not support the taskbar.");
+            Tonga.log.info("The current JRE does not support the taskbar.");
             taskbarSupport = false;
         }
     }
 
     public void setIterations(int i) {
-        System.out.println("Iterations set to " + i);
+        Tonga.log.debug("Iterations set to " + i);
         // note: only use this function inside a thread(!)
         stepsTotal = i;
         stepsNow = 0;
@@ -66,26 +66,27 @@ public class Loader extends javax.swing.JFrame {
         threadTask.start();
         threadMaster = new Thread(() -> {
             try {
+                Tonga.log.info("{} was started and allocated.", threadTask.getName());
                 threadTask.join();
             } catch (InterruptedException ex) {
-                SwingUtilities.invokeLater(() -> {
-                    Tonga.catchError(ex, "Loader thread interrupted. You should never see this.");
-                });
+                Tonga.catchError(ex, "Loader thread interrupted. You should never see this.");
             } finally {
-                SwingUtilities.invokeLater(() -> {
-                    loaderFinish();
-                    if (abort) {
-                        Tonga.setStatus("Operation aborted by user");
-                        abort = false;
-                    } else if (fail) {
-                        Tonga.setStatus("<font color=\"red\">" + threadTask.getName() + " crashed unexpectedly.</font> See the console for details.");
-                        fail = false;
-                    } else if (!threadTask.getName().equals("An unknown task")) {
-                        Tonga.setStatus("Completed " + threadTask.getName() + " succesfully in " + (timeEnd - timeStart) / 10000000 / 100. + "s");
-                    }
-                });
+                loaderFinish();
+                if (abort) {
+                    Tonga.setStatus("Operation aborted by user");
+                    Tonga.log.info("{} was aborted by the user.", threadTask.getName());
+                    abort = false;
+                } else if (fail) {
+                    Tonga.setStatus("<font color=\"red\">" + threadTask.getName() + " crashed unexpectedly.</font> See the console for details.");
+                    Tonga.log.info("{} crashed unexpectedly.", threadTask.getName());
+                    fail = false;
+                } else if (!threadTask.getName().equals("An unknown task")) {
+                    Tonga.setStatus("Completed " + threadTask.getName() + " succesfully in " + (timeEnd - timeStart) / 10000000 / 100. + "s");
+                    Tonga.log.info("{} was completed succesfully in {}s.", threadTask.getName(), (timeEnd - timeStart) / 10000000 / 100.);
+                }
             }
         });
+        threadMaster.setName("TaskWatcher");
         threadMaster.start();
     }
 

@@ -7,6 +7,7 @@ package mainPackage.morphology;
 
 import java.awt.Point;
 import static java.lang.Double.NaN;
+import mainPackage.Tonga;
 import mainPackage.utils.GEO;
 
 /**
@@ -65,16 +66,16 @@ public class EdgePoint extends Point {
         pairings.closestFriend = edgePoint;
         pairings.closestFriendDistance = dist;
         pairings.closestFriendDistanceRaw = GEO.getDist(this, edgePoint);
-        //System.out.println("Friend found at " + edgePoint + " for " + this);
-        //System.out.println("Distance to her is " + dist);
+        Tonga.log.trace("Friend found at {} for {}", edgePoint, this);
+        Tonga.log.trace("Distance to her is {}", dist);
     }
 
     protected void setAsBuddy(EdgePoint edgePoint, int dist) {
         pairings.closestBuddy = edgePoint;
         pairings.closestBuddyDistance = dist;
         pairings.closestBuddyDistanceRaw = GEO.getDist(this, edgePoint);
-        //System.out.println("Buddy found at " + edgePoint + " for " + this);
-        //System.out.println("Distance to her is " + dist);
+        Tonga.log.trace("Buddy found at {} for {}", edgePoint, this);
+        Tonga.log.trace("Distance to her is {}", dist);
     }
 
 }

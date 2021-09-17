@@ -52,9 +52,8 @@ public class NucleusEdUCounter extends Protocol {
                     layerDoG = Filters.dog().runSingle(inImage[i], 2, 20, false);
                     ///
                     //layerDoG = Filters.multiply().runSingle(layerDoG, i == 0 ? 50 : 25);
-                    layerDoG = Filters.cutFilter().runSingle(layerDoG, new Object[]{(i == 0)
-                        ? (int) (125 + (50 - sourceVal))
-                        : (int) (100 + (50 - sourceVal)), (int) 5});
+                    layerDoG = Filters.cutFilter().runSingle(layerDoG, new Object[]{(int) 5,
+                        (i == 0) ? (int) (125 + (50 - sourceVal)) : (int) (100 + (50 - sourceVal))});
                     ///
                     layerThrs = Filters.crapCleaner().runSingle(layerDoG, 6);
                     layerThrs = Filters.thresholdBright().runSingle(layerThrs, 1);

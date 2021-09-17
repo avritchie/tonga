@@ -37,7 +37,7 @@ public abstract class Processor {
 
     public Processor(int outputs, String[] output) {
         this(outputs, output, 10);
-        System.out.println("Iteration parameter missing: " + output[0] + ":" + getClass().getName());
+        Tonga.log.debug("Iteration parameter missing: {}:{}", output[0], getClass().getName());
     }
 
     public Processor(int outputs, String output) {
@@ -75,7 +75,7 @@ public abstract class Processor {
             Arrays.stream(sourceLayer).forEach(i -> {
                 try {
                     if (i.layerImage == null) {
-                        System.out.println("Loading from " + i.path);
+                        Tonga.log.info("Loading a file to process from " + i.path);
                         i.layerImage = IO.getImageFromFile(i.path);
                     }
                 } catch (Exception ex) {

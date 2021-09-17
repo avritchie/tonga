@@ -40,7 +40,7 @@ public abstract class FilterFast extends Filter {
                 processor16();
                 return outData;
             } catch (UnsupportedOperationException uoe) {
-                System.out.println("The method " + this.getName() + " does not support 16-bit images yet.");
+                Tonga.log.info("The method {} does not support 16-bit images.", this.getName());
                 inData.set8BitPixels();
                 in32 = inData.pixels32;
             }

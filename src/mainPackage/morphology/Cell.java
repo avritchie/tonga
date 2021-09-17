@@ -6,6 +6,7 @@
 package mainPackage.morphology;
 
 import mainPackage.ImageData;
+import mainPackage.Tonga;
 
 public class Cell extends ROI {
 
@@ -13,15 +14,16 @@ public class Cell extends ROI {
     private int cellEstimate;
 
     public Cell(ROI roi) {
-        super(roi.originalImage,roi.area);
+        super(roi.originalImage, roi.area);
     }
-    public Cell(ImageData id,Area a) {
-        super(id,a);
+
+    public Cell(ImageData id, Area a) {
+        super(id, a);
     }
 
     public int getCellEstimate() {
         if (cellEstimate == 0) {
-            System.out.println("ERROR - ESTIMATIONS MUST BE INVOKED FROM THE SET");
+            Tonga.log.warn("Cell estimations must be invoked from the set");
         }
         return cellEstimate;
     }

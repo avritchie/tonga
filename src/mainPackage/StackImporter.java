@@ -72,7 +72,7 @@ public class StackImporter {
         for (int i = 0; i < imageNumber; i++) {
             // read basic data
             TongaImage ti = returnableImages[i];
-            System.out.println("Names: " + xml.getImageName(i) + " | " + file.getName());
+            Tonga.log.debug("Names: {} | {}", xml.getImageName(i), file.getName());
             ti.imageName = IO.fileName(xml.getImageName(i) == null ? file.getName() : xml.getImageName(i));
             input.setSeries(i);
             channelNumber = input.getEffectiveSizeC();
@@ -81,9 +81,9 @@ public class StackImporter {
             maxPixelValue = (int) Math.pow(2, bitNumber) - 1;
             maxChannels = Math.max(maxChannels, channelNumber);
             // create containing arrays
-            System.out.println("-------------\n" + ti.imageName);
-            System.out.println("Contains " + channelNumber + " channels and " + sliceNumber + " z-layers");
-            System.out.println("Has " + bitNumber + " bits/pixel and the max value per pixel is " + maxPixelValue);
+            Tonga.log.debug("-------------\n{}", ti.imageName);
+            Tonga.log.debug("Contains {} channels and {} z-layers", channelNumber, sliceNumber);
+            Tonga.log.debug("Has {} bits/pixel and the max value per pixel is {}", bitNumber, maxPixelValue);
             // iterate through channels
             for (int c = 0; c < channelNumber; c++) {
                 // read basic data
@@ -133,7 +133,7 @@ public class StackImporter {
 
     private static TongaImage[] createImages(int images) {
         TongaImage[] imageArray = new TongaImage[images];
-        System.out.println("Contains " + images + " images");
+        Tonga.log.debug("Contains {} images", images);
         for (int i = 0; i < imageArray.length; i++) {
             imageArray[i] = new TongaImage();
         }
@@ -145,17 +145,17 @@ public class StackImporter {
         input.setSeries(0);
         if (!name.equals(file.getName()) || input.getSeriesCount() > 1) {
             input = new BufferedImageReader(new ChannelSeparator(input));
-            System.out.println("Channels will be separated");
+            Tonga.log.debug("Channels will be separated");
         } else {
             input = new BufferedImageReader(new ChannelMerger(input));
-            System.out.println("Channels will be merged");
+            Tonga.log.debug("Channels will be merged");
         }
         return input;
     }
 
     private static String getColorName(Color c) {
         try {
-            System.out.println("Color is " + c.getRed() + "," + c.getGreen() + "," + c.getBlue() + " (" + c.getValue() + ")");
+            Tonga.log.debug("Color is " + c.getRed() + "," + c.getGreen() + "," + c.getBlue() + " (" + c.getValue() + ")");
             javafx.scene.paint.Color col = new javafx.scene.paint.Color(1.0 / 255 * c.getRed(), 1.0 / 255 * c.getGreen(), 1.0 / 255 * c.getBlue(), 1);
             return cols.containsKey(col.toString()) ? cols.get(col.toString()) : col.toString();
         } catch (Exception ex) {
@@ -178,9 +178,8 @@ public class StackImporter {
             maxPixelRange = (int) Math.pow(2, bitNumber) * slices;
             int[] histo = HISTO.getHistogramBWXbit(rawChannel, maxPixelRange);
             int[] posLowHigh = HISTO.getMinMaxAdapt(histo, Settings.settingAutoscaleAggressive() ? 0.1 : 0);
-            System.out.println(Arrays.toString(histo));
-            System.out.println(histo[posLowHigh[0]] + " is the lowest point, index is " + posLowHigh[0] + "; " + histo[posLowHigh[1]] + " is the highest point, index is " + posLowHigh[1]);
-            System.out.println("To scale to 0-255 it should be substracted " + posLowHigh[0] + " and scaled with " + (maxPixelRange / 2. / posLowHigh[1]));
+            Tonga.log.debug("{} is the lowest point, index is {}; {} is the highest point, index is {}", posLowHigh[0], histo[posLowHigh[1]], posLowHigh[1], histo[posLowHigh[0]]);
+            Tonga.log.debug("To scale to 0-255 it should be substracted {} and scaled with {}", posLowHigh[0], (maxPixelRange / 2. / posLowHigh[1]));
             rawChannel = TongaRender.scaleBits(rawChannel, posLowHigh[0], maxPixelRange / 2. / posLowHigh[1]);
         }
         return rawChannel;
@@ -193,7 +192,7 @@ public class StackImporter {
         int imageNumber = input.getSeriesCount();
         int channelNumber = input.getEffectiveSizeC();
         boolean isStack = imageNumber > 1 || channelNumber > 1;
-        //System.out.println(isStack ? "This image seems to be a stack image" : "This image doesn't seem to be a stack image");
+        Tonga.log.debug(isStack ? "This image seems to be a stack image" : "This image doesn't seem to be a stack image");
         return isStack;
     }
 

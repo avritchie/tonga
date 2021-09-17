@@ -4,6 +4,7 @@ import mainPackage.utils.COL;
 import mainPackage.ImageData;
 import mainPackage.PanelCreator.ControlReference;
 import static mainPackage.PanelCreator.ControlType.*;
+import mainPackage.Tonga;
 import mainPackage.TongaRender;
 import mainPackage.counters.Counters;
 import mainPackage.filters.Filters;
@@ -65,14 +66,10 @@ public class InSituRNA extends Protocol {
                         int r = (inImage[0].pixels32[p] >> 16) & 0xFF;
                         int g = (inImage[0].pixels32[p] >> 8) & 0xFF;
                         int b = inImage[0].pixels32[p] & 0xFF;
-                        //  System.out.println("----------------");
-                        //  System.out.println(r + "," + g + "," + b);
                         double redBlue = ((double) r) / ((double) b);
                         double redGreen = ((double) r) / ((double) g);
                         double greenBlue = ((double) g) / ((double) b);
                         double bright = (r + g + b) / (255. * 3);
-                        //System.out.println("----------------");
-                        //System.out.println(redBlue + "," + redGreen + "," + greenBlue + "," + bright);
                         //calcs
                         double BLUETHRESH = (100 - thresh) / 16.67 + 1; //reduce pale greyish background by INCREASING THIS!!!!!!!
                         double DARKTHRESH = thresh / 250. + 0.2; //reduce dark blue background by INCREASING THIS!!!!!!!
@@ -82,10 +79,8 @@ public class InSituRNA extends Protocol {
                         double brightBalancer = Math.min(1, (1 - bright) * 1.2);
                         double darkVal = ((1 - bright) * (redGreen - 1));
                         double brightVal = bright * 2 * ((redGreen - 1) * 3 * ((redBlue - 0.5) * 2));
-                        //System.out.println(blueFilter + "," + blackFilter + "," + darkBluFilter + "," + darkVal + "," + brightVal);
                         //output
                         ishVals[p] = 255 - (brightBalancer * Math.min(255, Math.max(0, 333 * ((blueFilter * (brightVal + darkVal * darkBluFilter + blackFilter * 1.5)) - 0.1))));
-                        // System.out.println(ishVals[p]);
                         threshReduce = 1;
                         tissueVals.pixels32[p] = RGB.argb(RGB.brightness(inImage[0].pixels32[p] & COL.RED));
                     }
@@ -166,7 +161,7 @@ public class InSituRNA extends Protocol {
                     case 0: {//goodcontrast
                         layer2 = tissueVals;
                         layer = Filters.autoscaleWithAdapt().runSingle(tissueVals, 5);
-                        layer = Filters.cutFilter().runSingle(layer, new Object[]{225, 0});
+                        layer = Filters.cutFilter().runSingle(layer, new Object[]{0, 225});
                         layer = Filters.invert().runSingle(layer);
                         layer3 = layer;
                         layer = Filters.multiply().runSingle(layer, 1600.);
@@ -204,8 +199,8 @@ public class InSituRNA extends Protocol {
                         layer3 = Filters.invert().runSingle(layer3);
                         layer3 = Filters.autoscaleWithAdapt().runSingle(layer3, 5);
                         layer2 = Filters.autoscaleWithAdapt().runSingle(layer2, 5);
-                        layer3 = Filters.cutFilter().runSingle(layer3, new Object[]{255, 50});
-                        layer2 = Filters.cutFilter().runSingle(layer2, new Object[]{255, 50});
+                        layer3 = Filters.cutFilter().runSingle(layer3, new Object[]{50, 255});
+                        layer2 = Filters.cutFilter().runSingle(layer2, new Object[]{50, 255});
                         layer = TongaRender.blend(layer3, layer2);
                         layer = Filters.thresholdBright().runSingle(layer, 15);
                         layer = Filters.gaussApprox().runSingle(layer, 4.);

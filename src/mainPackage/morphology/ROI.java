@@ -334,23 +334,16 @@ public class ROI {
     }
 
     protected int cornerPairs() {
-        ////////////
-        /*
-        System.out.println("----");
-        System.out.println("VARMAT");
-        System.out.println(getCornerCount());
-        edgeData.cornerPoints.forEach(p -> {
-            System.out.println(p);
-            System.out.println(p.direction);
-        });
-        System.out.println("----");
-        System.out.println("EPÄVARMAT");
-        System.out.println(getPossibleCornerCount());
-        edgeData.cornerCandidates.forEach(p -> {
-            System.out.println(p);
-            System.out.println(p.direction);
-        });
-         */
+        if (Tonga.log.isTraceEnabled()) {
+            Tonga.log.trace("----\nVARMAT\n{}", getCornerCount());
+            edgeData.cornerPoints.forEach(p -> {
+                Tonga.log.trace(p.toString());
+            });
+            Tonga.log.trace("----\nEPÄVARMAT\n{}", getPossibleCornerCount());
+            edgeData.cornerCandidates.forEach(p -> {
+                Tonga.log.trace(p.toString());
+            });
+        }
         //////////////
         List<EdgePoint> corners = edgeData.cornerPoints;
         List<EdgePoint> cornersPossible = edgeData.cornerCandidates;
@@ -377,9 +370,7 @@ public class ROI {
 
     protected HashMap cornerPairsNew() {
         // this is unused
-        //System.out.println("----");
-        //System.out.println(getCornerCount());
-        //System.out.println(getPossibleCornerCount());
+        Tonga.log.trace("----\n{}\n{}", getCornerCount(), getPossibleCornerCount());
         List<EdgePoint> corners = edgeData.cornerPoints;
         List<EdgePoint> cornersPossible = edgeData.cornerCandidates;
         EdgePoint cur, comp;
@@ -427,7 +418,7 @@ public class ROI {
                     break;
             }
         } catch (Exception ex) {
-            System.out.println("Pairing issue for the object x" + this.xcenter + " y" + this.ycenter);
+            Tonga.log.trace("Pairing issue for the object x{}y{}", xcenter, ycenter);
             Tonga.catchError(ex, "The concave point pairing logic crashed.");
         }
     }
@@ -566,7 +557,7 @@ public class ROI {
                 }
             }
         }.drawLine(p1, p2);
-        //System.out.println("For x" + p1.x + "|y" + p1.y + " and x" + p2.x + "|y" + p2.y + " the result is " + retIsOn[0]);
+        Tonga.log.trace("For x{}y{} and x{}y{} the line void result is {}", p1.x, p1.y, p2.x, p2.y, retIsOn[0]);
         return retIsOn[0];
     }
 
@@ -604,15 +595,15 @@ public class ROI {
     }
 
     protected void findIntersectionOnOthers(EdgePoint point) {
-        // System.out.println("LINE INTERSECTING for " + point);
+        Tonga.log.trace("Line intersection for {}", point);
         edgeData.cornerPoints.forEach(p -> {
             if (!point.equals(p)) {
-                // System.out.println("CHECK with " + p);
+                Tonga.log.trace("Check with {}", p);
                 Point inter = Line.intersection(point.line, p.line);
-                // System.out.println("Suggestion was " + inter);
+                Tonga.log.trace("Suggestion was {}", inter);
                 try {
                     if (area.area[inter.x][inter.y]) {
-                        // System.out.println("Found intersection at the ROI area at " + inter);
+                        Tonga.log.trace("Found intersection at the ROI area at {}", inter);
                         EdgePoint np = new EdgePoint(inter.x, inter.y);
                         if (!edgeData.interSectionPoints.contains(np)) {
                             edgeData.interSectionPoints.add(np);
@@ -620,9 +611,9 @@ public class ROI {
                         point.pairings.intersectors.add(p);
                     }
                 } catch (Exception ex) {
-                    // null
+                    Tonga.log.warn("Line intersection was not evaluated for {}.", inter);
                 }
-                // System.out.println("There lines do not intersect in the ROI area");
+                Tonga.log.trace("There lines do not intersect in the ROI area");
             }
         });
         edgeData.cornerCandidates.forEach(p -> {
@@ -670,7 +661,7 @@ public class ROI {
         ArrayList<Object> lineFriendData = (ArrayList<Object>) lineSearcher.drawLine(thisPoint, newPoint);
         thisPoint.pairings.closestLineFriend = (EdgePoint) lineFriendData.get(0);
         thisPoint.pairings.closestLineFriendDistance = (Double) lineFriendData.get(1);
-        //System.out.println("Closest line friend (w dist " + thisPoint.pairings.closestLineFriendDistance + ") at " + thisPoint.pairings.closestLineFriend);
+        Tonga.log.trace("Closest line friend (w dist {}) at {}", thisPoint.pairings.closestLineFriendDistance, thisPoint.pairings.closestLineFriend);
     }
 
     protected void findFriendsAndBuddies(EdgePoint thisPoint, EdgePoint found) {
@@ -785,7 +776,7 @@ public class ROI {
 
     private EdgePoint getIntersectionPointOnEdge(int px, int py, EdgePoint thisPoint) {
         if (px != -1 || py != -1) {
-            //System.out.println("Intersection point on the opposite edge was found at " + px + "," + py);
+            Tonga.log.trace("Intersection point on the opposite edge was found at {}.{}", px, py);
             EdgePoint resultPoint = new EdgePoint(px, py);
             //edgeData.interSectionPoints.add(resultPoint);
             return resultPoint;

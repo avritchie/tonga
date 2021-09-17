@@ -50,7 +50,6 @@ import javax.swing.PopupFactory;
 import javax.swing.ToolTipManager;
 import javax.swing.event.ChangeEvent;
 import javax.swing.table.DefaultTableModel;
-import mainPackage.CachedImage.CacheBuffer;
 import mainPackage.JRangeSlider.RangeSliderUI;
 import mainPackage.PanelCreator.ControlReference;
 import mainPackage.PanelCreator.ControlType;
@@ -160,7 +159,7 @@ public class TongaFrame extends javax.swing.JFrame {
 
     protected void launchProtocol(Supplier<Protocol> method, ActionEvent evt) {
         if (!Tonga.thereIsImage()) {
-            updateMainLabel("Open images before launching protocols");
+            Tonga.setStatus("Open images before launching protocols");
         } else {
             currentCounter = null;
             currentProtocol = method.get();
@@ -173,9 +172,9 @@ public class TongaFrame extends javax.swing.JFrame {
 
     private void executeProtocol(boolean all) {
         if (!Tonga.thereIsImage()) {
-            updateMainLabel("Open images before launching protocols");
+            Tonga.setStatus("Open images before launching protocols");
         } else if (currentProtocol == null) {
-            updateMainLabel("Select a protocol before running it");
+            Tonga.setStatus("Select a protocol before running it");
         } else {
             currentProtocol.getParams();
             if (currentProtocol.checkEqualSize()) {
@@ -189,14 +188,14 @@ public class TongaFrame extends javax.swing.JFrame {
                 });
                 Tonga.bootThread(thread, protocolName.getText(), false);
             } else {
-                updateMainLabel("Please make sure all the selected layers are the same size.");
+                Tonga.setStatus("Please make sure all the selected layers are the same size.");
             }
         }
     }
 
     private void instantFilter(Supplier<Filter> method, boolean all, Object... parameters) {
         if (!Tonga.thereIsImage()) {
-            updateMainLabel("No image to process");
+            Tonga.setStatus("No image to process");
         } else {
             Filter instaFilter = method.get();
             Thread thread = new Thread(() -> {
@@ -214,7 +213,7 @@ public class TongaFrame extends javax.swing.JFrame {
 
     private void launchFilter(Supplier<Filter> method, ActionEvent evt) {
         if (!Tonga.thereIsImage()) {
-            updateMainLabel("Open images before launching filters");
+            Tonga.setStatus("Open images before launching filters");
         } else {
             String filterName = ((JMenuItem) evt.getSource()).getText();
             currentFilter = method.get();
@@ -227,9 +226,9 @@ public class TongaFrame extends javax.swing.JFrame {
 
     protected void executeFilter(boolean all) {
         if (!Tonga.thereIsImage()) {
-            updateMainLabel("Open images before launching filters");
+            Tonga.setStatus("Open images before launching filters");
         } else if (currentFilter == null) {
-            updateMainLabel("Select a filter before running it");
+            Tonga.setStatus("Select a filter before running it");
         } else {
             String filterName = filterCombo.getSelectedItem().toString();
             updateHistory(filterName);
@@ -250,14 +249,14 @@ public class TongaFrame extends javax.swing.JFrame {
 
     private void executeHistoFilter(Supplier<Filter> method, boolean all) {
         if (!Tonga.thereIsImage()) {
-            updateMainLabel("Open images before adjusting values");
+            Tonga.setStatus("Open images before adjusting values");
         } else {
             if (true) {
                 Filter filter = method.get();
                 Thread thread = new Thread(() -> {
                     if (filter.parameterData == Filter.limits) {
                         filter.param.setFilterParameters(filter.parameterData,
-                                histoRange.getUpperValue(), histoRange.getValue());
+                                histoRange.getValue(),histoRange.getUpperValue());
                     }
                     try {
                         Filter.publish(all ? filter.runAll() : filter.runSingle(), filter.getName());
@@ -273,9 +272,9 @@ public class TongaFrame extends javax.swing.JFrame {
 
     protected void executeCounter(boolean all) {
         if (!Tonga.thereIsImage()) {
-            updateMainLabel("Open images before launching counters");
+            Tonga.setStatus("Open images before launching counters");
         } else if (currentCounter == null) {
-            updateMainLabel("Select a counter before running it");
+            Tonga.setStatus("Select a counter before running it");
         } else {
             Thread thread = new Thread(() -> {
                 try {
@@ -291,7 +290,7 @@ public class TongaFrame extends javax.swing.JFrame {
 
     protected void launchCounter(Supplier<Counter> method, ActionEvent evt) {
         if (!Tonga.thereIsImage()) {
-            updateMainLabel("Open images before launching counters");
+            Tonga.setStatus("Open images before launching counters");
         } else {
             currentProtocol = null;
             currentCounter = method.get();
@@ -474,7 +473,7 @@ public class TongaFrame extends javax.swing.JFrame {
             Histogram.update();
         });
         handleComponents(histoSliderPanel);
-        //menuDebug.setVisible(false);
+        menuDebug.setVisible(false);
     }
 
     private void panelToolTips(JPanel panel) {
@@ -507,7 +506,7 @@ public class TongaFrame extends javax.swing.JFrame {
     private void addToolTipListener(Component c) {
         c.addMouseListener(new MouseAdapter() {
             public void mouseEntered(MouseEvent evt) {
-                updateMainLabel(((JComponent) c).getToolTipText());
+                Tonga.setStatus(((JComponent) c).getToolTipText());
             }
         });
     }
@@ -650,35 +649,9 @@ public class TongaFrame extends javax.swing.JFrame {
         this.addWindowListener(new WindowAdapter() {
             @Override
             public void windowClosing(WindowEvent windowEvent) {
-                cleanAndShutDown();
+                Tonga.cleanAndShutDown();
             }
         });
-    }
-
-    private void cleanAndShutDown() {
-        if (resultTable.getModel().getRowCount() > 0 && (resultHash == null || resultTable.getModel().hashCode() != resultHash)
-                && !Tonga.askYesNo("Save before exit", "You have unsaved results in the results table. Do you want to exit without saving them?", true, true)) {
-            return;
-        }
-        this.setVisible(false);
-        try {
-            ArrayList<CacheBuffer> remainingCache = new ArrayList<>(Tonga.cachedData);
-            //System.out.println(remainingCache.toString());
-            remainingCache.forEach(f -> {
-                f.freeCache();
-            });
-            File dir = new File(System.getProperty("java.io.tmpdir") + "/Tonga");
-            for (File file : dir.listFiles()) {
-                if (!file.isDirectory()) {
-                    file.delete();
-                }
-            }
-        } catch (Exception ex) {
-            Tonga.catchError(ex, "Cache freeing failed.");
-        }
-        Settings.saveConfigFiles();
-        System.out.println("Tonga: succesful exit");
-        System.exit(0);
     }
 
     private void createPanels() {
@@ -948,6 +921,8 @@ public class TongaFrame extends javax.swing.JFrame {
         menuDebug = new javax.swing.JMenu();
         debugMemory = new javax.swing.JMenuItem();
         debugSysInfo = new javax.swing.JMenuItem();
+        jMenuItem79 = new javax.swing.JMenuItem();
+        jSeparator17 = new javax.swing.JPopupMenu.Separator();
         jMenuItem6 = new javax.swing.JMenuItem();
         debugParameter = new javax.swing.JMenuItem();
         jSeparator15 = new javax.swing.JPopupMenu.Separator();
@@ -3047,7 +3022,16 @@ public class TongaFrame extends javax.swing.JFrame {
         });
         menuDebug.add(debugSysInfo);
 
-        jMenuItem6.setText("Debug function");
+        jMenuItem79.setText("Enable detailed tracing");
+        jMenuItem79.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jMenuItem79ActionPerformed(evt);
+            }
+        });
+        menuDebug.add(jMenuItem79);
+        menuDebug.add(jSeparator17);
+
+        jMenuItem6.setText("Execute a debug function");
         jMenuItem6.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jMenuItem6ActionPerformed(evt);
@@ -3211,7 +3195,7 @@ public class TongaFrame extends javax.swing.JFrame {
     }//GEN-LAST:event_menuExportAllLayersActionPerformed
 
     private void menuTongaExitActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_menuTongaExitActionPerformed
-        cleanAndShutDown();
+        Tonga.cleanAndShutDown();
     }//GEN-LAST:event_menuTongaExitActionPerformed
 
     private void protocolSettingsPanelComponentResized(java.awt.event.ComponentEvent evt) {//GEN-FIRST:event_protocolSettingsPanelComponentResized
@@ -3244,7 +3228,7 @@ public class TongaFrame extends javax.swing.JFrame {
 
     private void openExcelActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_openExcelActionPerformed
         File file = IO.exportTable(true);
-        System.out.println("File exported to: " + file.getAbsolutePath());
+        Tonga.log.info("Sheet file exported to: {}", file.getAbsolutePath());
         try {
             switch (Tonga.currentOS()) {
                 case WINDOWS:
@@ -3423,9 +3407,9 @@ public class TongaFrame extends javax.swing.JFrame {
         long mem = Runtime.getRuntime().totalMemory();
         Tonga.freeMemory();
         long memn = Runtime.getRuntime().totalMemory();
-        System.out.println("Initial memory: " + (mem / 1000000) + " MB");
-        System.out.println("Current memory: " + (memn / 1000000) + " MB");
-        System.out.println("Freed memory: " + ((mem - memn) / 1000000) + " MB");
+        Tonga.log.debug("Initial memory: {} MB", (mem / 1000000));
+        Tonga.log.debug("Current memory: {} MB", (memn / 1000000));
+        Tonga.log.debug("Freed memory: {} MB", ((mem - memn) / 1000000));
     }//GEN-LAST:event_debugMemoryActionPerformed
 
     private void jMenuItem24ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem24ActionPerformed
@@ -3727,7 +3711,7 @@ public class TongaFrame extends javax.swing.JFrame {
         if (Tonga.thereIsImage()) {
             popupDialog(wizardDialog);
         } else {
-            updateMainLabel("Import the images to analyze first before opening the wizard");
+            Tonga.setStatus("Import the images to analyze first before opening the wizard");
         }
     }//GEN-LAST:event_jMenuItem55ActionPerformed
 
@@ -3877,22 +3861,24 @@ public class TongaFrame extends javax.swing.JFrame {
     }//GEN-LAST:event_jMenuItem69ActionPerformed
 
     private void debugSysInfoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_debugSysInfoActionPerformed
-        System.out.println("This CPU has " + Runtime.getRuntime().availableProcessors() + " threads available.");
+        Tonga.log.debug("The JRE version is {} and the JFX version is {}", Tonga.javaREVersion, Tonga.javaFxVersion);
+        Tonga.log.debug("This CPU has {} threads available.", Runtime.getRuntime().availableProcessors());
         switch (Tonga.currentOS) {
             case WINDOWS:
-                System.out.println("The current operating system is Windows.");
+                Tonga.log.debug("The current operating system is Windows.");
                 break;
             case MAC:
-                System.out.println("The current operating system is Mac OS.");
+                Tonga.log.debug("The current operating system is Mac OS.");
                 break;
             case UNKNOWN:
-                System.out.println("Unknown operating system: " + System.getProperty("os.name"));
+                Tonga.log.debug("Unknown operating system: " + System.getProperty("os.name"));
                 break;
         }
+        Tonga.log.debug("The local storage path is {}", Tonga.getAppDataPath());
+        Tonga.log.debug("The cache storage path is {}", Tonga.formatPath(System.getProperty("java.io.tmpdir") + "Tonga\\"));
         long mem = Runtime.getRuntime().totalMemory();
         long memm = Runtime.getRuntime().maxMemory();
-        System.out.println("Max RAM memory available: " + (memm / 1000000) + " MB, currently " + (mem / 1000000) + " MB (" + ((int) ((double) mem / memm * 100)) + "%) used.");
-        System.out.println("Application data path is: " + Tonga.getAppDataPath());
+        Tonga.log.debug("Max RAM memory available: {} MB, currently {} MB ({}%) used.", (memm / 1000000), (mem / 1000000), ((int) ((double) mem / memm * 100)));
     }//GEN-LAST:event_debugSysInfoActionPerformed
 
     private void jMenuItem70ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem70ActionPerformed
@@ -3966,6 +3952,10 @@ public class TongaFrame extends javax.swing.JFrame {
     private void jMenuItem78ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem78ActionPerformed
         launchProtocol(__DeadDividing::new, evt);
     }//GEN-LAST:event_jMenuItem78ActionPerformed
+
+    private void jMenuItem79ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem79ActionPerformed
+        Tonga.enableDebugTracing();
+    }//GEN-LAST:event_jMenuItem79ActionPerformed
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     protected javax.swing.JComboBox<String> autoscaleCombo;
@@ -4125,6 +4115,7 @@ public class TongaFrame extends javax.swing.JFrame {
     protected javax.swing.JMenuItem jMenuItem76;
     protected javax.swing.JMenuItem jMenuItem77;
     protected javax.swing.JMenuItem jMenuItem78;
+    protected javax.swing.JMenuItem jMenuItem79;
     protected javax.swing.JMenuItem jMenuItem8;
     protected javax.swing.JMenuItem jMenuItem9;
     protected javax.swing.JPanel jPanel1;
@@ -4141,6 +4132,7 @@ public class TongaFrame extends javax.swing.JFrame {
     protected javax.swing.JPopupMenu.Separator jSeparator14;
     protected javax.swing.JPopupMenu.Separator jSeparator15;
     protected javax.swing.JPopupMenu.Separator jSeparator16;
+    protected javax.swing.JPopupMenu.Separator jSeparator17;
     protected javax.swing.JPopupMenu.Separator jSeparator2;
     protected javax.swing.JPopupMenu.Separator jSeparator3;
     protected javax.swing.JSeparator jSeparator4;

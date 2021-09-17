@@ -57,7 +57,7 @@ public class ImageTracer {
             Area area = traceArea(image.pixels32, bgColor, image.width, image.height, p);
             return new ROI(image, area);
         } else {
-            System.out.println("Object not found at this position");
+            Tonga.log.trace("Object not found at position {}.{}", x, y);
             return null;
         }
     }

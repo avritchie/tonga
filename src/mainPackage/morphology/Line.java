@@ -1,6 +1,7 @@
 package mainPackage.morphology;
 
 import java.awt.Point;
+import mainPackage.Tonga;
 import mainPackage.utils.GEO;
 
 public class Line {
@@ -72,7 +73,7 @@ public class Line {
 
     private static double[] verticalIntersection(Line line1, Line line2) {
         double x, y;
-        //System.out.println("Vertical intersection");
+        Tonga.log.trace("Vertical intersection");
         if (vertical(line1)) {
             x = line1.start.x;
             y = line2.k * x + line2.b;
@@ -85,7 +86,7 @@ public class Line {
 
     private static double[] horizontalIntersection(Line line1, Line line2) {
         double x, y;
-        //System.out.println("Horizontal intersection");
+        Tonga.log.trace("Horizontal intersection");
         if (horizontal(line1)) {
             y = -line1.start.y;
             x = (y - line2.b) / line2.k;
@@ -105,10 +106,7 @@ public class Line {
     }
 
     private static boolean intersectionInsideLineRange(double x, double y, Line line1, Line line2) {
-        /*//System.out.println("Intersection:");
-            //System.out.println(line1);
-            //System.out.println(line2);
-            //System.out.println("Found at " + x + " | " + y);*/
+        Tonga.log.trace("Intersection:\n{}\n{}\nFound at {}.{}", line1, line2, x, y);
         return (line1.start != null && line1.end != null && line2.start != null && line2.end != null)
                 && pointIsOnLineBox(x, -y, line1) && pointIsOnLineBox(x, -y, line2);
     }

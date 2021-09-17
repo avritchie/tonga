@@ -74,7 +74,7 @@ public abstract class Counter {
                     try {
                         pixelIterator16(targetImage.pixels16, y * targetImage.width + x, rowToEdit);
                     } catch (UnsupportedOperationException ex) {
-                        System.out.println("The method " + counterName + " does not support 16-bit images yet.");
+                        Tonga.log.info("The method {} does not support 16-bit images.", counterName);
                         targetImage.set8BitPixels();
                         pixelIterator32(targetImage.pixels32, y * targetImage.width + x, rowToEdit);
                     }
@@ -102,7 +102,7 @@ public abstract class Counter {
 
     public static void publish(TableData tableData) {
         if (tableData == null) {
-            System.out.println("Attempted to publish an empty data table.");
+            Tonga.log.warn("Attempted to publish an empty data table.");
             return;
         }
         Tonga.loader().maxProgress();

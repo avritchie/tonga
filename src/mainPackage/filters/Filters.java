@@ -153,13 +153,13 @@ public class Filters {
             protected void processor() {
                 Iterate.pixels(this, (int pos) -> {
                     // pos,0-255,0-255; HI, LOW
-                    out32[pos] = RGB.levels(in32[pos], param.range[0], param.range[1]);
+                    out32[pos] = RGB.levels(in32[pos], param.range[1],param.range[0]);
                 });
             }
 
             @Override
             protected void processor16() {
-                set16BitScaleRange(param.range[0], param.range[1]);
+                set16BitScaleRange(param.range[1],param.range[0]);
             }
         };
     }

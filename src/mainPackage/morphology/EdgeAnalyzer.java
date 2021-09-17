@@ -3,6 +3,7 @@ package mainPackage.morphology;
 import java.awt.Point;
 import static java.lang.Double.NaN;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
@@ -144,16 +145,16 @@ public class EdgeAnalyzer {
                     if ((gc > pointGapMax && !maybePxls[i]) || gc > pointGapMax * 2) {
                         pe = i - gc;
                         // area from start position ps and end position pe found
-                        //System.out.println("Area from " + ps + " to " + pe + " found of sure pixels");
+                        Tonga.log.trace("Area from {} to {} found of sure pixels", ps, pe);
                         EdgePoint[] bestPoints = getAreaBestPoints(ps, pe);
                         if (pe - ps <= pointGapMax && bestPoints.length == 1) {
-                            //System.out.println("Changed to a unsure");
+                            Tonga.log.trace("The point {} changed to a unsure", bestPoints[0]);
                             bestPoints[0].isUnsure = true;
                             Collections.addAll(maybeCorners, bestPoints);
                         } else {
                             Collections.addAll(sureCorners, bestPoints);
                         }
-                        //System.out.println("The best point in the area is " + bestPoint.toString());
+                        Tonga.log.trace("The best point in the area is {}", Arrays.toString(bestPoints));
                         ps = -1;
                         gc = 0;
                     }
@@ -180,16 +181,16 @@ public class EdgeAnalyzer {
                         if (gc > pointGapMax * 3) {
                             pe = i - gc;
                             // area from start position ps and end position pe found
-                            // System.out.println("Area from " + ps + " to " + pe + " found of unsure pixels");
+                            Tonga.log.trace("Area from {} to {} found of sure pixels", ps, pe);
                             // exlude any areas that touch sure pixels
                             if (pe == ps && spanSize > 10) {
-                                // System.out.println("But it was removed because it was solitary");
+                                Tonga.log.trace("But it was removed because it was solitary");
                             } else if (!surePxls[ROI.edgePosition(ps - 1, maybePxls)] && !surePxls[ROI.edgePosition(pe + 1, maybePxls)]) {
                                 EdgePoint[] bestPoints = getAreaBestPoints(ps, pe);
-                                //System.out.println("The best point in the area is " + bestPoint.toString());
+                                Tonga.log.trace("The best point in the area is {}", Arrays.toString(bestPoints));
                                 Collections.addAll(maybeCorners, bestPoints);
                             } else {
-                                // System.out.println("But it was removed because it touched sure pixels");
+                                Tonga.log.trace("But it was removed because it touched sure pixels");
                             }
                             ps = -1;
                             gc = 0;
@@ -267,7 +268,7 @@ public class EdgeAnalyzer {
             }
         }
         boolean divideToTwoPoints = size > (pointGapJoin * 2.5) && (maxGap > 10 || angDiff > 180);
-        //System.out.println("Divide to two points: " + divideToTwoPoints + ", with ddiff of " + maxGap + " and size of " + size);
+        Tonga.log.trace("Divide to two points: {}, with ddiff of {} and size of {}", divideToTwoPoints, maxGap, size);
         int midPoint = startPos + (size / 2);
         if (!divideToTwoPoints) {
             double smallestAngle = 360;
@@ -330,7 +331,7 @@ public class EdgeAnalyzer {
         minDist = Math.max(1.42, Math.pow(targetSize, 0.8) / 10.); // 1.42 (hyp c for a=1,b=1) , minimum concaveness to consider
         pointGapJoin = (int) Math.max(2, (targetSize * 0.18)); // 9 , combine points closer than this to each other if similar direction
         pointGapMax = Math.max(1, targetSize / 50); // 1 , gap allowed to still considering a corner area to be the same
-        //System.out.println("Sizes: " + targetSize + " | " + spanSize + " | " + minDist + " | " + pointGapJoin + " | " + pointGapMax);
+        Tonga.log.trace("Sizes: {} | {} | {} | {} | {}", targetSize, spanSize, minDist, pointGapJoin, pointGapMax);
     }
 
     public static void removeBorders(ROI o, List<Point> edges) {
@@ -348,19 +349,19 @@ public class EdgeAnalyzer {
     }
 
     private void printPoints() {
-        /*
-            System.out.println("//////////////////////////////////////");
-            System.out.println("The recognized points for this shape:");
-            System.out.println("///Sure///");
+        if (Tonga.log.isTraceEnabled()) {
+            Tonga.log.trace("//////////////////////////////////////");
+            Tonga.log.trace("The recognized points for this shape:");
+            Tonga.log.trace("///Sure///");
             cornerPoints.forEach(p -> {
-                System.out.println(p);
+                Tonga.log.trace(p.toString());
             });
-            System.out.println("///Unsure///");
+            Tonga.log.trace("///Unsure///");
             cornerCandidates.forEach(p -> {
-                System.out.println(p);
+                Tonga.log.trace(p.toString());
             });
-            System.out.println("//////////////////////////////////////");
-         */
+            Tonga.log.trace("//////////////////////////////////////");
+        }
     }
 
     private EdgePoint getNonNull(int i) {

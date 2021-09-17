@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>%d{HH:mm:ss.SSS} [%thread] [%level] %msg%n</pattern>
+        </encoder>
+    </appender>
+ 
+    <logger name="tonga.logger" level="INFO" additivity="false">
+        <appender-ref ref="STDOUT" />
+    </logger>
+    
+    <logger name="tonga.logger.debug" level="DEBUG" additivity="false">
+        <appender-ref ref="STDOUT" />
+    </logger>
+ 
+    <logger name="tonga.logger.trace" level="TRACE" additivity="false">
+        <appender-ref ref="STDOUT" />
+    </logger>
+</configuration>

@@ -73,6 +73,7 @@ public class IO {
                     }
                     excel.write("\n");
                 }
+                Tonga.log.info("Table exported as TSV into {}", file);
             }
         } catch (IOException ex) {
             Tonga.catchError(ex, "Result exporting failed.");
@@ -115,7 +116,7 @@ public class IO {
                         failures++;
                         if (ex instanceof FormatException) {
                             formatissue = true;
-                            System.out.println("Unsupported format");
+                            Tonga.log.warn("Unsupported format");
                         }
                         Tonga.loader().appendToNext();
                     }
@@ -187,7 +188,7 @@ public class IO {
                                 failures++;
                                 if (ex instanceof FormatException) {
                                     formatissue = true;
-                                    System.out.println("Unsupported format");
+                                    Tonga.log.warn("Unsupported format");
                                 }
                                 Tonga.loader().appendProgress(1.0);
                             }
@@ -256,7 +257,7 @@ public class IO {
                         failures++;
                         if (ex instanceof FormatException) {
                             formatissue = true;
-                            System.out.println("Unsupported format");
+                            Tonga.log.warn("Unsupported format");
                         }
                         Tonga.loader().appendToNext();
                     }
@@ -314,7 +315,7 @@ public class IO {
                                     Tonga.loader().appendProgress(1.0);
                                 }
                             } catch (ClosedChannelException ex) {
-                                System.out.println("Interrupted wile BFIO importing.");
+                                Tonga.log.warn("Interrupted wile BFIO importing.");
                             } catch (Exception ex) {
                                 if (file.isDirectory()) {
                                     Tonga.catchError(ex, "Folder importing is not supported.");
@@ -324,7 +325,7 @@ public class IO {
                                 failures++;
                                 if (ex instanceof FormatException) {
                                     formatissue = true;
-                                    System.out.println("Unsupported format");
+                                    Tonga.log.warn("Unsupported format");
                                 }
                                 Tonga.loader().appendToNext();
                             }
@@ -338,7 +339,7 @@ public class IO {
                         failures++;
                         if (ex instanceof FormatException) {
                             formatissue = true;
-                            System.out.println("Unsupported format");
+                            Tonga.log.warn("Unsupported format");
                         }
                         Tonga.loader().appendToNext();
                     }
@@ -459,7 +460,7 @@ public class IO {
                 params.setFill(javafx.scene.paint.Color.TRANSPARENT);
                 Platform.runLater(() -> exportImage(m, canvas.snapshot(params, null)));
                 Tonga.loader().loaderProgress(i + 1, picList.size());
-                IO.waitForRunLater();
+                IO.waitForJFXRunLater();
                 m.stack = stackmem;
                 TongaRender.updateRenders();
             }
@@ -523,7 +524,7 @@ public class IO {
         return nfile;
     }
 
-    public static void waitForRunLater() {
+    public static void waitForJFXRunLater() {
         try {
             Semaphore semaphore = new Semaphore(0);
             Platform.runLater(() -> semaphore.release());

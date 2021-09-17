@@ -34,7 +34,7 @@ public abstract class Threader {
             try {
                 coreThreads[i].join();
             } catch (InterruptedException ex) {
-                System.out.println("Terrible fate.");
+                Tonga.catchError(ex, "Waiter thread interrupted.");
             }
         }
     }

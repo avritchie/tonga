@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
+import mainPackage.Tonga;
 import mainPackage.utils.GEO;
 import mainPackage.utils.DRAW.lineDrawer;
 
@@ -332,11 +333,10 @@ public class Segmentor {
 
     @Deprecated
     protected void segment2() {
-        System.out.println("//////////////////////////////////////\n" + "Start segmentation for the shape:");
+        Tonga.log.trace("//////////////////////////////////////\nStart segmentation for the shape:");
         new formPairs() {
             @Override
             void logic(EdgePoint point) {
-                System.out.println("");
                 // very closeby pairings
                 if (p.closestFriend != null && p.closestFriend.pairings.closestFriend != null) {
                     // both are friends w each other
@@ -473,7 +473,7 @@ public class Segmentor {
                     else {
                         // false positive intersection if parallel lines
                         if (GEO.getParallelFactor(point, p.intersectors.get(0)) > 0.35) {
-                            System.out.println("False positive detection for " + point + " with " + p.intersectors.get(0));
+                            Tonga.log.trace("False positive detection for {} with {}", point, p.intersectors.get(0));
                             if (!p.intersectors.get(0).hasBeenPairedYet) {
                                 p.intersectors.get(0).pairings.intersectors.remove(point);
                                 //singlePairings(p.intersectors.get(0));
@@ -634,54 +634,54 @@ public class Segmentor {
         if (ROI.lineDoesntGoThroughVoid(p, p.pairings.closestBuddy, ROI.area)) {
             double pfact = GEO.getParallelFactor(p, p.pairings.closestBuddy);
             if (pfact < 0.25) {
-                System.out.println("Paired " + p.x + "x," + p.y + "y with buddy (" + p.pairings.closestBuddy.x + "x," + p.pairings.closestBuddy.y + ") as " + desc);
+                Tonga.log.trace("Paired x{}y{} with buddy x{}y{} as {}", p.x, p.y, p.pairings.closestBuddy.x, p.pairings.closestBuddy.y, desc);
                 drawSegmentLine(p, p.pairings.closestBuddy);
                 markPaired(p, p.pairings.closestBuddy);
             } else {
-                System.out.println("Pairing failed (" + p.x + "x," + p.y + "y with buddy " + p.pairings.closestBuddy.x + "x," + p.pairings.closestBuddy.y + ") due to parallel)");
+                Tonga.log.trace("Pairing failed x{}y{} with buddy x{}y{} due to parallel", p.x, p.y, p.pairings.closestBuddy.x, p.pairings.closestBuddy.y);
             }
         } else {
-            System.out.println("Pairing failed (" + p.x + "x," + p.y + "y with buddy " + p.pairings.closestBuddy.x + "x," + p.pairings.closestBuddy.y + ") due to void)");
+            Tonga.log.trace("Pairing failed x{}y{} with buddy x{}y{} due to void", p.x, p.y, p.pairings.closestBuddy.x, p.pairings.closestBuddy.y);
         }
     }
 
     private void pairWithEnd(EdgePoint p, String desc) {
         if (p.line.end == null) {
-            System.out.println("NULL POINTER EXCEPTION " + p);
+            Tonga.log.warn("End pairing end point was null for {}", p);
         } else if (ROI.getSize() > SET.avgCornerlessSize() * 2 && ((EdgePoint) p.line.end).angle < 180) {
-            System.out.println("Paired " + p.x + "x," + p.y + "y with end (" + p.line.end.x + "x," + p.line.end.y + ") as " + desc);
+            Tonga.log.trace("Paired x{}y{} with end x{}y{} as {}", p.x, p.y, p.line.end.x, p.line.end.y, desc);
             drawSegmentLine(p, p.line.end);
             p.hasBeenPairedYet = true;
             segmentedSomething = true;
         } else {
-            System.out.println("Pairing failed (" + p.x + "x," + p.y + "y with end)");
+            Tonga.log.trace("Pairing failed x{}y{} with end", p.x, p.y);
         }
     }
 
     private void pairWithFriend(EdgePoint p, String desc) {
-        System.out.println("Paired " + p.x + "x," + p.y + "y with friend (" + p.pairings.closestFriend.x + "x," + p.pairings.closestFriend.y + ") as " + desc);
+        Tonga.log.trace("Paired x{}y{} with friend x{}y{} as {}", p.x, p.y, p.pairings.closestFriend.x, p.pairings.closestFriend.y, desc);
         drawSegmentLine(p, p.pairings.closestFriend);
         markPaired(p, p.pairings.closestFriend);
     }
 
     private void pairWithLineFriend(EdgePoint p, String desc) {
-        System.out.println("Paired " + p.x + "x," + p.y + "y with line friend (" + p.pairings.closestLineFriend.x + "x," + p.pairings.closestLineFriend.y + ") as " + desc);
+        Tonga.log.trace("Paired x{}y{} with line friend x{}y{} as {}", p.x, p.y, p.pairings.closestLineFriend.x, p.pairings.closestLineFriend.y, desc);
         drawSegmentLine(p, p.pairings.closestLineFriend);
         markPaired(p, p.pairings.closestLineFriend);
     }
 
     private void pairTwo(EdgePoint p1, EdgePoint p2, String desc) {
         if (ROI.lineDoesntGoThroughVoid(p1, p2, ROI.area)) {
-            System.out.println("Paired " + p1.x + "x," + p1.y + "y with other (" + p2.x + "x," + p2.y + ") as " + desc);
+            Tonga.log.trace("Paired x{}y{} with other (x{}y{}) as {}", p1.x, p1.y, p2.x, p2.y, desc);
             drawSegmentLine(p1, p2);
             markPaired(p1, p2);
         } else {
-            System.out.println("Pairing failed (" + p1.x + "x," + p1.y + "y with " + p2.x + "x," + p2.y + ") due to void)");
+            Tonga.log.trace("Pairing failed x{}y{} with other (x{}y{}) due to void", p1.x, p1.y, p2.x, p2.y);
         }
     }
 
     private void justPair(EdgePoint p1, EdgePoint p2, String desc) {
-        System.out.println("Paired " + p1.x + "x," + p1.y + "y with (" + p2.x + "x," + p2.y + ") as " + desc);
+        Tonga.log.trace("Paired x{}y{} with x{}y{} as {}", p1.x, p1.y, p2.x, p2.y, desc);
         drawSegmentLine(p1, p2);
         markPaired(p1, p2);
     }
@@ -692,7 +692,7 @@ public class Segmentor {
             pairTwo(pool.get(0), pool.get(1), "bidirectional midpoint pairing " + desc);
         } // if many, make a center point
         else {
-            System.out.println("Midpoint pairing " + desc + " for " + pool);
+            Tonga.log.trace("Midpoint pairing {} for {}", desc, pool);
             Point midPoint = GEO.createCommonMidpoint(pool);
             segmentedSomething = true;
             pool.forEach(pp -> {
@@ -769,13 +769,13 @@ public class Segmentor {
                 for (int j = 0; j < pool.size(); j++) {
                     p2 = pool.get(j);
                     if (!p1.equals(p2) && !p1.pairings.intersectors.contains(p2) && !p1.pairings.intersectorsSecondary.contains(p2)) {
-                        System.out.println("Only common intersections NOT detected for pool " + pool);
+                        Tonga.log.trace("Only common intersections NOT detected for pool {}", pool);
                         return false;
                     }
                 }
             }
         }
-        System.out.println("Only common intersections detected for pool " + pool);
+        Tonga.log.trace("Only common intersections detected for pool {}", pool);
         return true;
     }
 
@@ -791,9 +791,9 @@ public class Segmentor {
             }
         }
         if (maxPoint != null) {
-            System.out.println("Parallel friend best match with " + maxValue + " w angles of " + point.direction + " and " + maxPoint.direction + " for " + point + ", match being " + maxPoint);
+            Tonga.log.trace("Parallel friend best match with {} w angles of {} and {} for {}, match being {}", maxValue, point.direction, maxPoint.direction, point, maxPoint);
         } else {
-            // System.out.println("Parallel friend best match not found, null");
+            Tonga.log.trace("Parallel friend best match not found because null");
         }
         return (maxValue < 0.1) ? maxPoint : null;
     }

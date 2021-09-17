@@ -80,9 +80,9 @@ public class CachedImage extends BufferedImage {
         this(bi.getWidth(), bi.getHeight(), bi.getType() == BufferedImage.TYPE_USHORT_GRAY);
         //source may vary - ensure compatilibty with the bands model
         if (!this.getColorModel().isCompatibleRaster(bi.getRaster())) {
-            System.out.println("Incompatible colour model");
-            //System.out.println(this.getColorModel());
-            //System.out.println(bi.getColorModel());
+            Tonga.log.debug("Incompatible colour model");
+            Tonga.log.debug("Current: {}", this.getColorModel());
+            Tonga.log.debug("New: {}", bi.getColorModel());
             bi = forceCorrectFormat(bi);
         }
         //clone contents from bi to cbi
@@ -101,12 +101,12 @@ public class CachedImage extends BufferedImage {
         BufferedImage bi;
         try {
             bi = getBufferedImage(f);
-        } catch (Exception ex) {
+        } catch (IOException ex) {
             Tonga.catchError(ex, "Direct image loading failed.");
             try {
                 bi = getBufferedImageSlow(f);
                 return bi;
-            } catch (Exception ex1) {
+            } catch (IOException ex1) {
                 Tonga.catchError(ex, "Alternative image loading failed.");
             }
             return null;
@@ -124,30 +124,30 @@ public class CachedImage extends BufferedImage {
         ImageTypeSpecifier its = reader.getRawImageType(reader.getMinIndex());
         BufferedImage bi;
         if (its.getBitsPerBand(reader.getMinIndex()) == 16) {
-            //System.out.println("The image has 16 bits.");
+            Tonga.log.debug("The image has 16 bits.");
             param.setDestination(new BufferedImage(width, height, BufferedImage.TYPE_USHORT_GRAY));
             bi = reader.read(reader.getMinIndex(), param);
             return bi;
         } else {
             switch (its.getNumComponents()) {
                 case 4:
-                    //System.out.println("The image has 4 8-bit channels.");
+                    Tonga.log.debug("The image has 4 8-bit channels.");
                     param.setDestination(new BufferedImage(width, height, BufferedImage.TYPE_4BYTE_ABGR));
                     bi = reader.read(reader.getMinIndex(), param);
                     return bi;
                 case 3:
-                    //System.out.println("The image has 3 8-bit channels.");
+                    Tonga.log.debug("The image has 3 8-bit channels.");
                     param.setDestination(new BufferedImage(width, height, BufferedImage.TYPE_3BYTE_BGR));
                     bi = reader.read(reader.getMinIndex(), param);
                     return forceCorrectFormat(bi);
                 case 1:
-                    //System.out.println("The image is an 8-bit grayscale image.");
+                    Tonga.log.debug("The image is an 8-bit grayscale image.");
                     param.setDestination(new BufferedImage(width, height, BufferedImage.TYPE_BYTE_GRAY));
                     bi = reader.read(reader.getMinIndex(), param);
                     return forceCorrectFormat(bi);
             }
         }
-        System.out.println("Unsupported image format: " + its.getColorModel());
+        Tonga.log.warn("Unsupported color format: {}", its.getColorModel());
         return null;
     }
 
@@ -194,8 +194,10 @@ public class CachedImage extends BufferedImage {
             wi = new WritableImage(getWidth(), getHeight());
             wi.getPixelWriter().setPixels(0, 0, getWidth(), getHeight(), format, bytes, 0, getWidth() * 4);
         }
-        //System.out.println("Rendering time: (" + (System.nanoTime() - pt) / 1000000 + "+" + (System.nanoTime() - st) / 1000000 + ") "
-        //        + (System.nanoTime() - pt + System.nanoTime() - st) / 1000000 + " ms");
+        Tonga.log.trace("Rendering time: ({} + {}) ({}) ms",
+                (System.nanoTime() - pt) / 1000000,
+                (System.nanoTime() - st) / 1000000,
+                (System.nanoTime() - pt + System.nanoTime() - st) / 1000000);
         return wi;
     }
 
@@ -280,7 +282,7 @@ public class CachedImage extends BufferedImage {
                 while (file.exists()) {
                     File nfile = new File(file + "/" + getHash(ID++) + ".bin");
                     if (nfile.exists()) {
-                        System.out.println("Hash clash for " + nfile.getName());
+                        Tonga.log.warn("Hash clash for " + nfile.getName());
                     } else {
                         file = nfile;
                     }
@@ -291,7 +293,7 @@ public class CachedImage extends BufferedImage {
             } catch (FileNotFoundException ex) {
                 Tonga.catchError(ex, "Buffer creation failed.");
             } catch (ClosedChannelException ex) {
-                System.out.println("Interrupted during buffering.");
+                Tonga.catchError(ex, "Interrupted during buffering.");
             } catch (IOException ex) {
                 Tonga.catchError(ex, "Buffer creation failed.");
             }
@@ -351,7 +353,7 @@ public class CachedImage extends BufferedImage {
             clean(buffer);
             file.delete();
             Tonga.cachedData.remove(this);
-            //System.out.println("Freeing " + file.getName());
+            Tonga.log.trace("Freeing " + file.getName());
         }
 
         private void clean(MappedByteBuffer b) {

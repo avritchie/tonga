@@ -53,7 +53,7 @@ public class MatrigelOrganoids extends Protocol {
                         new ImageData[]{layer, inImage[0], inImage[0]},
                         new Object[]{Color.BLACK, limit, false, 0, false})[0];
                 l3 = Filters.bwSaturation().runSingle(work);
-                l2 = Filters.cutFilter().runSingle(l3, new Object[]{180, 57 + thresh * 9});
+                l2 = Filters.cutFilter().runSingle(l3, new Object[]{57 + thresh * 9,180});
                 work = Filters.thresholdBright().runSingle(l2, 11 + thresh * 7);
                 layer = TongaRender.blend(layer, work, BlendMode.DIFFERENCE);
                 layer = FiltersPass.edgeDilate().runSingle(layer, COL.BLACK, 1, false);

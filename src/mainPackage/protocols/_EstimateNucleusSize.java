@@ -42,25 +42,25 @@ public class _EstimateNucleusSize extends Protocol {
                 double mp = 1.0;
                 int trs = 0;
                 while (!finished) {
-                    System.out.println("An attempt to recognize nucleus size");
+                    Tonga.log.trace("An attempt to recognize nucleus size");
                     layer = Filters.dog().runSingle(sourceLayer[0], (int) (3 * mp), (int) (60 * mp));
                     layer = Filters.thresholdBright().runSingle(layer, 5);
                     ROISet set = new ImageTracer(layer, COL.BLACK).trace();
                     trs++;
                     if (mp < 0.3 || mp > 4 || trs > 5) {
-                        System.out.println("We could not find the size. Stuck in the loop.");
+                        Tonga.log.trace("We could not find the size. Stuck in the loop.");
                         finished = true;
                     } else if ((set.statsForTotalSize().getStdDev() / set.statsForTotalSize().getMedian())
                             / (set.totalAreaSize() / set.statsForTotalSize().getStdDev()) > 1) {
                         mp *= 0.67;
                         Tonga.loader().stopAppending();
-                        System.out.println("Too big - going smaller");
+                        Tonga.log.trace("Too big - going smaller");
                     } else if ((set.avgSize() / (double) set.totalAreaSize()) < 0.02 && set.statsForTotalSize().getMMRatio() / set.statsForTotalSize().getMedian() > 1) {
                         mp *= 1.33;
                         Tonga.loader().stopAppending();
-                        System.out.println("Too small - going bigger");
+                        Tonga.log.trace("Too small - going bigger");
                     } else {
-                        System.out.println("Current filtering is fine");
+                        Tonga.log.trace("Current filtering is fine");
                         ArrayList<ROI> rcs = new ArrayList<>();
                         //only consider round objects - try to identify clear "normal" nuclei
                         set.list.forEach((ROI nn) -> {
@@ -89,11 +89,12 @@ public class _EstimateNucleusSize extends Protocol {
                                 //smallest and largest remaining objects
                                 int min = rcs.stream().mapToInt(r -> r.getSize()).min().getAsInt();
                                 int max = rcs.stream().mapToInt(r -> r.getSize()).max().getAsInt();
-                                System.out.println(rcs.size() + " " + avg + " " + min + " " + max);
-                                System.out.println((int) rcs.stream().mapToDouble(r -> (r.getWidth() + r.getHeight()) / 2).average().getAsDouble());
+                                Tonga.log.trace("Objects: n={}, avg={}, min={}, max={}", rcs.size(), avg, min, max);
+                                int estimate = (int) rcs.stream().mapToDouble(r -> (r.getWidth() + r.getHeight()) / 2).average().getAsDouble();
+                                Tonga.log.trace("Diameter estimate: {}", estimate);
                                 if ((rcs.size() > 4 && avg / min < 5 && max / avg < 5) || (rcs.size() > 2 && avg / min < 2 && max / avg < 2)) {
-                                    nucleusSize = (int) rcs.stream().mapToDouble(r -> (r.getWidth() + r.getHeight()) / 2).average().getAsDouble();
-                                    System.out.println("Normal rounds");
+                                    nucleusSize = estimate;
+                                    Tonga.log.trace("Normal rounds");
                                     finished = true;
                                 } else if (rcs.size() > 4) {
                                     avg = rcs.stream().mapToInt(r -> r.getSize()).average().getAsDouble();
@@ -104,33 +105,34 @@ public class _EstimateNucleusSize extends Protocol {
                                                 .filter(r -> r.getSize() > mnlim && r.getSize() > mxlim)
                                                 .mapToDouble(r -> (r.getWidth() + r.getHeight()) / 2)
                                                 .average().getAsDouble();
-                                        System.out.println("Outliers removed");
+                                        Tonga.log.trace("Outliers removed");
                                         finished = true;
                                     } catch (Exception ex) {
                                         ROI r = rcs.get(rcs.size() / 2);
                                         nucleusSize = (r.getWidth() + r.getHeight()) / 2;
-                                        System.out.println("Large distribution");
+                                        Tonga.log.trace("Large distribution");
                                         finished = true;
                                     }
                                 } else if (!rcs.isEmpty()) {
                                     ROI r = rcs.get(rcs.size() / 2);
                                     nucleusSize = (r.getWidth() + r.getHeight()) / 2;
-                                    System.out.println("Small amount");
+                                    Tonga.log.trace("Small amount");
                                     finished = true;
                                 }
                             }
                             if (!finished) {
-                                System.out.println("We could not find the size. No objects.");
+                                Tonga.log.trace("We could not find the size. No objects.");
                                 finished = true;
                             }
                         }
                     }
-                    System.out.println(mp);
+                    Tonga.log.trace("Blending parameter: {}", mp);
                 }
                 Tonga.loader().continueAppending();
                 Object[] newRow = data.newRow(sourceImage.imageName);
                 newRow[1] = (Integer) nucleusSize;
                 newRow[2] = (Integer) GEO.circleArea(nucleusSize);
+                Tonga.log.debug("Estimated nucleus diameter is {} pixels", nucleusSize);
             }
         };
     }
