@@ -6,6 +6,9 @@ import java.awt.image.BandedSampleModel;
 import java.awt.image.BufferedImage;
 import java.awt.image.ComponentColorModel;
 import java.awt.image.DataBuffer;
+import java.awt.image.DataBufferByte;
+import java.awt.image.DataBufferInt;
+import java.awt.image.IndexColorModel;
 import java.awt.image.SampleModel;
 import java.awt.image.WritableRaster;
 import java.io.File;
@@ -32,6 +35,9 @@ import javax.imageio.ImageReadParam;
 import javax.imageio.ImageReader;
 import javax.imageio.ImageTypeSpecifier;
 import javax.imageio.stream.ImageInputStream;
+import jdk.jfr.internal.LogTag;
+import jdk.jfr.internal.Logger;
+import mainPackage.utils.COL;
 
 public class CachedImage extends BufferedImage {
 
@@ -118,37 +124,46 @@ public class CachedImage extends BufferedImage {
         ImageInputStream input = ImageIO.createImageInputStream(f);
         ImageReader reader = ImageIO.getImageReaders(input).next();
         reader.setInput(input);
-        int height = reader.getHeight(reader.getMinIndex());
-        int width = reader.getWidth(reader.getMinIndex());
-        ImageReadParam param = reader.getDefaultReadParam();
         ImageTypeSpecifier its = reader.getRawImageType(reader.getMinIndex());
+        Tonga.log.debug("Colour type of the image is {}", its.getColorModel().getClass().getSimpleName().replace("ColorModel", ""));
         BufferedImage bi;
         if (its.getBitsPerBand(reader.getMinIndex()) == 16) {
             Tonga.log.debug("The image has 16 bits.");
-            param.setDestination(new BufferedImage(width, height, BufferedImage.TYPE_USHORT_GRAY));
-            bi = reader.read(reader.getMinIndex(), param);
+            bi = readBufferedImageWithReader(BufferedImage.TYPE_USHORT_GRAY, reader);
             return bi;
         } else {
-            switch (its.getNumComponents()) {
+            switch (its.getSampleModel().getNumBands()) {
                 case 4:
                     Tonga.log.debug("The image has 4 8-bit channels.");
-                    param.setDestination(new BufferedImage(width, height, BufferedImage.TYPE_4BYTE_ABGR));
-                    bi = reader.read(reader.getMinIndex(), param);
+                    bi = readBufferedImageWithReader(BufferedImage.TYPE_4BYTE_ABGR, reader);
                     return bi;
                 case 3:
                     Tonga.log.debug("The image has 3 8-bit channels.");
-                    param.setDestination(new BufferedImage(width, height, BufferedImage.TYPE_3BYTE_BGR));
-                    bi = reader.read(reader.getMinIndex(), param);
+                    bi = readBufferedImageWithReader(BufferedImage.TYPE_3BYTE_BGR, reader);
                     return forceCorrectFormat(bi);
                 case 1:
-                    Tonga.log.debug("The image is an 8-bit grayscale image.");
-                    param.setDestination(new BufferedImage(width, height, BufferedImage.TYPE_BYTE_GRAY));
-                    bi = reader.read(reader.getMinIndex(), param);
-                    return forceCorrectFormat(bi);
+                    if (its.getColorModel().getClass().equals(IndexColorModel.class)) {
+                        Tonga.log.debug("The image is an 8-bit indexed image.");
+                        bi = readBufferedImageWithReader(BufferedImage.TYPE_BYTE_GRAY, reader);
+                        return forceIndexedFormat(bi, (IndexColorModel) its.getColorModel());
+                    } else {
+                        Tonga.log.debug("The image is an 8-bit grayscale image.");
+                        bi = readBufferedImageWithReader(BufferedImage.TYPE_BYTE_GRAY, reader);
+                        return forceCorrectFormat(bi);
+                    }
             }
         }
         Tonga.log.warn("Unsupported color format: {}", its.getColorModel());
         return null;
+    }
+
+    private static BufferedImage readBufferedImageWithReader(int type, ImageReader reader) throws IOException {
+        ImageReadParam param = reader.getDefaultReadParam();
+        int readerInd = reader.getMinIndex();
+        int height = reader.getHeight(readerInd);
+        int width = reader.getWidth(readerInd);
+        param.setDestination(new BufferedImage(width, height, type));
+        return reader.read(readerInd, param);
     }
 
     private static BufferedImage getBufferedImageSlow(File f) throws IOException {
@@ -161,6 +176,27 @@ public class CachedImage extends BufferedImage {
         BufferedImage bi = new BufferedImage(width, height, BufferedImage.TYPE_4BYTE_ABGR);
         bi.getGraphics().drawImage(raw, 0, 0, null);
         return bi;
+    }
+
+    private static BufferedImage forceIndexedFormat(BufferedImage raw, IndexColorModel icm) {
+        try {
+            int width = raw.getWidth(), height = raw.getHeight();
+            BufferedImage bi = new BufferedImage(width, height, BufferedImage.TYPE_4BYTE_ABGR);
+            DataBufferByte nind = ((DataBufferByte) bi.getRaster().getDataBuffer());
+            DataBufferByte rind = ((DataBufferByte) raw.getRaster().getDataBuffer());
+            for (int p = 0; p < width * height; p++) {
+                int ip = p * 4;
+                int ci = rind.getElem(p);
+                nind.setElem(ip, icm.getAlpha(ci));
+                nind.setElem(ip + 1, icm.getBlue(ci));
+                nind.setElem(ip + 2, icm.getGreen(ci));
+                nind.setElem(ip + 3, icm.getRed(ci));
+            }
+            return bi;
+        } catch (ClassCastException ex) {
+            Tonga.log.warn("Unsupported color format: {}", icm);
+            return null;
+        }
     }
 
     public Image getFXImage() {
@@ -277,10 +313,10 @@ public class CachedImage extends BufferedImage {
             super(type, width * height, banks);
             this.bits = bits;
             try {
-                file = new File(System.getProperty("java.io.tmpdir") + "/Tonga");
+                file = new File(Tonga.getTempPath());
                 file.mkdir();
                 while (file.exists()) {
-                    File nfile = new File(file + "/" + getHash(ID++) + ".bin");
+                    File nfile = new File(file + getHash(ID++) + ".bin");
                     if (nfile.exists()) {
                         Tonga.log.warn("Hash clash for " + nfile.getName());
                     } else {
