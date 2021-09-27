@@ -3,7 +3,6 @@ package mainPackage;
 import java.awt.Taskbar;
 import java.awt.Taskbar.*;
 import javax.swing.JProgressBar;
-import javax.swing.SwingUtilities;
 
 /**
  *
@@ -21,10 +20,12 @@ public class Loader extends javax.swing.JFrame {
     long timeStart;
     long timeEnd;
     long syst;
-    boolean abort;
-    boolean fail;
-    boolean taskbarSupport;
-    boolean dontAppend;
+    private boolean taskAborted;
+    private boolean majorFailure;
+    private boolean minorFailure;
+    private boolean routineTask;
+    private boolean taskbarSupport;
+    private boolean dontAppend;
 
     public Loader(JProgressBar pb) {
         initComponents();
@@ -59,8 +60,9 @@ public class Loader extends javax.swing.JFrame {
         return stepsNow;
     }
 
-    public void allocateLoader(Thread thread, String name, boolean intermediate) {
+    public void allocateLoader(Thread thread, String name, boolean intermediate, boolean routine) {
         loaderStart(intermediate);
+        routineTask = routine;
         threadTask = thread;
         threadTask.setName(name);
         threadTask.start();
@@ -72,18 +74,17 @@ public class Loader extends javax.swing.JFrame {
                 Tonga.catchError(ex, "Loader thread interrupted. You should never see this.");
             } finally {
                 loaderFinish();
-                if (abort) {
+                if (taskAborted) {
                     Tonga.setStatus("Operation aborted by user");
                     Tonga.log.info("{} was aborted by the user.", threadTask.getName());
-                    abort = false;
-                } else if (fail) {
+                } else if (majorFailure) {
                     Tonga.setStatus("<font color=\"red\">" + threadTask.getName() + " crashed unexpectedly.</font> See the console for details.");
                     Tonga.log.info("{} crashed unexpectedly.", threadTask.getName());
-                    fail = false;
-                } else if (!threadTask.getName().equals("An unknown task")) {
-                    Tonga.setStatus("Completed " + threadTask.getName() + " succesfully in " + (timeEnd - timeStart) / 10000000 / 100. + "s");
-                    Tonga.log.info("{} was completed succesfully in {}s.", threadTask.getName(), (timeEnd - timeStart) / 10000000 / 100.);
+                } else if (!routineTask) {
+                    Tonga.setStatus("Completed " + threadTask.getName() + (minorFailure ? " <font color=\"red\">with errors</font> in " : " succesfully in ") + (timeEnd - timeStart) / 10000000 / 100. + "s");
+                    Tonga.log.info("{} was completed {} in {}s.", threadTask.getName(), minorFailure ? "with errors" : "succesfully", (timeEnd - timeStart) / 10000000 / 100.);
                 }
+                resetStatus();
             }
         });
         threadMaster.setName("TaskWatcher");
@@ -178,9 +179,27 @@ public class Loader extends javax.swing.JFrame {
         threadArray = threads;
     }
 
-    void abort() {
+    public void abort() {
         threadTask.interrupt();
-        abort = true;
+        taskAborted = true;
+    }
+
+    public void majorFail() {
+        majorFailure = true;
+    }
+
+    public void minorFail() {
+        minorFailure = true;
+    }
+
+    public boolean hasFailed() {
+        return majorFailure;
+    }
+
+    private void resetStatus() {
+        taskAborted = false;
+        majorFailure = false;
+        minorFailure = false;
     }
 
     private void loaderFinish() {

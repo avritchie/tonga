@@ -76,59 +76,63 @@ public class PanelParams {
         int sliders = 0, colors = 0, spinners = 0, combos = 0, toggles = 0, ranges = 0, selects = 0;
         for (int i = 0, j = 0; i < parameters.length; i++, j++) {
             if (parameters[i] != null) {
-                ControlReference pc = parameterData[j];
-                switch (pc.type) {
-                    case SLIDER:
-                        if (parameters[i].getClass() == Double.class) {
-                            sliderScaled[sliders] = (double) parameters[i];
-                            slider[sliders] = PanelControl.scaledVal(sliderScaled[sliders], sliderParams(pc.data));
-                        } else {
-                            slider[sliders] = (int) parameters[i];
-                            sliderScaled[sliders] = PanelControl.scaledNum(slider[sliders], sliderParams(pc.data));
-                        }
-                        sliders++;
-                        break;
-                    case RANGE:
-                        range[ranges] = (int) parameters[i];
-                        ranges++;
-                        i++;
-                        range[ranges] = (int) parameters[i];
-                        ranges++;
-                        break;
-                    case COLOUR:
-                        if (parameters[i].getClass() == Integer.class) {
-                            color[colors] = COL.ARGBintToColor((Integer) parameters[i]);
-                            colorARGB[colors] = (Integer) parameters[i];
-                        } else if (parameters[i].getClass() == javafx.scene.paint.Color.class) {
-                            color[colors] = (javafx.scene.paint.Color) parameters[i];
-                            colorARGB[colors] = COL.FX2awt(color[colors]).getRGB() | 0xFF000000;
-                        }
-                        colors++;
-                        break;
-                    case SPINNER:
-                        if (parameters[i].getClass() == Integer.class) {
-                            spinner[spinners] = (Integer) parameters[i];
-                        } else if (parameters[i].getClass() == Double.class) {
-                            spinner[spinners] = ((Double) parameters[i]).intValue();
-                        }
-                        spinners++;
-                        break;
-                    case COMBO:
-                        combo[combos] = (int) parameters[i];
-                        combos++;
-                        break;
-                    case SELECT:
-                        select[selects] = (int) parameters[i];
-                        selects++;
-                        break;
-                    case LAYER:
-                        // layers skipped
-                        i--;
-                        break;
-                    case TOGGLE:
-                        toggle[toggles] = (boolean) parameters[i];
-                        toggles++;
-                        break;
+                try {
+                    ControlReference pc = parameterData[j];
+                    switch (pc.type) {
+                        case SLIDER:
+                            if (parameters[i].getClass() == Double.class) {
+                                sliderScaled[sliders] = (double) parameters[i];
+                                slider[sliders] = PanelControl.scaledVal(sliderScaled[sliders], sliderParams(pc.data));
+                            } else {
+                                slider[sliders] = (int) parameters[i];
+                                sliderScaled[sliders] = PanelControl.scaledNum(slider[sliders], sliderParams(pc.data));
+                            }
+                            sliders++;
+                            break;
+                        case RANGE:
+                            range[ranges] = (int) parameters[i];
+                            ranges++;
+                            i++;
+                            range[ranges] = (int) parameters[i];
+                            ranges++;
+                            break;
+                        case COLOUR:
+                            if (parameters[i].getClass() == Integer.class) {
+                                color[colors] = COL.ARGBintToColor((Integer) parameters[i]);
+                                colorARGB[colors] = (Integer) parameters[i];
+                            } else if (parameters[i].getClass() == javafx.scene.paint.Color.class) {
+                                color[colors] = (javafx.scene.paint.Color) parameters[i];
+                                colorARGB[colors] = COL.FX2awt(color[colors]).getRGB() | 0xFF000000;
+                            }
+                            colors++;
+                            break;
+                        case SPINNER:
+                            if (parameters[i].getClass() == Integer.class) {
+                                spinner[spinners] = (Integer) parameters[i];
+                            } else if (parameters[i].getClass() == Double.class) {
+                                spinner[spinners] = ((Double) parameters[i]).intValue();
+                            }
+                            spinners++;
+                            break;
+                        case COMBO:
+                            combo[combos] = (int) parameters[i];
+                            combos++;
+                            break;
+                        case SELECT:
+                            select[selects] = (int) parameters[i];
+                            selects++;
+                            break;
+                        case LAYER:
+                            // layers skipped
+                            i--;
+                            break;
+                        case TOGGLE:
+                            toggle[toggles] = (boolean) parameters[i];
+                            toggles++;
+                            break;
+                    }
+                } catch (ArrayIndexOutOfBoundsException ex) {
+                    Tonga.log.warn("Ignored a supplied a method parameter which does not have a target");
                 }
             }
         }

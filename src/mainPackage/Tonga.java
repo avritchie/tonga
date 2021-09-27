@@ -69,16 +69,16 @@ public class Tonga {
     static OS currentOS;
 
     public static void main(String args[]) {
-        Tonga.boot(args);
+        boot(args);
     }
 
     protected static void boot(String[] args) {
         initValues();
-        initLooks();
         initErrors();
+        initLogger();
+        initLooks();
         mainFrame = new TongaFrame();
         versionInfo();
-        initLogger();
         StackImporter.boot();
         Settings.boot();
         Histogram.boot();
@@ -114,6 +114,7 @@ public class Tonga {
         sadBoot = false;
         picList = new ArrayList<>();
         cachedData = new ArrayList<>();
+        currentOS = currentOS();
         cpuThreads = Runtime.getRuntime().availableProcessors();
         screenWidth = Toolkit.getDefaultToolkit().getScreenSize().width;
         screenHeight = Toolkit.getDefaultToolkit().getScreenSize().height;
@@ -130,6 +131,7 @@ public class Tonga {
                     break;
                 }
             }
+            Tonga.log.info("Looks initialized succesfully");
         } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | UnsupportedLookAndFeelException ex) {
             catchError(ex, "GUI initialization failed.");
         }
@@ -137,8 +139,8 @@ public class Tonga {
 
     private static void initErrors() {
         Thread.setDefaultUncaughtExceptionHandler((Thread t, Throwable e) -> {
-            if (Tonga.taskIsRunning) {
-                loader().fail = true;
+            if (taskIsRunning) {
+                loader().majorFail();
                 catchError(e);
             } else {
                 catchError(e, "Uncaught exception.");
@@ -167,6 +169,7 @@ public class Tonga {
         traceLogger = logger.getLogger("tonga.logger.trace");
         traceLogger.addAppender(fap);
         log = standardLogger;
+        Tonga.log.info("Logging initialized succesfully");
     }
 
     protected static void debugMode() {
@@ -240,6 +243,7 @@ public class Tonga {
         mainFrame.imagesList.setCellRenderer(listRenderer);
         layerListModel = (DefaultListModel) mainFrame.layersList.getModel();
         mainFrame.layersList.setCellRenderer(layerListRenderer);
+        Tonga.log.info("Selectors initialized succesfully");
     }
 
     private static void initListeners() {
@@ -265,7 +269,7 @@ public class Tonga {
                     IO.importImages(files);
                     evt.dropComplete(true);
                 } catch (UnsupportedFlavorException | IOException ex) {
-                    Tonga.catchError(ex, "Drag and drop failure.");
+                    catchError(ex, "Drag and drop failure.");
                 }
             }
 
@@ -294,7 +298,7 @@ public class Tonga {
                         setStatus("Cannot import layers because there are no images. Please drag and drop into the main panel.");
                     }
                 } catch (UnsupportedFlavorException | IOException ex) {
-                    Tonga.catchError(ex, "Drag and drop failure.");
+                    catchError(ex, "Drag and drop failure.");
                 }
             }
 
@@ -333,7 +337,7 @@ public class Tonga {
                 int i = l.locationToIndex(e.getPoint());
                 if (i > -1) {
                     TongaImage ti = (TongaImage) (m.getElementAt(i));
-                    Tonga.setStatus(ti.imageName + "  |  " + ti.layerList.size() + " layers");
+                    setStatus(ti.imageName + "  |  " + ti.layerList.size() + " layers");
                 }
             }
 
@@ -363,9 +367,9 @@ public class Tonga {
                 if (i > -1) {
                     TongaLayer tl = (TongaLayer) (m.getElementAt(i));
                     if (tl.isPointer) {
-                        Tonga.setStatus(tl.layerName + "  |  " + tl.path);
+                        setStatus(tl.layerName + "  |  " + tl.path);
                     } else {
-                        Tonga.setStatus(tl.layerName + "  |  " + tl.layerImage.bits + "-bit  |  " + tl.width + "x"
+                        setStatus(tl.layerName + "  |  " + tl.layerImage.bits + "-bit  |  " + tl.width + "x"
                                 + tl.height + " px  |  " + String.format("%.2f", tl.layerImage.size / 1048576.).replace(",", ".") + " MB");
                     }
                 }
@@ -396,7 +400,7 @@ public class Tonga {
                             redraw();
                         }
                     } else if (e.getButton() == MouseEvent.BUTTON1 && e.getClickCount() == 2) {
-                        Tonga.setLayerSelectionToAllImages();
+                        setLayerSelectionToAllImages();
                     }
                 }
             }
@@ -410,9 +414,7 @@ public class Tonga {
                 Dragboard db = event.getDragboard();
                 if (db.hasFiles()) {
                     Tonga.log.debug("Import event triggered");
-                    Platform.runLater(() -> {
-                        IO.importImage(db.getFiles());
-                    });
+                    IO.importImage(db.getFiles());
                 } else {
                     Tonga.log.debug("The dragboard is empty.");
                 }
@@ -422,6 +424,7 @@ public class Tonga {
             Key.event(ke);
             return false;
         });
+        Tonga.log.info("Listeners initialized succesfully");
     }
 
     public static void selectImage() {
@@ -548,7 +551,7 @@ public class Tonga {
     }
 
     public static boolean thereIsImage() {
-        return !(Tonga.picList.isEmpty() || mainFrame.imagesList.getSelectedIndex() == -1);
+        return !(picList.isEmpty() || mainFrame.imagesList.getSelectedIndex() == -1);
     }
 
     public static void updateImageList() {
@@ -561,7 +564,7 @@ public class Tonga {
     public static void updateLayerList() {
         layerListModel.clear();
         if (!picList.isEmpty()) {
-            mainFrame.stackToggle.setSelected(Tonga.getImage().stack);
+            mainFrame.stackToggle.setSelected(getImage().stack);
             getLayerList().forEach((name) -> {
                 layerListModel.addElement(name);
             });
@@ -668,7 +671,7 @@ public class Tonga {
             picList.remove(n);
         });
         if (!picList.isEmpty()) {
-            Tonga.selectImage();
+            selectImage();
         }
         refreshChanges("Removed the image(s)");
         UndoRedo.end();
@@ -715,7 +718,7 @@ public class Tonga {
                     im.layerList.get(layers[j]).layerName = newName;
                 }
             }
-            Tonga.refreshLayerList();
+            refreshLayerList();
         }
         //query().popup(getLayerIndexes(), getImageIndexes());
     }
@@ -724,7 +727,7 @@ public class Tonga {
         String newName = (String) JOptionPane.showInputDialog(mainFrame, "New name:", "Rename", JOptionPane.QUESTION_MESSAGE, null, null, getImage().imageName);
         if (newName != null) {
             getImage().imageName = newName;
-            Tonga.refreshImageList();
+            refreshImageList();
         }
         UndoRedo.end();
         //query().popup(getImage());
@@ -756,7 +759,7 @@ public class Tonga {
     }
 
     public static String getAppDataPath() {
-        switch (Tonga.currentOS) {
+        switch (currentOS) {
             case WINDOWS:
                 return System.getProperty("user.home") + "\\AppData\\Local\\Tonga\\";
             case MAC:
@@ -766,25 +769,36 @@ public class Tonga {
         }
     }
 
-    protected static void bootThread(Thread thread, boolean intermediate) {
-        bootThread(thread, "An unknown task", intermediate);
+    public static String getTempPath() {
+        String path = Tonga.formatPath(System.getProperty("java.io.tmpdir") + "Tonga\\");
+        File file = new File(path);
+        if (!file.exists()) {
+            file.mkdir();
+        }
+        return path;
     }
 
-    protected static void bootThread(Thread thread, String name, boolean intermediate) {
-        if (Tonga.loader().threadTask == null || !Tonga.loader().threadTask.isAlive()) {
-            loader().allocateLoader(thread, name, intermediate);
+    protected static void bootThread(Thread thread, boolean intermediate, boolean routine) {
+        bootThread(thread, "An unknown task", intermediate, routine);
+    }
+
+    protected static void bootThread(Thread thread, String name, boolean intermediate, boolean routine) {
+        if (loader().threadTask == null || !loader().threadTask.isAlive()) {
+            loader().allocateLoader(thread, name, intermediate, routine);
+        } else {
+            Tonga.log.warn("Boot thread {} despite previous task not finished.", name);
         }
     }
 
     static void switchLayer() {
-        if (Tonga.getLayerList() != null) {
+        if (getLayerList() != null) {
             switchLayer(previousLayer);
         }
     }
 
     private static void switchLayer(int[] target) {
-        if (target != null && ((Tonga.getLayerList().size() - 1) >= target[0])) {
-            Tonga.selectLayer(target);
+        if (target != null && ((getLayerList().size() - 1) >= target[0])) {
+            selectLayer(target);
             redraw();
         }
     }
@@ -816,7 +830,7 @@ public class Tonga {
                 }
             }
         }
-        if (!Tonga.taskIsRunning) {
+        if (!taskIsRunning) {
             if (st) {
                 selectLayer(img);
             } else {
@@ -827,7 +841,7 @@ public class Tonga {
             refreshCanvases();
         }
         if (forAll) {
-            Tonga.getImageList().forEach(i -> {
+            getImageList().forEach(i -> {
                 i.stack = st;
             });
         }
@@ -852,13 +866,13 @@ public class Tonga {
 
     public static void publishLayerList() {
         SwingUtilities.invokeLater(() -> {
-            if (Tonga.loader().fail) {
-                Tonga.refreshLayerList();
+            if (loader().hasFailed()) {
+                refreshLayerList();
                 TongaRender.updateRenders();
             } else {
-                Tonga.updateLayerList();
+                updateLayerList();
                 TongaRender.updateRenders();
-                Tonga.selectLayer();
+                selectLayer();
             }
         });
     }
@@ -926,7 +940,7 @@ public class Tonga {
     private static void freeUnsusedCache() {
         Thread remover = new Thread(() -> {
             //list all files in cache
-            File[] fl = new File(System.getProperty("java.io.tmpdir") + "/Tonga").listFiles();
+            File[] fl = new File(Tonga.getTempPath()).listFiles();
             ArrayList<File> al = new ArrayList<>();
             al.addAll(Arrays.asList(fl));
             //remove directories
@@ -973,7 +987,7 @@ public class Tonga {
                 });
             }
             //remove everything cached that was not removed
-            ArrayList<CacheBuffer> remainingCache = new ArrayList<>(Tonga.cachedData);
+            ArrayList<CacheBuffer> remainingCache = new ArrayList<>(cachedData);
             remainingCache.forEach(f -> {
                 if (al.contains(f.getFile())) {
                     al.remove(f.getFile());
@@ -1004,11 +1018,10 @@ public class Tonga {
         if (javaREVersion < 9) {
             Tonga.log.info("Please update Java to at least version 9. You now have " + javaREVersion + " (" + jrevs + ")");
         }
-        currentOS = currentOS();
     }
 
     public static String formatPath(String string) {
-        if (Tonga.currentOS == Tonga.OS.MAC) {
+        if (currentOS == OS.MAC) {
             return string.replace("\\", "/");
         } else {
             return string;
@@ -1016,10 +1029,10 @@ public class Tonga {
     }
 
     static int fullLayerIndexCount() {
-        if (Tonga.getImage().stack) {
-            return (int) Tonga.getLayerList().stream().filter(tl -> !tl.isGhost).count();
+        if (getImage().stack) {
+            return (int) getLayerList().stream().filter(tl -> !tl.isGhost).count();
         } else {
-            return Tonga.getLayerIndexes().length;
+            return getLayerIndexes().length;
         }
     }
 
@@ -1043,31 +1056,31 @@ public class Tonga {
     }
 
     private static void updateRenders() {
-        TongaRender.updateRenders(Tonga.getImage());
+        TongaRender.updateRenders(getImage());
     }
 
     protected static void cleanAndShutDown() {
-        if (Tonga.frame().resultTable.getModel().getRowCount() > 0 && (Tonga.frame().resultHash == null
-                || Tonga.frame().resultTable.getModel().hashCode() != Tonga.frame().resultHash)
-                && !Tonga.askYesNo("Save before exit", "You have unsaved results in the results table. Do you want to exit without saving them?", true, true)) {
+        if (mainFrame.resultTable.getModel().getRowCount() > 0 && (mainFrame.resultHash == null
+                || mainFrame.resultTable.getModel().hashCode() != mainFrame.resultHash)
+                && !askYesNo("Save before exit", "You have unsaved results in the results table. Do you want to exit without saving them?", true, true)) {
             return;
         }
         mainFrame.setVisible(false);
         boolean fail = false;
         try {
             try {
-                ArrayList<CacheBuffer> remainingCache = new ArrayList<>(Tonga.cachedData);
+                ArrayList<CacheBuffer> remainingCache = new ArrayList<>(cachedData);
                 remainingCache.forEach(f -> {
                     f.freeCache();
                 });
-                File dir = new File(System.getProperty("java.io.tmpdir") + "/Tonga");
+                File dir = new File(getTempPath());
                 for (File file : dir.listFiles()) {
                     if (!file.isDirectory()) {
                         file.delete();
                     }
                 }
             } catch (Exception ex) {
-                Tonga.catchError(ex, "Cache freeing failed.");
+                catchError(ex, "Cache freeing failed.");
                 throw ex;
             }
             try {
@@ -1093,6 +1106,9 @@ public class Tonga {
         if (!happyBoot) {
             sadBoot = true;
         }
+        if (taskIsRunning) {
+            loader().minorFail();
+        }
         //ex.printStackTrace(System.out);
         Tonga.log.error("Exception : " + ExceptionUtils.getStackTrace(ex));
         if (mainFrame == null || !mainFrame.isVisible()) {
@@ -1105,7 +1121,7 @@ public class Tonga {
             }
             System.exit(1);
         } else {
-            setStatus("<font color=\"red\">Unexpected " + ex.getClass().getSimpleName() + " occured.</font> " + (msg != null ? msg + " " : "") + "See the console for details.");
+            setStatus("<font color=\"red\">Unexpected " + ex.getClass().getSimpleName() + " occured.</font> " + (msg != null ? msg + " " : "") + "See the log for details.");
         }
     }
 }

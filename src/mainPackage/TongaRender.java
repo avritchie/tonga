@@ -64,6 +64,7 @@ public class TongaRender {
         initZoomPanel();
         initMainPanel();
         redraw();
+        Tonga.log.info("Renderer initialized succesfully");
     }
 
     public static void redraw() {

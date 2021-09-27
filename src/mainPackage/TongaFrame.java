@@ -7,6 +7,7 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Container;
+import java.awt.Desktop;
 import java.awt.Image;
 import java.awt.Toolkit;
 import java.awt.Window;
@@ -112,6 +113,7 @@ public class TongaFrame extends javax.swing.JFrame {
         loaderDialog.setLocationRelativeTo(null);
         loaderDialog.setIconImages(mainIcons);
         loaderDialog.setVisible(true);
+        Tonga.log.info("Dialogs initialized succesfully");
     }
 
     void launchersEnabled(boolean yesorno) {
@@ -155,6 +157,7 @@ public class TongaFrame extends javax.swing.JFrame {
         icons.add(Toolkit.getDefaultToolkit().createImage(
                 getClass().getResource("/resourcePackage/icon6.png")));
         mainIcons = icons;
+        Tonga.log.info("Icons initialized succesfully");
     }
 
     protected void launchProtocol(Supplier<Protocol> method, ActionEvent evt) {
@@ -182,11 +185,11 @@ public class TongaFrame extends javax.swing.JFrame {
                     try {
                         currentProtocol.runProtocol(all);
                     } catch (Exception ex) {
-                        Tonga.loader().fail = true;
+                        Tonga.loader().majorFail();
                         Tonga.catchError(ex, "The protocol crashed.");
                     }
                 });
-                Tonga.bootThread(thread, protocolName.getText(), false);
+                Tonga.bootThread(thread, protocolName.getText(), false, false);
             } else {
                 Tonga.setStatus("Please make sure all the selected layers are the same size.");
             }
@@ -203,11 +206,11 @@ public class TongaFrame extends javax.swing.JFrame {
                 try {
                     Filter.publish(all ? instaFilter.runAll() : instaFilter.runSingle(), instaFilter.getName());
                 } catch (Exception ex) {
-                    Tonga.loader().fail = true;
+                    Tonga.loader().majorFail();
                     Tonga.catchError(ex, "The filter crashed.");
                 }
             });
-            Tonga.bootThread(thread, instaFilter.getName(), false);
+            Tonga.bootThread(thread, instaFilter.getName(), false, true);
         }
     }
 
@@ -238,11 +241,11 @@ public class TongaFrame extends javax.swing.JFrame {
                     try {
                         Filter.publish(all ? currentFilter.runAll() : currentFilter.runSingle(), currentFilter.getName());
                     } catch (Exception ex) {
-                        Tonga.loader().fail = true;
+                        Tonga.loader().majorFail();
                         Tonga.catchError(ex, "The filter crashed.");
                     }
                 });
-                Tonga.bootThread(thread, currentFilter.getName(), false);
+                Tonga.bootThread(thread, currentFilter.getName(), false, false);
             }
         }
     }
@@ -256,16 +259,16 @@ public class TongaFrame extends javax.swing.JFrame {
                 Thread thread = new Thread(() -> {
                     if (filter.parameterData == Filter.limits) {
                         filter.param.setFilterParameters(filter.parameterData,
-                                histoRange.getValue(),histoRange.getUpperValue());
+                                histoRange.getValue(), histoRange.getUpperValue());
                     }
                     try {
                         Filter.publish(all ? filter.runAll() : filter.runSingle(), filter.getName());
                     } catch (Exception ex) {
-                        Tonga.loader().fail = true;
+                        Tonga.loader().majorFail();
                         Tonga.catchError(ex, "The scaler crashed.");
                     }
                 });
-                Tonga.bootThread(thread, filter.getName(), false);
+                Tonga.bootThread(thread, filter.getName(), false, true);
             }
         }
     }
@@ -280,11 +283,11 @@ public class TongaFrame extends javax.swing.JFrame {
                 try {
                     Counter.publish(all ? currentCounter.runAll() : currentCounter.runSingle());
                 } catch (Exception ex) {
-                    Tonga.loader().fail = true;
+                    Tonga.loader().majorFail();
                     Tonga.catchError(ex, "The counter crashed.");
                 }
             });
-            Tonga.bootThread(thread, currentCounter.counterName, false);
+            Tonga.bootThread(thread, currentCounter.counterName, false, false);
         }
     }
 
@@ -474,6 +477,7 @@ public class TongaFrame extends javax.swing.JFrame {
         });
         handleComponents(histoSliderPanel);
         menuDebug.setVisible(false);
+        Tonga.log.info("Graphical components initialized succesfully");
     }
 
     private void panelToolTips(JPanel panel) {
@@ -657,6 +661,7 @@ public class TongaFrame extends javax.swing.JFrame {
     private void createPanels() {
         panelBig = createJFXPanel(imageBig);
         panelSmall = createJFXPanel(imageZoom);
+        Tonga.log.info("Panels initialized succesfully");
     }
 
     protected void resultHash() {
@@ -775,6 +780,7 @@ public class TongaFrame extends javax.swing.JFrame {
         menuExportAllStacks = new javax.swing.JMenuItem();
         jSeparator8 = new javax.swing.JPopupMenu.Separator();
         menuAbout = new javax.swing.JMenuItem();
+        jMenuItem80 = new javax.swing.JMenuItem();
         menuTongaExit = new javax.swing.JMenuItem();
         menuFilters = new javax.swing.JMenu();
         jMenu12 = new javax.swing.JMenu();
@@ -935,6 +941,7 @@ public class TongaFrame extends javax.swing.JFrame {
         jMenuItem76 = new javax.swing.JMenuItem();
         jMenuItem7 = new javax.swing.JMenuItem();
         jCheckBoxMenuItem1 = new javax.swing.JCheckBoxMenuItem();
+        jMenuItem81 = new javax.swing.JMenuItem();
 
         contLayRename.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_F2, 0));
         contLayRename.setText("Rename");
@@ -1946,6 +1953,15 @@ public class TongaFrame extends javax.swing.JFrame {
         });
         menuFile.add(menuAbout);
 
+        jMenuItem80.setText("Logs");
+        jMenuItem80.setToolTipText("Open the log file");
+        jMenuItem80.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jMenuItem80ActionPerformed(evt);
+            }
+        });
+        menuFile.add(jMenuItem80);
+
         menuTongaExit.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_F4, java.awt.event.InputEvent.ALT_DOWN_MASK));
         menuTongaExit.setText("Exit");
         menuTongaExit.setToolTipText("Exit Tonga");
@@ -1983,8 +1999,8 @@ public class TongaFrame extends javax.swing.JFrame {
         });
         jMenu6.add(jMenuItem56);
 
-        jMenuItem70.setText("Combined correction");
-        jMenuItem70.setToolTipText("Perform a combination of illumination correction, gamma correction, and brightness autoscaling to get an evenly illuminated image.");
+        jMenuItem70.setText("Bleeding correction");
+        jMenuItem70.setToolTipText("");
         jMenuItem70.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jMenuItem70ActionPerformed(evt);
@@ -3109,6 +3125,14 @@ public class TongaFrame extends javax.swing.JFrame {
         jCheckBoxMenuItem1.setText("Override nucleus size estimation");
         debugTestProtocols.add(jCheckBoxMenuItem1);
 
+        jMenuItem81.setText("Difference reflection");
+        jMenuItem81.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jMenuItem81ActionPerformed(evt);
+            }
+        });
+        debugTestProtocols.add(jMenuItem81);
+
         menuDebug.add(debugTestProtocols);
 
         menuBar.add(menuDebug);
@@ -3875,14 +3899,14 @@ public class TongaFrame extends javax.swing.JFrame {
                 break;
         }
         Tonga.log.debug("The local storage path is {}", Tonga.getAppDataPath());
-        Tonga.log.debug("The cache storage path is {}", Tonga.formatPath(System.getProperty("java.io.tmpdir") + "Tonga\\"));
+        Tonga.log.debug("The cache storage path is {}", Tonga.getTempPath());
         long mem = Runtime.getRuntime().totalMemory();
         long memm = Runtime.getRuntime().maxMemory();
         Tonga.log.debug("Max RAM memory available: {} MB, currently {} MB ({}%) used.", (memm / 1000000), (mem / 1000000), ((int) ((double) mem / memm * 100)));
     }//GEN-LAST:event_debugSysInfoActionPerformed
 
     private void jMenuItem70ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem70ActionPerformed
-        launchFilter(FiltersPass::evenIllumination, evt);
+        launchFilter(FiltersPass::fuzzyCorrection, evt);
     }//GEN-LAST:event_jMenuItem70ActionPerformed
 
     private void jMenuItem71ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem71ActionPerformed
@@ -3956,6 +3980,29 @@ public class TongaFrame extends javax.swing.JFrame {
     private void jMenuItem79ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem79ActionPerformed
         Tonga.enableDebugTracing();
     }//GEN-LAST:event_jMenuItem79ActionPerformed
+
+    private void jMenuItem80ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem80ActionPerformed
+        File file = new File(Tonga.getAppDataPath() + "tonga.log");
+        try {
+            switch (Tonga.currentOS()) {
+                case WINDOWS:
+                    Runtime.getRuntime().exec("notepad \"" + file.getAbsolutePath() + "\"");
+                    break;
+                case MAC:
+                    new ProcessBuilder("open", "-a", "TextEdit", file.getAbsolutePath()).start();
+                    break;
+                case UNKNOWN:
+                    Desktop.getDesktop().open(file);
+                    break;
+            }
+        } catch (IOException ex) {
+            Tonga.catchError(ex, "Excel can not be started.");
+        }
+    }//GEN-LAST:event_jMenuItem80ActionPerformed
+
+    private void jMenuItem81ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem81ActionPerformed
+        launchProtocol(GradientReflect::new, evt);
+    }//GEN-LAST:event_jMenuItem81ActionPerformed
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     protected javax.swing.JComboBox<String> autoscaleCombo;
@@ -4117,6 +4164,8 @@ public class TongaFrame extends javax.swing.JFrame {
     protected javax.swing.JMenuItem jMenuItem78;
     protected javax.swing.JMenuItem jMenuItem79;
     protected javax.swing.JMenuItem jMenuItem8;
+    protected javax.swing.JMenuItem jMenuItem80;
+    protected javax.swing.JMenuItem jMenuItem81;
     protected javax.swing.JMenuItem jMenuItem9;
     protected javax.swing.JPanel jPanel1;
     protected javax.swing.JPanel jPanel2;

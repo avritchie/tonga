@@ -142,7 +142,7 @@ public class Settings {
                 }
             } catch (IOException ex) {
                 fail = true;
-                Tonga.catchError(ex, "The dialog config file could not be read.");
+                Tonga.catchError(ex, "The dialog config file could not be read");
             }
         }
         if (sconf.exists()) {
@@ -162,11 +162,11 @@ public class Settings {
                 }
             } catch (IOException ex) {
                 fail = true;
-                Tonga.catchError(ex, "The setting file could not be read.");
+                Tonga.catchError(ex, "The setting file could not be read");
             }
         }
         if (!fail) {
-            Tonga.log.info("Configuration files loaded succesfully.");
+            Tonga.log.info("Configuration files loaded succesfully");
         }
     }
 
@@ -190,7 +190,7 @@ public class Settings {
             }
         } catch (IOException ex) {
             fail = true;
-            Tonga.catchError(ex, "The dialog config file could not be saved.");
+            Tonga.catchError(ex, "The dialog config file could not be saved");
             throw ex;
         }
         try {
@@ -210,11 +210,11 @@ public class Settings {
             }
         } catch (IOException ex) {
             fail = true;
-            Tonga.catchError(ex, "The setting file could not be saved.");
+            Tonga.catchError(ex, "The setting file could not be saved");
             throw ex;
         }
         if (!fail) {
-            Tonga.log.info("Configuration files saved succesfully.");
+            Tonga.log.info("Configuration files saved succesfully");
         }
     }
 }

@@ -130,7 +130,7 @@ public class IO {
                 }
             }
             );
-            Tonga.bootThread(thread, false);
+            Tonga.bootThread(thread, "Exporter", false, false);
         }
     }
 
@@ -207,7 +207,7 @@ public class IO {
                     Tonga.setStatus("Number of files has to be divisible with the number of images (" + imgEnts + ")");
                 }
             });
-            Tonga.bootThread(thread, false);
+            Tonga.bootThread(thread, "Exporter", false, false);
         }
     }
 
@@ -271,7 +271,7 @@ public class IO {
                             + (failures > 0 ? " but " + failures + " file" + (failures > 1 ? "s" : "") + " failed to be imported." : "."));
                 }
             });
-            Tonga.bootThread(thread, false);
+            Tonga.bootThread(thread, "Exporter", false, false);
         }
     }
 
@@ -352,7 +352,7 @@ public class IO {
                                 + (failures > 0 ? " but " + failures + " file" + (failures > 1 ? "s" : "") + " failed to be imported." : "."));
                     }
                 });
-                Tonga.bootThread(thread, false);
+                Tonga.bootThread(thread, "Exporter", false, false);
             }
         }
     }
@@ -409,7 +409,7 @@ public class IO {
                         Tonga.setStatus("Selected layer of the image exported into PNG format");
                     }
                 });
-        Tonga.bootThread(thread, false);
+        Tonga.bootThread(thread, "Exporter", false, false);
     }
 
     public static void exportLayers(boolean all) {
@@ -441,7 +441,7 @@ public class IO {
                     Tonga.loader().loaderProgress(picList.size(), picList.size());
                     Tonga.setStatus("All layers of the selected image were exported into PNG format");
                 });
-        Tonga.bootThread(thread, false);
+        Tonga.bootThread(thread, "Exporter", false, false);
     }
 
     public static void exportStack(boolean all) {
@@ -467,7 +467,7 @@ public class IO {
             Tonga.loader().loaderProgress(picList.size(), picList.size());
             Tonga.setStatus("Stack " + (all ? "images" : "image") + " of " + (all ? "all of the images were" : "the current image was") + " exported into PNG format");
         });
-        Tonga.bootThread(thread, false);
+        Tonga.bootThread(thread, "Exporter", false, false);
     }
 
     private static boolean exportImage(TongaImage p, Image i) {
@@ -502,7 +502,7 @@ public class IO {
         Tonga.frame().resultHash();
         String fname = "results" + new SimpleDateFormat("ddMMyyyHHmmss").format(new Date());
         File nfile = new File(temp
-                ? Tonga.formatPath(System.getProperty("java.io.tmpdir") + "\\" + fname + ".tsv")
+                ? (Tonga.getTempPath() + fname + ".tsv")
                 : Tonga.formatPath(Tonga.frame().filePathField.getText() + "\\" + fname + ".tsv"));
         Thread thread = new Thread(() -> {
             if (!temp) {
@@ -520,7 +520,7 @@ public class IO {
                 Tonga.setStatus("Table exported and fired into Excel");
             }
         });
-        Tonga.bootThread(thread, true);
+        Tonga.bootThread(thread, "Exporter", true, true);
         return nfile;
     }
 
