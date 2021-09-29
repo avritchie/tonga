@@ -314,9 +314,8 @@ public class CachedImage extends BufferedImage {
             this.bits = bits;
             try {
                 file = new File(Tonga.getTempPath());
-                file.mkdir();
                 while (file.exists()) {
-                    File nfile = new File(file + getHash(ID++) + ".bin");
+                    File nfile = new File(Tonga.getTempPath() + getHash(ID++) + ".bin");
                     if (nfile.exists()) {
                         Tonga.log.warn("Hash clash for " + nfile.getName());
                     } else {

@@ -186,9 +186,13 @@ public class StackImporter {
         return rawChannel;
     }
 
-    static boolean isStackImage(File file) throws ServiceException, FormatException, IOException {
+    static boolean isStackImage(File file) throws ServiceException, FormatException, IOException, IllegalStateException {
         BufferedImageReader input = new BufferedImageReader();
-        setMetadata(input, file);
+        try {
+            setMetadata(input, file);
+        } catch (FormatException fe) {
+            Tonga.log.warn("The file format is unsupported: {}", fe.getMessage());
+        }
         input.setSeries(0);
         int imageNumber = input.getSeriesCount();
         int channelNumber = input.getEffectiveSizeC();

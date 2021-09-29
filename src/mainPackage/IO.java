@@ -114,7 +114,7 @@ public class IO {
                             Tonga.catchError(ex, "Image file can not be imported.");
                         }
                         failures++;
-                        if (ex instanceof FormatException) {
+                        if (ex instanceof FormatException || ex instanceof IllegalStateException) {
                             formatissue = true;
                             Tonga.log.warn("Unsupported format");
                         }
@@ -186,7 +186,7 @@ public class IO {
                                     Tonga.catchError(ex, "Image file can not be imported.");
                                 }
                                 failures++;
-                                if (ex instanceof FormatException) {
+                                if (ex instanceof FormatException || ex instanceof IllegalStateException) {
                                     formatissue = true;
                                     Tonga.log.warn("Unsupported format");
                                 }
@@ -255,7 +255,7 @@ public class IO {
                             Tonga.catchError(ex, "Image file can not be imported.");
                         }
                         failures++;
-                        if (ex instanceof FormatException) {
+                        if (ex instanceof FormatException || ex instanceof IllegalStateException) {
                             formatissue = true;
                             Tonga.log.warn("Unsupported format");
                         }
@@ -323,7 +323,7 @@ public class IO {
                                     Tonga.catchError(ex, "Image file can not be imported.");
                                 }
                                 failures++;
-                                if (ex instanceof FormatException) {
+                                if (ex instanceof FormatException || ex instanceof IllegalStateException) {
                                     formatissue = true;
                                     Tonga.log.warn("Unsupported format");
                                 }
@@ -337,7 +337,7 @@ public class IO {
                     } catch (Exception ex) {
                         Tonga.catchError(ex, "Image file can not be imported.");
                         failures++;
-                        if (ex instanceof FormatException) {
+                        if (ex instanceof FormatException || ex instanceof IllegalStateException) {
                             formatissue = true;
                             Tonga.log.warn("Unsupported format");
                         }
