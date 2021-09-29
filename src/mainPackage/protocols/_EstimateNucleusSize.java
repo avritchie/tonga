@@ -63,11 +63,19 @@ public class _EstimateNucleusSize extends Protocol {
                         Tonga.log.trace("Current filtering is fine");
                         ArrayList<ROI> rcs = new ArrayList<>();
                         //only consider round objects - try to identify clear "normal" nuclei
-                        set.list.forEach((ROI nn) -> {
-                            if (nn.getCircularity() > 0.95) {
-                                rcs.add(nn);
+                        double circ = 0.95;
+                        while (rcs.isEmpty() && circ >= 0.8) {
+                            for (int i = 0; i < set.list.size(); i++) {
+                                ROI nn = set.list.get(i);
+                                if (nn.getCircularity() > circ) {
+                                    rcs.add(nn);
+                                }
                             }
-                        });
+                            if (rcs.isEmpty()) {
+                                Tonga.log.trace("There are no circular objects with circ={}", circ);
+                                circ -= 0.05;
+                            }
+                        }
                         if (!rcs.isEmpty()) {
                             //original size before filtering
                             int brc = rcs.size();
@@ -121,9 +129,14 @@ public class _EstimateNucleusSize extends Protocol {
                                 }
                             }
                             if (!finished) {
-                                Tonga.log.trace("We could not find the size. No objects.");
+                                Tonga.log.trace("We could not find the size. No objects. Approximating from image size.");
+                                nucleusSize = (int) (sourceWidth[0] / 10.);
                                 finished = true;
                             }
+                        } else {
+                            Tonga.log.trace("We could not find the size. There are no circular objects. Approximating from image size.");
+                            nucleusSize = (int) (sourceWidth[0] / 10.);
+                            finished = true;
                         }
                     }
                     Tonga.log.trace("Blending parameter: {}", mp);
