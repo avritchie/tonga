@@ -601,19 +601,16 @@ public class ROI {
                 Tonga.log.trace("Check with {}", p);
                 Point inter = Line.intersection(point.line, p.line);
                 Tonga.log.trace("Suggestion was {}", inter);
-                try {
-                    if (area.area[inter.x][inter.y]) {
-                        Tonga.log.trace("Found intersection at the ROI area at {}", inter);
-                        EdgePoint np = new EdgePoint(inter.x, inter.y);
-                        if (!edgeData.interSectionPoints.contains(np)) {
-                            edgeData.interSectionPoints.add(np);
-                        }
-                        point.pairings.intersectors.add(p);
+                if (inter != null && area.area[inter.x][inter.y]) {
+                    Tonga.log.trace("Found intersection at the ROI area at {}", inter);
+                    EdgePoint np = new EdgePoint(inter.x, inter.y);
+                    if (!edgeData.interSectionPoints.contains(np)) {
+                        edgeData.interSectionPoints.add(np);
                     }
-                } catch (Exception ex) {
-                    Tonga.log.warn("Line intersection was not evaluated for {}.", inter);
+                    point.pairings.intersectors.add(p);
+                } else {
+                    Tonga.log.trace("There lines do not intersect in the ROI area");
                 }
-                Tonga.log.trace("There lines do not intersect in the ROI area");
             }
         });
         edgeData.cornerCandidates.forEach(p -> {
