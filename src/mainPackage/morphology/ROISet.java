@@ -164,6 +164,37 @@ public class ROISet {
         }.draw();
     }
 
+    public int[] drawSurroundArray(boolean useAverage) {
+        return new setRenderer() {
+            double max = getMaxStain();
+            double fact = 255 / max;
+
+            @Override
+            void preDrawingMethod(ROI o) {
+                Iterate.areaPixels(o.mask, (int pos) -> {
+                    out[pos] = out[pos] == COL.BLACK ? COL.DGRAY : out[pos];
+                });
+                o.mask.outEdge.list.forEach(p -> {
+                    out[width * (p.y + o.mask.area.ystart) + (p.x + o.mask.area.xstart)] = COL.LGRAY;
+                });
+            }
+
+            @Override
+            void drawingMethod(ROI o) {
+                Iterate.areaPixels(o, (int pos) -> {
+                    int val;
+                    if (useAverage) {
+                        val = 255 - ((int) (o.getStainAvg() * 255));
+                    } else {
+                        val = 255 - ((int) (o.getStain() * fact));
+                    }
+                    int color = 0xFFFF0000 | val << 8 | val;
+                    out[pos] = color;
+                });
+            }
+        }.draw();
+    }
+
     public int[] drawMaskArray() {
         // render the set by marking masks and their overlaps
         return new setRenderer() {
