@@ -75,8 +75,8 @@ public class Wizard extends javax.swing.JFrame {
                 "Fluorescence microscopy. Dark background and fluorescent dyes.",
                 "Phase contrast microscopy. Black and white images.");
         entries[9] = new WizardEntry(9, "Do the objects touch each other?", "Segmentation", "Yes", "No",
-                "The objects touch and overlap each other. Perform segmenting to separate them.",
-                "The objects do not overlap. Skip segmenting.");
+                "The objects touch and overlap each other. Perform segmenting to separate them. Otherwise two overlapping objects will be detected as one object.",
+                "The objects do not overlap. Skip segmenting for improved performance as it is not necessary.");
         entries[10] = new WizardEntry(10, "Calculate the statistics for every image or for every object?", "Statistics", "Every image", "Every object",
                 "Compare values between pictures. The value is calculated for every image."
                 + "The values for every object are calculated first, and then basic statistics such as the average are calculated for the image. ",
@@ -87,10 +87,10 @@ public class Wizard extends javax.swing.JFrame {
                 "Calculate the total intensity of a certain stain in the object.");
         entries[12] = new WizardEntry(12, "Objects themselves or the area around them?", "Staining area", "Objects themselves", "Object surroundings",
                 "Objects themselves. The staining in question is inside the object, such as inside the nucleus.",
-                "Object surroundings. Look around the object for staining.");
+                "Object surroundings. Look around the object for staining. Choose a radius to use.");
         entries[13] = new WizardEntry(13, "In the whole object or separated by another stain?", "Staining area", "The whole object", "Marked by another stain",
-                "Calculate the staining in the full area of the recognized object.",
-                "Calculate the staining only in the area which is already marked by another staining.");
+                "Calculate the staining in the full area of the recognized object. Don't filter the signal in any way.",
+                "Calculate the staining only in the area which is already marked by another staining. As an example, calculate the green staining only if also the red staining is present.");
         entries[14] = new WizardEntry(14, "Remove dead and dividing cells?", "Remove dead and dividing", "Yes", "No",
                 "Attempt to recognize cells which are dead or dividing and remove them from the analysis.",
                 "Do not attempt to recognize dead or dividing cells. Consider all the objects.");
