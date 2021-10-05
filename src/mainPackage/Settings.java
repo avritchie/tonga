@@ -66,6 +66,10 @@ public class Settings {
         return host.boxSettingOpenAfter.isSelected();
     }
 
+    public static boolean settingSubfolders() {
+        return host.boxSettingSubfolder.isSelected();
+    }
+
     public static boolean settingsAlphaBackground() {
         return host.boxSettingAlphaBG.isSelected();
     }
@@ -76,6 +80,10 @@ public class Settings {
 
     public static boolean settingsMultithreading() {
         return host.boxSettingMultiThreading.isSelected();
+    }
+
+    public static boolean settingHWAcceleration() {
+        return host.boxSettingHWRendering.isSelected();
     }
 
     public static boolean settingsOverrideSizeEstimate() {
@@ -103,22 +111,16 @@ public class Settings {
                 mode = BlendMode.ADD;
                 break;
             case 1:
-                mode = BlendMode.MULTIPLY;
-                break;
-            case 2:
-                mode = BlendMode.EXCLUSION;
-                break;
-            case 3:
                 mode = BlendMode.DIFFERENCE;
                 break;
-            case 4:
+            case 2:
+                mode = BlendMode.MULTIPLY;
+                break;
+            case 3:
                 mode = BlendMode.LIGHTEN;
                 break;
-            case 5:
+            case 4:
                 mode = BlendMode.DARKEN;
-                break;
-            case 6:
-                mode = BlendMode.OVERLAY;
                 break;
         }
         blendmode = mode;
@@ -153,8 +155,10 @@ public class Settings {
                     host.boxSettingResultsAppend.setSelected(((gs >> 1) & 1) == 1);
                     //host.boxSettingNoRAM.setSelected(((gs >> 2) & 1) == 1);
                     host.boxSettingOpenAfter.setSelected(((gs >> 3) & 1) == 1);
-                    host.boxSettingAlphaBG.setSelected(((gs >> 4) & 1) == 1);
-                    host.boxSettingMultiThreading.setSelected(((gs >> 5) & 1) == 1);
+                    host.boxSettingSubfolder.setSelected(((gs >> 4) & 1) == 1);
+                    host.boxSettingAlphaBG.setSelected(((gs >> 5) & 1) == 1);
+                    host.boxSettingMultiThreading.setSelected(((gs >> 6) & 1) == 1);
+                    host.boxSettingHWRendering.setSelected(((gs >> 7) & 1) == 1);
                     host.layerBackColor.setBackground(new Color(in.readInt()));
                     byte cs = in.readByte();
                     host.autoscaleCombo.setSelectedIndex(((cs) & 3));
@@ -166,7 +170,7 @@ public class Settings {
             }
         }
         if (!fail) {
-            Tonga.log.info("Configuration files loaded succesfully");
+            Tonga.log.info("Configuration files loaded successfully");
         }
     }
 
@@ -199,8 +203,10 @@ public class Settings {
                         | (host.boxSettingResultsAppend.isSelected() ? 1 : 0) << 1
                         //| (host.boxSettingNoRAM.isSelected() ? 1 : 0) << 2
                         | (host.boxSettingOpenAfter.isSelected() ? 1 : 0) << 3
-                        | (host.boxSettingAlphaBG.isSelected() ? 1 : 0) << 4
-                        | (host.boxSettingMultiThreading.isSelected() ? 1 : 0) << 5);
+                        | (host.boxSettingSubfolder.isSelected() ? 1 : 0) << 4
+                        | (host.boxSettingAlphaBG.isSelected() ? 1 : 0) << 5
+                        | (host.boxSettingMultiThreading.isSelected() ? 1 : 0) << 6
+                        | (host.boxSettingHWRendering.isSelected() ? 1 : 0) << 7);
                 out.writeByte(gs);
                 out.writeInt(host.layerBackColor.getBackground().getRGB());
                 byte cs = (byte) (host.autoscaleCombo.getSelectedIndex()
@@ -214,7 +220,7 @@ public class Settings {
             throw ex;
         }
         if (!fail) {
-            Tonga.log.info("Configuration files saved succesfully");
+            Tonga.log.info("Configuration files saved successfully");
         }
     }
 }
