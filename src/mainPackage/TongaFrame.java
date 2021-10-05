@@ -89,6 +89,7 @@ public class TongaFrame extends JFrame {
 
     public TongaFrame() {
         loadIconKit();
+        initMacSupport();
         initComponents();
         initExtraComponents();
         initFilterList();
@@ -481,6 +482,25 @@ public class TongaFrame extends JFrame {
         handleComponents(histoSliderPanel);
         menuDebug.setVisible(false);
         Tonga.log.info("Graphical components initialized successfully");
+    }
+
+    private void initMacSupport() {
+        if (Tonga.currentOS() == OS.MAC) {
+            //System.setProperty("apple.laf.useScreenMenuBar", "true");
+            Desktop d = Desktop.getDesktop();
+            d.setQuitHandler((QuitEvent e, QuitResponse response) -> {
+                Tonga.cleanAndShutDown();
+            });
+            d.setAboutHandler((AboutEvent e) -> {
+                popupDialog(infoDialog);
+            });
+            try {
+                Taskbar.getTaskbar().setIconImage(mainIcons.get(5));
+            } catch (NoClassDefFoundError | RuntimeException ex) {
+                Tonga.log.info("The current OS or JRE does not support the dock.");
+            }
+            Tonga.log.info("MacOS components initialized successfully");
+        }
     }
 
     private void panelToolTips(JPanel panel) {
