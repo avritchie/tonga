@@ -1,6 +1,7 @@
 package mainPackage.protocols;
 
-import javafx.scene.effect.BlendMode;
+import mainPackage.Blender;
+import mainPackage.Blender.Blend;
 import mainPackage.utils.COL;
 import mainPackage.utils.IMG;
 import mainPackage.ImageData;
@@ -8,7 +9,6 @@ import mainPackage.Iterate;
 import mainPackage.PanelCreator.ControlReference;
 import static mainPackage.PanelCreator.ControlType.*;
 import mainPackage.Settings;
-import mainPackage.TongaRender;
 import mainPackage.filters.ConnectEdges;
 import mainPackage.filters.Filters;
 import mainPackage.filters.FiltersPass;
@@ -48,7 +48,6 @@ public class __NucleusFinalMask extends Protocol {
                 int nuclSize = Settings.settingsOverrideSizeEstimate() ? (int) (sourceWidth[0] / 10.) : nucleusSize;
                 int minNucl = (int) Math.max(1, nuclSize * 0.06); // 2
                 int maxNucl = (int) (nuclSize * 0.8); // 40
-                int dimNucl = (int) Math.max(1, nuclSize * 0.3); // 10
                 int smallLimit = (int) (nuclSize * 0.2 * nuclSize * 0.2); // 500
                 int largeLimit = (int) (nuclSize * 0.33 * nuclSize * 0.33); // 500
                 int local = (int) Math.pow(nuclSize * 0.3, 0.8); // 10
@@ -62,8 +61,17 @@ public class __NucleusFinalMask extends Protocol {
                 int maxSmooth = (int) Math.pow(nuclSize * 0.05, 0.8); // 2
                 //radius for dilating the edges for nucloli etc. removal from nucleus edges
                 int edgeFiller = (int) Math.pow(nuclSize * 0.03, 0.5); // 1
+                int noise = (int) Math.pow(nuclSize * 0.03, 0.7); // 2
 
                 mask = Filters.gamma().runSingle(inImage[1], 0.5);
+                mask = Filters.autoscale().runSingle(mask);
+                if (noise > 0) {
+                    sMask = Filters.gaussApprox().runSingle(mask, noise);
+                    //blend only the background area
+                    Iterate.pixels(inImage[0], (int p) -> {
+                        mask.pixels32[p] = inImage[0].pixels32[p] == COL.BLACK ? sMask.pixels32[p] : mask.pixels32[p];
+                    });
+                }
                 IMG.copyPixels(mask.pixels32, outImage[1].pixels32);
                 //intensity gradient edge detection
                 mask = Filters.maximumDiffEdge().runSingle(mask, 0, maxDiff, false, 0);
@@ -90,7 +98,7 @@ public class __NucleusFinalMask extends Protocol {
                 mMask = FiltersPass.gaussSmoothing().runSingle(mask, maxSmooth, 1);
                 IMG.copyPixels(mMask.pixels32, outImage[7].pixels32);
                 //the difference - what was considered "insignificant" and rounded away
-                mMask = TongaRender.blend(mMask, mask, BlendMode.EXCLUSION);
+                mMask = Blender.renderBlend(mMask, mask, Blend.DIFFERENCE);
                 IMG.copyPixels(mMask.pixels32, outImage[8].pixels32);
                 //connect these "insignificant" particles together to bigger shapes
                 mMask = ConnectEdges.run().runSingle(mMask, COL.BLACK);
@@ -123,7 +131,7 @@ public class __NucleusFinalMask extends Protocol {
                 //start by combining the connected shapes from the intensity gradient to the original unprocessed binarized intensity gradient mask
                 //the point is to fill the holes etc. which were deemed insignificant, but yet still reverse the detail lost by the connecting etc.
                 //during the intensity gradient mask processing above, which is especially important in nucleus edges
-                mMask = TongaRender.blend(aMask, mask, BlendMode.ADD);
+                mMask = Blender.renderBlend(aMask, mask);
                 IMG.copyPixels(mMask.pixels32, outImage[16].pixels32);
                 //remove inner shapes which are clearly inner, the ones left at this point cant be used to segmented further
                 mMask = FiltersPass.fillInnerAreas().runSingle(mMask, COL.BLACK, true);
@@ -171,6 +179,7 @@ public class __NucleusFinalMask extends Protocol {
                     IMG.copyPixels(mask.pixels32, outImage[10].pixels32);
                     mask = FiltersPass.connectLineObjects().runSingle(mask, COL.BLACK, nucleusSize);
                     IMG.copyPixels(mask.pixels32, outImage[11].pixels32);
+                    int dimNucl = (int) Math.max(1, nuclSize * 0.3); // 10
                     mask = FiltersPass.filterObjectDimension().runSingle(mask, dimNucl, COL.BLACK, false, 0);
                     IMG.copyPixels(mask.pixels32, outImage[12].pixels32);
                     Iterate.pixels(inImage[0], (int p) -> {

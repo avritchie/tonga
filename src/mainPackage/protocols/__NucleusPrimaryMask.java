@@ -34,7 +34,7 @@ public class __NucleusPrimaryMask extends Protocol {
         int nucleusSize = param.spinner[1];
         double limit = param.spinner[0];
 
-        return new ProcessorFast(14, new String[]{"Nucleus Mask"}, 62) {
+        return new ProcessorFast(14, new String[]{"Nucleus Mask"}, 73) {
 
             ImageData layerCorrect, layerBackground, layerNuclei, layerComb;
 
@@ -57,7 +57,8 @@ public class __NucleusPrimaryMask extends Protocol {
                 int noise = (int) Math.pow(nuclSize * 0.03, 0.7); // 2
                 layerComb = new ImageData(sourceWidth[0], sourceHeight[0]);
                 // illumination/contrast-corrected version of the image
-                layerCorrect = FiltersPass.evenIllumination().runSingle(sourceLayer[0]);
+                layerCorrect = Filters.gamma().runSingle(inImage[0], 0.5);
+                layerCorrect = Filters.autoscale().runSingle(layerCorrect);
                 IMG.copyPixels(layerCorrect.pixels32, outImage[1].pixels32);
                 // process with different difference of gaussians -settings
                 if (noise > 0) {
@@ -117,9 +118,9 @@ public class __NucleusPrimaryMask extends Protocol {
                         layerBackground.pixels32[p] = (layerNuclei.pixels32[p] & 0xFF) < 127 && layerBackground.pixels32[p] == COL.WHITE ? COL.BLACK : layerBackground.pixels32[p];
                     });
                 }
-                IMG.copyPixels(layerBackground.pixels32, outImage[13].pixels32);
+                //IMG.copyPixels(layerBackground.pixels32, outImage[13].pixels32);
                 //layerComb = new ObjectsSeparated().runSilent(sourceImage, new ImageData[]{layerBackground, layerNuclei}, COL.BLACK)[0];
-                layerBackground = FiltersPass.filterObjectSize().runSingle(layerBackground, COL.BLACK, limit, false, 0);
+                //layerBackground = FiltersPass.filterObjectSize().runSingle(layerBackground, COL.BLACK, limit, false, 0);
                 IMG.copyPixels(layerBackground.pixels32, outImage[0].pixels32);
             }
         };

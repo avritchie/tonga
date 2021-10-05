@@ -3,7 +3,6 @@ package mainPackage;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import loci.common.DebugTools;
@@ -13,12 +12,15 @@ import loci.common.services.ServiceFactory;
 import loci.formats.ChannelMerger;
 import loci.formats.ChannelSeparator;
 import loci.formats.FormatException;
+import loci.formats.FormatTools;
+import loci.formats.gui.AWTImageTools;
 import loci.formats.gui.BufferedImageReader;
 import loci.formats.meta.IMetadata;
 import loci.formats.meta.MetadataRetrieve;
 import loci.formats.ome.OMEXMLMetadata;
 import loci.formats.services.OMEXMLService;
 import mainPackage.utils.HISTO;
+import mainPackage.utils.RGB;
 import ome.xml.model.primitives.Color;
 
 public class StackImporter {
@@ -46,7 +48,7 @@ public class StackImporter {
             cols.put("0xff8080ff", "Light Red");
             cols.put("0x80ff80ff", "Light Green");
             cols.put("0x8080ffff", "Violet");
-            Tonga.log.info("Stack importer initialized succesfully");
+            Tonga.log.info("Stack importer initialized successfully");
         } catch (DependencyException ex) {
             Tonga.catchError(ex);
         }
@@ -173,6 +175,7 @@ public class StackImporter {
         }
     }
 
+    @Deprecated
     private static int[] applyScaling(int[] rawChannel, int bitNumber, int slices) {
         int maxPixelRange; // 65536 for 16-bit
         if (Settings.settingAutoscaleType() == Settings.Autoscale.IMAGE) {
@@ -181,9 +184,30 @@ public class StackImporter {
             int[] posLowHigh = HISTO.getMinMaxAdapt(histo, Settings.settingAutoscaleAggressive() ? 0.1 : 0);
             Tonga.log.debug("{} is the lowest point, index is {}; {} is the highest point, index is {}", posLowHigh[0], histo[posLowHigh[1]], posLowHigh[1], histo[posLowHigh[0]]);
             Tonga.log.debug("To scale to 0-255 it should be substracted {} and scaled with {}", posLowHigh[0], (maxPixelRange / 2. / posLowHigh[1]));
-            rawChannel = TongaRender.scaleBits(rawChannel, posLowHigh[0], maxPixelRange / 2. / posLowHigh[1]);
+            rawChannel = scaleBits(rawChannel, posLowHigh[0], maxPixelRange / 2. / posLowHigh[1]);
         }
         return rawChannel;
+    }
+
+    @Deprecated
+    static int[] scaleBits(int[] i, int s, double f) {
+        for (int p = 0; p < i.length; p++) {
+            i[p] = (int) ((i[p] - s) * f);
+        }
+        return i;
+    }
+
+    @Deprecated
+    static BufferedImage bitTobit8Color(int[] i, int slices, int bitdivider, int maxvalue, ome.xml.model.primitives.Color c, int w, int h) {
+        int cc = c.getRed() << 16 | c.getGreen() << 8 | c.getBlue() | 255 << 24;
+        Tonga.log.debug("There are {} slices and the divider is {}, maxvalue {}", slices, bitdivider, maxvalue);
+        int div = slices * bitdivider;
+        for (int p = 0; p < i.length; p++) {
+            i[p] = RGB.argbColored(Math.min(maxvalue * slices, i[p]) / div, cc);
+        }
+        BufferedImage nb = AWTImageTools.blankImage(w, h, 4, FormatTools.INT8);
+        nb.setRGB(0, 0, w, h, i, 0, w);
+        return nb;
     }
 
     static boolean isStackImage(File file) throws ServiceException, FormatException, IOException, IllegalStateException {
