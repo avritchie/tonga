@@ -2,9 +2,11 @@ package mainPackage.protocols;
 
 import javafx.scene.effect.BlendMode;
 import javafx.scene.paint.Color;
+import mainPackage.Blender;
+import mainPackage.Blender.Blend;
 import mainPackage.utils.COL;
-import mainPackage.utils.IMG;
 import mainPackage.ImageData;
+import mainPackage.Iterate;
 import mainPackage.PanelCreator.ControlReference;
 import static mainPackage.PanelCreator.ControlType.*;
 import mainPackage.TongaRender;
@@ -44,20 +46,42 @@ public class MatrigelOrganoids extends Protocol {
             protected void methodInit() {
                 layer = Filters.thresholdBright().runSingle(inImage[0], 34 + thresh * 3);
                 work = Filters.niblack().runSingle(inImage[0], 10, 16 + thresh * 2, 3 + thresh);
-                layer = TongaRender.blend(layer, work, BlendMode.MULTIPLY);
+                layer = Blender.renderBlend(layer, work, Blend.MULTIPLY);
                 layer = Filters.invert().runSingle(layer);
                 layer = ConnectEdges.run().runSingle(layer);
                 layer = ConnectEdges.run().runSingle(layer);
                 layer = FiltersPass.filterObjectSize().runSingle(layer, COL.BLACK, limit, false, 0);
-                work = new __NucleusFinalMask().runSilent(sourceImage,
-                        new ImageData[]{layer, inImage[0], inImage[0]},
-                        new Object[]{Color.BLACK, limit, false, 0, false})[0];
+                // old nucl final mask starts
+                work = Filters.gamma().runSingle(inImage[0], 50);
+                work = Filters.maximumDiffEdge().runSingle(work, 0, 2, false, 0);
+                work = Filters.invert().runSingle(work);
+                work = Filters.localThreshold().runSingle(work, 10, 0, 5.);
+                Iterate.pixels(inImage[0], (int p) -> {
+                    work.pixels32[p] = inImage[0].pixels32[p] == COL.BLACK ? COL.BLACK : work.pixels32[p];
+                });
+                l2 = FiltersPass.filterObjectSize().runSingle(work, limit);
+                Iterate.pixels(inImage[0], (int p) -> {
+                    boolean removed = l2.pixels32[p] != work.pixels32[p];
+                    work.pixels32[p] = inImage[0].pixels32[p] == COL.BLACK ? COL.BLACK : removed ? COL.BLACK : COL.WHITE;
+                });
+                work = FiltersPass.edgeErode().runSingle(work, COL.BLACK, 1, true, true);
+                work = FiltersPass.gaussSmoothing().runSingle(work);
+                // dim erosion
+                l3 = FiltersPass.edgeErode().runSingle(work, COL.BLACK, 5, true, true);
+                ROISet set = new ImageTracer(l3, Color.BLACK).trace();
+                set.quantifyStainAgainstChannel(Filters.dog().runSingle(inImage[0], 2, 40, false));
+                set.filterOutDimObjects(2);
+                set.filterOutSmallObjects(limit);
+                set = set.getPositionFilteredSet(work, COL.BLACK);
+                work = set.drawToImageData();
+                // old nucl final mask ends
+                //work = new __NucleusFinalMask().runSilent(sourceImage,new ImageData[]{layer, inImage[0], inImage[0]},new Object[]{Color.BLACK, limit, false, 0, false})[0];
                 l3 = Filters.bwSaturation().runSingle(work);
-                l2 = Filters.cutFilter().runSingle(l3, new Object[]{57 + thresh * 9,180});
+                l2 = Filters.cutFilter().runSingle(l3, new Object[]{57 + thresh * 9, 180});
                 work = Filters.thresholdBright().runSingle(l2, 11 + thresh * 7);
-                layer = TongaRender.blend(layer, work, BlendMode.DIFFERENCE);
+                layer = Blender.renderBlend(layer, work, Blend.DIFFERENCE);
                 layer = FiltersPass.edgeDilate().runSingle(layer, COL.BLACK, 1, false);
-                layer = FiltersPass.fillInnerAreas().runSingle(layer, false);
+                layer = FiltersPass.fillInnerAreas().runSingle(layer, COL.BLACK, false);
                 layer = FiltersPass.edgeErode().runSingle(layer, COL.BLACK, 3, false, true);
                 layer = FiltersPass.edgeDilate().runSingle(layer, COL.BLACK, 1, false);
                 layer = Smoother.run().runSingle(layer);

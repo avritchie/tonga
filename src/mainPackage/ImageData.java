@@ -13,6 +13,7 @@ public class ImageData {
     public int colour;
     public int min;
     public int max;
+    public boolean alpha; //false = normal, true = ghost
     public String name;
     public final CachedImage ref;
 
@@ -64,6 +65,7 @@ public class ImageData {
 
     public ImageData(TongaLayer layer) {
         this(layer.layerImage);
+        this.alpha = layer.isGhost;
     }
 
     public ImageData(CachedImage img) {

@@ -1,6 +1,6 @@
 package mainPackage;
 
-import mainPackage.utils.IMG;
+import java.awt.GraphicsEnvironment;
 import java.awt.Point;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
@@ -11,8 +11,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.NoSuchElementException;
+import java.util.concurrent.Semaphore;
 import java.util.stream.IntStream;
 import javafx.application.Platform;
 import javafx.embed.swing.JFXPanel;
@@ -29,23 +29,24 @@ import javafx.scene.image.WritableImage;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.ImagePattern;
 import javafx.scene.paint.Paint;
-import loci.formats.FormatTools;
+import javax.swing.JPanel;
 import loci.formats.gui.AWTImageTools;
 import static mainPackage.Tonga.picList;
 import mainPackage.utils.COL;
 import mainPackage.utils.HISTO;
-import mainPackage.utils.RGB;
 
 public class TongaRender {
 
     static Image[] renderImages;
     static int[] renderHashes;
+    static ImageData[] renderCopies;
+    static Image renderImage;
     static boolean zoomFreeze;
+    static Semaphore redrawSem;
     static int mainPHash = 0, zoomPHash = 0;
     public static JFXPanel mainPanel, zoomPanel;
     private static GraphicsContext mainDraw, zoomDraw;
     static double zoomFactor = 2, mainFactor = 1;
-    static int[] overlayIndices;
     static ImagePattern diamonds, stripes;
     static Paint fill;
     static int zoomx = 0, zoomy = 0;
@@ -53,42 +54,43 @@ public class TongaRender {
     static int mousx = 0, mousy = 0;
     static int imgx = 0, imgy = 0;
     static int[] imageDimensions;
+    static int[] dragDimensions;
     static Thread bgRenderThread;
 
     static void boot() {
         mainPanel = Tonga.frame().panelBig;
         zoomPanel = Tonga.frame().panelSmall;
-        overlayIndices = new int[]{0};
+        redrawSem = new Semaphore(2);
         diamonds = new ImagePattern(drawDiamonds(), 0, 0, 20, 20, false);
         stripes = new ImagePattern(drawStripes(), 0, 0, 20, 20, false);
         initZoomPanel();
         initMainPanel();
         redraw();
-        Tonga.log.info("Renderer initialized succesfully");
+        Tonga.log.info("Renderer initialized successfully");
     }
 
     public static void redraw() {
-        Platform.runLater(() -> {
-            TongaImage ti = Tonga.getImage();
-            int[] ix = Tonga.getLayerIndexes();
-            boolean nulls = ti == null || ix.length == 0;
-            if (!picList.isEmpty() && nulls) {
-                return;
-            }
-            imageDimensions = new int[]{mainPanel.getWidth(), mainPanel.getHeight()};
-            if (Settings.settingBatchProcessing()) {
-                setCanvas();
-                fillAndDraw();
-            } else {
-                imageDimensions = !nulls
-                        ? getMaxDim(ti, ix)
-                        : imageDimensions;
-                setCanvas();
-                setDragBounds();
-                setZoomPosition();
-                fillAndDraw();
-            }
-        });
+        if (redrawSem.tryAcquire()) {
+            Platform.runLater(() -> {
+                Tonga.log.trace("Redraw thread was invoked");
+                TongaImage ti = Tonga.getImage();
+                int[] ix = Tonga.getLayerIndexes();
+                boolean nulls = ti == null || ix.length == 0;
+                boolean bm = Settings.settingBatchProcessing();
+                if (picList.isEmpty() || !nulls) {
+                    imageDimensions = !bm && !nulls
+                            ? getMaxDim(ti, ix)
+                            : new int[]{mainPanel.getWidth(), mainPanel.getHeight()};
+                    setCanvas();
+                    if (!Settings.settingBatchProcessing()) {
+                        setDragBounds();
+                        setZoomPosition();
+                    }
+                    fillAndDraw();
+                }
+                redrawSem.release();
+            });
+        }
     }
 
     private static void setCanvas() {
@@ -134,9 +136,15 @@ public class TongaRender {
         if (mainPHash != newMainPHash) {
             mainPHash = newMainPHash;
             clearGraphics(mainDraw, mainWidth, mainHeight);
-            renderGraphics(mainDraw, (int) posx, (int) posy,
-                    (int) Math.ceil(mainWidth / mainLocalFactor), (int) Math.ceil(mainHeight / mainLocalFactor),
-                    0, 0, mainWidth, mainHeight);
+            if (Settings.settingHWAcceleration()) {
+                renderGraphics(mainDraw, (int) posx, (int) posy,
+                        (int) Math.ceil(mainWidth / mainLocalFactor), (int) Math.ceil(mainHeight / mainLocalFactor),
+                        0, 0, mainWidth, mainHeight);
+            } else {
+                mainDraw.drawImage(renderImage, (int) posx, (int) posy,
+                        (int) Math.ceil(mainWidth / mainLocalFactor), (int) Math.ceil(mainHeight / mainLocalFactor),
+                        0, 0, mainWidth, mainHeight);
+            }
         }
         int newZoomPHash = (int) (zoomx * zoomWidth - zoomy * zoomHeight - zoomLocalFactor * 100);
         if (zoomPHash != newZoomPHash) {
@@ -149,7 +157,11 @@ public class TongaRender {
             int zrx = he ? 0 : zoomx, zry = ve ? 0 : zoomy;
             int zux = he ? imageDimensions[0] : (int) (zoomWidth / zoomLocalFactor);
             int zuy = ve ? imageDimensions[1] : (int) (zoomHeight / zoomLocalFactor);
-            renderGraphics(zoomDraw, zrx, zry, zux, zuy, zbx, zby, zwx, zwy);
+            if (Settings.settingHWAcceleration()) {
+                renderGraphics(zoomDraw, zrx, zry, zux, zuy, zbx, zby, zwx, zwy);
+            } else {
+                zoomDraw.drawImage(renderImage, zrx, zry, zux, zuy, zbx, zby, zwx, zwy);
+            }
         }
     }
 
@@ -192,6 +204,7 @@ public class TongaRender {
                         imgy = (int) (posy + imageDimensions[1] * ((double) my / (int) (imageDimensions[1] * mainFactor)));
                     }
                     Tonga.frame().updateZoomLabel(imgx, imgy, mainFactor, zoomFactor);
+                    Tonga.log.trace("Moved mouse invoked redraw");
                     redraw();
                 }
             }
@@ -293,40 +306,73 @@ public class TongaRender {
         return img;
     }
 
-    public static void updateRenders() {
-        updateRenders(Tonga.getImage());
-    }
-
-    static void updateRenders(TongaImage img) {
+    public static void copyFromCache() {
         if (Settings.settingBatchProcessing()) {
+            renderImage = null;
             renderImages = null;
+            renderCopies = null;
             renderHashes = null;
             return;
         }
+        TongaImage img = Tonga.getImage();
         ArrayList<TongaLayer> list = img.layerList;
-        Image[] rims = new Image[list.size()];
         int[] rhas = new int[list.size()];
-        int[] prior = priorityImages(img);
-        HashMap<Integer, CachedImage> rtsk = new HashMap<>();
+        int[] prior = Tonga.selectedImageAsIndexArray(img);
+        boolean hw = Settings.settingHWAcceleration();
+        HashMap<Integer, Object> rtsk = new HashMap<>();
+        Image[] rimsi = new Image[list.size()];
+        ImageData[] rimsid = new ImageData[list.size()];
         for (int i = 0; i < list.size(); i++) {
             rhas[i] = list.get(i).layerImage.hashCode();
-            if (renderHashes == null || i >= renderHashes.length || rhas[i] != renderHashes[i]) {
-                rims[i] = null;
-                if (prior[i] == 1) {
-                    rims[i] = list.get(i).layerImage.getFXImage();
+            boolean ev = renderHashes == null || i >= renderHashes.length || rhas[i] != renderHashes[i];
+            if (hw) {
+                if (ev) {
+                    if (prior[i] == 1) {
+                        rimsi[i] = list.get(i).layerImage.getFXImage();
+                    } else {
+                        rtsk.put(i, list.get(i).layerImage);
+                    }
                 } else {
-                    rtsk.put(i, list.get(i).layerImage);
+                    rimsi[i] = renderImages[i];
                 }
             } else {
-                rims[i] = renderImages[i];
+                if (ev) {
+                    if (prior[i] == 1) {
+                        rimsid[i] = new ImageData(list.get(i));
+                    } else {
+                        rtsk.put(i, list.get(i));
+                    }
+                } else {
+                    rimsid[i] = renderCopies[i];
+                }
             }
         }
-        renderImages = rims;
+        renderImages = rimsi;
+        renderCopies = rimsid;
         renderHashes = rhas;
         invokeBackgroundRendering(rtsk);
+        if (!hw) {
+            setRenderImage();
+        }
     }
 
-    private static void invokeBackgroundRendering(HashMap<Integer, CachedImage> thingsToRender) {
+    public static void setRenderImage() {
+        if (Tonga.thereIsImage() && Tonga.getLayerIndexes().length > 0) {
+            renderImage = renderImage(Tonga.selectedImageAsImageDataArray(Tonga.getImageIndex())).toFXImage();
+        } else {
+            renderImage = null;
+        }
+    }
+
+    public static ImageData renderImage(ImageData[] layersarray) {
+        if (Tonga.getImage().stack) {
+            return Blender.renderBlend(layersarray, Blender.modeBridge(Settings.settingBlendMode()));
+        } else {
+            return Blender.renderOverlay(layersarray);
+        }
+    }
+
+    private static void invokeBackgroundRendering(HashMap<Integer, Object> thingsToRender) {
         //background threaded rendering (for images not currently active)
         if (bgRenderThread != null && bgRenderThread.isAlive()) {
             bgRenderThread.interrupt();
@@ -337,26 +383,19 @@ public class TongaRender {
                     //cancel the work
                     return;
                 }
-                if (renderImages[imgs.getKey()] == null) {
-                    renderImages[imgs.getKey()] = imgs.getValue().getFXImage();
+                if (Settings.settingHWAcceleration()) {
+                    if (renderImages[imgs.getKey()] == null) {
+                        renderImages[imgs.getKey()] = ((CachedImage) imgs.getValue()).getFXImage();
+                    }
+                } else {
+                    if (renderCopies[imgs.getKey()] == null) {
+                        renderCopies[imgs.getKey()] = new ImageData((TongaLayer) imgs.getValue());
+                    }
                 }
             });
         });
         bgRenderThread.setName("Background Renderer");
         bgRenderThread.start();
-    }
-
-    private static int[] priorityImages(TongaImage img) {
-        // layers which are selected currently (get a list of them to render them first)
-        int[] prior = new int[img.layerList.size()];
-        if (img.stack) {
-            prior = img.layerList.stream().mapToInt(l -> l.isGhost ? 0 : 1).toArray();
-        } else {
-            for (int i = 0; i < img.activeLayers.length; i++) {
-                prior[img.activeLayers[i]] = 1;
-            }
-        }
-        return prior;
     }
 
     static void resetHash() {
@@ -390,6 +429,12 @@ public class TongaRender {
         return i;
     }
 
+    public static boolean allSameSize(ImageData[] image) {
+        boolean wi = Arrays.stream(image).mapToInt(i -> (int) i.width).distinct().count() == 1;
+        boolean he = Arrays.stream(image).mapToInt(i -> (int) i.height).distinct().count() == 1;
+        return wi && he;
+    }
+
     public static int[] getMaxDim() {
         return getMaxDim(Tonga.getImage(), Tonga.getLayerIndexes());
     }
@@ -414,6 +459,12 @@ public class TongaRender {
             height = (image.stack || !isthis) ? pictList.stream().filter(i -> !i.isGhost).mapToInt(i -> i.height).min().getAsInt() : indx.length > 1 ? Arrays.stream(indx).mapToObj(i -> pictList.get(i)).mapToInt(i -> i.height).min().getAsInt() : height;
         } catch (NoSuchElementException ex) {
         }
+        return new int[]{width, height};
+    }
+
+    public static int[] getMaxDim(ImageData[] image) {
+        int width = Arrays.stream(image).mapToInt(i -> (int) i.width).min().getAsInt();
+        int height = Arrays.stream(image).mapToInt(i -> (int) i.height).min().getAsInt();
         return new int[]{width, height};
     }
 
@@ -524,7 +575,8 @@ public class TongaRender {
         }
     }
 
-    private static WritableImage blendImages(Image[] layers, BlendMode mode) {
+    @Deprecated
+    public static WritableImage blendImages(Image[] layers, BlendMode mode) {
         int[] dim = getMaxDim(layers);
         int width = dim[0];
         int height = dim[1];
@@ -543,35 +595,11 @@ public class TongaRender {
         return wi[0];
     }
 
-    public static ImageData blend(ImageData[] layers, BlendMode mode) {
-        //Image[] images = Arrays.stream(layers).map(l -> l.toFXImage()).toArray(Image[]::new);
-        return new ImageData(blendImages(IMG.datasToImages(layers), mode));
+    static void forceRenderRefresh() {
+        renderHashes = null;
     }
 
-    public static ImageData blend(ImageData img1, ImageData img2, BlendMode mode) {
-        return blend(new ImageData[]{img1, img2}, mode);
-    }
-
-    public static ImageData blend(ImageData img1, ImageData img2) {
-        return blend(new ImageData[]{img1, img2}, BlendMode.ADD);
-    }
-
-    static BufferedImage bitTobit8Color(int[] i, int slices, int bitdivider, int maxvalue, ome.xml.model.primitives.Color c, int w, int h) {
-        int cc = c.getRed() << 16 | c.getGreen() << 8 | c.getBlue() | 255 << 24;
-        Tonga.log.debug("There are {} slices and the divider is {}, maxvalue {}", slices, bitdivider, maxvalue);
-        int div = slices * bitdivider;
-        for (int p = 0; p < i.length; p++) {
-            i[p] = RGB.argbColored(Math.min(maxvalue * slices, i[p]) / div, cc);
-        }
-        BufferedImage nb = AWTImageTools.blankImage(w, h, 4, FormatTools.INT8);
-        nb.setRGB(0, 0, w, h, i, 0, w);
-        return nb;
-    }
-
-    static int[] scaleBits(int[] i, int s, double f) {
-        for (int p = 0; p < i.length; p++) {
-            i[p] = (int) ((i[p] - s) * f);
-        }
-        return i;
+    static double getDisplayScaling() {
+        return GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice().getDefaultConfiguration().getDefaultTransform().getScaleX();
     }
 }

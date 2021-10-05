@@ -9,6 +9,8 @@ import java.awt.Point;
 import java.util.ArrayList;
 import java.util.List;
 import javafx.scene.effect.BlendMode;
+import mainPackage.Blender;
+import mainPackage.Blender.Blend;
 import mainPackage.utils.COL;
 import mainPackage.Tonga;
 import mainPackage.utils.IMG;
@@ -479,15 +481,15 @@ public class FiltersPass {
         };
     }
 
-    public static FilterFast evenIllumination() {
-        return new FilterFast("Even", noParams) {
+    public static FilterFast fuzzyCorrection() {
+        return new FilterFast("Fuzzy", new ControlReference[]{
+            new ControlReference(SPINNER, "Average object size (px)", 50)}, 6) {
+            ImageData tempData;
 
             @Override
             protected void processor() {
-                ImageData id = inData;
-                id = Filters.gamma().runSingle(id, 0.5);
-                //id = Filters.illuminationCorrection().runSingle(id);
-                id = Filters.autoscale().runSingle(id);
+                tempData = Filters.dog().runSingle(inData, param.spinner[0] / 25, param.spinner[0] / 2, true);
+                ImageData id = Blender.renderBlend(inData, tempData, Blend.SUBTRACT);
                 setOutputBy(id);
             }
 

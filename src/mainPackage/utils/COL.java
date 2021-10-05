@@ -124,4 +124,39 @@ public class COL {
         int bf = (b1 + b2) / 2;
         return RGB.argb(rf, gf, bf);
     }
+
+    public static int blendColorAlpha(int c1, int c2) {
+        double a1 = ((c1 >> 24) & 255) / 255.;
+        int r1 = (c1 >> 16) & 255;
+        int g1 = (c1 >> 8) & 255;
+        int b1 = c1 & 255;
+        double a2 = ((c2 >> 24) & 255) / 255.;
+        int r2 = (c2 >> 16) & 255;
+        int g2 = (c2 >> 8) & 255;
+        int b2 = c2 & 255;
+        int af = (int) (255 * (a1 + a2 * (1 - a1)));
+        double m1 = a1 * (1 / (a1 + a2) * a1);
+        double m2 = a2 * (1 / (a1 + a2) * a2);
+        int rf = (int) (r1 * m1 + r2 * m2);
+        int gf = (int) (g1 * m1 + g2 * m2);
+        int bf = (int) (b1 * m1 + b2 * m2);
+        return RGB.argb(rf, gf, bf, af);
+    }
+
+    public static int blendColorAlphaAlpha(int c1, int c2, double alpha) {
+        double a1 = ((c1 >> 24) & 255) / 255., a2 = ((c2 >> 24) & 255) / 255.;
+        int r1 = (c1 >> 16) & 255, r2 = (c2 >> 16) & 255;
+        int g1 = (c1 >> 8) & 255, g2 = (c2 >> 8) & 255;
+        int b1 = c1 & 255, b2 = c2 & 255;
+        double m2 = alpha * a2;
+        double m1 = a1 * (1 - m2);
+        int af = (int) (255 * (a1 + m2 * (1 - a1)));
+        double mf = 1 / (m1 + m2);
+        m2 = m2 * mf;
+        m1 = m1 * mf;
+        int rf = (int) (r1 * m1 + r2 * m2);
+        int gf = (int) (g1 * m1 + g2 * m2);
+        int bf = (int) (b1 * m1 + b2 * m2);
+        return RGB.argb(rf, gf, bf, af);
+    }
 }

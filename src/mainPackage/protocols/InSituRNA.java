@@ -1,15 +1,13 @@
 package mainPackage.protocols;
 
+import mainPackage.Blender;
 import mainPackage.utils.COL;
 import mainPackage.ImageData;
 import mainPackage.PanelCreator.ControlReference;
 import static mainPackage.PanelCreator.ControlType.*;
-import mainPackage.Tonga;
-import mainPackage.TongaRender;
 import mainPackage.counters.Counters;
 import mainPackage.filters.Filters;
 import mainPackage.filters.FiltersPass;
-import mainPackage.filters.FiltersRender;
 import mainPackage.utils.RGB;
 
 public class InSituRNA extends Protocol {
@@ -182,7 +180,7 @@ public class InSituRNA extends Protocol {
                         layer = Filters.thresholdBright().runSingle(layer, (int) (8 + (threshTissue / 25.)));
                         layer3 = Filters.invert().runSingle(layer2);
                         layer3 = Filters.thresholdBright().runSingle(layer3, (int) (50 + (threshTissue / 5.)));
-                        layer = TongaRender.blend(layer, layer3);
+                        layer = Blender.renderBlend(layer, layer3);
                         layer = Filters.gaussApprox().runSingle(layer, 9.);
                         layer = Filters.thresholdBright().runSingle(layer, (int) (threshTissue / 5.));
                         layer = FiltersPass.filterObjectSize().runSingle(layer, COL.BLACK, 500, false, 0);
@@ -201,7 +199,7 @@ public class InSituRNA extends Protocol {
                         layer2 = Filters.autoscaleWithAdapt().runSingle(layer2, 5);
                         layer3 = Filters.cutFilter().runSingle(layer3, new Object[]{50, 255});
                         layer2 = Filters.cutFilter().runSingle(layer2, new Object[]{50, 255});
-                        layer = TongaRender.blend(layer3, layer2);
+                        layer = Blender.renderBlend(layer3, layer2);
                         layer = Filters.thresholdBright().runSingle(layer, 15);
                         layer = Filters.gaussApprox().runSingle(layer, 4.);
                         layer = Filters.thresholdBright().runSingle(layer, (int) (threshTissue / 1.25));

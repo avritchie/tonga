@@ -1,12 +1,11 @@
 package mainPackage.protocols;
 
-import javafx.scene.effect.BlendMode;
+import mainPackage.Blender;
+import mainPackage.Blender.Blend;
 import mainPackage.utils.COL;
-import mainPackage.utils.IMG;
 import mainPackage.ImageData;
 import mainPackage.PanelCreator.ControlReference;
 import static mainPackage.PanelCreator.ControlType.*;
-import mainPackage.TongaRender;
 import mainPackage.filters.Filters;
 import mainPackage.filters.FiltersPass;
 import mainPackage.utils.HISTO;
@@ -46,7 +45,7 @@ public class HETissueSeparation extends Protocol {
                 collVals = new int[outImage[0].totalPixels()];
                 int[] histo = HISTO.getHistogram(inImage[0].pixels32);
                 int high = HISTO.getHighestPointIndex(histo, false);
-                layer = Filters.cutFilter().runSingle(inImage[0], new Object[]{50,high});
+                layer = Filters.cutFilter().runSingle(inImage[0], new Object[]{50, high});
                 layer = Filters.invert().runSingle(layer);
                 layer = Filters.gaussApprox().runSingle(layer, 5 * magn);
                 layer = Filters.thresholdBright().runSingle(layer, threshHemxyl);
@@ -84,7 +83,7 @@ public class HETissueSeparation extends Protocol {
                 outImage[2].pixels32 = layer2.pixels32;
                 layer2 = Filters.thresholdBright().runSingle(layer2, threshEosin);
                 outImage[3].pixels32 = layer2.pixels32;
-                layer2 = TongaRender.blend(layer, layer2, BlendMode.MULTIPLY);
+                layer2 = Blender.renderBlend(layer, layer2, Blend.MULTIPLY);
                 layer = FiltersPass.filterObjectSize().runSingle(layer2, COL.BLACK, 60, true, 250 * magn);
                 outImage[4].pixels32 = layer.pixels32;
             }

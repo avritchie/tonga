@@ -26,7 +26,7 @@ public class Histogram {
         histoLabel = Tonga.frame().histoLabel;
         histoImg = Tonga.frame().histoImg;
         histoCol = histoImg.getBackground();
-        Tonga.log.info("Histograms initialized succesfully");
+        Tonga.log.info("Histograms initialized successfully");
     }
 
     public static void update() {
@@ -52,9 +52,8 @@ public class Histogram {
             long stamp = System.currentTimeMillis();
             try {
                 pwidth = histoPanel.getWidth();
-                if (Tonga.getLayerIndex() > -1
-                        && TongaRender.renderImages != null && TongaRender.renderImages.length > 0) {
-                    Image imgSource = TongaRender.renderImages[Tonga.getLayerIndex()];
+                if (Tonga.getLayerIndex() > -1 && TongaRender.renderImage != null) {
+                    Image imgSource = TongaRender.renderImage;
                     int imgHash = imgSource.hashCode();
                     int[] renderHisto = currentHisto;
                     if (imageHash != imgHash) {

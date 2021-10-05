@@ -1,5 +1,6 @@
 package mainPackage.protocols;
 
+import mainPackage.Blender;
 import mainPackage.ImageData;
 import mainPackage.Iterate;
 import mainPackage.PanelCreator.ControlReference;
@@ -50,7 +51,7 @@ public class _AreaStainIntensity extends Protocol {
                 set.quantifyStainAgainstChannel(inImage[1]);
                 if (rembg) {
                     // get the background mask and value
-                    ImageData r = TongaRender.blend(inImage[1], inImage[2]);
+                    ImageData r = Blender.renderBlend(inImage[1], inImage[2]);
                     Protocol a = Protocol.load(_BackgroundArea::new);
                     bgid = a.runSilent(sourceImage, new ImageData[]{r, inImage[1]}, 80)[0];
                     bgval = (double) a.results.getVal(0, 3) / 100.;

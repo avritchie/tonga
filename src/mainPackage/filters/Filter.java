@@ -2,7 +2,6 @@ package mainPackage.filters;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.List;
 import javafx.scene.image.Image;
 import mainPackage.TongaLayer;
@@ -171,7 +170,7 @@ public abstract class Filter {
 
     public ImageData[] runSingle(int image) {
         if (Settings.settingBatchProcessing()) {
-            String[] pointers = selectedImagesAsPointerArray(image);
+            String[] pointers = Tonga.selectedImagesAsPointerArray(image);
             ImageData[] imgs = new ImageData[pointers.length];
             for (int i = 0; i < pointers.length; i++) {
                 try {
@@ -183,7 +182,7 @@ public abstract class Filter {
             }
             return getIDArray(runSingle(imgs));
         }
-        return getIDArray(runSingle(selectedImagesAsImageDataArray(image)));
+        return getIDArray(runSingle(Tonga.selectedImageAsImageDataArray(image)));
     }
 
     public ImageData runSingle(TongaLayer layer, Object... parameters) {
@@ -203,19 +202,6 @@ public abstract class Filter {
         conditional = false;
         conditionalPixels = null;
         return output;
-    }
-
-    private ImageData[] selectedImagesAsImageDataArray(int image) {
-        if (Tonga.getImage(image).stack) {
-            return Arrays.stream(Tonga.getLayerIndexes()).mapToObj(i -> Tonga.getLayerList(image).get(i))
-                    .filter(tl -> !tl.isGhost).map(tl -> new ImageData(tl)).toArray(ImageData[]::new);
-        } else {
-            return Arrays.stream(Tonga.getLayerIndexes()).mapToObj(i -> new ImageData(Tonga.getLayerList(image).get(i).layerImage)).toArray(ImageData[]::new);
-        }
-    }
-
-    private String[] selectedImagesAsPointerArray(int image) {
-        return Arrays.stream(Tonga.getLayerIndexes()).mapToObj(i -> Tonga.getLayerList(image).get(i).path).toArray(String[]::new);
     }
 
     protected ImageData handle(Object img) {

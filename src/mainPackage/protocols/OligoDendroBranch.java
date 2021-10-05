@@ -9,6 +9,7 @@ import javafx.scene.image.Image;
 import javafx.scene.image.PixelReader;
 import javafx.scene.image.PixelWriter;
 import javafx.scene.paint.Color;
+import mainPackage.Blender;
 import mainPackage.Tonga;
 import mainPackage.utils.COL;
 import mainPackage.CachedImage;
@@ -72,9 +73,11 @@ public class OligoDendroBranch extends Protocol {
                 Tonga.log.debug("There are {} nuclei", nuclei.objectsCount());
                 IMG.copyImage(nucleiLayer, outImage[0]);
                 // BADI
-                bodyLayer = FiltersRender.renderStack().runSingle(
-                        new CachedImage[]{sourceLayer[0].layerImage, sourceLayer[1].layerImage,
-                            sourceLayer[2].layerImage, sourceLayer[3].layerImage});
+                bodyLayer = Blender.renderBlend(ImageData.convertToImageData(new CachedImage[]{
+                    sourceLayer[0].layerImage,
+                    sourceLayer[1].layerImage,
+                    sourceLayer[2].layerImage,
+                    sourceLayer[3].layerImage}));
                 bodyLayer = Filters.multiplyColBright().runSingle(bodyLayer, 280.);
                 bodyLayer = Filters.thresholdBright().runSingle(bodyLayer, 15);
                 bodyLayer = FiltersPass.edgeErode().runSingle(bodyLayer, COL.BLACK, 1, false, true);
@@ -85,8 +88,7 @@ public class OligoDendroBranch extends Protocol {
                 bodyLayer = Filters.distanceTransform().runSingle(bodyLayer);
                 bodyLayer = Filters.thresholdBright().runSingle(bodyLayer, 4);
                 bodyLayer = FiltersPass.filterObjectSize().runSingle(bodyLayer, COL.BLACK, 500, false, 0);
-                bodyLayer = FiltersRender.renderStack().runSingle(
-                        new ImageData[]{nucleusSeparator, bodyLayer});
+                bodyLayer = Blender.renderBlend(nucleusSeparator, bodyLayer);
                 bodyLayer = FiltersPass.edgeDilate().runSingle(bodyLayer, COL.BLACK, 5, false);
                 bodyLayer = Filters.box().runSingle(bodyLayer, 2.);
                 bodyLayer = Filters.thresholdBright().runSingle(bodyLayer, 50);
