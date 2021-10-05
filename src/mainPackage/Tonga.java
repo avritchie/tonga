@@ -28,15 +28,12 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
-import javafx.application.Platform;
-import javafx.scene.input.DragEvent;
-import javafx.scene.input.Dragboard;
-import javafx.scene.input.TransferMode;
 import javax.swing.DefaultListCellRenderer;
 import javax.swing.DefaultListModel;
 import javax.swing.JCheckBox;
 import javax.swing.JList;
 import javax.swing.JOptionPane;
+import javax.swing.JPanel;
 import javax.swing.ListModel;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
@@ -88,7 +85,7 @@ public class Tonga {
         mainFrame.display();
         happyBoot = true;
         if (!sadBoot) {
-            Tonga.log.info("Tonga: succesful start");
+            Tonga.log.info("Tonga: successful start");
         }
         handleArguments(args);
     }
@@ -131,7 +128,7 @@ public class Tonga {
                     break;
                 }
             }
-            Tonga.log.info("Looks initialized succesfully");
+            Tonga.log.info("Looks initialized successfully");
         } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | UnsupportedLookAndFeelException ex) {
             catchError(ex, "GUI initialization failed.");
         }
@@ -169,7 +166,7 @@ public class Tonga {
         traceLogger = logger.getLogger("tonga.logger.trace");
         traceLogger.addAppender(fap);
         log = standardLogger;
-        Tonga.log.info("Logging initialized succesfully");
+        Tonga.log.info("Logging initialized successfully");
     }
 
     protected static void debugMode() {
@@ -243,12 +240,13 @@ public class Tonga {
         mainFrame.imagesList.setCellRenderer(listRenderer);
         layerListModel = (DefaultListModel) mainFrame.layersList.getModel();
         mainFrame.layersList.setCellRenderer(layerListRenderer);
-        Tonga.log.info("Selectors initialized succesfully");
+        Tonga.log.info("Selectors initialized successfully");
     }
 
     private static void initListeners() {
         JList imageJList = mainFrame.imagesList;
         JList layerJList = mainFrame.layersList;
+        JPanel dndPanel = mainFrame.actionPanel;
         // remove default key listeners
         KeyListener[] list;
         list = imageJList.getKeyListeners();
@@ -260,25 +258,18 @@ public class Tonga {
             layerJList.removeKeyListener(kl);
         }
         // add d&d and others
-        imageJList.setDropTarget(new DropTarget() {
+        new fileDragAndDrop() {
             @Override
-            public void drop(DropTargetDropEvent evt) {
-                try {
-                    evt.acceptDrop(DnDConstants.ACTION_LINK);
-                    List<File> files = (List<File>) evt.getTransferable().getTransferData(DataFlavor.javaFileListFlavor);
-                    IO.importImages(files);
-                    evt.dropComplete(true);
-                } catch (UnsupportedFlavorException | IOException ex) {
-                    catchError(ex, "Drag and drop failure.");
-                }
+            public void action(List<File> files) {
+                IO.importImage(files);
             }
-
+        }.initDnD(dndPanel, "Import new image with multiple layers");
+        new fileDragAndDrop() {
             @Override
-            public void dragEnter(DropTargetDragEvent dtde) {
-                setStatus("Import new images with one layer each");
-                dtde.acceptDrag(DnDConstants.ACTION_LINK);
+            public void action(List<File> files) {
+                IO.importImages(files);
             }
-        });
+        }.initDnD(imageJList, "Import new images with one layer each");
         layerJList.setDropTarget(new DropTarget() {
             @Override
             public void drop(DropTargetDropEvent evt) {
@@ -324,7 +315,7 @@ public class Tonga {
                     } else if (img.activeLayers[0] >= img.layerList.size()) {
                         img.activeLayers = new int[]{img.layerList.size() - 1};
                     }
-                    updateRenders();
+                    TongaRender.copyFromCache();
                     selectLayer(img.activeLayers);
                 }
             }
@@ -405,26 +396,39 @@ public class Tonga {
                 }
             }
         });
-        Platform.runLater(() -> {
-            mainFrame.panelBig.getScene().setOnDragOver((DragEvent event) -> {
-                event.acceptTransferModes(TransferMode.ANY);
-                setStatus("Import new image with multiple layers");
-            });
-            mainFrame.panelBig.getScene().setOnDragDropped((DragEvent event) -> {
-                Dragboard db = event.getDragboard();
-                if (db.hasFiles()) {
-                    Tonga.log.debug("Import event triggered");
-                    IO.importImage(db.getFiles());
-                } else {
-                    Tonga.log.debug("The dragboard is empty.");
-                }
-            });
-        });
         KeyboardFocusManager.getCurrentKeyboardFocusManager().addKeyEventDispatcher((KeyEvent ke) -> {
             Key.event(ke);
             return false;
         });
-        Tonga.log.info("Listeners initialized succesfully");
+        Tonga.log.info("Listeners initialized successfully");
+    }
+
+    public abstract static class fileDragAndDrop {
+
+        public abstract void action(List<File> files);
+
+        public void initDnD(Component comp, String message) {
+            comp.setDropTarget(new DropTarget() {
+                @Override
+                public void drop(DropTargetDropEvent evt) {
+                    try {
+                        evt.acceptDrop(DnDConstants.ACTION_LINK);
+                        List<File> files = (List<File>) evt.getTransferable().getTransferData(DataFlavor.javaFileListFlavor);
+                        action(files);
+                        evt.dropComplete(true);
+                    } catch (UnsupportedFlavorException | IOException ex) {
+                        catchError(ex, "Drag and drop failure.");
+                    }
+                }
+
+                @Override
+                public void dragEnter(DropTargetDragEvent dtde) {
+                    setStatus(message);
+                    dtde.acceptDrag(DnDConstants.ACTION_LINK);
+                }
+            });
+        }
+
     }
 
     public static void selectImage() {
@@ -551,7 +555,7 @@ public class Tonga {
     }
 
     public static boolean thereIsImage() {
-        return !(picList.isEmpty() || mainFrame.imagesList.getSelectedIndex() == -1);
+        return !(picList.isEmpty() || mainFrame.imagesList.getSelectedIndex() == -1 || getImage() == null);
     }
 
     public static void updateImageList() {
@@ -679,6 +683,30 @@ public class Tonga {
 
     private static int totalImages() {
         return picList.size();
+    }
+
+    public static ImageData[] selectedImageAsImageDataArray(int image) {
+        if (Tonga.getImage(image).stack) {
+            return Tonga.getLayerList(image).stream().filter(tl -> !tl.isGhost).map(tl -> new ImageData(tl)).toArray(ImageData[]::new);
+        } else {
+            return Arrays.stream(Tonga.getLayerIndexes()).mapToObj(i -> new ImageData(Tonga.getLayerList(image).get(i))).toArray(ImageData[]::new);
+        }
+    }
+
+    public static String[] selectedImagesAsPointerArray(int image) {
+        return Arrays.stream(Tonga.getLayerIndexes()).mapToObj(i -> Tonga.getLayerList(image).get(i).path).toArray(String[]::new);
+    }
+
+    public static int[] selectedImageAsIndexArray(TongaImage img) {
+        int[] prior = new int[img.layerList.size()];
+        if (img.stack) {
+            prior = img.layerList.stream().mapToInt(l -> l.isGhost ? 0 : 1).toArray();
+        } else {
+            for (int i = 0; i < img.activeLayers.length; i++) {
+                prior[img.activeLayers[i]] = 1;
+            }
+        }
+        return prior;
     }
 
     public static boolean layerStructureMatches(int firstIndex, int secondIndex, int[] indexes) {
@@ -868,10 +896,10 @@ public class Tonga {
         SwingUtilities.invokeLater(() -> {
             if (loader().hasFailed()) {
                 refreshLayerList();
-                TongaRender.updateRenders();
+                TongaRender.copyFromCache();
             } else {
                 updateLayerList();
-                TongaRender.updateRenders();
+                TongaRender.copyFromCache();
                 selectLayer();
             }
         });
@@ -898,6 +926,9 @@ public class Tonga {
     }
 
     public static void refreshCanvases() {
+        if (!Settings.settingHWAcceleration()) {
+            TongaRender.setRenderImage();
+        }
         Histogram.update();
         redraw();
     }
@@ -1055,10 +1086,6 @@ public class Tonga {
         return cpuThreads;
     }
 
-    private static void updateRenders() {
-        TongaRender.updateRenders(getImage());
-    }
-
     protected static void cleanAndShutDown() {
         if (mainFrame.resultTable.getModel().getRowCount() > 0 && (mainFrame.resultHash == null
                 || mainFrame.resultTable.getModel().hashCode() != mainFrame.resultHash)
@@ -1091,7 +1118,7 @@ public class Tonga {
         } catch (Exception ex) {
             fail = true;
         }
-        Tonga.log.info(fail ? "Tonga: exit with errors" : "Tonga: succesful exit");
+        Tonga.log.info(fail ? "Tonga: exit with errors" : "Tonga: successful exit");
         System.exit(0);
     }
 

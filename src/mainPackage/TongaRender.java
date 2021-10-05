@@ -45,6 +45,7 @@ public class TongaRender {
     static Semaphore redrawSem;
     static int mainPHash = 0, zoomPHash = 0;
     public static JFXPanel mainPanel, zoomPanel;
+    private static JPanel actionPanel;
     private static GraphicsContext mainDraw, zoomDraw;
     static double zoomFactor = 2, mainFactor = 1;
     static ImagePattern diamonds, stripes;
@@ -60,6 +61,7 @@ public class TongaRender {
     static void boot() {
         mainPanel = Tonga.frame().panelBig;
         zoomPanel = Tonga.frame().panelSmall;
+        actionPanel = Tonga.frame().actionPanel;
         redrawSem = new Semaphore(2);
         diamonds = new ImagePattern(drawDiamonds(), 0, 0, 20, 20, false);
         stripes = new ImagePattern(drawStripes(), 0, 0, 20, 20, false);
@@ -109,12 +111,13 @@ public class TongaRender {
     private static void setDragBounds() {
         int xlimit = Math.max(0, (int) (imageDimensions[0] * mainFactor - mainPanel.getWidth()));
         int ylimit = Math.max(0, (int) (imageDimensions[1] * mainFactor - mainPanel.getHeight()));
-        posx = Math.min(Math.max(0, posx), xlimit / mainFactor);
-        posy = Math.min(Math.max(0, posy), ylimit / mainFactor);
+        dragDimensions = new int[]{xlimit, ylimit};
+        posx = Math.min(Math.max(0, posx), dragDimensions[0] / mainFactor);
+        posy = Math.min(Math.max(0, posy), dragDimensions[1] / mainFactor);
     }
 
     private static void setZoomPosition() {
-        Point mp = mainPanel.getMousePosition();
+        Point mp = actionPanel.getMousePosition();
         if (mp != null && !zoomFreeze) {
             int mx = (int) (mp.x / mainFactor);
             int my = (int) (mp.y / mainFactor);
@@ -186,11 +189,11 @@ public class TongaRender {
             @Override
             public void mouseDragged(MouseEvent me) {
                 int mx = me.getX(), my = me.getY();
-                posx = posx + ((mousx - mx) / mainFactor);
-                posy = posy + ((mousy - my) / mainFactor);
+                posx = Math.min(Math.max(0, posx + ((mousx - mx) / mainFactor)), dragDimensions[0] / mainFactor);
+                posy = Math.min(Math.max(0, posy + ((mousy - my) / mainFactor)), dragDimensions[1] / mainFactor);
                 mousx = mx;
                 mousy = my;
-                redraw();
+                mouseMoved(me);
             }
 
             @Override
