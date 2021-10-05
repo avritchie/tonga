@@ -3,6 +3,7 @@ package mainPackage;
 import java.awt.Taskbar;
 import java.awt.Taskbar.*;
 import javax.swing.JProgressBar;
+import javax.swing.SwingUtilities;
 
 /**
  *
@@ -81,8 +82,8 @@ public class Loader extends javax.swing.JFrame {
                     Tonga.setStatus("<font color=\"red\">" + threadTask.getName() + " crashed unexpectedly.</font> See the console for details.");
                     Tonga.log.info("{} crashed unexpectedly.", threadTask.getName());
                 } else if (!routineTask) {
-                    Tonga.setStatus("Completed " + threadTask.getName() + (minorFailure ? " <font color=\"red\">with errors</font> in " : " succesfully in ") + (timeEnd - timeStart) / 10000000 / 100. + "s");
-                    Tonga.log.info("{} was completed {} in {}s.", threadTask.getName(), minorFailure ? "with errors" : "succesfully", (timeEnd - timeStart) / 10000000 / 100.);
+                    Tonga.setStatus("Completed " + threadTask.getName() + (minorFailure ? " <font color=\"red\">with errors</font> in " : " successfully in ") + (timeEnd - timeStart) / 10000000 / 100. + "s");
+                    Tonga.log.info("{} was completed {} in {}s.", threadTask.getName(), minorFailure ? "with errors" : "successfully", (timeEnd - timeStart) / 10000000 / 100.);
                 }
                 resetStatus();
             }
@@ -203,9 +204,11 @@ public class Loader extends javax.swing.JFrame {
     }
 
     private void loaderFinish() {
-        Tonga.threadActionEnd();
         timeEnd = System.nanoTime();
-        resetProgress();
+        SwingUtilities.invokeLater(() -> {
+            Tonga.threadActionEnd();
+            resetProgress();
+        });
     }
 
     @SuppressWarnings("unchecked")
