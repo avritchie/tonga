@@ -361,7 +361,7 @@ public class TongaRender {
 
     public static void setRenderImage() {
         if (Tonga.thereIsImage() && Tonga.getLayerIndexes().length > 0) {
-            renderImage = renderImage(Tonga.selectedImageAsImageDataArray(Tonga.getImageIndex())).toFXImage();
+            renderImage = renderImage(Tonga.selectedImageAs8BitImageDataArray(Tonga.getImageIndex())).toFXImage();
         } else {
             renderImage = null;
         }

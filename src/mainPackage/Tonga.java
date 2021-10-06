@@ -693,6 +693,21 @@ public class Tonga {
         }
     }
 
+    public static ImageData[] selectedImageAs8BitImageDataArray(int image) {
+        ImageData[] imgs;
+        if (Tonga.getImage(image).stack) {
+            imgs = Tonga.getLayerList(image).stream().filter(tl -> !tl.isGhost).map(tl -> new ImageData(tl)).toArray(ImageData[]::new);
+        } else {
+            imgs = Arrays.stream(Tonga.getLayerIndexes()).mapToObj(i -> new ImageData(Tonga.getLayerList(image).get(i))).toArray(ImageData[]::new);
+        }
+        for (ImageData img : imgs) {
+            if (img.bits == 16) {
+                img.set8BitPixels();
+            }  
+        }
+        return imgs;
+    }
+
     public static String[] selectedImagesAsPointerArray(int image) {
         return Arrays.stream(Tonga.getLayerIndexes()).mapToObj(i -> Tonga.getLayerList(image).get(i).path).toArray(String[]::new);
     }
