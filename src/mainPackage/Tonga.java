@@ -53,6 +53,7 @@ public class Tonga {
     private static Logger traceLogger;
     private static boolean happyBoot;
     private static boolean sadBoot;
+    static Color tongaBlue, tongaLBlue;
     static int[] currentLayer, previousLayer;
     static int screenWidth, screenHeight;
     static ArrayList<TongaImage> picList;
@@ -109,6 +110,8 @@ public class Tonga {
     private static void initValues() {
         happyBoot = false;
         sadBoot = false;
+        tongaBlue = new Color(120, 120, 240);
+        tongaLBlue = new Color(241, 241, 254);
         picList = new ArrayList<>();
         cachedData = new ArrayList<>();
         currentOS = currentOS();
@@ -124,7 +127,7 @@ public class Tonga {
             for (UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
                 if ("Nimbus".equals(info.getName())) {
                     UIManager.setLookAndFeel(info.getClassName());
-                    UIManager.put("nimbusOrange", new Color(120, 120, 240));
+                    UIManager.put("nimbusOrange", tongaBlue);
                     break;
                 }
             }
