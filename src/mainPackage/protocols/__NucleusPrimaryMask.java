@@ -34,7 +34,7 @@ public class __NucleusPrimaryMask extends Protocol {
         int nucleusSize = param.spinner[1];
         double limit = param.spinner[0];
 
-        return new ProcessorFast(14, new String[]{"Nucleus Mask"}, 73) {
+        return new ProcessorFast(13, new String[]{"Nucleus Mask"}, 73) {
 
             ImageData layerCorrect, layerBackground, layerNuclei, layerComb;
 
@@ -59,50 +59,51 @@ public class __NucleusPrimaryMask extends Protocol {
                 // illumination/contrast-corrected version of the image
                 layerCorrect = Filters.gamma().runSingle(inImage[0], 0.5);
                 layerCorrect = Filters.autoscale().runSingle(layerCorrect);
-                IMG.copyPixels(layerCorrect.pixels32, outImage[1].pixels32);
+                setSampleOutputBy(layerCorrect, 1);
                 // process with different difference of gaussians -settings
                 if (noise > 0) {
                     layerCorrect = Filters.gaussApprox().runSingle(layerCorrect, noise);
                 }
                 layerNuclei = Filters.dog().runSingle(layerCorrect, minNucl, maxNucl, true);
-                IMG.copyPixels(layerNuclei.pixels32, outImage[2].pixels32);
+                setSampleOutputBy(layerNuclei, 2);
                 layerNuclei = Filters.multiply().runSingle(layerNuclei, 300);
-                IMG.copyPixels(layerNuclei.pixels32, outImage[3].pixels32);
+                setSampleOutputBy(layerNuclei, 3);
                 layerNuclei = Filters.dog().runSingle(layerNuclei, 1, maxInn, true);
-                IMG.copyPixels(layerNuclei.pixels32, outImage[4].pixels32);
+                setSampleOutputBy(layerNuclei, 4);
                 // process with difference of gaussians 
                 layerBackground = Filters.dog().runSingle(layerCorrect, minNucl + 1, maxBack, true);
-                IMG.copyPixels(layerBackground.pixels32, outImage[5].pixels32);
+                setSampleOutputBy(layerBackground, 5);
                 // substract the second combination from the newly created final gaussian
                 Iterate.pixels(inImage[0], (int p) -> {
                     layerComb.pixels32[p] = (layerNuclei.pixels32[p] & 0xFF) > 1 && (layerBackground.pixels32[p] & 0xFF) < 1 ? COL.WHITE : COL.BLACK;
                 });
-                IMG.copyPixels(layerComb.pixels32, outImage[6].pixels32);
+                setSampleOutputBy(layerComb, 6);
                 ROISet set = new ImageTracer(layerComb, Color.BLACK).trace();
                 set.quantifyStainAgainstChannel(Filters.dog().runSingle(layerCorrect, minNucl, nuclSize, false));
+                set.filterOutDimObjects(0.05);
                 set.filterOutDimObjects(set.avgStain() * 0.1);
                 layerComb = set.drawToImageData(true);
-                IMG.copyPixels(layerComb.pixels32, outImage[7].pixels32);
+                setSampleOutputBy(layerComb, 7);
                 //layerComb = FiltersPass.fillInnerAreasSizeShape().runSingle(layerComb, COL.WHITE, GEO.circleArea(nucleusSize) / 5, 90);
-                //DRAW.copyPixels(layerComb.pixels32, outImage[9].pixels32);
+                //DRAW.copyPixels(layerComb,9);
                 // additional stuff
                 layerBackground = Filters.dog().runSingle(layerCorrect, 1, maxEdge, true);
-                IMG.copyPixels(layerBackground.pixels32, outImage[8].pixels32);
+                setSampleOutputBy(layerBackground, 8);
                 layerBackground = Filters.dog().runSingle(layerBackground, 1, maxEdge, false);
-                IMG.copyPixels(layerBackground.pixels32, outImage[9].pixels32);
+                setSampleOutputBy(layerBackground, 9);
                 layerBackground = Filters.dog().runSingle(layerBackground, 1, maxEdge, false);
-                IMG.copyPixels(layerBackground.pixels32, outImage[10].pixels32);
+                setSampleOutputBy(layerBackground, 10);
                 /*layerBackground = Filters.maximumDiffEdge().runSingle(layerBackground, 0, 1, false, 0);
-                DRAW.copyPixels(layerBackground.pixels32, outImage[13].pixels32);
+                DRAW.copyPixels(layerBackground,13);
                 layerBackground = Filters.cutFilter().runSingle(layerBackground, new Object[]{0,25});
-                DRAW.copyPixels(layerBackground.pixels32, outImage[14].pixels32);
+                DRAW.copyPixels(layerBackground,14);
                 layerBackground = Filters.thresholdBright().runSingle(layerBackground, 5);
-                DRAW.copyPixels(layerBackground.pixels32, outImage[15].pixels32);*/
+                DRAW.copyPixels(layerBackground,15);*/
                 // stack
                 Iterate.pixels(inImage[0], (int p) -> {
                     layerNuclei.pixels32[p] = ((layerBackground.pixels32[p] & 0xFF) >= 1 || layerComb.pixels32[p] == COL.BLACK) ? COL.BLACK : COL.WHITE;
                 });
-                IMG.copyPixels(layerNuclei.pixels32, outImage[11].pixels32);
+                setSampleOutputBy(layerNuclei, 11);
                 layerBackground = FiltersPass.fillInnerAreasSizeShape().runSingle(layerNuclei, COL.BLACK, GEO.circleArea(nuclSize) / 5, 90);
                 // remove nuclei or other irregular holes on nuclei edges
                 if (noise > 0) {
@@ -110,7 +111,7 @@ public class __NucleusPrimaryMask extends Protocol {
                     layerBackground = FiltersPass.gaussSmoothing().runSingle(layerBackground, noise, 1);
                     layerBackground = FiltersPass.fillInnerAreasSizeShape().runSingle(layerBackground, COL.BLACK, GEO.circleArea(nuclSize) / 5, 90);
                 }
-                IMG.copyPixels(layerBackground.pixels32, outImage[12].pixels32);
+                setSampleOutputBy(layerBackground, 12);
                 // smooth the masks but on convex areas only
                 if (smooth > 0) {
                     layerNuclei = Filters.gaussApprox().runSingle(layerBackground, smooth, true);
@@ -118,10 +119,10 @@ public class __NucleusPrimaryMask extends Protocol {
                         layerBackground.pixels32[p] = (layerNuclei.pixels32[p] & 0xFF) < 127 && layerBackground.pixels32[p] == COL.WHITE ? COL.BLACK : layerBackground.pixels32[p];
                     });
                 }
-                //IMG.copyPixels(layerBackground.pixels32, outImage[13].pixels32);
+                //setSampleOutputBy(layerBackground,13);
                 //layerComb = new ObjectsSeparated().runSilent(sourceImage, new ImageData[]{layerBackground, layerNuclei}, COL.BLACK)[0];
                 //layerBackground = FiltersPass.filterObjectSize().runSingle(layerBackground, COL.BLACK, limit, false, 0);
-                IMG.copyPixels(layerBackground.pixels32, outImage[0].pixels32);
+                setOutputBy(layerBackground);
             }
         };
     }
