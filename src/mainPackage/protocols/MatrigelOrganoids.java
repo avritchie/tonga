@@ -72,7 +72,7 @@ public class MatrigelOrganoids extends Protocol {
                 set.quantifyStainAgainstChannel(Filters.dog().runSingle(inImage[0], 2, 40, false));
                 set.filterOutDimObjects(2);
                 set.filterOutSmallObjects(limit);
-                set = set.getPositionFilteredSet(work, COL.BLACK);
+                set = set.getPositionFilteredSet(work, COL.BLACK,false);
                 work = set.drawToImageData();
                 // old nucl final mask ends
                 //work = new __NucleusFinalMask().runSilent(sourceImage,new ImageData[]{layer, inImage[0], inImage[0]},new Object[]{Color.BLACK, limit, false, 0, false})[0];

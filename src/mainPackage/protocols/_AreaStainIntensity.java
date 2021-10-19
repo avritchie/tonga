@@ -57,7 +57,7 @@ public class _AreaStainIntensity extends Protocol {
                     bgval = (double) a.results.getVal(0, 3) / 100.;
                 }
                 if (binst) {
-                    outImage[0].pixels32 = set.drawStainArray(thresh);
+                    outImage[0].pixels32 = set.drawStainArray(thresh, false);
                     if (rembg) {
                         datas.add(SetCounters.countObjectPositiveBG(set, bgval, thresh).runSingle(sourceImage));
                     } else {

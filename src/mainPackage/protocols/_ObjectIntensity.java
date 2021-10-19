@@ -42,7 +42,7 @@ public class _ObjectIntensity extends Protocol {
                 ROISet set = new ImageTracer(inImage[0], param.color[0]).trace();
                 set.quantifyEvenColour(inImage[0]);
                 if (binst) {
-                    outImage[0].pixels32 = set.drawStainArray(thresh);
+                    outImage[0].pixels32 = set.drawStainArray(thresh, false);
                     datas.add(SetCounters.countObjectPositive(set, thresh).runSingle(sourceImage));
                 } else {
                     outImage[0].pixels32 = set.drawStainArray(true);

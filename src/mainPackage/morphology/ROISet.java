@@ -242,18 +242,61 @@ public class ROISet {
         }.draw();
     }
 
-    public int[] drawStainArray(double binThreshold) {
+    public ImageData drawEdgeImage() {
+        return new ImageData(new setRenderer() {
+            @Override
+            void drawingMethod(ROI o) {
+                if (o.outEdge != null) {
+                    o.outEdge.list.forEach(p -> {
+                        out[pos(p, o)] = COL.WHITE;
+                    });
+                }
+            }
+        }.draw(), width, height);
+    }
+
+    public ImageData drawEdgeStainImage(double binThreshold) {
+        return new ImageData(new setRenderer() {
+            @Override
+            void drawingMethod(ROI o) {
+                boolean positive = o.getStainAvg() > binThreshold;
+                if (positive) {
+                    if (o.outEdge != null) {
+                        o.outEdge.list.forEach(p -> {
+                            out[pos(p, o)] = COL.WHITE;
+                        });
+                    }
+                }
+
+            }
+        }.draw(), width, height);
+    }
+
+    public int[] drawStainArray(double binThreshold, boolean remove) {
         // render the set by giving each shape either gray or white based on staining intensity and threshold
         return new setRenderer() {
             @Override
             void drawingMethod(ROI o) {
-                Iterate.areaPixels(o, (int pos) -> {
+                if (remove) {
                     boolean positive = o.getStainAvg() > binThreshold;
-                    int color = positive ? COL.WHITE : COL.GRAY;
-                    out[pos] = color;
-                });
+                    if (positive) {
+                        Iterate.areaPixels(o, (int pos) -> {
+                            out[pos] = COL.WHITE;
+                        });
+                    }
+                } else {
+                    Iterate.areaPixels(o, (int pos) -> {
+                        boolean positive = o.getStainAvg() > binThreshold;
+                        int color = positive ? COL.WHITE : COL.GRAY;
+                        out[pos] = color;
+                    });
+                }
             }
         }.draw();
+    }
+
+    public ImageData drawStainImage(double binThreshold, boolean remove) {
+        return new ImageData(drawStainArray(binThreshold, remove), width, height);
     }
 
     public final void getExtendedMasks(int radius) {
@@ -359,13 +402,13 @@ public class ROISet {
         });
     }
 
-    public final ROISet getPositionFilteredSet(ImageData img, int bgcol) {
+    public final ROISet getPositionFilteredSet(ImageData img, int bgcol,boolean keeporiginal) {
         ImageTracer origSet = new ImageTracer(img, bgcol);
         List<ROI> newRois = new ArrayList<>();
         list.forEach(roi -> {
             ROI newRoi = origSet.traceSingleObjectAtPoint(roi.area.firstxpos, roi.area.firstypos);
             if (newRoi != null) {
-                newRois.add(newRoi);
+                newRois.add(keeporiginal ? roi : newRoi);
             }
         });
         return new ROISet(newRois, img.width, img.height);
