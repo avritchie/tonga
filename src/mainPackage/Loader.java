@@ -149,7 +149,7 @@ public class Loader extends javax.swing.JFrame {
         updateProgress(stepsTotal, stepsNow);
     }
 
-    private void resetProgress() throws RuntimeException {
+    public void resetProgress() throws RuntimeException {
         fbar.setIndeterminate(false);
         fbar.setValue(0);
         if (taskbarSupport) {
