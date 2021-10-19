@@ -231,7 +231,7 @@ public abstract class Filter {
                         if (Settings.settingBatchProcessing()) {
                             String file = i.name.replaceAll("/", "-") + ".png";
                             try {
-                                ImageIO.write(i.toImage(), "png", new File(file));
+                                ImageIO.write(i.toCachedImage(), "png", new File(file));
                             } catch (IOException ex) {
                                 Tonga.catchError(ex, "Unable to write the file " + file);
                             }

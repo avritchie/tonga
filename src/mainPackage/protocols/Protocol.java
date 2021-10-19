@@ -157,7 +157,7 @@ public abstract class Protocol {
             for (ImageData image : processed) {
                 String file = Tonga.getLayerList(imageId).get(0).path + "-out-" + image.name.replaceAll("/", "-") + ".png";
                 try {
-                    ImageIO.write(image.toImage(), "png", new File(file));
+                    ImageIO.write(image.toCachedImage(), "png", new File(file));
                 } catch (IOException ex) {
                     Tonga.catchError(ex, "Unable to write the file " + file);
                 }
@@ -165,7 +165,7 @@ public abstract class Protocol {
             }
         } else {
             for (ImageData image : processed) {
-                Tonga.injectNewLayer(image.toImage(), image.name, imageId);
+                Tonga.injectNewLayer(image.toCachedImage(), image.name, imageId);
             }
         }
     }

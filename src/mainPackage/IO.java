@@ -12,11 +12,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.concurrent.Semaphore;
 import javafx.application.Platform;
-import javafx.embed.swing.SwingFXUtils;
-import javafx.scene.SnapshotParameters;
-import javafx.scene.canvas.Canvas;
-import javafx.scene.canvas.GraphicsContext;
-import javafx.scene.image.Image;
 import javax.imageio.ImageIO;
 import javax.swing.JFileChooser;
 import javax.swing.JTable;
@@ -463,7 +458,7 @@ public class IO {
 
     private static boolean exportImage(TongaImage p, ImageData i) {
         String name = p.imageName + "_[Stack]";
-        return bootExporter(i.toImage(), name);
+        return bootExporter(i.toCachedImage(), name);
     }
 
     private static boolean exportImage(TongaImage p, int layer) {

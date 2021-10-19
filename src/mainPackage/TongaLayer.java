@@ -52,7 +52,7 @@ public class TongaLayer {
     }
 
     public TongaLayer(ImageData id) {
-        this(id.toImage(), id.name);
+        this(id.toCachedImage(), id.name);
     }
 
     @Override

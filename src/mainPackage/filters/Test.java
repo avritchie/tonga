@@ -47,7 +47,7 @@ public class Test {
             }
         }
         Tonga.log.debug("Test timing: {}", System.nanoTime() - timeStart);
-        CachedImage newImage = new ImageData(out, width, height).toImage();
+        CachedImage newImage = new ImageData(out, width, height).toCachedImage();
         Tonga.injectNewLayer(new TongaLayer(newImage, "TESTI"));
         Tonga.refreshLayerList();
     }

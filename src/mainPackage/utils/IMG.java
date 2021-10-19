@@ -44,7 +44,7 @@ public class IMG {
     }
 
     public static void copyImage(ImageData original, WritableImage destination) {
-        copyImage(original.toImage().getFXImage(), destination);
+        copyImage(original.toCachedImage().getFXImage(), destination);
     }
 
     public static void copyImage(ImageData[] original, WritableImage destination) {

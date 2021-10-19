@@ -96,16 +96,17 @@ public class ImageData {
         this.name = n;
     }
 
-    public CachedImage toImage() {
+    public CachedImage toCachedImage() {
         if (ref != null) {
             return ref;
         } else {
+            Tonga.log.warn("Cacheless ImageData cached.");
             return new CachedImage(this);
         }
     }
 
     public Image toFXImage() {
-        return toImage().getFXImage();
+        return toCachedImage().getFXImage();
     }
 
     public TongaLayer toLayer() {
