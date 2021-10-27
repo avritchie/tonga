@@ -13,7 +13,6 @@ import mainPackage.ImageData;
 import mainPackage.Iterate;
 import mainPackage.utils.STAT;
 import mainPackage.Tonga;
-import static mainPackage.morphology.Segmentor.segmentedSomething;
 import mainPackage.utils.RGB;
 
 public class ROISet {
@@ -214,6 +213,10 @@ public class ROISet {
                 });
             }
         }.draw();
+    }
+
+    private ROI getBiggest() {
+        return (ROI) list.stream().sorted((o1, o2) -> o2.getSize() - o1.getSize()).findFirst().get();
     }
 
     private double getMaxStain() {
@@ -554,11 +557,31 @@ public class ROISet {
         }
     }
 
+    public final void filterOutDimSmallObjects(int size, double limit) {
+        Iterator<? extends ROI> it = list.iterator();
+        while (it.hasNext()) {
+            ROI roi = it.next();
+            if (roi.getStainAvg() < limit && roi.getSize() < size) {
+                it.remove();
+            }
+        }
+    }
+
     public final void filterOutDimObjects(double limit) {
         Iterator<? extends ROI> it = list.iterator();
         while (it.hasNext()) {
             ROI roi = it.next();
             if (roi.getStainAvg() < limit) {
+                it.remove();
+            }
+        }
+    }
+
+    public final void filterOutBrightObjects(double limit) {
+        Iterator<? extends ROI> it = list.iterator();
+        while (it.hasNext()) {
+            ROI roi = it.next();
+            if (roi.getStainAvg() > limit) {
                 it.remove();
             }
         }
