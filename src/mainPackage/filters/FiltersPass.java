@@ -21,6 +21,7 @@ import static mainPackage.PanelCreator.ControlType.*;
 import static mainPackage.filters.Filter.noParams;
 import mainPackage.morphology.EdgeAnalyzer;
 import mainPackage.morphology.ImageTracer;
+import mainPackage.morphology.ROI;
 import mainPackage.morphology.ROISet;
 import mainPackage.protocols.NucleusEdUCounter;
 import mainPackage.protocols.Protocol;
@@ -58,21 +59,36 @@ public class FiltersPass {
         return new FilterFast("Area Filler", new ControlReference[]{
             new ControlReference(COLOUR, "Background colour", -2),
             new ControlReference(SPINNER, "Remove smaller than (pixels)", 100),
-            new ControlReference(SLIDER, "Or rounder than (%)", 90)}, 4) {
+            new ControlReference(SLIDER, "Or rounder than (%)", 90),
+            new ControlReference(TOGGLE, "Size-dependent adjustments", 0, new int[]{4, 1}),
+            new ControlReference(SPINNER, "Target size (pixels)", 100),
+            new ControlReference(TOGGLE, "Less strict on the edges", 1)}, 6) {
 
             @Override
             protected void processor() {
-                ROISet set = new ImageTracer(inData, param.color[0]).trace();
-                set.imageEdgeFixer(false);
+                ImageData origSet = FiltersPass.innerAreas().runSingle(inData, param.color[0], true);
+                ROISet innerSet = new ImageTracer(origSet, COL.BLACK).trace();
+                /*set.imageEdgeFixer(false);
                 set.findOuterEdges();
                 set.findInnerEdges();
                 ImageData origSet = set.drawToImageData(true);
-                ROISet innerSet = new ImageTracer(origSet, COL.WHITE).traceInnerObjects(set);
+                ROISet innerSet = new ImageTracer(origSet, COL.WHITE).traceInnerObjects(set);*/
                 innerSet.filterOutLargeAndNonRound(param.spinner[0], param.slider[0] / 100.);
+                if (param.toggle[1]) {
+                    innerSet.filterOutLargeEdgeTouchers(param.spinner[0] / 2);
+                }
                 setOutputBy(innerSet.drawToImageData(true));
-                Iterate.pixels(this, (int pos) -> {
-                    outData.pixels32[pos] = outData.pixels32[pos] == COL.WHITE || origSet.pixels32[pos] == COL.WHITE ? COL.WHITE : COL.BLACK;
-                });
+                if (param.toggle[0]) {
+                    ROISet secondarySet = new ImageTracer(origSet, COL.WHITE).traceInnerObjectsFiltered(innerSet, param.spinner[1]);
+                    ImageData secOut = secondarySet.drawToImageData(true);
+                    Iterate.pixels(this, (int pos) -> {
+                        outData.pixels32[pos] = outData.pixels32[pos] == COL.WHITE || secOut.pixels32[pos] == COL.WHITE || inData.pixels32[pos] != param.colorARGB[0] ? COL.WHITE : COL.BLACK;
+                    });
+                } else {
+                    Iterate.pixels(this, (int pos) -> {
+                        outData.pixels32[pos] = outData.pixels32[pos] == COL.WHITE || inData.pixels32[pos] != param.colorARGB[0] ? COL.WHITE : COL.BLACK;
+                    });
+                }
             }
 
             @Override
@@ -84,16 +100,27 @@ public class FiltersPass {
 
     public static FilterFast innerAreas() {
         return new FilterFast("Inner Areas", new ControlReference[]{
-            new ControlReference(COLOUR, "Background colour", -2)}) {
+            new ControlReference(COLOUR, "Background colour", -2),
+            new ControlReference(TOGGLE, "Include areas on image edges", 1)}, 3) {
 
             @Override
             protected void processor() {
                 ROISet set = new ImageTracer(inData, param.color[0]).trace();
+                if (param.toggle[0]) {
+                    set.imageEdgeFixer(false);
+                }
                 set.findOuterEdges();
                 set.findInnerEdges();
-                ImageData origSet = set.drawToImageData(true);
-                ROISet innerSet = new ImageTracer(origSet, COL.WHITE).traceInnerObjects(set);
-                setOutputBy(innerSet.drawToImageData(true));
+                ImageData traceSet = set.drawToImageData(true);
+                ImageData finalSet = new ImageTracer(traceSet, COL.WHITE).traceInnerObjects(set).drawToImageData(true);
+                setOutputBy(finalSet);
+                if (param.toggle[0]) {
+                    Iterate.edgePixels(this, (int p) -> {
+                        if (inData.pixels32[p] != traceSet.pixels32[p]) {
+                            outData.pixels32[p] = COL.WHITE;
+                        }
+                    });
+                }
             }
 
             @Override
@@ -254,13 +281,14 @@ public class FiltersPass {
             new ControlReference(SPINNER, "Size smaller than (pixels)", 50),
             new ControlReference(TOGGLE, "Pre-remove small objects", 1),
             new ControlReference(TOGGLE, "Return only the filling", 0)}, 4) {
-            ImageData mMask, sMask;
+            ImageData mMask, sMask, oMask;
 
             @Override
             protected void processor() {
                 if (param.toggle[0]) {
                     mMask = FiltersPass.filterObjectSize().runSingle(inData, COL.BLACK, param.spinner[1], false, 0);
                 }
+                oMask = FiltersPass.getRadiusOverlap().runSingle(inData, param.colorARGB[0], param.spinner[0] * 4);
                 mMask = FiltersPass.edgeDilate().runSingle(param.toggle[0] ? mMask : inData, param.colorARGB[0], param.spinner[0], false);
                 sMask = FiltersPass.fillInnerAreasSizeShape().runSingle(mMask, param.colorARGB[0], param.spinner[1], 80);
                 sMask = Blender.renderBlend(mMask, sMask, Blend.DIFFERENCE);
@@ -269,7 +297,8 @@ public class FiltersPass {
                     setOutputBy(sMask);
                 } else {
                     Iterate.pixels(inData, (int p) -> {
-                        outData.pixels32[p] = inData.pixels32[p] != param.colorARGB[0] || sMask.pixels32[p] == COL.WHITE ? COL.WHITE : COL.BLACK;
+                        outData.pixels32[p] = oMask.pixels32[p] == COL.BLACK && (inData.pixels32[p] != param.colorARGB[0] || sMask.pixels32[p] == COL.WHITE)
+                                ? COL.WHITE : COL.BLACK;
                     });
                 }
             }

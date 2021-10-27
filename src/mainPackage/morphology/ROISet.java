@@ -17,14 +17,14 @@ import mainPackage.utils.RGB;
 
 public class ROISet {
 
-    public List<? extends ROI> list;
+    public List<ROI> list;
     public int width, height;
     private STAT statsSize, statsStain;
     private boolean drawAngles;
     private boolean edgeOrder;
     protected int targetsize;
 
-    public ROISet(List<? extends ROI> list, int width, int height) {
+    public ROISet(List<ROI> list, int width, int height) {
         this.list = list;
         this.width = width;
         this.height = height;
@@ -399,13 +399,13 @@ public class ROISet {
         });
     }
 
-    public final void quantifyStainOnMaskAgainstChannel(ImageData exclude, ImageData img) {
+    public final void quantifyStainOnMaskAgainstChannel(ImageData exclude, int excludeColor, ImageData img) {
         list.forEach(o -> {
-            o.quantifyMaskStain(exclude, img);
+            o.quantifyMaskStain(exclude, excludeColor, img);
         });
     }
 
-    public final ROISet getPositionFilteredSet(ImageData img, int bgcol,boolean keeporiginal) {
+    public final ROISet getPositionFilteredSet(ImageData img, int bgcol, boolean keeporiginal) {
         ImageTracer origSet = new ImageTracer(img, bgcol);
         List<ROI> newRois = new ArrayList<>();
         list.forEach(roi -> {
@@ -547,6 +547,16 @@ public class ROISet {
         }
     }
 
+    public void filterOutSmallObjectsEdgeAdjusted(int limitPxls) {
+        Iterator<? extends ROI> it = list.iterator();
+        while (it.hasNext()) {
+            ROI roi = it.next();
+            if (roi.getSize() < (roi.touchesImageEdges() ? limitPxls / 3 : limitPxls)) {
+                it.remove();
+            }
+        }
+    }
+
     public void filterOutByDimension(int limitPxls) {
         Iterator<? extends ROI> it = list.iterator();
         while (it.hasNext()) {
@@ -585,6 +595,10 @@ public class ROISet {
                 it.remove();
             }
         }
+    }
+
+    public ROI getBiggestObject() {
+        return getBiggest();
     }
 
     public void removeEdgeTouchers() {
@@ -698,6 +712,16 @@ public class ROISet {
         while (it.hasNext()) {
             ROI roi = it.next();
             if (roi.getSize() > maxsize && roi.getCircularity() < minroundness) {
+                it.remove();
+            }
+        }
+    }
+
+    public void filterOutLargeEdgeTouchers(int largerthan) {
+        Iterator<? extends ROI> it = list.iterator();
+        while (it.hasNext()) {
+            ROI roi = it.next();
+            if (roi.touchesImageEdges() && roi.getSize() > largerthan) {
                 it.remove();
             }
         }
