@@ -149,7 +149,9 @@ public class ImageData {
     }
 
     public void set8BitPixels() {
-        pixels32 = TongaRender.shortToARGB(pixels16, colour, max, min);
+        if (pixels32 == null) {
+            pixels32 = TongaRender.shortToARGB(pixels16, colour, max, min);
+        }
     }
 
     public void fill(int v) {
