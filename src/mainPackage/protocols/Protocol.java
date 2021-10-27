@@ -254,7 +254,7 @@ public abstract class Protocol {
     }*/
     private static void updateColorButtonColour(JButton button, JComboBox combo) {
         Color c;
-        if (Tonga.thereIsImage()) {
+        if (Tonga.thereIsImage() && !Settings.settingBatchProcessing()) {
             CachedImage img = Tonga.getLayerList(Tonga.getImageIndex()).get(combo.getSelectedIndex()).layerImage;
             c = COL.layerCornerColour(img);
         } else {
