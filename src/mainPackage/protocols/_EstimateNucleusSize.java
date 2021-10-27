@@ -29,7 +29,7 @@ public class _EstimateNucleusSize extends Protocol {
 
     @Override
     protected Processor getProcessor() {
-        return new ProcessorFast(0, new String[]{"Nucleus Size"}, 7) {
+        return new ProcessorFast(0, new String[]{"Nucleus Size"}, 8) {
 
             ImageData layer, layer2;
 
@@ -48,6 +48,7 @@ public class _EstimateNucleusSize extends Protocol {
                     layer = Filters.thresholdBright().runSingle(layer, 2);
                     ROISet set = new ImageTracer(layer2, COL.BLACK).trace();
                     set = set.getPositionFilteredSet(layer, COL.BLACK, false);
+                    set.fillInnerHoles();
                     trs++;
                     if (mp < 0.3 || mp > 4 || trs > 5) {
                         Tonga.log.trace("We could not find the size. Stuck in the loop.");
