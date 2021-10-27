@@ -57,6 +57,19 @@ public class Iterate {
         }
     }
 
+    public static void edgePixels(Filter f, Iterator i) {
+        for (int y = 0; y < f.height; y++) {
+            for (int x = 0; x < f.width; x += f.width - 1) {
+                i.iterate(y * f.width + x);
+            }
+        }
+        for (int y = 0; y < f.height; y += f.height - 1) {
+            for (int x = 1; x < f.width - 1; x++) {
+                i.iterate(y * f.width + x);
+            }
+        }
+    }
+
     public static void areaPixels(ROI r, Iterator i) {
         for (int y = 0; y < r.area.height; y++) {
             for (int x = 0; x < r.area.width; x++) {
