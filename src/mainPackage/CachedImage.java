@@ -7,7 +7,6 @@ import java.awt.image.BufferedImage;
 import java.awt.image.ComponentColorModel;
 import java.awt.image.DataBuffer;
 import java.awt.image.DataBufferByte;
-import java.awt.image.DataBufferInt;
 import java.awt.image.IndexColorModel;
 import java.awt.image.SampleModel;
 import java.awt.image.WritableRaster;
@@ -35,9 +34,6 @@ import javax.imageio.ImageReadParam;
 import javax.imageio.ImageReader;
 import javax.imageio.ImageTypeSpecifier;
 import javax.imageio.stream.ImageInputStream;
-import jdk.jfr.internal.LogTag;
-import jdk.jfr.internal.Logger;
-import mainPackage.utils.COL;
 
 public class CachedImage extends BufferedImage {
 

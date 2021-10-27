@@ -904,6 +904,7 @@
                     <MenuItem class="javax.swing.JMenuItem" name="jMenuItem53">
                       <Properties>
                         <Property name="text" type="java.lang.String" value="Solitary dots"/>
+                        <Property name="toolTipText" type="java.lang.String" value="Remove single pixels which are surrounded by background on all sides"/>
                       </Properties>
                       <Events>
                         <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jMenuItem53ActionPerformed"/>
@@ -912,7 +913,7 @@
                     <MenuItem class="javax.swing.JMenuItem" name="menuDotRemove">
                       <Properties>
                         <Property name="text" type="java.lang.String" value="Connected dots"/>
-                        <Property name="toolTipText" type="java.lang.String" value="Remove small dots"/>
+                        <Property name="toolTipText" type="java.lang.String" value="Remove pixels which are surrounded by background pixels on both sides vertically or horizontally"/>
                       </Properties>
                       <Events>
                         <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="menuDotRemoveActionPerformed"/>
@@ -936,9 +937,19 @@
                         <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jMenuItem43ActionPerformed"/>
                       </Events>
                     </MenuItem>
+                    <MenuItem class="javax.swing.JMenuItem" name="jMenuItem86">
+                      <Properties>
+                        <Property name="text" type="java.lang.String" value="Inner holes (by intensity)"/>
+                        <Property name="toolTipText" type="java.lang.String" value="Remove inner holes if the hole area intensity on another image is above a limit"/>
+                      </Properties>
+                      <Events>
+                        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jMenuItem86ActionPerformed"/>
+                      </Events>
+                    </MenuItem>
                     <MenuItem class="javax.swing.JMenuItem" name="jMenuItem40">
                       <Properties>
                         <Property name="text" type="java.lang.String" value="Inner holes on object edges"/>
+                        <Property name="toolTipText" type="java.lang.String" value="Remove small circular holes breaking the object edges, while not being completely inside the objects"/>
                       </Properties>
                       <Events>
                         <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jMenuItem40ActionPerformed"/>
@@ -980,9 +991,19 @@
                         <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jMenuItem67ActionPerformed"/>
                       </Events>
                     </MenuItem>
+                    <MenuItem class="javax.swing.JMenuItem" name="jMenuItem85">
+                      <Properties>
+                        <Property name="text" type="java.lang.String" value="Dim objects (by intensity)"/>
+                        <Property name="toolTipText" type="java.lang.String" value="Remove objects if the object area intensity on another image is below a limit"/>
+                      </Properties>
+                      <Events>
+                        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jMenuItem85ActionPerformed"/>
+                      </Events>
+                    </MenuItem>
                     <MenuItem class="javax.swing.JMenuItem" name="jMenuItem77">
                       <Properties>
                         <Property name="text" type="java.lang.String" value="Objects touching the edges"/>
+                        <Property name="toolTipText" type="java.lang.String" value="Remove objects if they are touching the image edges"/>
                       </Properties>
                       <Events>
                         <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jMenuItem77ActionPerformed"/>
@@ -1076,6 +1097,7 @@
                     <MenuItem class="javax.swing.JMenuItem" name="jMenuItem69">
                       <Properties>
                         <Property name="text" type="java.lang.String" value="Edges"/>
+                        <Property name="toolTipText" type="java.lang.String" value="Highlight the object edges (outer and inner) with colour"/>
                       </Properties>
                       <Events>
                         <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jMenuItem69ActionPerformed"/>
@@ -1093,6 +1115,7 @@
                     <MenuItem class="javax.swing.JMenuItem" name="jMenuItem73">
                       <Properties>
                         <Property name="text" type="java.lang.String" value="Extended edges"/>
+                        <Property name="toolTipText" type="java.lang.String" value="Dilate the objects on a certain radius and render this dilated area"/>
                       </Properties>
                       <Events>
                         <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jMenuItem73ActionPerformed"/>
@@ -1101,6 +1124,7 @@
                     <MenuItem class="javax.swing.JMenuItem" name="jMenuItem58">
                       <Properties>
                         <Property name="text" type="java.lang.String" value="Inner areas"/>
+                        <Property name="toolTipText" type="java.lang.String" value="Only get the areas located completely inside other objects"/>
                       </Properties>
                       <Events>
                         <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jMenuItem58ActionPerformed"/>
@@ -1109,6 +1133,7 @@
                     <MenuItem class="javax.swing.JMenuItem" name="jMenuItem75">
                       <Properties>
                         <Property name="text" type="java.lang.String" value="Object overlap"/>
+                        <Property name="toolTipText" type="java.lang.String" value="Find the overlapping area between two objects within a certain radius from their edges"/>
                       </Properties>
                       <Events>
                         <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jMenuItem75ActionPerformed"/>
@@ -1356,6 +1381,107 @@
                 </Menu>
               </SubComponents>
             </Menu>
+            <Menu class="javax.swing.JMenu" name="jMenu2">
+              <Properties>
+                <Property name="text" type="java.lang.String" value="Untested"/>
+              </Properties>
+              <SubComponents>
+                <Menu class="javax.swing.JMenu" name="jMenu4">
+                  <Properties>
+                    <Property name="text" type="java.lang.String" value="Experiment image analysis"/>
+                  </Properties>
+                  <SubComponents>
+                    <MenuItem class="javax.swing.JMenuItem" name="menuProtocolCKMask">
+                      <Properties>
+                        <Property name="text" type="java.lang.String" value="Cytokeratin staining"/>
+                      </Properties>
+                      <Events>
+                        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="menuProtocolCKMaskActionPerformed"/>
+                      </Events>
+                    </MenuItem>
+                    <MenuItem class="javax.swing.JMenuItem" name="jMenuItem48">
+                      <Properties>
+                        <Property name="text" type="java.lang.String" value="Oligodendrocyte branching"/>
+                      </Properties>
+                      <Events>
+                        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jMenuItem48ActionPerformed"/>
+                      </Events>
+                    </MenuItem>
+                    <MenuItem class="javax.swing.JMenuItem" name="jMenuItem39">
+                      <Properties>
+                        <Property name="text" type="java.lang.String" value="Tissue separation &amp; stain calculation"/>
+                      </Properties>
+                      <Events>
+                        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jMenuItem39ActionPerformed"/>
+                      </Events>
+                    </MenuItem>
+                    <MenuItem class="javax.swing.JMenuItem" name="jMenuItem2">
+                      <Properties>
+                        <Property name="text" type="java.lang.String" value="HE tissue separation"/>
+                      </Properties>
+                      <Events>
+                        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jMenuItem2ActionPerformed"/>
+                      </Events>
+                    </MenuItem>
+                    <MenuItem class="javax.swing.JMenuItem" name="jMenuItem68">
+                      <Properties>
+                        <Property name="text" type="java.lang.String" value="In Situ -hybridisation"/>
+                      </Properties>
+                      <Events>
+                        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jMenuItem68ActionPerformed"/>
+                      </Events>
+                    </MenuItem>
+                    <MenuItem class="javax.swing.JMenuItem" name="jMenuItem9">
+                      <Properties>
+                        <Property name="text" type="java.lang.String" value="Intestinal crypt cells"/>
+                      </Properties>
+                      <Events>
+                        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jMenuItem9ActionPerformed"/>
+                      </Events>
+                    </MenuItem>
+                    <MenuItem class="javax.swing.JMenuItem" name="jMenuItem22">
+                      <Properties>
+                        <Property name="text" type="java.lang.String" value="Matrigel organoids"/>
+                      </Properties>
+                      <Events>
+                        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jMenuItem22ActionPerformed"/>
+                      </Events>
+                    </MenuItem>
+                    <MenuItem class="javax.swing.JMenuItem" name="menuProtocolNucleusSep">
+                      <Properties>
+                        <Property name="text" type="java.lang.String" value="Nucleus (+EdU) recognition"/>
+                      </Properties>
+                      <Events>
+                        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="menuProtocolNucleusSepActionPerformed"/>
+                      </Events>
+                    </MenuItem>
+                  </SubComponents>
+                </Menu>
+                <Menu class="javax.swing.JMenu" name="jMenu18">
+                  <Properties>
+                    <Property name="text" type="java.lang.String" value="Object regcognition and counting"/>
+                  </Properties>
+                  <SubComponents>
+                    <MenuItem class="javax.swing.JMenuItem" name="jMenuItem44">
+                      <Properties>
+                        <Property name="text" type="java.lang.String" value="Count areas around objects"/>
+                      </Properties>
+                      <Events>
+                        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jMenuItem44ActionPerformed"/>
+                      </Events>
+                    </MenuItem>
+                    <MenuItem class="javax.swing.JMenuItem" name="jMenuItem37">
+                      <Properties>
+                        <Property name="text" type="java.lang.String" value="Count colored areas"/>
+                      </Properties>
+                      <Events>
+                        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jMenuItem37ActionPerformed"/>
+                      </Events>
+                    </MenuItem>
+                  </SubComponents>
+                </Menu>
+              </SubComponents>
+            </Menu>
           </SubComponents>
         </Menu>
         <Menu class="javax.swing.JMenu" name="menuCounting">
@@ -1370,7 +1496,8 @@
               <SubComponents>
                 <MenuItem class="javax.swing.JMenuItem" name="menuCountRGB">
                   <Properties>
-                    <Property name="text" type="java.lang.String" value="Count RGBCMYK"/>
+                    <Property name="text" type="java.lang.String" value="Count RGBCMYKBW pixels"/>
+                    <Property name="toolTipText" type="java.lang.String" value="Count the number of pixels for each colour"/>
                   </Properties>
                   <Events>
                     <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="menuCountRGBActionPerformed"/>
@@ -1378,15 +1505,26 @@
                 </MenuItem>
                 <MenuItem class="javax.swing.JMenuItem" name="jMenuItem65">
                   <Properties>
-                    <Property name="text" type="java.lang.String" value="Count Black-Red stains"/>
+                    <Property name="text" type="java.lang.String" value="Count red channel intensity on area"/>
+                    <Property name="toolTipText" type="java.lang.String" value="Count the non-black area and the intensity of the red channel in it"/>
                   </Properties>
                   <Events>
                     <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jMenuItem65ActionPerformed"/>
                   </Events>
                 </MenuItem>
+                <MenuItem class="javax.swing.JMenuItem" name="jMenuItem55">
+                  <Properties>
+                    <Property name="text" type="java.lang.String" value="Count background intensity on area"/>
+                    <Property name="toolTipText" type="java.lang.String" value="Count the background (non-white) area and the intensity in it"/>
+                  </Properties>
+                  <Events>
+                    <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jMenuItem55ActionPerformed"/>
+                  </Events>
+                </MenuItem>
                 <MenuItem class="javax.swing.JMenuItem" name="jMenuItem28">
                   <Properties>
                     <Property name="text" type="java.lang.String" value="Histogram distributions"/>
+                    <Property name="toolTipText" type="java.lang.String" value="Count the number of pixels for each channel for a histogram"/>
                   </Properties>
                   <Events>
                     <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jMenuItem28ActionPerformed"/>
@@ -1528,107 +1666,6 @@
                     <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jMenuItem81ActionPerformed"/>
                   </Events>
                 </MenuItem>
-              </SubComponents>
-            </Menu>
-            <Menu class="javax.swing.JMenu" name="jMenu2">
-              <Properties>
-                <Property name="text" type="java.lang.String" value="Deprecated"/>
-              </Properties>
-              <SubComponents>
-                <Menu class="javax.swing.JMenu" name="jMenu4">
-                  <Properties>
-                    <Property name="text" type="java.lang.String" value="Experiment image analysis"/>
-                  </Properties>
-                  <SubComponents>
-                    <MenuItem class="javax.swing.JMenuItem" name="menuProtocolCKMask">
-                      <Properties>
-                        <Property name="text" type="java.lang.String" value="Cytokeratin staining"/>
-                      </Properties>
-                      <Events>
-                        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="menuProtocolCKMaskActionPerformed"/>
-                      </Events>
-                    </MenuItem>
-                    <MenuItem class="javax.swing.JMenuItem" name="jMenuItem48">
-                      <Properties>
-                        <Property name="text" type="java.lang.String" value="Oligodendrocyte branching"/>
-                      </Properties>
-                      <Events>
-                        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jMenuItem48ActionPerformed"/>
-                      </Events>
-                    </MenuItem>
-                    <MenuItem class="javax.swing.JMenuItem" name="jMenuItem39">
-                      <Properties>
-                        <Property name="text" type="java.lang.String" value="Tissue separation &amp; stain calculation"/>
-                      </Properties>
-                      <Events>
-                        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jMenuItem39ActionPerformed"/>
-                      </Events>
-                    </MenuItem>
-                    <MenuItem class="javax.swing.JMenuItem" name="jMenuItem2">
-                      <Properties>
-                        <Property name="text" type="java.lang.String" value="HE tissue separation"/>
-                      </Properties>
-                      <Events>
-                        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jMenuItem2ActionPerformed"/>
-                      </Events>
-                    </MenuItem>
-                    <MenuItem class="javax.swing.JMenuItem" name="jMenuItem68">
-                      <Properties>
-                        <Property name="text" type="java.lang.String" value="In Situ -hybridisation"/>
-                      </Properties>
-                      <Events>
-                        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jMenuItem68ActionPerformed"/>
-                      </Events>
-                    </MenuItem>
-                    <MenuItem class="javax.swing.JMenuItem" name="jMenuItem9">
-                      <Properties>
-                        <Property name="text" type="java.lang.String" value="Intestinal crypt cells"/>
-                      </Properties>
-                      <Events>
-                        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jMenuItem9ActionPerformed"/>
-                      </Events>
-                    </MenuItem>
-                    <MenuItem class="javax.swing.JMenuItem" name="jMenuItem22">
-                      <Properties>
-                        <Property name="text" type="java.lang.String" value="Matrigel organoids"/>
-                      </Properties>
-                      <Events>
-                        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jMenuItem22ActionPerformed"/>
-                      </Events>
-                    </MenuItem>
-                    <MenuItem class="javax.swing.JMenuItem" name="menuProtocolNucleusSep">
-                      <Properties>
-                        <Property name="text" type="java.lang.String" value="Nucleus (+EdU) recognition"/>
-                      </Properties>
-                      <Events>
-                        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="menuProtocolNucleusSepActionPerformed"/>
-                      </Events>
-                    </MenuItem>
-                  </SubComponents>
-                </Menu>
-                <Menu class="javax.swing.JMenu" name="jMenu18">
-                  <Properties>
-                    <Property name="text" type="java.lang.String" value="Object regcognition and counting"/>
-                  </Properties>
-                  <SubComponents>
-                    <MenuItem class="javax.swing.JMenuItem" name="jMenuItem44">
-                      <Properties>
-                        <Property name="text" type="java.lang.String" value="Count areas around objects"/>
-                      </Properties>
-                      <Events>
-                        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jMenuItem44ActionPerformed"/>
-                      </Events>
-                    </MenuItem>
-                    <MenuItem class="javax.swing.JMenuItem" name="jMenuItem37">
-                      <Properties>
-                        <Property name="text" type="java.lang.String" value="Count colored areas"/>
-                      </Properties>
-                      <Events>
-                        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jMenuItem37ActionPerformed"/>
-                      </Events>
-                    </MenuItem>
-                  </SubComponents>
-                </Menu>
               </SubComponents>
             </Menu>
           </SubComponents>
@@ -2034,7 +2071,7 @@
                 <DimensionLayout dim="1">
                   <Group type="103" groupAlignment="0" attributes="0">
                       <Group type="102" alignment="0" attributes="0">
-                          <Component id="imageZoom" pref="413" max="32767" attributes="0"/>
+                          <Component id="imageZoom" pref="412" max="32767" attributes="0"/>
                           <EmptySpace type="unrelated" max="-2" attributes="0"/>
                           <Component id="tabbedPane" min="-2" pref="435" max="-2" attributes="0"/>
                       </Group>
@@ -2131,7 +2168,7 @@
                                       <Group type="103" groupAlignment="0" attributes="0">
                                           <Component id="protocolName" max="32767" attributes="0"/>
                                           <Component id="protocolNameSeparator" alignment="0" max="32767" attributes="0"/>
-                                          <Component id="protocolSettingsPanel" alignment="0" pref="419" max="32767" attributes="0"/>
+                                          <Component id="protocolSettingsPanel" alignment="0" pref="411" max="32767" attributes="0"/>
                                           <Component id="protocolSettingsSeparator" alignment="1" max="32767" attributes="0"/>
                                           <Group type="102" alignment="1" attributes="0">
                                               <Component id="btnRunSingle" max="32767" attributes="0"/>
@@ -2258,7 +2295,7 @@
                               <Group type="102" attributes="0">
                                   <EmptySpace max="-2" attributes="0"/>
                                   <Group type="103" groupAlignment="0" attributes="0">
-                                      <Component id="filterSettingsPanel" alignment="0" pref="419" max="32767" attributes="0"/>
+                                      <Component id="filterSettingsPanel" alignment="0" pref="411" max="32767" attributes="0"/>
                                       <Component id="filterSettingsSeparator" alignment="1" max="32767" attributes="0"/>
                                       <Group type="102" alignment="1" attributes="0">
                                           <Component id="btnRunSingle2" max="32767" attributes="0"/>
@@ -2407,10 +2444,10 @@
                               <Group type="102" attributes="0">
                                   <EmptySpace max="-2" attributes="0"/>
                                   <Group type="103" groupAlignment="0" attributes="0">
-                                      <Component id="protocolPanel3" pref="419" max="32767" attributes="0"/>
-                                      <Component id="protocolPanel4" pref="419" max="32767" attributes="0"/>
-                                      <Component id="protocolPanel1" alignment="0" pref="419" max="32767" attributes="0"/>
-                                      <Component id="protocolPanel5" alignment="0" pref="419" max="32767" attributes="0"/>
+                                      <Component id="protocolPanel3" pref="411" max="32767" attributes="0"/>
+                                      <Component id="protocolPanel4" pref="411" max="32767" attributes="0"/>
+                                      <Component id="protocolPanel1" alignment="0" pref="411" max="32767" attributes="0"/>
+                                      <Component id="protocolPanel5" alignment="0" pref="411" max="32767" attributes="0"/>
                                   </Group>
                                   <EmptySpace max="-2" attributes="0"/>
                               </Group>
@@ -2584,7 +2621,7 @@
                                           <Component id="boxSettingHWRendering" alignment="3" min="-2" max="-2" attributes="0"/>
                                           <Component id="boxSettingResultsAppend" alignment="3" min="-2" max="-2" attributes="0"/>
                                       </Group>
-                                      <EmptySpace pref="20" max="32767" attributes="0"/>
+                                      <EmptySpace pref="18" max="32767" attributes="0"/>
                                   </Group>
                               </Group>
                             </DimensionLayout>
@@ -2694,7 +2731,7 @@
                                           <Component id="autoscaleCombo" alignment="3" min="-2" max="-2" attributes="0"/>
                                           <Component id="boxSettingAutoscale1" alignment="3" min="-2" max="-2" attributes="0"/>
                                       </Group>
-                                      <EmptySpace min="0" pref="20" max="32767" attributes="0"/>
+                                      <EmptySpace min="0" pref="18" max="32767" attributes="0"/>
                                   </Group>
                               </Group>
                             </DimensionLayout>
@@ -2777,7 +2814,7 @@
                                       <Component id="boxSettingOpenAfter" min="-2" max="-2" attributes="0"/>
                                       <EmptySpace min="-2" pref="3" max="-2" attributes="0"/>
                                       <Component id="boxSettingSubfolder" min="-2" max="-2" attributes="0"/>
-                                      <EmptySpace pref="18" max="32767" attributes="0"/>
+                                      <EmptySpace pref="9" max="32767" attributes="0"/>
                                   </Group>
                               </Group>
                             </DimensionLayout>
@@ -2887,7 +2924,7 @@
                         </Container>
                         <Component class="javax.swing.JButton" name="exportAsCSV">
                           <Properties>
-                            <Property name="text" type="java.lang.String" value="Export as CSV"/>
+                            <Property name="text" type="java.lang.String" value="Export as TSV"/>
                             <Property name="maximumSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
                               <Dimension value="[100, 23]"/>
                             </Property>
@@ -2947,8 +2984,8 @@
                                           <EmptySpace min="-2" max="-2" attributes="0"/>
                                           <Component id="histoAdjAutoAll" max="32767" attributes="0"/>
                                       </Group>
-                                      <Component id="histoImg" alignment="0" pref="419" max="32767" attributes="0"/>
-                                      <Component id="histoSliderPanel" alignment="1" pref="419" max="32767" attributes="0"/>
+                                      <Component id="histoImg" alignment="0" pref="411" max="32767" attributes="0"/>
+                                      <Component id="histoSliderPanel" alignment="1" pref="411" max="32767" attributes="0"/>
                                   </Group>
                                   <EmptySpace max="-2" attributes="0"/>
                               </Group>

@@ -500,14 +500,37 @@ public class IO {
                 }.export(fname, "tsv");
                 if (ok) {
                     Tonga.setStatus("Table exported into TSV format");
+                    Tonga.log.info("Table exported into TSV format.");
                 }
             } else {
                 IO.toTSVfile(Tonga.frame().resultTable, nfile);
+                launchExcel(nfile);
                 Tonga.setStatus("Table exported and fired into Excel");
+                Tonga.log.info("Table exported and fired into Excel.");
             }
         });
         Tonga.bootThread(thread, "Exporter", true, true);
         return nfile;
+    }
+
+    public static void launchExcel(File file) {
+        try {
+            switch (Tonga.currentOS()) {
+                case WINDOWS:
+                    Runtime.getRuntime().exec("cmd /c start excel \"" + file.getAbsolutePath() + "\"");
+                    break;
+                case MAC:
+                    new ProcessBuilder("open", "-a", "Microsoft Excel", file.getAbsolutePath()).start();
+                    //exec("open -a \"Microsoft Excel\" \"" + file.getAbsolutePath() + "\"");
+                    //exec("open /Applications/Microsoft Excel.app");
+                    break;
+                case UNKNOWN:
+                    Tonga.catchError(new UnsupportedOperationException(), "No excel launcher for this OS.");
+                    break;
+            }
+        } catch (IOException ex) {
+            Tonga.catchError(ex, "Excel can not be started.");
+        }
     }
 
     public static void waitForJFXRunLater() {

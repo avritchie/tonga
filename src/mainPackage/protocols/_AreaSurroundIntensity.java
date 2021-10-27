@@ -44,7 +44,7 @@ public class _AreaSurroundIntensity extends Protocol {
                 set.findOuterMaskEdges();
                 tempMask = set.drawToImageData(true);
                 //Filters.gaussApprox().runSingle(inImage[2], 2, true)
-                set.quantifyStainOnMaskAgainstChannel(tempMask, inImage[1]);
+                set.quantifyStainOnMaskAgainstChannel(tempMask, COL.BLACK, inImage[1]);
                 tempMask = new ImageData(set.drawSurroundArray(true), sourceWidth[0], sourceHeight[0]);
             }
 

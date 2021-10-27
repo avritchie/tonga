@@ -558,7 +558,7 @@ public class Tonga {
     }
 
     public static boolean thereIsImage() {
-        return !(picList.isEmpty() || mainFrame.imagesList.getSelectedIndex() == -1 || getImage() == null);
+        return !(picList.isEmpty() || mainFrame.imagesList.getSelectedIndex() == -1 || mainFrame.layersList.getSelectedIndex() == -1 || getImage() == null );
     }
 
     public static void updateImageList() {
@@ -706,7 +706,7 @@ public class Tonga {
         for (ImageData img : imgs) {
             if (img.bits == 16) {
                 img.set8BitPixels();
-            }  
+            }
         }
         return imgs;
     }
@@ -1044,9 +1044,9 @@ public class Tonga {
                 }
             });
             //remove everything else
-            al.forEach(f -> {
+            /*al.forEach(f -> {
                 f.delete();
-            });
+            });*/
             Runtime.getRuntime().gc();
             Tonga.log.debug("Cache cleaned");
         });
@@ -1084,6 +1084,14 @@ public class Tonga {
             return getLayerIndexes().length;
         }
     }
+    
+    static int selectedLayerIndex() {
+        if (getImage().stack) {
+            return getLayerList().indexOf(getLayerList().stream().filter(tl -> !tl.isGhost).findFirst().get());
+        } else {
+            return getLayerIndex();
+        }
+    }
 
     public enum OS {
         WINDOWS, MAC, UNKNOWN;
@@ -1114,10 +1122,12 @@ public class Tonga {
         boolean fail = false;
         try {
             try {
+                //remove everything cached
                 ArrayList<CacheBuffer> remainingCache = new ArrayList<>(cachedData);
                 remainingCache.forEach(f -> {
                     f.freeCache();
                 });
+                //remove any other files
                 File dir = new File(getTempPath());
                 for (File file : dir.listFiles()) {
                     if (!file.isDirectory()) {
@@ -1162,7 +1172,7 @@ public class Tonga {
                         + "Please make sure you are not trying to launch the JAR file directly.", "Error", JOptionPane.ERROR_MESSAGE);
             } else {
                 JOptionPane.showMessageDialog(null, "Tonga did not " + (happyBoot ? "exit" : "start") + " correctly because an unexpected "
-                        + ex.getClass().getSimpleName() + " occured.", "Error", JOptionPane.ERROR_MESSAGE);
+                        + ex.getClass().getSimpleName() + " occured." + (msg == null ? "" : " " + msg), "Error", JOptionPane.ERROR_MESSAGE);
             }
             System.exit(1);
         } else {

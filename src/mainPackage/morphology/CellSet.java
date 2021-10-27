@@ -10,7 +10,7 @@ import java.util.List;
 
 public class CellSet extends ROISet {
 
-    public CellSet(List<? extends ROI> list, int width, int height) {
+    public CellSet(List<ROI> list, int width, int height) {
         super(list, width, height);
         this.list = nestListROIsToCells((List<ROI>) list);
         findOuterEdges();
@@ -52,8 +52,8 @@ public class CellSet extends ROISet {
         });
     }
 
-    private List<Cell> nestListROIsToCells(List<ROI> list) {
-        List<Cell> newList = new ArrayList<>();
+    private List<ROI> nestListROIsToCells(List<ROI> list) {
+        List<ROI> newList = new ArrayList<>();
         list.forEach(o -> {
             newList.add(new Cell(o));
         });
