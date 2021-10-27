@@ -52,8 +52,13 @@ public class Histogram {
             long stamp = System.currentTimeMillis();
             try {
                 pwidth = histoPanel.getWidth();
-                if (Tonga.getLayerIndex() > -1 && TongaRender.renderImage != null) {
-                    Image imgSource = TongaRender.renderImage;
+                boolean hw = Settings.settingHWAcceleration();
+                if (hw
+                        ? (Tonga.thereIsImage() && TongaRender.renderImages != null && TongaRender.renderImages.length > 0)
+                        : (Tonga.thereIsImage() && TongaRender.renderImage != null)) {
+                    Image imgSource = hw
+                            ? TongaRender.renderImages[Tonga.selectedLayerIndex()]
+                            : TongaRender.renderImage;
                     int imgHash = imgSource.hashCode();
                     int[] renderHisto = currentHisto;
                     if (imageHash != imgHash) {
