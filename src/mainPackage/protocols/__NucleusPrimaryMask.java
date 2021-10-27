@@ -38,6 +38,7 @@ public class __NucleusPrimaryMask extends Protocol {
             @Override
             protected void methodFinal() {
                 int nuclSize = Settings.settingsOverrideSizeEstimate() ? (int) (sourceWidth[0] / 10.) : nucleusSize;
+                int nuclArea = GEO.circleArea(nuclSize);
                 // first gaussian
                 int minNucl = (int) Math.max(1, nuclSize * 0.06); // 2
                 // second gaussian for detecting nuclei edges
@@ -51,7 +52,11 @@ public class __NucleusPrimaryMask extends Protocol {
                 // second gaussian for detecting edges
                 int smooth = (int) Math.pow(nuclSize * 0.2, 0.8); // 2
                 // initial noise filtering radius
-                int noise = (int) Math.pow(nuclSize * 0.03, 0.7); // 2
+                int noise = (int) Math.pow(nuclSize * 0.03, 0.7); // 1
+                // dilation radius for hole removal
+                int dilate = (int) Math.pow(nuclSize * 0.1, 0.5); // 2
+                // remove inner areas
+                int inRem = (int) (nuclArea / Math.max(Math.pow(nuclSize * 2, 0.4), 5)); // 5
                 layerComb = new ImageData(sourceWidth[0], sourceHeight[0]);
                 // illumination/contrast-corrected version of the image
                 layerCorrect = Filters.gamma().runSingle(inImage[0], 0.5);
@@ -85,11 +90,9 @@ public class __NucleusPrimaryMask extends Protocol {
                 //DRAW.copyPixels(layerComb,9);
                 // additional stuff
                 layerBackground = Filters.dog().runSingle(layerCorrect, 1, maxEdge, true);
+                layerBackground = Filters.dog().runSingle(layerBackground, 1, maxEdge, false);
+                layerBackground = Filters.dog().runSingle(layerBackground, 1, maxEdge, false);
                 setSampleOutputBy(layerBackground, 8);
-                layerBackground = Filters.dog().runSingle(layerBackground, 1, maxEdge, false);
-                setSampleOutputBy(layerBackground, 9);
-                layerBackground = Filters.dog().runSingle(layerBackground, 1, maxEdge, false);
-                setSampleOutputBy(layerBackground, 10);
                 /*layerBackground = Filters.maximumDiffEdge().runSingle(layerBackground, 0, 1, false, 0);
                 DRAW.copyPixels(layerBackground,13);
                 layerBackground = Filters.cutFilter().runSingle(layerBackground, new Object[]{0,25});
@@ -100,14 +103,17 @@ public class __NucleusPrimaryMask extends Protocol {
                 Iterate.pixels(inImage[0], (int p) -> {
                     layerNuclei.pixels32[p] = ((layerBackground.pixels32[p] & 0xFF) >= 1 || layerComb.pixels32[p] == COL.BLACK) ? COL.BLACK : COL.WHITE;
                 });
-                setSampleOutputBy(layerNuclei, 11);
-                layerBackground = FiltersPass.fillInnerAreasSizeShape().runSingle(layerNuclei, COL.BLACK, GEO.circleArea(nuclSize) / 5, 90);
-                // remove nuclei or other irregular holes on nuclei edges
+                setSampleOutputBy(layerNuclei, 9);
+                layerBackground = FiltersPass.fillInnerAreasSizeShape().runSingle(layerNuclei, COL.BLACK, inRem, 90, false, 0, true);
+                setSampleOutputBy(layerBackground, 10);// remove nuclei or other irregular holes on nuclei edges
                 if (noise > 0) {
-                    layerBackground = FiltersPass.fillSmallEdgeHoles().runSingle(layerBackground, COL.BLACK, noise, Math.sqrt(GEO.circleArea(nuclSize)), false, false);
+                    layerBackground = FiltersPass.fillSmallEdgeHoles().runSingle(layerBackground, COL.BLACK, noise, Math.sqrt(nuclArea), false, false);
                     layerBackground = FiltersPass.gaussSmoothing().runSingle(layerBackground, noise, 1);
-                    layerBackground = FiltersPass.fillInnerAreasSizeShape().runSingle(layerBackground, COL.BLACK, GEO.circleArea(nuclSize) / 5, 90);
+                    layerBackground = FiltersPass.fillInnerAreasSizeShape().runSingle(layerBackground, COL.BLACK, inRem, 90, false, 0, true);
                 }
+                setSampleOutputBy(layerBackground, 11);
+                //fill inner shapes most likely NOT background
+                layerBackground = Protocol.load(BrightRemover::new).runSilent(sourceImage, new ImageData[]{layerBackground, inImage[0]}, COL.WHITE, dilate, 0.5)[0];
                 setSampleOutputBy(layerBackground, 12);
                 // smooth the masks but on convex areas only
                 if (smooth > 0) {
