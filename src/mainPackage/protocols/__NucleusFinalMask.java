@@ -29,14 +29,13 @@ public class __NucleusFinalMask extends Protocol {
             new ControlReference(LAYER, "Track objects at which layer"),
             new ControlReference(LAYER, "The original image"),
             new ControlReference(TOGGLE, "Ignore nuclei touching the edges", 1),
-            new ControlReference(SPINNER, "Ignore nuclei that are smaller than (pixels)", 500),
             new ControlReference(TOGGLE, "Remove dividing/dead cells", 1),
             new ControlReference(SPINNER, "Average nucleus size (pixels)", 60)};
     }
 
     @Override
     protected Processor getProcessor() {
-        int nucleusSize = param.spinner[1];
+        int nucleusSize = param.spinner[0];
         boolean removeEdge = param.toggle[0];
         boolean removeDead = param.toggle[1];
 
@@ -57,7 +56,7 @@ public class __NucleusFinalMask extends Protocol {
                 int overlapRad = (int) Math.pow(nuclSize * 0.13, 0.9);
                 int smoothErode = (int) Math.pow(nuclSize * 0.05, 0.6);
                 int maxDiff = (int) Math.pow(nuclSize * 0.12, 0.4); // 3
-                int finSmooth = (int) Math.pow(nuclSize * 0.1, 0.7); // 3
+                int finSmooth = (int) Math.pow(nuclSize * 0.18, 0.48); // 3
                 int maxSmooth = (int) Math.pow(nuclSize * 0.05, 0.8); // 2
                 //radius for dilating the edges for nucloli etc. removal from nucleus edges
                 int edgeFiller = (int) Math.pow(nuclSize * 0.03, 0.5); // 1
@@ -213,10 +212,14 @@ public class __NucleusFinalMask extends Protocol {
                 });
                 setSampleOutputBy(mask, 26);
                 //dividing and dim detection - unwanted outlier shapes by using intensity and morphology information
+                //first erode so that any edge bleed etc does not affect the measurements
                 mMask = FiltersPass.edgeErode().runSingle(mask, COL.BLACK, dimErode, false, true);
                 ROISet set = new ImageTracer(mMask, COL.BLACK).trace();
+                int largeErodedLimit = (int) (GEO.circleCircumference(largeLimit) * dimErode * 1.25);
                 set.quantifyStainAgainstChannel(Filters.dog().runSingle(inImage[1], minNucl, maxNucl, false));
                 set.filterOutDimObjects(set.avgStain() * 0.05);
+                set.filterOutDimSmallObjects(largeLimit - largeErodedLimit, set.avgStain() * 0.5);
+                //since we used erosion, restore the original masks for anything that was not removed
                 set = set.getPositionFilteredSet(mask, COL.BLACK, false);
                 if (removeDead) {
                     set.filterDeadDividing(inImage[1]);
@@ -224,7 +227,7 @@ public class __NucleusFinalMask extends Protocol {
                 if (removeEdge) {
                     set.removeEdgeTouchers();
                 }
-                set.filterOutSmallObjects(largeLimit);
+                set.filterOutSmallObjectsEdgeAdjusted(smallLimit);
                 setOutputBy(set.drawToImageData(true));
             }
         };

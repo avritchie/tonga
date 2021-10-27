@@ -3,7 +3,6 @@ package mainPackage.protocols;
 import javafx.scene.paint.Color;
 import mainPackage.utils.COL;
 import mainPackage.utils.GEO;
-import mainPackage.utils.IMG;
 import mainPackage.ImageData;
 import mainPackage.Iterate;
 import mainPackage.PanelCreator.ControlReference;
@@ -25,14 +24,12 @@ public class __NucleusPrimaryMask extends Protocol {
     protected ControlReference[] getParameters() {
         return new ControlReference[]{
             new ControlReference(LAYER, "Source staining (e.g. DAPI) is on which layer"),
-            new ControlReference(SPINNER, "Ignore nuclei that are smaller than (pixels)", 500),
             new ControlReference(SPINNER, "Average nucleus size (pixels)", 60)};
     }
 
     @Override
     protected Processor getProcessor() {
-        int nucleusSize = param.spinner[1];
-        double limit = param.spinner[0];
+        int nucleusSize = param.spinner[0];
 
         return new ProcessorFast(13, new String[]{"Nucleus Mask"}, 73) {
 
