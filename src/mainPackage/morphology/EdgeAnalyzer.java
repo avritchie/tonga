@@ -78,8 +78,8 @@ public class EdgeAnalyzer {
 
     private void getAngleDirectionData(EdgePoint pointCentral, ROI obj, int location) {
         double angle, distance, direction;
-        Point pointPrevious = getPosPrevious(location, spanSize, obj);
-        Point pointNext = getPosNext(location, spanSize, obj);
+        Point pointPrevious = getPosPrevious(location, spanSize);
+        Point pointNext = getPosNext(location, spanSize);
         // it is possible to connect to additional filling pixels in which case getting is aborted
         if (pixelOrderWrong(pointPrevious, pointNext, location, obj)) {
             angle = 180;
@@ -108,25 +108,42 @@ public class EdgeAnalyzer {
         pointCentral.line = new Line(pointCentral.x, pointCentral.y, direction);
     }
 
-    private EdgePoint getPosPrevious(int location, int span, ROI obj) {
+    private EdgePoint getPosPrevious(int location, int span) {
         int prevPoint = location - span >= 0 ? location - span : pixelEdgeSize - (span - location);
         return pixelEdge.get(prevPoint);
     }
 
-    private EdgePoint getPosNext(int location, int span, ROI obj) {
+    private EdgePoint getPosNext(int location, int span) {
         int nextPoint = location + span < pixelEdgeSize ? location + span : location + span - pixelEdgeSize;
         return pixelEdge.get(nextPoint);
+    }
+
+    public static EdgePoint getPos(List<? extends Point> list, int location, int span) {
+        int point;
+        if (span > 0) {
+            point = location + span < list.size() ? location + span : location + span - list.size();
+        } else {
+            point = location + span >= 0 ? location + span : list.size() + (span + location);
+        }
+        if (point < 0) {
+            return null;
+        }
+        return (EdgePoint) list.get(point);
     }
 
     private boolean pixelOrderWrong(Point pointPrevious, Point pointNext, int location, ROI obj) {
         // to detect if a point does not follow the edge
         EdgePoint pointCentral = pixelEdge.get(location);
-        Point point1Previous = getPosPrevious(location, spanSize - 1, obj);
-        Point point1Next = getPosNext(location, spanSize - 1, obj);
+        Point point1Previous = getPosPrevious(location, spanSize - 1);
+        Point point1Next = getPosNext(location, spanSize - 1);
+        Point pointuPrevious = getPosPrevious(location, spanSize + 1);
+        Point pointuNext = getPosNext(location, spanSize + 1);
         return GEO.getDist(pointPrevious, pointCentral) > spanSize
                 || GEO.getDist(pointNext, pointCentral) > spanSize
                 || GEO.getDist(point1Next, pointNext) > minDist
-                || GEO.getDist(point1Previous, pointPrevious) > minDist;
+                || GEO.getDist(point1Previous, pointPrevious) > minDist
+                || GEO.getDist(pointuNext, pointNext) > minDist
+                || GEO.getDist(pointuPrevious, pointPrevious) > minDist;
     }
 
     private List<List<EdgePoint>> getFinalCornerPointDataNew(boolean[] surePxls, boolean[] maybePxls) {
@@ -142,7 +159,7 @@ public class EdgeAnalyzer {
             } else {
                 if (!surePxls[i]) {
                     gc++;
-                    if ((gc > pointGapMax && !maybePxls[i]) || gc > pointGapMax * 2) {
+                    if ((gc > pointGapMax && !maybePxls[i]) || gc > pointGapMax * 3) {
                         pe = i - gc;
                         // area from start position ps and end position pe found
                         Tonga.log.trace("Area from {} to {} found of sure pixels", ps, pe);
@@ -181,7 +198,7 @@ public class EdgeAnalyzer {
                         if (gc > pointGapMax * 3) {
                             pe = i - gc;
                             // area from start position ps and end position pe found
-                            Tonga.log.trace("Area from {} to {} found of sure pixels", ps, pe);
+                            Tonga.log.trace("Area from {} to {} found of unsure pixels", ps, pe);
                             // exlude any areas that touch sure pixels
                             if (pe == ps && spanSize > 10) {
                                 Tonga.log.trace("But it was removed because it was solitary");
@@ -258,6 +275,7 @@ public class EdgeAnalyzer {
             nt.add(p.direction);
         }
         Collections.sort(nt);
+        // biggest direction change
         double maxGap = 0;
         double angDiff = nt.stream().mapToDouble(o -> o).max().getAsDouble()
                 - nt.stream().mapToDouble(o -> o).min().getAsDouble();
@@ -267,7 +285,8 @@ public class EdgeAnalyzer {
                 maxGap = gap;
             }
         }
-        boolean divideToTwoPoints = size > (pointGapJoin * 2.5) && (maxGap > 10 || angDiff > 180);
+        boolean divideToTwoPoints = (size > (pointGapJoin * 2.5) && (maxGap > 10 || angDiff > 180))
+                || (size > (pointGapJoin * 3) && (maxGap > 7 || angDiff > 135));
         Tonga.log.trace("Divide to two points: {}, with ddiff of {} and size of {}", divideToTwoPoints, maxGap, size);
         int midPoint = startPos + (size / 2);
         if (!divideToTwoPoints) {
@@ -299,7 +318,14 @@ public class EdgeAnalyzer {
                     anglePoint2 = i;
                 }
             }
-            return new EdgePoint[]{getNonNull(midPoint - anglePoint1), getNonNull(midPoint + anglePoint2)};
+            EdgePoint point1 = getNonNull(midPoint - anglePoint1);
+            EdgePoint point2 = getNonNull(midPoint + anglePoint2);
+            if (GEO.getDist(point1, point2) <= pointGapJoin && size > (pointGapJoin * 3.5)) {
+                // the best calculated points are too close to each other but the area is very long
+                point1 = getNonNull(midPoint + (size / 3));
+                point2 = getNonNull(midPoint - (size / 3));
+            }
+            return new EdgePoint[]{point1, point2};
         }
     }
 
@@ -325,9 +351,13 @@ public class EdgeAnalyzer {
         return pxlCorners;
     }
 
+    public static int spanSize(int size) {
+        return (int) (Math.pow(size, 0.8) / 1.75);
+    }
+
     private void setSizes(int size) {
         targetSize = size; //expected/average cell width
-        spanSize = (int) (Math.pow(targetSize, 0.8) / 1.75); // 12 , span to look front/back for calculating corners
+        spanSize = spanSize(targetSize); // 12 , span to look front/back for calculating corners
         minDist = Math.max(1.42, Math.pow(targetSize, 0.8) / 10.); // 1.42 (hyp c for a=1,b=1) , minimum concaveness to consider
         pointGapJoin = (int) Math.max(2, (targetSize * 0.18)); // 9 , combine points closer than this to each other if similar direction
         pointGapMax = Math.max(1, targetSize / 50); // 1 , gap allowed to still considering a corner area to be the same

@@ -66,6 +66,7 @@ public class EdgePoint extends Point {
         pairings.closestFriend = edgePoint;
         pairings.closestFriendDistance = dist;
         pairings.closestFriendDistanceRaw = GEO.getDist(this, edgePoint);
+        setAsAny(edgePoint, dist, pairings.closestFriendDistanceRaw);
         Tonga.log.trace("Friend found at {} for {}", edgePoint, this);
         Tonga.log.trace("Distance to her is {}", dist);
     }
@@ -74,8 +75,16 @@ public class EdgePoint extends Point {
         pairings.closestBuddy = edgePoint;
         pairings.closestBuddyDistance = dist;
         pairings.closestBuddyDistanceRaw = GEO.getDist(this, edgePoint);
+        setAsAny(edgePoint, dist, pairings.closestBuddyDistanceRaw);
         Tonga.log.trace("Buddy found at {} for {}", edgePoint, this);
         Tonga.log.trace("Distance to her is {}", dist);
     }
 
+    private void setAsAny(EdgePoint edgePoint, int dist, double rawdist) {
+        if (pairings.closestAny == null || dist < pairings.closestAnyDistance) {
+            pairings.closestAny = edgePoint;
+            pairings.closestAnyDistance = dist;
+            pairings.closestAnyDistanceRaw = GEO.getDist(this, edgePoint);
+        }
+    }
 }

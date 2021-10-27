@@ -94,6 +94,9 @@ public class Segmentor {
                                 && cc1.rawDistance * 3 < cc2.rawDistance
                                 && cc1.rawDistance < partOfAvg(10)) {
                             justPair(point, ep1, "primary raw closest item");
+                        } else if (cc1.parallelity < 0.05
+                                && cc1.edgeDistance + ep1.pairings.pairingMap.get(point).edgeDistance < partOfAvg(10)) {
+                            justPair(point, ep1, "primary parallel edge closest item");
                         }
                         // if only one other point and that is very close/parallel
                     } else {
@@ -114,11 +117,14 @@ public class Segmentor {
             @Override
             void logic(EdgePoint point) {
                 // multiple intersections with other lines (=create common midpoint)
-                if (!p.intersectors.isEmpty()) {
+                if (!p.intersectors.isEmpty() || !p.intersectorsSecondary.isEmpty()) {
                     // only common if all points counted?
                     List<EdgePoint> pool = intersectorPool(point, false);
                     if (pool.size() > 2 && onlyCommonIntersections(pool)) {
                         pairPool(pool, "allpoints");
+                        // what if they almost intersect?
+                    } else if (pool.size() > 2 && onlyCommonCloseIntersections(pool)) {
+                        pairPool(pool, "close allpoints");
                     } else {
                         // only common if only sures counted?
                         pool = intersectorPool(point, true);
@@ -151,6 +157,7 @@ public class Segmentor {
                         cc1 = p.pairingMap.get(ep);
                         cc2 = p.pairingMap.get(p.closestEdge(1));
                         if (cc1.parallelity < 0.1
+                                && ep.pairings.closestEdge(0).equals(point)
                                 && p.closestLine(0) == ep
                                 && cc1.edgeDistance * 3 < cc2.edgeDistance
                                 && cc1.lineDistance * 2 < cc2.lineDistance) {
@@ -158,8 +165,13 @@ public class Segmentor {
                         }
                     }
                     ep = p.closest(0);
-                    if (!point.hasBeenPairedYet && (point.isUnsure || ep.pairings.closest(0).equals(point))) {
-                        if (p.pairingMap.get(ep).parallelity < 0.15) {
+                    if (!point.hasBeenPairedYet
+                            && !ep.pairings.pairingMap.isEmpty()
+                            && ep.pairings.closest(0).equals(point)) {
+                        if ((p.pairingMap.get(ep).parallelity < 0.15
+                                || (p.pairingMap.get(ep).parallelity < 0.25 && (p.intersectors.contains(ep) || p.intersectorsSecondary.contains(ep))))
+                                && GEO.getDirDifference(GEO.getDirection(point, ep), point.direction) < 45
+                                && ep.angle + point.angle < 300) {
                             justPair(point, ep, "both-sided closeness and parallelity");
                         }
                     }
@@ -195,28 +207,50 @@ public class Segmentor {
                 if (p.closestOpposite != null) {
                     if (!p.pairingMap.isEmpty()) {
                         // opposite point matches some point in physical proximity 
-                        EdgePoint cp = getClosest(p.closestOpposite, true, false);
+                        EdgePoint cp = getClosest(point, p.closestOpposite, true, false);
                         if (cp != null && GEO.getDist(cp, p.closestOpposite) < partOfAvg(10)
                                 && (cp.equals(p.closest(0)) || cp.equals(p.closestEdge(0)) || cp.equals(p.closestLine(0)))) {
-                            justPair(point, p.closestOpposite, "conditional close opposite pairing");
+                            justPair(point, cp, "conditional close opposite pairing");
                             cp.hasBeenPairedYet = true;
                         } else {
-                            // same thing but try buddies instead
-                            cp = getClosest(p.closestOpposite, true, true);
-                            if (cp != null && GEO.getDist(cp, p.closestOpposite) < partOfAvg(10)
+                            // also consider already paired points if they are very obviously the closest
+                            cp = getClosest(point, p.closestOpposite, false, false);
+                            if (cp != null && GEO.getDist(cp, p.closestOpposite) < partOfAvg(20)
                                     && (cp.equals(p.closest(0)) || cp.equals(p.closestEdge(0)) || cp.equals(p.closestLine(0)))) {
-                                justPair(point, p.closestOpposite, "conditional close opposite pairing");
+                                justPair(point, cp, "conditional very close opposite pairing");
                                 cp.hasBeenPairedYet = true;
+                            } else {
+                                // same thing but try buddies instead
+                                cp = getClosest(point, p.closestOpposite, true, true);
+                                if (cp != null && GEO.getDist(cp, p.closestOpposite) < partOfAvg(10)
+                                        && (cp.equals(p.closest(0)) || cp.equals(p.closestEdge(0)) || cp.equals(p.closestLine(0)))) {
+                                    justPair(point, cp, "conditional close opposite buddy pairing");
+                                    cp.hasBeenPairedYet = true;
+                                }
                             }
                         } // doesn't, but is still very close 
                         if (!point.hasBeenPairedYet && GEO.getDist(point, p.closestOpposite) < partOfAvg(10)) {
                             justPair(point, p.closestOpposite, "conditional raw opposite pairing");
                         }
-                    } else {
-                        // shapes without other points, but opposite point is close and/or shape is big
-                        if ((ROI.getSize() > SET.avgCornerlessSize() * 2 && p.closestOppositeDistance < diam(2))
-                                || p.closestOppositeDistance < partOfAvg(10)) {
-                            justPair(point, p.closestOpposite, "direct opposite pairing");
+                    }
+                }
+            }
+        };
+    }
+
+    private formPairs closeFreeOpposite() {
+        return new formPairs() {
+            @Override
+            void logic(EdgePoint point) {
+                // scan if any of the remaining free points if withing 40 degrees are closer than the end distance
+                for (int i = 0; i < p.possibleFriends.size(); i++) {
+                    EdgePoint ep = p.possibleFriends.get(i);
+                    Pairing epp = p.pairingMap.get(ep);
+                    if (!ep.hasBeenPairedYet) {
+                        if (epp.parallelity < 0.1
+                                && (Math.abs(point.direction - GEO.getDirection(point, ep)) < 40)
+                                && epp.rawDistance < p.ownEndDistance) {
+                            justPair(point, ep, "free opposite pairing");
                         }
                     }
                 }
@@ -236,13 +270,13 @@ public class Segmentor {
                         if (cd < diam(2)
                                 && cd < p.ownEndDistance
                                 && cd < cc.pairings.ownEndDistance
-                                && p.pairingMap.get(cc).parallelity < 0.33) {
+                                && p.pairingMap.get(cc).parallelity < 0.35) {
                             justPair(point, cc, "good dual pairing");
                         }
                     } // find very close remaining pairings
                     else {
                         if (p.closestOpposite != null) {
-                            EdgePoint cp = getClosest(p.closestOpposite, false, false);
+                            EdgePoint cp = getClosest(point, p.closestOpposite, false, false);
                             if (cp != null && GEO.getDist(cp, p.closestOpposite) < partOfAvg(10)) {
                                 justPair(point, p.closestOpposite, "closest free opposite pairing");
                                 cp.hasBeenPairedYet = true;
@@ -295,16 +329,37 @@ public class Segmentor {
         };
     }
 
-    private formPairs solitaryClose() {
+    private formPairs solitaryOpposite() {
         return new formPairs() {
             @Override
             void logic(EdgePoint point) {
-                //look for unpaired solitary buddies with very short lines
-                if (p.ownEndDistance < partOfAvg(20)) {
-                    pairWithEnd(point, "solitary short buddy");
-                } else if (p.closestOpposite != null) {
-                    if (p.closestOppositeDistance < partOfAvg(20)) {
-                        justPair(point, p.closestOpposite, "solitary short buddy opposite");
+                // pair shapes without other points
+                // the other side has a mildly concave point indicating a false negative concave point
+                if (p.closestConcaveAngle < 160 && p.closestConcaveAngle > 135) {
+                    // if the opposite point is close and the shape is big
+                    if (ROI.getSize() > SET.avgCornerlessSize() * 2 && p.pairingMap.size() < 2
+                            && p.closestConcave != null && p.closestConcaveDistance < partOfAvg(10)) {
+                        justPair(point, p.closestConcave, "solitary big concave opposite pairing");
+                    } // or it is very parallel 
+                    else if (p.closestConcave != null && p.closestConcaveDistance < partOfEdge(5)
+                            && GEO.getParallelFactor(point.direction, p.closestConcave.direction) < 0.33) {
+                        justPair(point, p.closestConcave, "solitary concave opposite pairing");
+                    }
+                }
+                if (!point.hasBeenPairedYet) {
+                    // the opposite point is close
+                    if (p.closestOpposite != null && p.closestOppositeDistance < partOfAvg(10)) {
+                        justPair(point, p.closestOpposite, "solitary big direct opposite pairing");
+                    } // the only strong point
+                    else if (p.pairingMap.isEmpty() && ROI.getSize() > SET.avgCornerlessSize()
+                            && !point.isUnsure && p.ownEndDistance < partOfEdge(5)) {
+                        pairWithEnd(point, "solitary strong end pairing");
+                    } // points with very short lines
+                    else if (p.ownEndDistance < partOfAvg(15)) {
+                        pairWithEnd(point, "solitary short end pairing");
+                    } // ultra concave point with short lines
+                    else if (p.ownEndDistance < partOfAvg(5) && point.angle < 45) {
+                        pairWithEnd(point, "solitary very sharp end pairing");
                     }
                 }
             }
@@ -312,15 +367,18 @@ public class Segmentor {
     }
 
     protected void segment() {
+        ultraCloseParallel().pair(ROI);
         primaryCloseParallel().pair(ROI);
         commonMidpoint().pair(ROI);
         closePairs().pair(ROI);
         closePairs().pairBuddies(ROI);
         secondaryCloseParallel().pair(ROI);
         closeOpposite().pair(ROI);
+        closeFreeOpposite().pair(ROI);
         goodRemaining().pair(ROI);
         finalUnpaired().pair(ROI);
-        solitaryClose().pairBuddies(ROI);
+        solitaryOpposite().pair(ROI);
+        solitaryOpposite().pairBuddies(ROI);
     }
 
     protected void segmentSure() {
@@ -620,8 +678,8 @@ public class Segmentor {
         return ROI.outEdge.list.size() / i;
     }
 
-    private int partOfAvg(int i) {
-        return (int) (SET.targetsize * Math.PI / i);
+    private double partOfAvg(int i) {
+        return (SET.targetsize * Math.PI / i);
         // double size = SET.avgCornerlessSize() == 0 ? SET.avgSize() : SET.avgCornerlessSize();
         //  return (int) GEO.circleCircumference(size) / i;
     }
@@ -648,14 +706,15 @@ public class Segmentor {
     private void pairWithEnd(EdgePoint p, String desc) {
         if (p.line.end == null) {
             Tonga.log.warn("End pairing end point was null for {}", p);
-        } else if (ROI.getSize() > SET.avgCornerlessSize() * 2 && ((EdgePoint) p.line.end).angle < 180) {
+        } else { //if (ROI.getSize() > SET.avgCornerlessSize() * 2 && ((EdgePoint) p.line.end).angle < 180) {
             Tonga.log.trace("Paired x{}y{} with end x{}y{} as {}", p.x, p.y, p.line.end.x, p.line.end.y, desc);
             drawSegmentLine(p, p.line.end);
             p.hasBeenPairedYet = true;
             segmentedSomething = true;
-        } else {
-            Tonga.log.trace("Pairing failed x{}y{} with end", p.x, p.y);
         }
+        /*else {
+            Tonga.log.trace("Pairing failed x{}y{} with end", p.x, p.y);
+        }*/
     }
 
     private void pairWithFriend(EdgePoint p, String desc) {
@@ -726,20 +785,23 @@ public class Segmentor {
         point.pairings.intersectors.forEach(p -> {
             addAllUnpaired(p, allIntersections, onlySurePoints);
         });
+        point.pairings.intersectorsSecondary.forEach(p -> {
+            addAllUnpaired(p, allIntersections, onlySurePoints);
+        });
         return allIntersections.stream().distinct().collect(Collectors.toCollection(ArrayList::new));
     }
 
     private void addAllUnpaired(EdgePoint point, List array, boolean onlySurePoints) {
         for (int i = 0; i < point.pairings.intersectors.size(); i++) {
             EdgePoint pp = point.pairings.intersectors.get(i);
-            if (!pp.hasBeenPairedYet) {
+            if (!pp.hasBeenPairedYet && point.pairings.isPossiblePairing(pp)) {
                 array.add(pp);
             }
         }
         if (!onlySurePoints) {
             for (int i = 0; i < point.pairings.intersectorsSecondary.size(); i++) {
                 EdgePoint pp = point.pairings.intersectorsSecondary.get(i);
-                if (!pp.hasBeenPairedYet) {
+                if (!pp.hasBeenPairedYet && point.pairings.possibleBuddies.contains(pp)) {
                     array.add(pp);
                 }
             }
@@ -765,17 +827,44 @@ public class Segmentor {
         EdgePoint p1, p2;
         for (int i = 0; i < pool.size(); i++) {
             p1 = pool.get(i);
-            if (!p1.isUnsure) {
-                for (int j = 0; j < pool.size(); j++) {
-                    p2 = pool.get(j);
-                    if (!p1.equals(p2) && !p1.pairings.intersectors.contains(p2) && !p1.pairings.intersectorsSecondary.contains(p2)) {
-                        Tonga.log.trace("Only common intersections NOT detected for pool {}", pool);
+            for (int j = 0; j < pool.size(); j++) {
+                p2 = pool.get(j);
+                if (!p1.equals(p2) && !p1.pairings.intersectors.contains(p2) && !p1.pairings.intersectorsSecondary.contains(p2)) {
+                    Tonga.log.trace("Only common intersections NOT detected for pool {}", pool);
+                    return false;
+                } else if (!pool.contains(p1.pairings.closest(0)) && p1.pairings.intersectors.contains(p1.pairings.closest(0))) {
+                    Tonga.log.trace("Pool violation for pool {}", pool);
+                    return false;
+                }
+            }
+        }
+        Tonga.log.trace("Only common intersections detected for pool {}", pool);
+        return true;
+    }
+
+    private boolean onlyCommonCloseIntersections(List<EdgePoint> pool) {
+        EdgePoint p1, p2;
+        for (int i = 0; i < pool.size(); i++) {
+            p1 = pool.get(i);
+            for (int j = 0; j < pool.size(); j++) {
+                p2 = pool.get(j);
+                if (!p1.equals(p2)) {
+                    if (!p1.pairings.intersectors.contains(p2) && !p1.pairings.intersectorsSecondary.contains(p2)) {
+                        if ((p1.pairings.closestAny.equals(p2) && p1.pairings.closestAnyDistance < partOfAvg(15))
+                                || (p2.pairings.closestAny.equals(p1) && p2.pairings.closestAnyDistance < partOfAvg(15))) {
+                            //not an intersector, but extremely close to the pool
+                        } else {
+                            Tonga.log.trace("Only close or common intersections NOT detected for pool {}", pool);
+                            return false;
+                        }
+                    } else if (!pool.contains(p1.pairings.closestAny)) {
+                        Tonga.log.trace("Only close or common intersections NOT detected for pool {}", pool);
                         return false;
                     }
                 }
             }
         }
-        Tonga.log.trace("Only common intersections detected for pool {}", pool);
+        Tonga.log.trace("Only close or common intersections detected for pool {}", pool);
         return true;
     }
 
@@ -798,14 +887,20 @@ public class Segmentor {
         return (maxValue < 0.1) ? maxPoint : null;
     }
 
+    //origPoint is the point was being paired; targetPoint the point from which the closest point will be looked
+    //if they are different (eg. when oppositePoint is used as a targetPoint, the original needs to be passed to prevent returning itself
     private EdgePoint getClosest(EdgePoint point, boolean onlyUnpaired, boolean buddies) {
+        return getClosest(point, point, onlyUnpaired, buddies);
+    }
+
+    private EdgePoint getClosest(EdgePoint origPoint, EdgePoint targetPoint, boolean onlyUnpaired, boolean buddies) {
         EdgePoint maxPoint = null, currentPoint;
         double maxValue = Integer.MAX_VALUE;
         List<EdgePoint> list = buddies ? ROI.edgeData.cornerCandidates : ROI.edgeData.cornerPoints;
         for (int i = 0; i < list.size(); i++) {
             currentPoint = list.get(i);
-            if (!currentPoint.equals(point) && (!onlyUnpaired || !currentPoint.hasBeenPairedYet)) {
-                double dist = GEO.getDist(point, currentPoint);
+            if (!currentPoint.equals(origPoint) && (!onlyUnpaired || !currentPoint.hasBeenPairedYet)) {
+                double dist = GEO.getDist(targetPoint, currentPoint);
                 if (dist < maxValue) {
                     maxValue = dist;
                     maxPoint = currentPoint;

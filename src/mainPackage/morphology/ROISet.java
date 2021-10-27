@@ -435,15 +435,21 @@ public class ROISet {
                 o.findIntersectionOnEdges(p);
                 // the closest possible point on the opposite edge
                 o.findClosestOpposite(p);
+                // the most concave point on the opposite edge
+                o.findConcaveOpposite(p);
             });
             o.edgeData.cornerCandidates.forEach(p -> {
                 // same as above but for unsure pixels
                 o.findIntersectionOnEdges(p);
-                // the closest possible point on the opposite edge
                 o.findClosestOpposite(p);
+                o.findConcaveOpposite(p);
             });
             o.edgeData.cornerPoints.forEach(p -> {
                 // will give point's intersect-list other points it intersects itself with
+                o.findIntersectionOnOthers(p);
+            });
+            o.edgeData.cornerCandidates.forEach(p -> {
+                // same as above but for unsure pixels
                 o.findIntersectionOnOthers(p);
             });
             o.edgeData.cornerPoints.forEach(p -> {

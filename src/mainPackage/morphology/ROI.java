@@ -151,10 +151,10 @@ public class ROI {
         quant.saveValues();
     }
 
-    protected void quantifyMaskStain(ImageData exclude, ImageData img) {
+    protected void quantifyMaskStain(ImageData exclude, int excludeColor, ImageData img) {
         Quantifier quant = new Quantifier(mask);
         Iterate.areaPixels(this.mask, (int p) -> {
-            if (exclude.pixels32[p] == COL.BLACK) {
+            if (exclude.pixels32[p] == excludeColor) {
                 boolean bits = img.bits == 16;
                 int v = bits
                         ? img.pixels16[p] & COL.UWHITE
@@ -518,32 +518,100 @@ public class ROI {
     }
 
     protected void findClosestOpposite(EdgePoint point) {
-        //look 20-40 degrees left and right towards the direction
+        //look 20-40-60 degrees left and right towards the direction
         //see if by changing the direction just a little there would be a collision point much closer on the opposite edge
         double dmin = Integer.MAX_VALUE;
         EdgePoint fpnt = null;
         //int fin = 360;
         int rad = 20;
-        while (rad <= 40) {
+        while (rad <= 60) {
             for (int i = -rad; i < rad; i++) {
-                EdgePoint found = findPointAtTheOppositeSide(point, (int) point.direction + i);
-                double dist = GEO.getDist(found, point);
-                if (dist < dmin && GEO.getListDifference(outEdge.list.indexOf(point), outEdge.list.indexOf(found), outEdge.list.size()) > dist * 2) {
-                    fpnt = found;
-                    dmin = dist;
-                    //fin = i;
+                if (i <= -(rad - 20) || i >= rad - 20) {
+                    EdgePoint found = findPointAtTheOppositeSide(point, (int) point.direction + i);
+                    double dist = GEO.getDist(found, point);
+                    if (dist < dmin && GEO.getListDifference(outEdge.list.indexOf(point), outEdge.list.indexOf(found), outEdge.list.size()) > dist * 2) {
+                        fpnt = found;
+                        dmin = dist;
+                        //fin = i;
+                    }
                 }
             }
             if (fpnt != null) {
                 double newDirection = GEO.getDirection(point, fpnt);
                 double dirIncrease = Math.abs(point.direction - newDirection);
-                double distDecrease = point.pairings.ownEndDistance - dmin;
-                if (dirIncrease < 30 || dirIncrease < 45 && point.pairings.ownEndDistance / distDecrease < 4) {
-                    point.pairings.closestOpposite = fpnt;
-                    point.pairings.closestOppositeDistance = dmin;
+                double distDecrease = point.pairings.ownEndDistance / (double) dmin;
+                if (dirIncrease < 30
+                        || dirIncrease < 45 && distDecrease > 2.5
+                        || dirIncrease < 60 && distDecrease > 5) {
+                    if (point.pairings.closestOpposite == null || point.pairings.closestOppositeDistance > dmin * 2) {
+                        point.pairings.closestOpposite = fpnt;
+                        point.pairings.closestOppositeDistance = dmin;
+                    }
                 }
             }
             rad += 20;
+        }
+    }
+
+    protected void findConcaveOpposite(EdgePoint point) {
+        //look "span" or "span"2x left and right towards the direction
+        //see what would be the minimum angle found next to the point on the opposite edge
+        //this is useful for making connections to points which were not detected as "true" concave points (=false negative)
+        double amin = 360;
+        EdgePoint fpnt = null;
+        Point start = findPointAtTheOppositeSide(point, (int) point.direction);
+        while (point.pairings.closestConcave == null || point.pairings.closestConcaveAngle > 160) {
+            int span = EdgeAnalyzer.spanSize(set.targetsize);
+            Point edgePoint = outEdge.findPosition(start);
+            int base = outEdge.list.indexOf(edgePoint);
+            ListArea list = outEdge;
+            if (edgePoint == null && innEdge != null) {
+                edgePoint = innEdge.findPosition(start);
+                base = innEdge.list.indexOf(edgePoint);
+                list = innEdge;
+            }
+            if (edgePoint != null) {
+                int fspan = span;
+                while (fspan <= span * 3) {
+                    Point prev = edgePoint;
+                    for (int i = -fspan; i < fspan; i++) {
+                        if (i <= -(fspan - span) || i >= (fspan - span)) {
+                            EdgePoint found = EdgeAnalyzer.getPos(list.list, base, i);
+                            if (found==null) {
+                                return;
+                            }
+                            else if (edgeData.cornerPoints.contains(found)
+                                    || edgeData.cornerCandidates.contains(found)
+                                    || edgeData.primaryCornerPoints.contains(found)) {
+                                // if the concave point is already detected as a real concave point, the whole process is redundant
+                                // thus it is cancelled and null returned
+                                point.pairings.closestConcave = null;
+                                point.pairings.closestConcaveAngle = 360;
+                                point.pairings.closestConcaveDistance = 0;
+                                return;
+                            }
+                            else if (found.angle < amin && GEO.getDist(found, prev) < 2) {
+                                if (lineDoesntGoThroughVoid(point, found, area)) {
+                                    fpnt = found;
+                                    amin = found.angle;
+                                }
+                            }
+                            prev = found;
+                        }
+                    }
+                    if (fpnt != null && point.pairings.closestConcaveAngle > 160 && fspan <= span * 2) {
+                        point.pairings.closestConcave = fpnt;
+                        point.pairings.closestConcaveAngle = amin;
+                        point.pairings.closestConcaveDistance = GEO.getDist(point, fpnt);
+                    }
+                    fspan += span;
+                }
+            }
+            if (point.pairings.closestOpposite != null && start != point.pairings.closestOpposite) {
+                start = point.pairings.closestOpposite;
+            } else {
+                return;
+            }
         }
     }
 
@@ -709,10 +777,11 @@ public class ROI {
 
     private void evaluatePositionForFriendBuddy(Point point, EdgePoint thisPoint, int i) {
         if (!point.equals(thisPoint)) {
-            if (thisPoint.pairings.isPossiblePairing(point) && thisPoint.pairings.closestFriend == null) {
+            Pairings tp = thisPoint.pairings;
+            if (tp.isPossiblePairing(point) && tp.closestFriend == null) {
                 thisPoint.setAsFriend((EdgePoint) point, i);
             }
-            if (edgeData.cornerCandidates.contains((EdgePoint) point) && thisPoint.pairings.closestBuddy == null) {
+            if (edgeData.cornerCandidates.contains((EdgePoint) point) && tp.closestBuddy == null) {
                 if (lineDoesntGoThroughVoid(thisPoint, (EdgePoint) point, area)) {
                     thisPoint.setAsBuddy((EdgePoint) point, i);
                 }
@@ -773,10 +842,13 @@ public class ROI {
 
     private EdgePoint getIntersectionPointOnEdge(int px, int py, EdgePoint thisPoint) {
         if (px != -1 || py != -1) {
-            Tonga.log.trace("Intersection point on the opposite edge was found at {}.{}", px, py);
-            EdgePoint resultPoint = new EdgePoint(px, py);
+            Point resultPoint = new Point(px, py);
             //edgeData.interSectionPoints.add(resultPoint);
-            return resultPoint;
+            Point edgePoint = outEdge.findPosition(resultPoint);
+            if (edgePoint == null && innEdge != null) {
+                edgePoint = innEdge.findPosition(resultPoint);
+            }
+            return (EdgePoint) edgePoint;
         }
         return null;
     }
