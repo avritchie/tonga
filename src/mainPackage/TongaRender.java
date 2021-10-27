@@ -74,7 +74,6 @@ public class TongaRender {
     public static void redraw() {
         if (redrawSem.tryAcquire()) {
             Platform.runLater(() -> {
-                Tonga.log.trace("Redraw thread was invoked");
                 TongaImage ti = Tonga.getImage();
                 int[] ix = Tonga.getLayerIndexes();
                 boolean nulls = ti == null || ix.length == 0;
@@ -96,10 +95,16 @@ public class TongaRender {
     }
 
     private static void setCanvas() {
-        int mainWidth = Math.min(mainPanel.getWidth(),
-                (int) (imageDimensions[0] * (picList.isEmpty() ? 1 : mainFactor)));
-        int mainHeight = Math.min(mainPanel.getHeight(),
-                (int) (imageDimensions[1] * (picList.isEmpty() ? 1 : mainFactor)));
+        int mainWidth, mainHeight;
+        if (Settings.settingBatchProcessing()) {
+            mainWidth = mainPanel.getWidth();
+            mainHeight = mainPanel.getHeight();
+        } else {
+            mainWidth = Math.min(mainPanel.getWidth(),
+                    (int) (imageDimensions[0] * (picList.isEmpty() ? 1 : mainFactor)));
+            mainHeight = Math.min(mainPanel.getHeight(),
+                    (int) (imageDimensions[1] * (picList.isEmpty() ? 1 : mainFactor)));
+        }
         mainDraw.getCanvas().setWidth(mainWidth);
         mainDraw.getCanvas().setHeight(mainHeight);
         int zoomWidth = zoomPanel.getWidth();
@@ -207,7 +212,6 @@ public class TongaRender {
                         imgy = (int) (posy + imageDimensions[1] * ((double) my / (int) (imageDimensions[1] * mainFactor)));
                     }
                     Tonga.frame().updateZoomLabel(imgx, imgy, mainFactor, zoomFactor);
-                    Tonga.log.trace("Moved mouse invoked redraw");
                     redraw();
                 }
             }
