@@ -145,13 +145,13 @@ public class SetCounters {
     }
 
     public static SetCounter countObjectStainsBGImage(ROISet set, double bg) {
-        return new SetCounter("Count staining", new String[]{"Image", "Objects", "Background", "Avg.Stain", "Std.Stain", "Med.Stain"}) {
+        return new SetCounter("Count staining", new String[]{"Image", "Objects", "Background", "Avg.Stain w/o background", "Std.Stain", "Med.Stain w/o background"}) {
 
             @Override
             protected void processor(Object[] row) {
                 STAT stain = set.statsForStain();
                 row[1] = set.objectsCount();
-                row[2] = set.objectsCount();
+                row[2] = bg;
                 row[3] = stain.getMean() - bg;
                 row[4] = stain.getStdDev();
                 row[5] = stain.getMedian() - bg;
