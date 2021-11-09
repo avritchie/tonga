@@ -79,7 +79,7 @@ public class Loader extends javax.swing.JFrame {
                     Tonga.setStatus("Operation aborted by user");
                     Tonga.log.info("{} was aborted by the user.", threadTask.getName());
                 } else if (majorFailure) {
-                    Tonga.setStatus("<font color=\"red\">" + threadTask.getName() + " crashed unexpectedly.</font> See the console for details.");
+                    Tonga.setStatus("<font color=\"red\">" + threadTask.getName() + " crashed unexpectedly.</font> See the log for details.");
                     Tonga.log.info("{} crashed unexpectedly.", threadTask.getName());
                 } else if (!routineTask) {
                     Tonga.setStatus("Completed " + threadTask.getName() + (minorFailure ? " <font color=\"red\">with errors</font> in " : " successfully in ") + (timeEnd - timeStart) / 10000000 / 100. + "s");
