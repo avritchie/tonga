@@ -558,7 +558,7 @@ public class Tonga {
     }
 
     public static boolean thereIsImage() {
-        return !(picList.isEmpty() || mainFrame.imagesList.getSelectedIndex() == -1 || mainFrame.layersList.getSelectedIndex() == -1 || getImage() == null );
+        return !(picList.isEmpty() || mainFrame.imagesList.getSelectedIndex() == -1 || mainFrame.layersList.getSelectedIndex() == -1 || getImage() == null);
     }
 
     public static void updateImageList() {
@@ -688,34 +688,53 @@ public class Tonga {
         return picList.size();
     }
 
-    public static ImageData[] selectedImageAsImageDataArray(int image) {
-        if (Tonga.getImage(image).stack) {
-            return Tonga.getLayerList(image).stream().filter(tl -> !tl.isGhost).map(tl -> new ImageData(tl)).toArray(ImageData[]::new);
+    public static TongaLayer[] imageLayersFromIndexList() {
+        return getImagelayersFromIndexList(Tonga.getImageIndex(), Tonga.getLayerIndexes());
+    }
+
+    public static TongaLayer[] imageLayersFromIndexList(int imageIndex) {
+        return getImagelayersFromIndexList(imageIndex, Tonga.getImage(imageIndex).activeLayers);
+    }
+
+    public static TongaLayer[] imageLayersFromIndexList(int imageIndex, int[] layerIndexes) {
+        if (layerIndexBoundsViolation(imageIndex, layerIndexes)) {
+            catchError("One or more of the images has less layers than what is currently selected, and thus can not be processed.");
+        }
+        return getImagelayersFromIndexList(imageIndex, layerIndexes);
+    }
+
+    private static TongaLayer[] getImagelayersFromIndexList(int imageIndex, int[] layerIndexes) {
+        List<TongaLayer> allLayers = Tonga.getLayerList(imageIndex);
+        TongaLayer[] selectedLayers = new TongaLayer[layerIndexes.length];
+        for (int i = 0; i < layerIndexes.length; i++) {
+            selectedLayers[i] = allLayers.get(layerIndexes[i]);
+        }
+        return selectedLayers;
+    }
+
+    public static ImageData[] layersAsImageDataArray(TongaLayer[] layers) {
+        return Arrays.stream(layers).map(i -> new ImageData(i)).toArray(ImageData[]::new);
+    }
+
+    public static ImageData[] layersAs8BitImageDataArray(TongaLayer[] layers) {
+        return Arrays.stream(layers).map(i -> new ImageData(i)).peek(img -> img.set8BitPixels()).toArray(ImageData[]::new);
+    }
+
+    public static String[] layersAsPointerArray(TongaLayer[] layers) {
+        return Arrays.stream(layers).map(i -> i.path).toArray(String[]::new);
+    }
+
+    public static int[] imageAsSelectedLayerArray(TongaImage img) {
+        //array of index numbers of the selected layers 
+        if (img.stack) {
+            return img.layerList.stream().filter(tl -> !tl.isGhost).mapToInt(tl -> img.layerList.indexOf(tl)).toArray();
         } else {
-            return Arrays.stream(Tonga.getLayerIndexes()).mapToObj(i -> new ImageData(Tonga.getLayerList(image).get(i))).toArray(ImageData[]::new);
+            return img.activeLayers;
         }
     }
 
-    public static ImageData[] selectedImageAs8BitImageDataArray(int image) {
-        ImageData[] imgs;
-        if (Tonga.getImage(image).stack) {
-            imgs = Tonga.getLayerList(image).stream().filter(tl -> !tl.isGhost).map(tl -> new ImageData(tl)).toArray(ImageData[]::new);
-        } else {
-            imgs = Arrays.stream(Tonga.getLayerIndexes()).mapToObj(i -> new ImageData(Tonga.getLayerList(image).get(i))).toArray(ImageData[]::new);
-        }
-        for (ImageData img : imgs) {
-            if (img.bits == 16) {
-                img.set8BitPixels();
-            }
-        }
-        return imgs;
-    }
-
-    public static String[] selectedImagesAsPointerArray(int image) {
-        return Arrays.stream(Tonga.getLayerIndexes()).mapToObj(i -> Tonga.getLayerList(image).get(i).path).toArray(String[]::new);
-    }
-
-    public static int[] selectedImageAsIndexArray(TongaImage img) {
+    public static int[] imageAsBinarySelectedLayerArray(TongaImage img) {
+        //array of 0s and 1s (not selected and selected, respectively)
         int[] prior = new int[img.layerList.size()];
         if (img.stack) {
             prior = img.layerList.stream().mapToInt(l -> l.isGhost ? 0 : 1).toArray();
@@ -732,6 +751,10 @@ public class Tonga {
         TongaImage secondCompare = getImageList().get(secondIndex);
         TongaLayer firstLayer, secondLayer;
         try {
+            //unable to compare because the image to compare to does not have as many layers
+            if (layerIndexBoundsViolation(secondIndex, indexes)) {
+                return false;
+            }
             for (int i = 0; i < indexes.length; i++) {
                 firstLayer = firstCompare.layerList.get(i);
                 secondLayer = secondCompare.layerList.get(i);
@@ -744,6 +767,11 @@ public class Tonga {
             return false;
         }
         return true;
+    }
+
+    private static boolean layerIndexBoundsViolation(int image, int[] indexes) {
+        //unable to compare because the image to compare to does not have as many layers
+        return indexes[indexes.length - 1] >= Tonga.getLayerList(image).size();
     }
 
     public static void setStatus(String string) {
@@ -1084,7 +1112,7 @@ public class Tonga {
             return getLayerIndexes().length;
         }
     }
-    
+
     static int selectedLayerIndex() {
         if (getImage().stack) {
             return getLayerList().indexOf(getLayerList().stream().filter(tl -> !tl.isGhost).findFirst().get());
@@ -1150,6 +1178,11 @@ public class Tonga {
         System.exit(0);
     }
 
+    public static void catchError(String msg) {
+        Tonga.log.error("Error: " + msg);
+        setStatus("<font color=\"red\">" + msg + "</font>");
+    }
+
     public static void catchError(Throwable ex) {
         catchError(ex, null);
     }
@@ -1165,7 +1198,7 @@ public class Tonga {
             loader().minorFail();
         }
         //ex.printStackTrace(System.out);
-        Tonga.log.error("Exception : " + ExceptionUtils.getStackTrace(ex));
+        Tonga.log.error("Exception: " + ExceptionUtils.getStackTrace(ex));
         if (mainFrame == null || !mainFrame.isVisible()) {
             if (ex instanceof NoClassDefFoundError) {
                 JOptionPane.showMessageDialog(null, "Tonga did not start correctly because an external class could not be found.\n"

@@ -324,7 +324,7 @@ public class TongaRender {
         TongaImage img = Tonga.getImage();
         ArrayList<TongaLayer> list = img.layerList;
         int[] rhas = new int[list.size()];
-        int[] prior = Tonga.selectedImageAsIndexArray(img);
+        int[] prior = Tonga.imageAsBinarySelectedLayerArray(img);
         boolean hw = Settings.settingHWAcceleration();
         HashMap<Integer, Object> rtsk = new HashMap<>();
         Image[] rimsi = new Image[list.size()];
@@ -365,12 +365,13 @@ public class TongaRender {
 
     public static void setRenderImage() {
         if (Tonga.thereIsImage() && Tonga.getLayerIndexes().length > 0) {
-            renderImage = renderImage(Tonga.selectedImageAs8BitImageDataArray(Tonga.getImageIndex())).toFXImage();
+            TongaLayer[] layersToRender = Tonga.imageLayersFromIndexList();
+            renderImage = renderImage(Tonga.layersAs8BitImageDataArray(layersToRender)).toFXImage();
         } else {
             renderImage = null;
         }
     }
-
+    
     public static ImageData renderImage(ImageData[] layersarray) {
         if (Tonga.getImage().stack) {
             return Blender.renderBlend(layersarray, Blender.modeBridge(Settings.settingBlendMode()));

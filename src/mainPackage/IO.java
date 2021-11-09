@@ -50,7 +50,7 @@ public class IO {
     protected static void toTSVfile(JTable table, File file) {
         try {
             TableModel model = table.getModel();
-            try ( FileWriter excel = new FileWriter(file)) {
+            try (FileWriter excel = new FileWriter(file)) {
                 for (int i = 0; i < model.getColumnCount(); i++) {
                     excel.write(model.getColumnName(i).replaceAll("<[^>]*>", "") + "\t");
                 }
@@ -446,7 +446,9 @@ public class IO {
                 TongaImage m = Tonga.picList.get(i);
                 boolean stackmem = m.stack;
                 m.stack = true;
-                exportImage(m, TongaRender.renderImage(Tonga.selectedImageAsImageDataArray(i)));
+                TongaLayer[] layersToRender = Tonga.imageLayersFromIndexList(i);
+                ImageData renderedImage = TongaRender.renderImage(Tonga.layersAs8BitImageDataArray(layersToRender));
+                exportImage(m, renderedImage);
                 Tonga.loader().loaderProgress(i + 1, picList.size());
                 m.stack = stackmem;
             }

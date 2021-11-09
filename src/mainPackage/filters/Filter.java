@@ -67,12 +67,15 @@ public abstract class Filter {
     }
 
     public ImageData[][] runSingle() {
+        int selectedImage = Tonga.getImageIndex();
+        int[] selectedIndexes = Tonga.imageAsSelectedLayerArray(Tonga.getImage());
         Tonga.loader().setIterations(calculateIterations(false));
-        return new ImageData[][]{runSingle(Tonga.getImageIndex())};
+        return new ImageData[][]{runSingle(selectedImage, selectedIndexes)};
     }
 
     public ImageData[][] runAll() {
-        int[] selectedIndexes = Tonga.getLayerIndexes();
+        int selectedImage = Tonga.getImageIndex();
+        int[] selectedIndexes = Tonga.imageAsSelectedLayerArray(Tonga.getImage());
         int totalImages = Tonga.getImageList().size();
         ImageData[][] data = new ImageData[totalImages][selectedIndexes.length];
         Tonga.loader().setIterations(calculateIterations(true));
@@ -81,9 +84,8 @@ public abstract class Filter {
             if (Thread.currentThread().isInterrupted()) {
                 return null;
             }
-            if (Tonga.layerStructureMatches(Tonga.getImageIndex(), imageIndex, selectedIndexes)
-                    && selectedIndexes[selectedIndexes.length - 1] < Tonga.getLayerList(imageIndex).size()) {
-                data[imageIndex] = runSingle(imageIndex);
+            if (Tonga.layerStructureMatches(selectedImage, imageIndex, selectedIndexes)) {
+                data[imageIndex] = runSingle(imageIndex, selectedIndexes);
                 //procImgs.add(imageIndex);
             } else {
                 data[imageIndex] = null;
@@ -168,9 +170,9 @@ public abstract class Filter {
         return runSingle(layer.layerImage);
     }
 
-    public ImageData[] runSingle(int image) {
+    public ImageData[] runSingle(int image, int[] indexes) {
         if (Settings.settingBatchProcessing()) {
-            String[] pointers = Tonga.selectedImagesAsPointerArray(image);
+            String[] pointers = Tonga.layersAsPointerArray(Tonga.imageLayersFromIndexList(image, indexes));
             ImageData[] imgs = new ImageData[pointers.length];
             for (int i = 0; i < pointers.length; i++) {
                 try {
@@ -182,7 +184,7 @@ public abstract class Filter {
             }
             return getIDArray(runSingle(imgs));
         }
-        return getIDArray(runSingle(Tonga.selectedImageAsImageDataArray(image)));
+        return getIDArray(runSingle(Tonga.layersAsImageDataArray(Tonga.imageLayersFromIndexList(image, indexes))));
     }
 
     public ImageData runSingle(TongaLayer layer, Object... parameters) {
