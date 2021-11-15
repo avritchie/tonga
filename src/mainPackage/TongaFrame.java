@@ -312,11 +312,11 @@ public class TongaFrame extends JFrame {
         if (filePathField.getText().isEmpty()) {
             String out = Tonga.formatPath(file.getParent() + "\\output");
             String out2 = out;
-                int ind = 0;
-                while (new File(out2).exists()) {
-                    out2 = out + ind;
-                    ind++;
-                }
+            int ind = 0;
+            while (new File(out2).exists()) {
+                out2 = out + ind;
+                ind++;
+            }
             filePathField.setText(out2);
         }
     }
@@ -603,12 +603,7 @@ public class TongaFrame extends JFrame {
     }
 
     private void constructMenuBar() {
-        /*
-        int menus = menuBar.getMenuCount();
-        for (int i = 0; i < menus; i++) {
-            JMenu m = menuBar.getMenu(i);
-        }*/
-        menuFile.addMenuListener(new javax.swing.event.MenuListener() {
+        MenuListener accelListener = new MenuListener() {
             @Override
             public void menuCanceled(javax.swing.event.MenuEvent evt) {
             }
@@ -622,8 +617,13 @@ public class TongaFrame extends JFrame {
                 accelEnable(true);
                 setUndoRedoMenu();
             }
-        });
-        menuProtocols.addMenuListener(new javax.swing.event.MenuListener() {
+        };
+        int menus = menuBar.getMenuCount();
+        for (int i = 0; i < menus; i++) {
+            JMenu m = menuBar.getMenu(i);
+            m.addMenuListener(accelListener);
+        }
+        menuProtocols.addMenuListener(new MenuListener() {
             @Override
             public void menuCanceled(javax.swing.event.MenuEvent evt) {
             }
