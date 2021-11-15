@@ -51,8 +51,8 @@ After detecting the nuclei areas, uses a radius parameter to measure a dye inten
 ### Downloading
 
 Please download and extract the latest compiled version:  
-* [For Windows](https://github.com/avritchie/tonga/releases/download/v0.1.2.3500/Tonga.Win.v0.1.2.3500.zip)  
-* [For MacOS](https://github.com/avritchie/tonga/releases/download/v0.1.2.3500/Tonga.Mac.v0.1.2.3500.zip)  
+* [For Windows](https://github.com/avritchie/tonga/releases/download/v0.1.2.3564/Tonga.Win.v0.1.2.3564.zip)  
+* [For MacOS](https://github.com/avritchie/tonga/releases/download/v0.1.2.3564/Tonga.Mac.v0.1.2.3564.zip)  
 
 *Make sure your computer has at least **Java version 9 or later** installed.*  
 If not, first install the latest Java from:  
@@ -86,11 +86,21 @@ Tonga is currently aimed for 2D fluorescent images, with most scientific image f
 
 #### Importing
 
-Images can be imported either from the menu (Tonga -> Import) or by simply dragging and dropping the files onto the user interface. The importing works differently depending on where the image was dropped.
-* Dropping images on the image list ("Images") imports every file as a new image with one layer each.
-* Dropping images on the main image panel import one new image with each file considered a layer of that image.
-* Dropping images on the layer list ("Layers") import new layers to existing images. If the number of files dropped is divisible with the current number of images, the files are imported to all the images equally. If not, all the files are imported to the currently selected image as new layers.
+Images can be imported either from the menu (Tonga -> Import) or by simply dragging and dropping the files onto the user interface. There are various options.
+* **As new images** imports every file as a new image with one layer each.
+* **As an image with layers** imports one new image with each file considered a layer of that image.
+* **Add layers to all images** imports new layers to existing images. The number of files imported must be divisible with the current number of images. The new files will be imported to all the images equally.
 An example: you have 3 images with one layer each and import 6 new images. Each image will get 2 new layers.
+* **Add layers to this/these image(s)** imports all the files to the currently selected image(s) as new layers, otherwise like described above. The layer number must be divisible with the current number of selected images.
+An example: you have 4 images, have selected 2, and and will import 6 new images. Each selected image will get 3 new layers.
+* **Stack image(s)** imports stack files which can contain multiple images and channels in one file. This includes many common microscopy file formats, such as LIF files.
+* **A multichannel image set** imports new images with multiple layers. This is useful if you have a lot of images with several channels, and all the channels are stored in a separate file. You will be asked the number of channels in the dataset, and whether the file order is based on the channel (ch1_img1,ch1_img2,ch2_img1...) or on the image (img1_ch1,img2_ch1,img1_ch2...).
+
+When dragging and dropping files, a different importing mode is used depending on where the image was dropped.
+* Dropping images on the image list ("Images") uses the **As new images** mode.
+* Dropping images on the main image panel uses the **As an image with layers** mode.
+* Dropping images on the layer list ("Layers") when there are other images already imported, imports new layers. If the number of files dropped is divisible with the current number of images, the **Add layers to all images** mode is used. If not, the **Add layers to this/these image(s)** mode is used.
+* Dropping images on the layer list ("Layers") when there are no images imported, uses the **A multichannel image set** mode.
 
 #### Viewing
 
@@ -112,10 +122,16 @@ Please note that for 8-bit images the whole range can be displayed at once, but 
 * Click the main panel to freeze or unfreeze the position of the zoom panel
 * When the Tab key is pressed, the layer viewed previously is displayed temporarily
 * Press Shift+Tab to select the layer viewed previously
-* Double click a layer to select the same layer in all images (where possible)
 * Press G to switch the layer being half transparent (on/off)
 * Press S to switch the stack image mode on/off for this image
 * Press Shift+S to switch the stack mode on/off for all images
+* Double click a layer to select the same layer in all images (where possible)
+* Keep the Ctrl button pressed to select multiple layers at once
+* Press Ctrl+A after clicking the image list or layer list selects every item on the list
+* Press the Delete key to delete the currently selected image(s) or layer(s)
+* Press Shift+Delete key to delete the currently selected layer(s) in all images
+* Press F2 to rename the currently selected image(s) or layer(s)
+* Press Ctrl+Z to undo the latest action (and Ctrl+Y to redo it)
 
 ### Image processing
 
@@ -148,11 +164,20 @@ The filter settings work with the same principle as protocol settings, except th
 
 Any results produced by the protocols or counters will appear in the result table, where they can be sorted and edited. You can export the result table as a CSV file, or import them directly into Microsoft Excel, if installed.
 
+#### Working with a large number of files
+
+If hundreds or thousands of files need to be processed, importing them can be slow, use a lot of memory, and be completely unnecessary, if the images do not need to be viewed anymore and processing parameters do not need to be tested either. For cases like this, where you simply want to execute a same filter/protocol for a large number of images, Tonga has a "work on disk" mode (also called "batch" mode). When it is enabled, the images are never imported to the software, until the processing has been started. Therefore, you can not see the images in the user interface, but importing even thousands of images is extremely fast.
+
+The protocol and parameters are selected the same way as in the normal mode. After pressing the "Run for all" button, all the imported files will be processed normally, and the output images will be saved as PNG files to the directory of the original file. The results will appear normally in the result table after the processing is finished. The "work on disk" mode can be enabled from the "work on disk" checkbox in the "General" tab. Please note that it can only be enabled if the image list is currently empty.
+
 #### Hotkeys and tips
 
 * You can click the number of a slider control to change its value
 * Press Ctrl+F to run the filter for the current image ("Run for single")
 * Press Esc during filter or protocol execution to stop the execution
+* You can sort the rows by clicking the column you want to sort by
+* You can also edit the values by double-clicking them
+* Right click the result panel to find an option to clear the current result table
 
 ### General settings
 
@@ -167,11 +192,12 @@ Any results produced by the protocols or counters will appear in the result tabl
   * *Minimum* always selects the lowest value of all the layers for every pixel
 * **Multithreading** uses multiple CPU cores and threads to execute protocols for multiple images. May provide a large speed boost. Has no effect if only one image is processed.
 * **Hardware rendering** uses GPU acceleration for rendering images in the user interface. Typically stack images etc. work faster this way. On some computers the GPU acceleration does not work and graphical glitches may be introduced. In these cases switching this off may help.
-* **Work on disk** enables the batch mode, where the images are never imported to the software, until the processing has been started. Thus, you can not see the images in the user interface. This way, large number of images can be processed at once, without the need to import the data first, saving time and memory. The output images will be saved as PNG files, and the results will appear in the result table normally. This can only be enabled if you have not imported any images yet.
+* **Work on disk** enables the "batch" mode, where the images are never imported to the software, until the processing has been started, saving time and memory. This is especially beneficial for executing a large number of images at once. See the "Working with a large number of files" section from above for details.
 * **Append results** normally, the result table is cleared from old results every time a new protocol with new results is executed. If this is selected, the new results will be appended to the existing result table, if the columns match.
 * **Autoscaling** when 16-bit images (especially microscopy image files with multiple images) are imported, the image may appear black because the whole 16-bit range is displayed. Often, the images need to be scaled for proper viewing. 
   * *None* does no scaling automatically.
   * *Image sets* when importing a file with multiple images, adjusts the scaling so that the differences between the images will stay comparable.
   * *Every image* scales every image separately for optimal viewing. Thus, differences between the images may not be comparable.
 * **Aggressive** sometimes the images may have bright dots etc. affecting the scaling, and most of the data may still not be properly visible. This option ignores such minor areas.
-* **File output** this is the output directory for any files exported from Tonga.
+* **File output** this is the output directory for any files exported from Tonga. It is set automatically when images are imported, if it is empty, but it can be changed anytime.
+* **Create subfolders automatically** when Tonga sets the output directory automatically, the same directory as where the original images are is used by default. With this option, a new folder called "output" will be created in the directory and all the output files will be saved in this folder by default.
