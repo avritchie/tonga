@@ -56,6 +56,7 @@ import mainPackage.JRangeSlider.RangeSliderUI;
 import mainPackage.PanelCreator.ControlReference;
 import mainPackage.PanelCreator.ControlType;
 import mainPackage.Tonga.OS;
+import static mainPackage.Tonga.mainFrame;
 
 /**
  *
@@ -764,12 +765,15 @@ public class TongaFrame extends JFrame {
         contextLayerMenu = new javax.swing.JPopupMenu();
         contLayRename = new javax.swing.JMenuItem();
         contLaySelect = new javax.swing.JMenuItem();
+        contLaySelectAll = new javax.swing.JMenuItem();
         contLayMerge = new javax.swing.JMenuItem();
         contLayDeleteThis = new javax.swing.JMenuItem();
         contLayDeleteAll = new javax.swing.JMenuItem();
         contextImageMenu = new javax.swing.JPopupMenu();
         contImgRename = new javax.swing.JMenuItem();
+        contImgSelectAll = new javax.swing.JMenuItem();
         contImgDelete = new javax.swing.JMenuItem();
+        contImgClear = new javax.swing.JMenuItem();
         contextResultMenu = new javax.swing.JPopupMenu();
         contResClear = new javax.swing.JMenuItem();
         filterMenu = new javax.swing.JPopupMenu();
@@ -1054,6 +1058,15 @@ public class TongaFrame extends JFrame {
         });
         contextLayerMenu.add(contLaySelect);
 
+        contLaySelectAll.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_A, java.awt.event.InputEvent.CTRL_DOWN_MASK));
+        contLaySelectAll.setText("Select all");
+        contLaySelectAll.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                contLaySelectAllActionPerformed(evt);
+            }
+        });
+        contextLayerMenu.add(contLaySelectAll);
+
         contLayMerge.setText("Merge into one");
         contLayMerge.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -1089,6 +1102,15 @@ public class TongaFrame extends JFrame {
         });
         contextImageMenu.add(contImgRename);
 
+        contImgSelectAll.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_A, java.awt.event.InputEvent.CTRL_DOWN_MASK));
+        contImgSelectAll.setText("Select all");
+        contImgSelectAll.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                contImgSelectAllActionPerformed(evt);
+            }
+        });
+        contextImageMenu.add(contImgSelectAll);
+
         contImgDelete.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_DELETE, 0));
         contImgDelete.setText("Delete");
         contImgDelete.addActionListener(new java.awt.event.ActionListener() {
@@ -1097,6 +1119,14 @@ public class TongaFrame extends JFrame {
             }
         });
         contextImageMenu.add(contImgDelete);
+
+        contImgClear.setText("Clear all");
+        contImgClear.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                contImgClearActionPerformed(evt);
+            }
+        });
+        contextImageMenu.add(contImgClear);
 
         contResClear.setText("Clear");
         contResClear.setToolTipText("");
@@ -4243,6 +4273,19 @@ public class TongaFrame extends JFrame {
         }
     }//GEN-LAST:event_menuFileImportMultichannelActionPerformed
 
+    private void contLaySelectAllActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_contLaySelectAllActionPerformed
+        Tonga.selectLayersAll();
+    }//GEN-LAST:event_contLaySelectAllActionPerformed
+
+    private void contImgSelectAllActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_contImgSelectAllActionPerformed
+        Tonga.selectImagesAll();
+    }//GEN-LAST:event_contImgSelectAllActionPerformed
+
+    private void contImgClearActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_contImgClearActionPerformed
+        Tonga.selectImagesAll();
+        Tonga.removeImage();
+    }//GEN-LAST:event_contImgClearActionPerformed
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
     protected javax.swing.JComboBox<String> autoscaleCombo;
     protected javax.swing.JLabel autoscaleLabel;
@@ -4262,13 +4305,16 @@ public class TongaFrame extends JFrame {
     protected javax.swing.JButton btnRunAll2;
     protected javax.swing.JButton btnRunSingle;
     protected javax.swing.JButton btnRunSingle2;
+    protected javax.swing.JMenuItem contImgClear;
     protected javax.swing.JMenuItem contImgDelete;
     protected javax.swing.JMenuItem contImgRename;
+    protected javax.swing.JMenuItem contImgSelectAll;
     protected javax.swing.JMenuItem contLayDeleteAll;
     protected javax.swing.JMenuItem contLayDeleteThis;
     protected javax.swing.JMenuItem contLayMerge;
     protected javax.swing.JMenuItem contLayRename;
     protected javax.swing.JMenuItem contLaySelect;
+    protected javax.swing.JMenuItem contLaySelectAll;
     protected javax.swing.JMenuItem contResClear;
     protected javax.swing.JPopupMenu contextImageMenu;
     protected javax.swing.JPopupMenu contextLayerMenu;

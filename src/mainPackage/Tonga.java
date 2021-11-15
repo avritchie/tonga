@@ -450,6 +450,14 @@ public class Tonga {
         mainFrame.imagesList.setSelectedIndices(i);
     }
 
+    static void selectImagesAll() {
+        mainFrame.imagesList.setSelectionInterval(0, mainFrame.imagesList.getModel().getSize() - 1);
+    }
+
+    static void selectLayersAll() {
+        mainFrame.layersList.setSelectionInterval(0, mainFrame.layersList.getModel().getSize() - 1);
+    }
+
     public static void selectLayer() {
         if (picList.isEmpty()) {
             return;
