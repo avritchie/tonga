@@ -34,7 +34,20 @@ public abstract class Threader {
             try {
                 coreThreads[i].join();
             } catch (InterruptedException ex) {
-                Tonga.catchError(ex, "Waiter thread interrupted.");
+                Tonga.log.info("Multithreaded task abortion request for the task {}.", i, name);
+                for (int t = 0; t < threads; t++) {
+                    if (coreThreads[t].isAlive()) {
+                        coreThreads[t].interrupt();
+                        try {
+                            coreThreads[t].join();
+                        } catch (InterruptedException ex1) {
+                            Tonga.catchError(ex, "Waiter thread interrupted.");
+                        }
+                        Tonga.log.debug("Abortion request sent to thread {}.", t);
+                    } else {
+                        Tonga.log.debug("Thread {} has already finished.", t);
+                    }
+                }
             }
         }
     }

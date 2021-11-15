@@ -197,6 +197,10 @@ public class Loader extends javax.swing.JFrame {
         return majorFailure;
     }
 
+    public boolean hasAborted() {
+        return taskAborted;
+    }
+
     private void resetStatus() {
         taskAborted = false;
         majorFailure = false;

@@ -108,11 +108,12 @@ public abstract class Protocol {
         //max progress after finishing
         Tonga.loader().maxProgress();
         //publish the datas
-        results = collectData(processors);
-        if (results != null) {
-            Counter.publish(results);
-        }
-        /*
+        if (!Tonga.loader().hasAborted()) {
+            results = collectData(processors);
+            if (results != null) {
+                Counter.publish(results);
+            }
+            /*
         if (data != null) {
             Counter.publish(data);
         } else if (!datas.isEmpty()) {
@@ -121,9 +122,10 @@ public abstract class Protocol {
         //reset for the next round
         datas = new ArrayList<>();
         data = null;*/
-        //refresh components
-        if (procOutputImages > 0) {
-            Tonga.publishLayerList();
+            //refresh components
+            if (procOutputImages > 0) {
+                Tonga.publishLayerList();
+            }
         }
     }
 
@@ -153,19 +155,21 @@ public abstract class Protocol {
     }
 
     private void injectAsLayers(ImageData[] processed, int imageId) {
-        if (Settings.settingBatchProcessing()) {
-            for (ImageData image : processed) {
-                String file = Tonga.getLayerList(imageId).get(0).path + "-out-" + image.name.replaceAll("/", "-") + ".png";
-                try {
-                    ImageIO.write(image.toCachedImage(), "png", new File(file));
-                } catch (IOException ex) {
-                    Tonga.catchError(ex, "Unable to write the file " + file);
+        if (!Thread.currentThread().isInterrupted()) {
+            if (Settings.settingBatchProcessing()) {
+                for (ImageData image : processed) {
+                    String file = Tonga.getLayerList(imageId).get(0).path + "-out-" + image.name.replaceAll("/", "-") + ".png";
+                    try {
+                        ImageIO.write(image.toCachedImage(), "png", new File(file));
+                    } catch (IOException ex) {
+                        Tonga.catchError(ex, "Unable to write the file " + file);
+                    }
+                    Tonga.injectNewLayer(new TongaLayer(file, image.name), imageId);
                 }
-                Tonga.injectNewLayer(new TongaLayer(file, image.name), imageId);
-            }
-        } else {
-            for (ImageData image : processed) {
-                Tonga.injectNewLayer(image.toCachedImage(), image.name, imageId);
+            } else {
+                for (ImageData image : processed) {
+                    Tonga.injectNewLayer(image.toCachedImage(), image.name, imageId);
+                }
             }
         }
     }
