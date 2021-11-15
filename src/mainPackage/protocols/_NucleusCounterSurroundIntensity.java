@@ -30,7 +30,7 @@ public class _NucleusCounterSurroundIntensity extends Protocol {
         boolean imgMode = param.toggle[2];
         int radius = param.spinner[0];
 
-        return new ProcessorFast("Nucleus Surroundings", 105) {
+        return new ProcessorFast("Nucleus Surroundings", 162) {
 
             ImageData[] mask;
 
@@ -38,7 +38,7 @@ public class _NucleusCounterSurroundIntensity extends Protocol {
             protected void pixelProcessor() {
                 Protocol nc = Protocol.load(__NucleusMask::new);
                 Protocol asi = Protocol.load(_AreaSurroundIntensity::new);
-                mask = nc.runSilent(sourceImage, new ImageData[]{inImage[0]}, toucherMode, 50, deadMode);
+                mask = nc.runSilent(sourceImage, new ImageData[]{inImage[0]}, toucherMode, deadMode);
                 mask = asi.runSilent(sourceImage, new ImageData[]{mask[0], inImage[1], inImage[0]},
                         COL.BLACK, radius, imgMode);
                 setOutputBy(mask);

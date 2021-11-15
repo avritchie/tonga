@@ -46,9 +46,9 @@ public class __NucleusCounterSelfIntensity extends Protocol {
             protected void pixelProcessor() {
                 Protocol nc = Protocol.load(__NucleusMask::new);
                 Protocol asi = Protocol.load(_AreaStainIntensity::new);
-                mask = nc.runSilent(sourceImage, new ImageData[]{inImage[0]}, toucherMode, 50, deadMode);
+                mask = nc.runSilent(sourceImage, new ImageData[]{inImage[0]}, toucherMode, deadMode);
                 mask = asi.runSilent(sourceImage, new ImageData[]{mask[0], inImage[1], inImage[0]},
-                        COL.BLACK, binMode, thresh, imgMode, false, bgMode);
+                        COL.BLACK, binMode, thresh, imgMode, true, bgMode);
                 setOutputBy(mask);
                 setDatasBy(asi);
             }
