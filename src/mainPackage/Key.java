@@ -106,7 +106,11 @@ public class Key {
         if (Tonga.frame().imagesList.hasFocus()) {
             Tonga.removeImage();
         } else if (Tonga.frame().layersList.hasFocus()) {
-            Tonga.removeLayer();
+            if (keyShift) {
+                Tonga.removeLayers();
+            } else {
+                Tonga.removeLayer();
+            }
         }
     }
 
