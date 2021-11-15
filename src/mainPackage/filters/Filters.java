@@ -70,7 +70,7 @@ public class Filters {
 
     public static FilterFast lcFilter() {
         return new FilterFast("Low-scaled", new ControlReference[]{
-            new ControlReference(RANGE, new Integer[]{0, 255}, "Soft limit%Hard limit")}) {
+            new ControlReference(RANGE, new Integer[]{0, 255}, "Darkest allowed%Brightest allowed")}) {
             @Override
             protected void processor() {
                 Iterate.pixels(this, (int pos) -> {
@@ -87,7 +87,7 @@ public class Filters {
 
     public static FilterFast hcFilter() {
         return new FilterFast("High-scaled", new ControlReference[]{
-            new ControlReference(RANGE, new Integer[]{0, 255}, "Hard limit%Soft limit", 0)}) {
+            new ControlReference(RANGE, new Integer[]{0, 255}, "Darkest allowed%Brightest allowed")}) {
             @Override
             protected void processor() {
                 Iterate.pixels(this, (int pos) -> {
@@ -104,7 +104,7 @@ public class Filters {
 
     public static FilterFast crapCleaner() {
         return new FilterFast("Low-filtered",
-                new ControlReference[]{new ControlReference(SLIDER, new Object[]{0, 10, 100}, "Filter out the darkest % of pixels")}) {
+                new ControlReference[]{new ControlReference(SLIDER, new Object[]{0, 20, 200}, "Filter out the darkest % of pixels")}) {
             @Override
             protected void processor() {
                 double v = param.sliderScaled[0] * 2.55;
@@ -207,7 +207,7 @@ public class Filters {
     }
 
     public static FilterFast popColour() {
-        return new FilterFast("Colour Pop", new ControlReference[]{
+        return new FilterFast("Separated Colour", new ControlReference[]{
             new ControlReference(COLOUR, "Colour to separate")}) {
 
             @Override
@@ -1062,7 +1062,7 @@ public class Filters {
         return new FilterFast("Box Blur",
                 new ControlReference[]{
                     new ControlReference(SPINNER, "Radius (px)", 5),
-                    new ControlReference(TOGGLE, "Black & white")}) {
+                    new ControlReference(TOGGLE, "Process as grayscale (faster)")}) {
             @Override
             protected void processor() {
                 outData.pixels32 = new Blur().box(inData, param.spinner[0], param.toggle[0]);
@@ -1133,7 +1133,7 @@ public class Filters {
         return new FilterFast("Gauss Real",
                 new ControlReference[]{
                     new ControlReference(SPINNER, "Radius (px)", 5),
-                    new ControlReference(TOGGLE, "Black & white")}) {
+                    new ControlReference(TOGGLE, "Process as grayscale (faster)")}) {
             int[] bwIn = null;
             int j, i, rs;
             double r;
@@ -1198,7 +1198,7 @@ public class Filters {
         return new FilterFast("Gauss Approx",
                 new ControlReference[]{
                     new ControlReference(SPINNER, "Radius (px)", 5),
-                    new ControlReference(TOGGLE, "Black & white")}) {
+                    new ControlReference(TOGGLE, "Process as grayscale (faster)")}) {
             @Override
             protected void processor() {
                 outData.pixels32 = new Blur().gauss(inData, param.spinner[0], param.toggle[0]);
