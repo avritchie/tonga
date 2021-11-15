@@ -21,7 +21,6 @@ import static mainPackage.PanelCreator.ControlType.*;
 import static mainPackage.filters.Filter.noParams;
 import mainPackage.morphology.EdgeAnalyzer;
 import mainPackage.morphology.ImageTracer;
-import mainPackage.morphology.ROI;
 import mainPackage.morphology.ROISet;
 import mainPackage.protocols.NucleusEdUCounter;
 import mainPackage.protocols.Protocol;
@@ -258,7 +257,7 @@ public class FiltersPass {
 
     public static FilterFast filterEdgeTouchers() {
         return new FilterFast("Edge toucher filter", new ControlReference[]{
-            new ControlReference(COLOUR, "Background colour", -2)}) {
+            new ControlReference(COLOUR, "Background colour", -2)}, 2) {
 
             @Override
             protected void processor() {
