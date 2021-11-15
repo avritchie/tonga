@@ -50,9 +50,9 @@ public class Wizard extends javax.swing.JFrame {
         entries[0] = new WizardEntry(0, "What do you want to do?", "Task", "Analyze new images", "Quantify pre-processed masks",
                 "Analyze new microscopy images of tissues, cells etc.",
                 "Quantify values from masks which have been created previously.");
-        entries[1] = new WizardEntry(1, "What do you want to measure?", "Measure", "Areas", "Objects",
-                "An area to measure, typically tissues.",
-                "Individual objects to measure, typically cells or organoids.");
+        entries[1] = new WizardEntry(1, "What kind of area of interest is there?", "Measure", "One area", "Many areas",
+                "An area to measure, typically tissue. The area of interest is separated from the background, (such as the tissue area from the lumen), and measurements are made on this area. Therefore, every image produces one measurement.",
+                "Multiple individual areas (=objects) to measure, typically nuclei or organoids. Several areas of interest (such as individual nuclei) are separated from the background, and measurements are made on each one individually. Therefore, every image may produce multiple measurements.");
         entries[2] = new WizardEntry(2, "What kind of microscopy was used?", "Microscopy", "Fluorescence", "Brightfield",
                 "Fluorescence microscopy. Dark background and fluorescent dyes.",
                 "Brightfield microscopy. Light background and histochemical stains.");
