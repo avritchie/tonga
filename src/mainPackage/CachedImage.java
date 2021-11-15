@@ -23,6 +23,7 @@ import java.nio.MappedByteBuffer;
 import java.nio.ShortBuffer;
 import java.nio.channels.ClosedChannelException;
 import java.nio.channels.FileChannel;
+import java.util.NoSuchElementException;
 import java.util.Random;
 import java.util.zip.CRC32;
 import javafx.scene.image.Image;
@@ -117,40 +118,49 @@ public class CachedImage extends BufferedImage {
     }
 
     private static BufferedImage getBufferedImage(File f) throws IOException {
-        ImageInputStream input = ImageIO.createImageInputStream(f);
-        ImageReader reader = ImageIO.getImageReaders(input).next();
-        reader.setInput(input);
-        ImageTypeSpecifier its = reader.getRawImageType(reader.getMinIndex());
-        Tonga.log.debug("Colour type of the image is {}", its.getColorModel().getClass().getSimpleName().replace("ColorModel", ""));
-        BufferedImage bi;
-        if (its.getBitsPerBand(reader.getMinIndex()) == 16) {
-            Tonga.log.debug("The image has 16 bits.");
-            bi = readBufferedImageWithReader(BufferedImage.TYPE_USHORT_GRAY, reader);
-            return bi;
-        } else {
-            switch (its.getSampleModel().getNumBands()) {
-                case 4:
-                    Tonga.log.debug("The image has 4 8-bit channels.");
-                    bi = readBufferedImageWithReader(BufferedImage.TYPE_4BYTE_ABGR, reader);
-                    return bi;
-                case 3:
-                    Tonga.log.debug("The image has 3 8-bit channels.");
-                    bi = readBufferedImageWithReader(BufferedImage.TYPE_3BYTE_BGR, reader);
-                    return forceCorrectFormat(bi);
-                case 1:
-                    if (its.getColorModel().getClass().equals(IndexColorModel.class)) {
-                        Tonga.log.debug("The image is an 8-bit indexed image.");
-                        bi = readBufferedImageWithReader(BufferedImage.TYPE_BYTE_GRAY, reader);
-                        return forceIndexedFormat(bi, (IndexColorModel) its.getColorModel());
-                    } else {
-                        Tonga.log.debug("The image is an 8-bit grayscale image.");
-                        bi = readBufferedImageWithReader(BufferedImage.TYPE_BYTE_GRAY, reader);
+        ImageInputStream input;
+        ImageReader reader;
+        ImageTypeSpecifier its;
+        try {
+            input = ImageIO.createImageInputStream(f);
+            reader = ImageIO.getImageReaders(input).next();
+            reader.setInput(input);
+            its = reader.getRawImageType(reader.getMinIndex());
+            Tonga.log.debug("Colour type of the image is {}", its.getColorModel().getClass().getSimpleName().replace("ColorModel", ""));
+            BufferedImage bi;
+            if (its.getBitsPerBand(reader.getMinIndex()) == 16) {
+                Tonga.log.debug("The image has 16 bits.");
+                bi = readBufferedImageWithReader(BufferedImage.TYPE_USHORT_GRAY, reader);
+                return bi;
+            } else {
+                switch (its.getSampleModel().getNumBands()) {
+                    case 4:
+                        Tonga.log.debug("The image has 4 8-bit channels.");
+                        bi = readBufferedImageWithReader(BufferedImage.TYPE_4BYTE_ABGR, reader);
+                        return bi;
+                    case 3:
+                        Tonga.log.debug("The image has 3 8-bit channels.");
+                        bi = readBufferedImageWithReader(BufferedImage.TYPE_3BYTE_BGR, reader);
                         return forceCorrectFormat(bi);
-                    }
+                    case 1:
+                        if (its.getColorModel().getClass().equals(IndexColorModel.class)) {
+                            Tonga.log.debug("The image is an 8-bit indexed image.");
+                            bi = readBufferedImageWithReader(BufferedImage.TYPE_BYTE_GRAY, reader);
+                            return forceIndexedFormat(bi, (IndexColorModel) its.getColorModel());
+                        } else {
+                            Tonga.log.debug("The image is an 8-bit grayscale image.");
+                            bi = readBufferedImageWithReader(BufferedImage.TYPE_BYTE_GRAY, reader);
+                            return forceCorrectFormat(bi);
+                        }
+                }
             }
+            Tonga.log.warn("Unsupported color format: {}", its.getColorModel());
+            return null;
+        } catch (NoSuchElementException ex) {
+            //no available reader for this format
+            Tonga.log.warn("Unsupported image format: {}", f.toString());
+            return null;
         }
-        Tonga.log.warn("Unsupported color format: {}", its.getColorModel());
-        return null;
     }
 
     private static BufferedImage readBufferedImageWithReader(int type, ImageReader reader) throws IOException {
