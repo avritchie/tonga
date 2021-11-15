@@ -101,7 +101,7 @@ public abstract class Counter {
     }
 
     public static void publish(TableData tableData) {
-        if (tableData == null) {
+        if (tableData == null || tableData.rows.isEmpty()) {
             Tonga.log.warn("Attempted to publish an empty data table.");
             return;
         }
