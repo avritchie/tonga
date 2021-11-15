@@ -310,12 +310,15 @@ public class TongaFrame extends JFrame {
 
     public void updateSavePath(File file) {
         if (filePathField.getText().isEmpty()) {
-            String out = Tonga.formatPath(file.getParent() + "\\output");
+            String out = Tonga.formatPath(file.getParent());
             String out2 = out;
-            int ind = 0;
-            while (new File(out2).exists()) {
-                out2 = out + ind;
-                ind++;
+            if (Settings.settingSubfolders()) {
+                out += "\\output";
+                int ind = 0;
+                while (new File(out2).exists()) {
+                    out2 = out + ind;
+                    ind++;
+                }
             }
             filePathField.setText(out2);
         }
