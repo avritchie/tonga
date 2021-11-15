@@ -219,8 +219,10 @@ public class Filters {
                     double tb = RGB.brightness(in32[pos]) / 255.;
                     double ts = RGB.saturation(in32[pos]);
                     double th = RGB.hue(in32[pos]) * 360;
-                    int v = (int) (255 * Math.max(Math.min(1.0, Math.abs(sb - tb)), Math.max(
-                            sb * Math.abs(ss - ts), sb * Math.abs(Math.abs(Math.abs(sh - 180) - Math.abs(th - 180)) / 180.))));
+                    double db = Math.min(1.0, Math.abs(sb - tb));
+                    double ds = sb * Math.abs(ss - ts);
+                    double dh = sb * (GEO.getDirDifference(sh, th) / 180.);
+                    int v = (int) (255 * Math.max(db, Math.max(ds, dh)));
                     out32[pos] = RGB.argb(255 - v);
                 });
             }
