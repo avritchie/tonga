@@ -2,7 +2,6 @@ package mainPackage;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Objects;
 
 public class TongaImage {
@@ -15,6 +14,11 @@ public class TongaImage {
     public TongaImage(File file, String name) throws Exception {
         this(file);
         layerList.add(new TongaLayer(IO.getImageFromFile(file), name));
+    }
+
+    public TongaImage(String file, String name) throws Exception {
+        this(new File(file));
+        layerList.add(new TongaLayer(file, name));
     }
 
     public TongaImage() {

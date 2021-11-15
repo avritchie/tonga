@@ -13,8 +13,8 @@ public abstract class Exporter {
 
     File file;
 
-    public boolean export(String n, String ext) {
-        n = legalName(n);
+    public boolean exportFile(String n, String ext) {
+        n = IO.legalName(n);
         file = new File(Tonga.formatPath(Tonga.frame().filePathField.getText() + "\\" + n + "." + ext));
         Tonga.log.info("Exporting {} to {}", n, file);
         int id = 0;
@@ -28,7 +28,7 @@ public abstract class Exporter {
         try {
             write();
         } catch (IOException ex) {
-            Tonga.catchError(ex, "There were error(s) during the file export");
+            Tonga.catchError(ex, "There were error(s) during the file export.");
             return false;
         }
         if (Settings.settingOpenAfterExport()) {
@@ -42,12 +42,4 @@ public abstract class Exporter {
     }
 
     abstract void write() throws IOException;
-
-    private String legalName(String n) {
-        n = n.replaceAll("[^a-zA-Z0-9]", "");
-        if (n.isEmpty()) {
-            n = "null";
-        }
-        return n;
-    }
 }

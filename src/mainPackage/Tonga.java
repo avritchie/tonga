@@ -266,7 +266,7 @@ public class Tonga {
             public void action(List<File> files) {
                 IO.importImage(files);
             }
-        }.initDnD(dndPanel, "Import new image with multiple layers");
+        }.initDnD(dndPanel, "Import a new image with multiple layers");
         new fileDragAndDrop() {
             @Override
             public void action(List<File> files) {
@@ -277,9 +277,9 @@ public class Tonga {
             @Override
             public void drop(DropTargetDropEvent evt) {
                 try {
+                    evt.acceptDrop(DnDConstants.ACTION_LINK);
+                    List<File> files = (List<File>) evt.getTransferable().getTransferData(DataFlavor.javaFileListFlavor);
                     if (imageListModel.size() != 0) {
-                        evt.acceptDrop(DnDConstants.ACTION_LINK);
-                        List<File> files = (List<File>) evt.getTransferable().getTransferData(DataFlavor.javaFileListFlavor);
                         if (files.size() % imageListModel.size() == 0 && getImageIndexes().length == 1) {
                             IO.importLayers(files, true);
                             evt.dropComplete(true);
@@ -288,8 +288,10 @@ public class Tonga {
                             evt.dropComplete(true);
                         }
                     } else {
-                        evt.rejectDrop();
-                        setStatus("Cannot import layers because there are no images. Please drag and drop into the main panel.");
+                        IO.importMultichannel(files);
+                        evt.dropComplete(true);
+                        //evt.rejectDrop();
+                        //setStatus("Cannot import layers because there are no images. Please drag and drop into the main panel.");
                     }
                 } catch (UnsupportedFlavorException | IOException ex) {
                     catchError(ex, "Drag and drop failure.");
@@ -302,8 +304,10 @@ public class Tonga {
                     dtde.acceptDrag(DnDConstants.ACTION_LINK);
                     setStatus("Import new layer(s) to existing images");
                 } else {
-                    dtde.rejectDrag();
-                    setStatus("Cannot import layers because there are no images. Please drag and drop into the main panel.");
+                    dtde.acceptDrag(DnDConstants.ACTION_LINK);
+                    setStatus("Import multiple new images with multiple layers each.");
+                    //dtde.rejectDrag();
+                    //setStatus("Cannot import layers because there are no images. Please drag and drop into the main panel.");
                 }
             }
         });
@@ -1209,7 +1213,7 @@ public class Tonga {
             }
             System.exit(1);
         } else {
-            setStatus("<font color=\"red\">Unexpected " + ex.getClass().getSimpleName() + " occured.</font> " + (msg != null ? msg + " " : "") + "See the log for details.");
+            setStatus("<font color=\"red\">Unexpected " + ex.getClass().getSimpleName() + " occured.</font> " + (msg != null ? msg + " " : "") + "See the log for details (Tonga -> Logs from the menu bar).");
         }
     }
 }

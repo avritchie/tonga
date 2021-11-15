@@ -158,15 +158,6 @@
                 <Property name="text" type="java.lang.String" value="Import images"/>
               </Properties>
               <SubComponents>
-                <MenuItem class="javax.swing.JMenuItem" name="menuFileImportStacks">
-                  <Properties>
-                    <Property name="text" type="java.lang.String" value="Stack image(s)"/>
-                    <Property name="toolTipText" type="java.lang.String" value="Import stack image files which have a fixed layer structure and might contain multiple images and layers."/>
-                  </Properties>
-                  <Events>
-                    <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="menuFileImportStacksActionPerformed"/>
-                  </Events>
-                </MenuItem>
                 <MenuItem class="javax.swing.JMenuItem" name="menuFileImportImages">
                   <Properties>
                     <Property name="accelerator" type="javax.swing.KeyStroke" editor="org.netbeans.modules.form.editors.KeyStrokeEditor">
@@ -213,6 +204,26 @@
                   </Properties>
                   <Events>
                     <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="menuFileImportLayersThisActionPerformed"/>
+                  </Events>
+                </MenuItem>
+                <MenuItem class="javax.swing.JPopupMenu$Separator" name="jSeparator18">
+                </MenuItem>
+                <MenuItem class="javax.swing.JMenuItem" name="menuFileImportStacks">
+                  <Properties>
+                    <Property name="text" type="java.lang.String" value="Stack image(s)"/>
+                    <Property name="toolTipText" type="java.lang.String" value="Import stack image files which have a fixed layer structure and might contain multiple images and layers."/>
+                  </Properties>
+                  <Events>
+                    <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="menuFileImportStacksActionPerformed"/>
+                  </Events>
+                </MenuItem>
+                <MenuItem class="javax.swing.JMenuItem" name="menuFileImportMultichannel">
+                  <Properties>
+                    <Property name="text" type="java.lang.String" value="A multichannel image set"/>
+                    <Property name="toolTipText" type="java.lang.String" value="Import an image set with multiple channels, where each channel is a separate file. Multiple new images with x amount of layers can be imported at once."/>
+                  </Properties>
+                  <Events>
+                    <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="menuFileImportMultichannelActionPerformed"/>
                   </Events>
                 </MenuItem>
               </SubComponents>
@@ -588,8 +599,8 @@
                 </MenuItem>
                 <MenuItem class="javax.swing.JMenuItem" name="jMenuItem35">
                   <Properties>
-                    <Property name="text" type="java.lang.String" value="Pop colour to a new layer"/>
-                    <Property name="toolTipText" type="java.lang.String" value="Extract the strength of a certain colour to a new grayscale image"/>
+                    <Property name="text" type="java.lang.String" value="Extract a colour to a new layer"/>
+                    <Property name="toolTipText" type="java.lang.String" value="Extract a certain colour from an image and place it into a new layer (as grayscale). The more similar a pixel colour will be to the selected colour, the brighter it will appear in the new layer."/>
                   </Properties>
                   <Events>
                     <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jMenuItem35ActionPerformed"/>
@@ -620,8 +631,8 @@
                   <SubComponents>
                     <MenuItem class="javax.swing.JMenuItem" name="menuLoCut">
                       <Properties>
-                        <Property name="text" type="java.lang.String" value="Scale darkness to range"/>
-                        <Property name="toolTipText" type="java.lang.String" value="Scale the image to a new range, stretching dark areas"/>
+                        <Property name="text" type="java.lang.String" value="Limit between a range by scaling darkness"/>
+                        <Property name="toolTipText" type="java.lang.String" value="Set a minimum darkness and maximum brightness limit. Dark values will be scaled smoothly, bright values will be discarded without scaling."/>
                       </Properties>
                       <Events>
                         <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="menuLoCutActionPerformed"/>
@@ -629,8 +640,8 @@
                     </MenuItem>
                     <MenuItem class="javax.swing.JMenuItem" name="menuHiCut">
                       <Properties>
-                        <Property name="text" type="java.lang.String" value="Scale brightness to range"/>
-                        <Property name="toolTipText" type="java.lang.String" value="Scale the image to a new range, stretching bright areas"/>
+                        <Property name="text" type="java.lang.String" value="Limit between a range by scaling brightness"/>
+                        <Property name="toolTipText" type="java.lang.String" value="Set a minimum darkness and maximum brightness limit. Bright values will be scaled smoothly, dark values will be discarded without scaling."/>
                       </Properties>
                       <Events>
                         <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="menuHiCutActionPerformed"/>
@@ -661,7 +672,7 @@
                     <MenuItem class="javax.swing.JMenuItem" name="menuLoCutNoise">
                       <Properties>
                         <Property name="text" type="java.lang.String" value="Limit the darkest values"/>
-                        <Property name="toolTipText" type="java.lang.String" value="Make almost black areas black"/>
+                        <Property name="toolTipText" type="java.lang.String" value="Make almost black areas black by removing % of the darkest values"/>
                       </Properties>
                       <Events>
                         <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="menuLoCutNoiseActionPerformed"/>
@@ -670,7 +681,7 @@
                     <MenuItem class="javax.swing.JMenuItem" name="menuHiCutPeak">
                       <Properties>
                         <Property name="text" type="java.lang.String" value="Limit the highest values"/>
-                        <Property name="toolTipText" type="java.lang.String" value="Make brightest areas less bright"/>
+                        <Property name="toolTipText" type="java.lang.String" value="Make brightest areas less bright by removing % of the brightest values"/>
                       </Properties>
                       <Events>
                         <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="menuHiCutPeakActionPerformed"/>
@@ -748,7 +759,7 @@
                 <MenuItem class="javax.swing.JMenuItem" name="jMenuItem59">
                   <Properties>
                     <Property name="text" type="java.lang.String" value="Gaussian blur (precise)"/>
-                    <Property name="toolTipText" type="java.lang.String" value="Precise gaussian blurring without approximation (please note this is &lt;font color=&quot;red&quot;&gt;slow&lt;/font&gt;)"/>
+                    <Property name="toolTipText" type="java.lang.String" value="Precise Gaussian blurring without approximation (please note this is &lt;font color=&quot;red&quot;&gt;slow&lt;/font&gt;)"/>
                   </Properties>
                   <Events>
                     <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jMenuItem59ActionPerformed"/>
@@ -815,6 +826,7 @@
                 <MenuItem class="javax.swing.JMenuItem" name="jMenuItem13">
                   <Properties>
                     <Property name="text" type="java.lang.String" value="Global Double Threshold"/>
+                    <Property name="toolTipText" type="java.lang.String" value="Global thresholding for the image brightness, with three levels instead of two"/>
                   </Properties>
                   <Events>
                     <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jMenuItem13ActionPerformed"/>
@@ -870,8 +882,8 @@
                 </MenuItem>
                 <MenuItem class="javax.swing.JMenuItem" name="menuDoG">
                   <Properties>
-                    <Property name="text" type="java.lang.String" value="Difference of gaussians"/>
-                    <Property name="toolTipText" type="java.lang.String" value="Two gaussian passes are substracted from each other to produce a detection for objects"/>
+                    <Property name="text" type="java.lang.String" value="Difference of Gaussians"/>
+                    <Property name="toolTipText" type="java.lang.String" value="Two Gaussian blurs are substracted from each other to produce a detection for objects"/>
                   </Properties>
                   <Events>
                     <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="menuDoGActionPerformed"/>
@@ -1231,6 +1243,15 @@
               <Properties>
                 <Property name="text" type="java.lang.String" value="For tissues"/>
               </Properties>
+              <SubComponents>
+                <MenuItem class="javax.swing.JMenuItem" name="jMenuItem87">
+                  <Properties>
+                    <Property name="text" type="java.lang.String" value="Coming in the future!"/>
+                    <Property name="toolTipText" type="java.lang.String" value="Stay tuned!"/>
+                    <Property name="enabled" type="boolean" value="false"/>
+                  </Properties>
+                </MenuItem>
+              </SubComponents>
             </Menu>
             <Menu class="javax.swing.JMenu" name="jMenu7">
               <Properties>
@@ -1384,6 +1405,7 @@
             <Menu class="javax.swing.JMenu" name="jMenu2">
               <Properties>
                 <Property name="text" type="java.lang.String" value="Untested"/>
+                <Property name="toolTipText" type="java.lang.String" value="Potentially unstable protocols in development"/>
               </Properties>
               <SubComponents>
                 <Menu class="javax.swing.JMenu" name="jMenu4">
@@ -1489,49 +1511,42 @@
             <Property name="text" type="java.lang.String" value="Counting"/>
           </Properties>
           <SubComponents>
-            <Menu class="javax.swing.JMenu" name="jMenu1">
+            <MenuItem class="javax.swing.JMenuItem" name="menuCountRGB">
               <Properties>
-                <Property name="text" type="java.lang.String" value="Old"/>
+                <Property name="text" type="java.lang.String" value="Count the pixels of basic colours"/>
+                <Property name="toolTipText" type="java.lang.String" value="Count the number of pixels for each basic colour (Red, Green, Blue, Cyan, Magenta, Yellow, Black, White)"/>
               </Properties>
-              <SubComponents>
-                <MenuItem class="javax.swing.JMenuItem" name="menuCountRGB">
-                  <Properties>
-                    <Property name="text" type="java.lang.String" value="Count RGBCMYKBW pixels"/>
-                    <Property name="toolTipText" type="java.lang.String" value="Count the number of pixels for each colour"/>
-                  </Properties>
-                  <Events>
-                    <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="menuCountRGBActionPerformed"/>
-                  </Events>
-                </MenuItem>
-                <MenuItem class="javax.swing.JMenuItem" name="jMenuItem65">
-                  <Properties>
-                    <Property name="text" type="java.lang.String" value="Count red channel intensity on area"/>
-                    <Property name="toolTipText" type="java.lang.String" value="Count the non-black area and the intensity of the red channel in it"/>
-                  </Properties>
-                  <Events>
-                    <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jMenuItem65ActionPerformed"/>
-                  </Events>
-                </MenuItem>
-                <MenuItem class="javax.swing.JMenuItem" name="jMenuItem55">
-                  <Properties>
-                    <Property name="text" type="java.lang.String" value="Count background intensity on area"/>
-                    <Property name="toolTipText" type="java.lang.String" value="Count the background (non-white) area and the intensity in it"/>
-                  </Properties>
-                  <Events>
-                    <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jMenuItem55ActionPerformed"/>
-                  </Events>
-                </MenuItem>
-                <MenuItem class="javax.swing.JMenuItem" name="jMenuItem28">
-                  <Properties>
-                    <Property name="text" type="java.lang.String" value="Histogram distributions"/>
-                    <Property name="toolTipText" type="java.lang.String" value="Count the number of pixels for each channel for a histogram"/>
-                  </Properties>
-                  <Events>
-                    <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jMenuItem28ActionPerformed"/>
-                  </Events>
-                </MenuItem>
-              </SubComponents>
-            </Menu>
+              <Events>
+                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="menuCountRGBActionPerformed"/>
+              </Events>
+            </MenuItem>
+            <MenuItem class="javax.swing.JMenuItem" name="jMenuItem65">
+              <Properties>
+                <Property name="text" type="java.lang.String" value="Count red channel intensity on area"/>
+                <Property name="toolTipText" type="java.lang.String" value="Count the non-black area and the intensity of the red channel in it"/>
+              </Properties>
+              <Events>
+                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jMenuItem65ActionPerformed"/>
+              </Events>
+            </MenuItem>
+            <MenuItem class="javax.swing.JMenuItem" name="jMenuItem55">
+              <Properties>
+                <Property name="text" type="java.lang.String" value="Count background intensity on area"/>
+                <Property name="toolTipText" type="java.lang.String" value="Count the background (non-white) area and the intensity in it"/>
+              </Properties>
+              <Events>
+                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jMenuItem55ActionPerformed"/>
+              </Events>
+            </MenuItem>
+            <MenuItem class="javax.swing.JMenuItem" name="jMenuItem28">
+              <Properties>
+                <Property name="text" type="java.lang.String" value="Histogram distributions"/>
+                <Property name="toolTipText" type="java.lang.String" value="Count the number of pixels for each channel for a histogram"/>
+              </Properties>
+              <Events>
+                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jMenuItem28ActionPerformed"/>
+              </Events>
+            </MenuItem>
           </SubComponents>
         </Menu>
         <Menu class="javax.swing.JMenu" name="menuDebug">
@@ -2071,7 +2086,7 @@
                 <DimensionLayout dim="1">
                   <Group type="103" groupAlignment="0" attributes="0">
                       <Group type="102" alignment="0" attributes="0">
-                          <Component id="imageZoom" pref="412" max="32767" attributes="0"/>
+                          <Component id="imageZoom" pref="413" max="32767" attributes="0"/>
                           <EmptySpace type="unrelated" max="-2" attributes="0"/>
                           <Component id="tabbedPane" min="-2" pref="435" max="-2" attributes="0"/>
                       </Group>
@@ -2168,7 +2183,7 @@
                                       <Group type="103" groupAlignment="0" attributes="0">
                                           <Component id="protocolName" max="32767" attributes="0"/>
                                           <Component id="protocolNameSeparator" alignment="0" max="32767" attributes="0"/>
-                                          <Component id="protocolSettingsPanel" alignment="0" pref="411" max="32767" attributes="0"/>
+                                          <Component id="protocolSettingsPanel" alignment="0" pref="419" max="32767" attributes="0"/>
                                           <Component id="protocolSettingsSeparator" alignment="1" max="32767" attributes="0"/>
                                           <Group type="102" alignment="1" attributes="0">
                                               <Component id="btnRunSingle" max="32767" attributes="0"/>
@@ -2295,7 +2310,7 @@
                               <Group type="102" attributes="0">
                                   <EmptySpace max="-2" attributes="0"/>
                                   <Group type="103" groupAlignment="0" attributes="0">
-                                      <Component id="filterSettingsPanel" alignment="0" pref="411" max="32767" attributes="0"/>
+                                      <Component id="filterSettingsPanel" alignment="0" pref="419" max="32767" attributes="0"/>
                                       <Component id="filterSettingsSeparator" alignment="1" max="32767" attributes="0"/>
                                       <Group type="102" alignment="1" attributes="0">
                                           <Component id="btnRunSingle2" max="32767" attributes="0"/>
@@ -2444,10 +2459,10 @@
                               <Group type="102" attributes="0">
                                   <EmptySpace max="-2" attributes="0"/>
                                   <Group type="103" groupAlignment="0" attributes="0">
-                                      <Component id="protocolPanel3" pref="411" max="32767" attributes="0"/>
-                                      <Component id="protocolPanel4" pref="411" max="32767" attributes="0"/>
-                                      <Component id="protocolPanel1" alignment="0" pref="411" max="32767" attributes="0"/>
-                                      <Component id="protocolPanel5" alignment="0" pref="411" max="32767" attributes="0"/>
+                                      <Component id="settingPanelLayer" pref="419" max="32767" attributes="0"/>
+                                      <Component id="settingPanelGeneral" pref="419" max="32767" attributes="0"/>
+                                      <Component id="settingPanelScale" alignment="0" pref="419" max="32767" attributes="0"/>
+                                      <Component id="settingPanelFile" alignment="0" pref="419" max="32767" attributes="0"/>
                                   </Group>
                                   <EmptySpace max="-2" attributes="0"/>
                               </Group>
@@ -2457,30 +2472,35 @@
                           <Group type="103" groupAlignment="0" attributes="0">
                               <Group type="102" alignment="0" attributes="0">
                                   <EmptySpace max="-2" attributes="0"/>
-                                  <Component id="protocolPanel3" min="-2" pref="97" max="-2" attributes="0"/>
+                                  <Component id="settingPanelLayer" min="-2" pref="97" max="-2" attributes="0"/>
                                   <EmptySpace min="-2" pref="5" max="-2" attributes="0"/>
-                                  <Component id="protocolPanel4" min="-2" pref="88" max="-2" attributes="0"/>
+                                  <Component id="settingPanelGeneral" min="-2" pref="88" max="-2" attributes="0"/>
                                   <EmptySpace min="-2" pref="5" max="-2" attributes="0"/>
-                                  <Component id="protocolPanel1" min="-2" pref="65" max="-2" attributes="0"/>
+                                  <Component id="settingPanelScale" min="-2" pref="65" max="-2" attributes="0"/>
                                   <EmptySpace min="-2" pref="5" max="-2" attributes="0"/>
-                                  <Component id="protocolPanel5" min="-2" pref="124" max="-2" attributes="0"/>
+                                  <Component id="settingPanelFile" min="-2" pref="124" max="-2" attributes="0"/>
                                   <EmptySpace max="-2" attributes="0"/>
                               </Group>
                           </Group>
                         </DimensionLayout>
                       </Layout>
                       <SubComponents>
-                        <Container class="javax.swing.JPanel" name="protocolPanel3">
+                        <Container class="javax.swing.JPanel" name="settingPanelLayer">
                           <Properties>
                             <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
                               <Border info="org.netbeans.modules.form.compat2.border.TitledBorderInfo">
-                                <TitledBorder title="Layer settings"/>
+                                <TitledBorder title="&lt;User Code&gt;">
+                                  <Connection PropertyName="titleX" code="&quot;Layer settings&quot;" type="code"/>
+                                </TitledBorder>
                               </Border>
                             </Property>
                             <Property name="preferredSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
                               <Dimension value="[370, 252]"/>
                             </Property>
                           </Properties>
+                          <AccessibilityProperties>
+                            <Property name="AccessibleContext.accessibleName" type="java.lang.String" value=""/>
+                          </AccessibilityProperties>
 
                           <Layout>
                             <DimensionLayout dim="0">
@@ -2578,11 +2598,13 @@
                             </Component>
                           </SubComponents>
                         </Container>
-                        <Container class="javax.swing.JPanel" name="protocolPanel4">
+                        <Container class="javax.swing.JPanel" name="settingPanelGeneral">
                           <Properties>
                             <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
                               <Border info="org.netbeans.modules.form.compat2.border.TitledBorderInfo">
-                                <TitledBorder title="General settings"/>
+                                <TitledBorder title="&lt;User Code&gt;">
+                                  <Connection PropertyName="titleX" code="&quot;General settings&quot;" type="code"/>
+                                </TitledBorder>
                               </Border>
                             </Property>
                             <Property name="preferredSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
@@ -2602,7 +2624,7 @@
                                       <EmptySpace type="unrelated" max="32767" attributes="0"/>
                                       <Group type="103" groupAlignment="0" attributes="0">
                                           <Component id="boxSettingResultsAppend" min="-2" pref="160" max="-2" attributes="0"/>
-                                          <Component id="boxSettingNoRAM" pref="196" max="32767" attributes="0"/>
+                                          <Component id="boxSettingBatch" pref="196" max="32767" attributes="0"/>
                                       </Group>
                                       <EmptySpace max="-2" attributes="0"/>
                                   </Group>
@@ -2613,7 +2635,7 @@
                                   <Group type="102" alignment="0" attributes="0">
                                       <EmptySpace min="0" pref="0" max="-2" attributes="0"/>
                                       <Group type="103" groupAlignment="3" attributes="0">
-                                          <Component id="boxSettingNoRAM" alignment="3" min="-2" max="-2" attributes="0"/>
+                                          <Component id="boxSettingBatch" alignment="3" min="-2" max="-2" attributes="0"/>
                                           <Component id="boxSettingMultiThreading" alignment="3" min="-2" max="-2" attributes="0"/>
                                       </Group>
                                       <EmptySpace min="0" pref="0" max="-2" attributes="0"/>
@@ -2621,13 +2643,13 @@
                                           <Component id="boxSettingHWRendering" alignment="3" min="-2" max="-2" attributes="0"/>
                                           <Component id="boxSettingResultsAppend" alignment="3" min="-2" max="-2" attributes="0"/>
                                       </Group>
-                                      <EmptySpace pref="18" max="32767" attributes="0"/>
+                                      <EmptySpace pref="20" max="32767" attributes="0"/>
                                   </Group>
                               </Group>
                             </DimensionLayout>
                           </Layout>
                           <SubComponents>
-                            <Component class="javax.swing.JCheckBox" name="boxSettingNoRAM">
+                            <Component class="javax.swing.JCheckBox" name="boxSettingBatch">
                               <Properties>
                                 <Property name="text" type="java.lang.String" value="work on disk"/>
                                 <Property name="toolTipText" type="java.lang.String" value="Only a file location pointer is imported - images are imported upon running a filter/protocol and the result is saved on disk."/>
@@ -2642,7 +2664,7 @@
                                 </Property>
                               </Properties>
                               <Events>
-                                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="boxSettingNoRAMActionPerformed"/>
+                                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="boxSettingBatchActionPerformed"/>
                               </Events>
                             </Component>
                             <Component class="javax.swing.JCheckBox" name="boxSettingResultsAppend">
@@ -2697,11 +2719,13 @@
                             </Component>
                           </SubComponents>
                         </Container>
-                        <Container class="javax.swing.JPanel" name="protocolPanel1">
+                        <Container class="javax.swing.JPanel" name="settingPanelScale">
                           <Properties>
                             <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
                               <Border info="org.netbeans.modules.form.compat2.border.TitledBorderInfo">
-                                <TitledBorder title="Autoscaling settings"/>
+                                <TitledBorder title="&lt;User Code&gt;">
+                                  <Connection PropertyName="titleX" code="&quot;Autoscaling settings&quot;" type="code"/>
+                                </TitledBorder>
                               </Border>
                             </Property>
                             <Property name="preferredSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
@@ -2731,7 +2755,7 @@
                                           <Component id="autoscaleCombo" alignment="3" min="-2" max="-2" attributes="0"/>
                                           <Component id="boxSettingAutoscale1" alignment="3" min="-2" max="-2" attributes="0"/>
                                       </Group>
-                                      <EmptySpace min="0" pref="18" max="32767" attributes="0"/>
+                                      <EmptySpace min="0" pref="20" max="32767" attributes="0"/>
                                   </Group>
                               </Group>
                             </DimensionLayout>
@@ -2773,11 +2797,13 @@
                             </Component>
                           </SubComponents>
                         </Container>
-                        <Container class="javax.swing.JPanel" name="protocolPanel5">
+                        <Container class="javax.swing.JPanel" name="settingPanelFile">
                           <Properties>
                             <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
                               <Border info="org.netbeans.modules.form.compat2.border.TitledBorderInfo">
-                                <TitledBorder title="File output"/>
+                                <TitledBorder title="&lt;User Code&gt;">
+                                  <Connection PropertyName="titleX" code="&quot;File output&quot;" type="code"/>
+                                </TitledBorder>
                               </Border>
                             </Property>
                             <Property name="preferredSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
@@ -2814,7 +2840,7 @@
                                       <Component id="boxSettingOpenAfter" min="-2" max="-2" attributes="0"/>
                                       <EmptySpace min="-2" pref="3" max="-2" attributes="0"/>
                                       <Component id="boxSettingSubfolder" min="-2" max="-2" attributes="0"/>
-                                      <EmptySpace pref="9" max="32767" attributes="0"/>
+                                      <EmptySpace pref="18" max="32767" attributes="0"/>
                                   </Group>
                               </Group>
                             </DimensionLayout>
@@ -2843,7 +2869,6 @@
                               <Properties>
                                 <Property name="selected" type="boolean" value="true"/>
                                 <Property name="text" type="java.lang.String" value="create subfolders automatically"/>
-                                <Property name="enabled" type="boolean" value="false"/>
                               </Properties>
                             </Component>
                           </SubComponents>
@@ -2984,8 +3009,8 @@
                                           <EmptySpace min="-2" max="-2" attributes="0"/>
                                           <Component id="histoAdjAutoAll" max="32767" attributes="0"/>
                                       </Group>
-                                      <Component id="histoImg" alignment="0" pref="411" max="32767" attributes="0"/>
-                                      <Component id="histoSliderPanel" alignment="1" pref="411" max="32767" attributes="0"/>
+                                      <Component id="histoImg" alignment="0" pref="419" max="32767" attributes="0"/>
+                                      <Component id="histoSliderPanel" alignment="1" pref="419" max="32767" attributes="0"/>
                                   </Group>
                                   <EmptySpace max="-2" attributes="0"/>
                               </Group>

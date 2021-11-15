@@ -50,6 +50,7 @@ import javax.swing.PopupFactory;
 import javax.swing.SwingUtilities;
 import javax.swing.ToolTipManager;
 import javax.swing.event.ChangeEvent;
+import javax.swing.event.MenuListener;
 import javax.swing.table.DefaultTableModel;
 import mainPackage.JRangeSlider.RangeSliderUI;
 import mainPackage.PanelCreator.ControlReference;
@@ -311,11 +312,11 @@ public class TongaFrame extends JFrame {
         if (filePathField.getText().isEmpty()) {
             String out = Tonga.formatPath(file.getParent() + "\\output");
             String out2 = out;
-            int ind = 0;
-            while (new File(out2).exists()) {
-                out2 = out + ind;
-                ind++;
-            }
+                int ind = 0;
+                while (new File(out2).exists()) {
+                    out2 = out + ind;
+                    ind++;
+                }
             filePathField.setText(out2);
         }
     }
@@ -340,7 +341,7 @@ public class TongaFrame extends JFrame {
 
     public void enableDisableControls(ArrayList<TongaImage> picList) {
         boolean disabled = picList.isEmpty();
-        boxSettingNoRAM.setEnabled(disabled);
+        boxSettingBatch.setEnabled(disabled);
     }
 
     static void sliderToolTip(MouseEvent evt) {
@@ -804,21 +805,21 @@ public class TongaFrame extends JFrame {
         filterCombo = new javax.swing.JComboBox<>();
         browseFilter = new javax.swing.JButton();
         generalPanel = new javax.swing.JPanel();
-        protocolPanel3 = new javax.swing.JPanel();
+        settingPanelLayer = new javax.swing.JPanel();
         boxSettingAlphaBG = new javax.swing.JCheckBox();
         layerBackColor = new javax.swing.JButton();
         stackCombo = new javax.swing.JComboBox<>();
         jLabel2 = new javax.swing.JLabel();
-        protocolPanel4 = new javax.swing.JPanel();
-        boxSettingNoRAM = new javax.swing.JCheckBox();
+        settingPanelGeneral = new javax.swing.JPanel();
+        boxSettingBatch = new javax.swing.JCheckBox();
         boxSettingResultsAppend = new javax.swing.JCheckBox();
         boxSettingMultiThreading = new javax.swing.JCheckBox();
         boxSettingHWRendering = new javax.swing.JCheckBox();
-        protocolPanel1 = new javax.swing.JPanel();
+        settingPanelScale = new javax.swing.JPanel();
         autoscaleLabel = new javax.swing.JLabel();
         autoscaleCombo = new javax.swing.JComboBox<>();
         boxSettingAutoscale1 = new javax.swing.JCheckBox();
-        protocolPanel5 = new javax.swing.JPanel();
+        settingPanelFile = new javax.swing.JPanel();
         filePathField = new javax.swing.JTextField();
         browseButton = new javax.swing.JButton();
         boxSettingOpenAfter = new javax.swing.JCheckBox();
@@ -847,11 +848,13 @@ public class TongaFrame extends JFrame {
         menuFileRedo = new javax.swing.JMenuItem();
         jSeparator3 = new javax.swing.JPopupMenu.Separator();
         menuImport = new javax.swing.JMenu();
-        menuFileImportStacks = new javax.swing.JMenuItem();
         menuFileImportImages = new javax.swing.JMenuItem();
         menuFileImportImage = new javax.swing.JMenuItem();
         menuFileImportLayers = new javax.swing.JMenuItem();
         menuFileImportLayersThis = new javax.swing.JMenuItem();
+        jSeparator18 = new javax.swing.JPopupMenu.Separator();
+        menuFileImportStacks = new javax.swing.JMenuItem();
+        menuFileImportMultichannel = new javax.swing.JMenuItem();
         menuExport = new javax.swing.JMenu();
         menuExportSingle = new javax.swing.JMenu();
         menuExportSingleLayer = new javax.swing.JMenuItem();
@@ -973,6 +976,7 @@ public class TongaFrame extends JFrame {
         menuProtocolWizard = new javax.swing.JMenuItem();
         jSeparator2 = new javax.swing.JPopupMenu.Separator();
         jMenu3 = new javax.swing.JMenu();
+        jMenuItem87 = new javax.swing.JMenuItem();
         jMenu7 = new javax.swing.JMenu();
         jMenuItem18 = new javax.swing.JMenuItem();
         jMenuItem14 = new javax.swing.JMenuItem();
@@ -1006,7 +1010,6 @@ public class TongaFrame extends JFrame {
         jMenuItem44 = new javax.swing.JMenuItem();
         jMenuItem37 = new javax.swing.JMenuItem();
         menuCounting = new javax.swing.JMenu();
-        jMenu1 = new javax.swing.JMenu();
         menuCountRGB = new javax.swing.JMenuItem();
         jMenuItem65 = new javax.swing.JMenuItem();
         jMenuItem55 = new javax.swing.JMenuItem();
@@ -1138,7 +1141,7 @@ public class TongaFrame extends JFrame {
 
         rSplitPane.setRightComponent(jScrollPane4);
 
-        jPanel1.setBorder(javax.swing.BorderFactory.createTitledBorder(javax.swing.BorderFactory.createEtchedBorder(), "Images"));
+        jPanel1.setBorder(javax.swing.BorderFactory.createTitledBorder(javax.swing.BorderFactory.createEtchedBorder(), null));
         jPanel1.setMinimumSize(new java.awt.Dimension(100, 200));
         jPanel1.setPreferredSize(new java.awt.Dimension(100, 400));
 
@@ -1166,7 +1169,7 @@ public class TongaFrame extends JFrame {
 
         rSplitPane.setLeftComponent(jPanel1);
 
-        jPanel2.setBorder(javax.swing.BorderFactory.createTitledBorder(javax.swing.BorderFactory.createEtchedBorder(), "Layers"));
+        jPanel2.setBorder(javax.swing.BorderFactory.createTitledBorder(javax.swing.BorderFactory.createEtchedBorder(), null));
         jPanel2.setMinimumSize(new java.awt.Dimension(100, 200));
         jPanel2.setPreferredSize(new java.awt.Dimension(100, 200));
 
@@ -1319,7 +1322,7 @@ public class TongaFrame extends JFrame {
                 .addGroup(protocolHeadPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(protocolName, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(protocolNameSeparator)
-                    .addComponent(protocolSettingsPanel, javax.swing.GroupLayout.DEFAULT_SIZE, 411, Short.MAX_VALUE)
+                    .addComponent(protocolSettingsPanel, javax.swing.GroupLayout.DEFAULT_SIZE, 419, Short.MAX_VALUE)
                     .addComponent(protocolSettingsSeparator, javax.swing.GroupLayout.Alignment.TRAILING)
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, protocolHeadPanelLayout.createSequentialGroup()
                         .addComponent(btnRunSingle, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
@@ -1419,7 +1422,7 @@ public class TongaFrame extends JFrame {
             .addGroup(filterPanelLayout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(filterPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(filterSettingsPanel, javax.swing.GroupLayout.DEFAULT_SIZE, 411, Short.MAX_VALUE)
+                    .addComponent(filterSettingsPanel, javax.swing.GroupLayout.DEFAULT_SIZE, 419, Short.MAX_VALUE)
                     .addComponent(filterSettingsSeparator, javax.swing.GroupLayout.Alignment.TRAILING)
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, filterPanelLayout.createSequentialGroup()
                         .addComponent(btnRunSingle2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
@@ -1454,8 +1457,8 @@ public class TongaFrame extends JFrame {
 
         tabbedPane.addTab("Filter", filterPanel);
 
-        protocolPanel3.setBorder(javax.swing.BorderFactory.createTitledBorder("Layer settings"));
-        protocolPanel3.setPreferredSize(new java.awt.Dimension(370, 252));
+        settingPanelLayer.setBorder(javax.swing.BorderFactory.createTitledBorder("Layer settings"));
+        settingPanelLayer.setPreferredSize(new java.awt.Dimension(370, 252));
 
         boxSettingAlphaBG.setText("alpha background");
         boxSettingAlphaBG.addActionListener(new java.awt.event.ActionListener() {
@@ -1483,47 +1486,47 @@ public class TongaFrame extends JFrame {
         jLabel2.setText("Stack mode");
         jLabel2.setToolTipText("");
 
-        javax.swing.GroupLayout protocolPanel3Layout = new javax.swing.GroupLayout(protocolPanel3);
-        protocolPanel3.setLayout(protocolPanel3Layout);
-        protocolPanel3Layout.setHorizontalGroup(
-            protocolPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(protocolPanel3Layout.createSequentialGroup()
+        javax.swing.GroupLayout settingPanelLayerLayout = new javax.swing.GroupLayout(settingPanelLayer);
+        settingPanelLayer.setLayout(settingPanelLayerLayout);
+        settingPanelLayerLayout.setHorizontalGroup(
+            settingPanelLayerLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(settingPanelLayerLayout.createSequentialGroup()
                 .addGap(2, 2, 2)
-                .addGroup(protocolPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(protocolPanel3Layout.createSequentialGroup()
+                .addGroup(settingPanelLayerLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(settingPanelLayerLayout.createSequentialGroup()
                         .addGap(21, 21, 21)
                         .addComponent(jLabel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                     .addComponent(boxSettingAlphaBG, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addGroup(protocolPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                .addGroup(settingPanelLayerLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(layerBackColor, javax.swing.GroupLayout.PREFERRED_SIZE, 161, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(stackCombo, javax.swing.GroupLayout.PREFERRED_SIZE, 161, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addContainerGap())
         );
-        protocolPanel3Layout.setVerticalGroup(
-            protocolPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, protocolPanel3Layout.createSequentialGroup()
-                .addGroup(protocolPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+        settingPanelLayerLayout.setVerticalGroup(
+            settingPanelLayerLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, settingPanelLayerLayout.createSequentialGroup()
+                .addGroup(settingPanelLayerLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
                     .addComponent(layerBackColor, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
                     .addComponent(boxSettingAlphaBG, javax.swing.GroupLayout.PREFERRED_SIZE, 20, Short.MAX_VALUE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(protocolPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                .addGroup(settingPanelLayerLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel2, javax.swing.GroupLayout.PREFERRED_SIZE, 20, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(stackCombo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(30, 30, 30))
         );
 
-        protocolPanel4.setBorder(javax.swing.BorderFactory.createTitledBorder("General settings"));
-        protocolPanel4.setPreferredSize(new java.awt.Dimension(370, 252));
+        settingPanelGeneral.setBorder(javax.swing.BorderFactory.createTitledBorder("General settings"));
+        settingPanelGeneral.setPreferredSize(new java.awt.Dimension(370, 252));
 
-        boxSettingNoRAM.setText("work on disk");
-        boxSettingNoRAM.setToolTipText("Only a file location pointer is imported - images are imported upon running a filter/protocol and the result is saved on disk.");
-        boxSettingNoRAM.setMaximumSize(new java.awt.Dimension(200, 23));
-        boxSettingNoRAM.setMinimumSize(new java.awt.Dimension(80, 23));
-        boxSettingNoRAM.setPreferredSize(new java.awt.Dimension(120, 23));
-        boxSettingNoRAM.addActionListener(new java.awt.event.ActionListener() {
+        boxSettingBatch.setText("work on disk");
+        boxSettingBatch.setToolTipText("Only a file location pointer is imported - images are imported upon running a filter/protocol and the result is saved on disk.");
+        boxSettingBatch.setMaximumSize(new java.awt.Dimension(200, 23));
+        boxSettingBatch.setMinimumSize(new java.awt.Dimension(80, 23));
+        boxSettingBatch.setPreferredSize(new java.awt.Dimension(120, 23));
+        boxSettingBatch.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                boxSettingNoRAMActionPerformed(evt);
+                boxSettingBatchActionPerformed(evt);
             }
         });
 
@@ -1552,37 +1555,37 @@ public class TongaFrame extends JFrame {
             }
         });
 
-        javax.swing.GroupLayout protocolPanel4Layout = new javax.swing.GroupLayout(protocolPanel4);
-        protocolPanel4.setLayout(protocolPanel4Layout);
-        protocolPanel4Layout.setHorizontalGroup(
-            protocolPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(protocolPanel4Layout.createSequentialGroup()
+        javax.swing.GroupLayout settingPanelGeneralLayout = new javax.swing.GroupLayout(settingPanelGeneral);
+        settingPanelGeneral.setLayout(settingPanelGeneralLayout);
+        settingPanelGeneralLayout.setHorizontalGroup(
+            settingPanelGeneralLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(settingPanelGeneralLayout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(protocolPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                .addGroup(settingPanelGeneralLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                     .addComponent(boxSettingMultiThreading, javax.swing.GroupLayout.DEFAULT_SIZE, 196, Short.MAX_VALUE)
                     .addComponent(boxSettingHWRendering, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addGroup(protocolPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                .addGroup(settingPanelGeneralLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(boxSettingResultsAppend, javax.swing.GroupLayout.PREFERRED_SIZE, 160, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(boxSettingNoRAM, javax.swing.GroupLayout.DEFAULT_SIZE, 196, Short.MAX_VALUE))
+                    .addComponent(boxSettingBatch, javax.swing.GroupLayout.DEFAULT_SIZE, 196, Short.MAX_VALUE))
                 .addContainerGap())
         );
-        protocolPanel4Layout.setVerticalGroup(
-            protocolPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(protocolPanel4Layout.createSequentialGroup()
+        settingPanelGeneralLayout.setVerticalGroup(
+            settingPanelGeneralLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(settingPanelGeneralLayout.createSequentialGroup()
                 .addGap(0, 0, 0)
-                .addGroup(protocolPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(boxSettingNoRAM, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGroup(settingPanelGeneralLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(boxSettingBatch, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(boxSettingMultiThreading, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(0, 0, 0)
-                .addGroup(protocolPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                .addGroup(settingPanelGeneralLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(boxSettingHWRendering, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(boxSettingResultsAppend, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(18, Short.MAX_VALUE))
+                .addContainerGap(20, Short.MAX_VALUE))
         );
 
-        protocolPanel1.setBorder(javax.swing.BorderFactory.createTitledBorder("Autoscaling settings"));
-        protocolPanel1.setPreferredSize(new java.awt.Dimension(370, 252));
+        settingPanelScale.setBorder(javax.swing.BorderFactory.createTitledBorder("Autoscaling settings"));
+        settingPanelScale.setPreferredSize(new java.awt.Dimension(370, 252));
 
         autoscaleLabel.setText("Autoscaling");
         autoscaleLabel.setToolTipText("Autoscale >8-bit images automatically based on the histogram. Please note that this is only a visual change.");
@@ -1600,11 +1603,11 @@ public class TongaFrame extends JFrame {
         boxSettingAutoscale1.setText("aggressive");
         boxSettingAutoscale1.setToolTipText("The autoscaling has adaptation to ignore single bright dots etc.");
 
-        javax.swing.GroupLayout protocolPanel1Layout = new javax.swing.GroupLayout(protocolPanel1);
-        protocolPanel1.setLayout(protocolPanel1Layout);
-        protocolPanel1Layout.setHorizontalGroup(
-            protocolPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(protocolPanel1Layout.createSequentialGroup()
+        javax.swing.GroupLayout settingPanelScaleLayout = new javax.swing.GroupLayout(settingPanelScale);
+        settingPanelScale.setLayout(settingPanelScaleLayout);
+        settingPanelScaleLayout.setHorizontalGroup(
+            settingPanelScaleLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(settingPanelScaleLayout.createSequentialGroup()
                 .addContainerGap()
                 .addComponent(autoscaleLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 78, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
@@ -1613,18 +1616,18 @@ public class TongaFrame extends JFrame {
                 .addComponent(boxSettingAutoscale1, javax.swing.GroupLayout.PREFERRED_SIZE, 107, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap())
         );
-        protocolPanel1Layout.setVerticalGroup(
-            protocolPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(protocolPanel1Layout.createSequentialGroup()
-                .addGroup(protocolPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+        settingPanelScaleLayout.setVerticalGroup(
+            settingPanelScaleLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(settingPanelScaleLayout.createSequentialGroup()
+                .addGroup(settingPanelScaleLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(autoscaleLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 20, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(autoscaleCombo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(boxSettingAutoscale1))
-                .addGap(0, 18, Short.MAX_VALUE))
+                .addGap(0, 20, Short.MAX_VALUE))
         );
 
-        protocolPanel5.setBorder(javax.swing.BorderFactory.createTitledBorder("File output"));
-        protocolPanel5.setPreferredSize(new java.awt.Dimension(370, 252));
+        settingPanelFile.setBorder(javax.swing.BorderFactory.createTitledBorder("File output"));
+        settingPanelFile.setPreferredSize(new java.awt.Dimension(370, 252));
 
         browseButton.setText("Browse...");
         browseButton.addActionListener(new java.awt.event.ActionListener() {
@@ -1638,34 +1641,33 @@ public class TongaFrame extends JFrame {
 
         boxSettingSubfolder.setSelected(true);
         boxSettingSubfolder.setText("create subfolders automatically");
-        boxSettingSubfolder.setEnabled(false);
 
-        javax.swing.GroupLayout protocolPanel5Layout = new javax.swing.GroupLayout(protocolPanel5);
-        protocolPanel5.setLayout(protocolPanel5Layout);
-        protocolPanel5Layout.setHorizontalGroup(
-            protocolPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(protocolPanel5Layout.createSequentialGroup()
+        javax.swing.GroupLayout settingPanelFileLayout = new javax.swing.GroupLayout(settingPanelFile);
+        settingPanelFile.setLayout(settingPanelFileLayout);
+        settingPanelFileLayout.setHorizontalGroup(
+            settingPanelFileLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(settingPanelFileLayout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(protocolPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                .addGroup(settingPanelFileLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(boxSettingOpenAfter, javax.swing.GroupLayout.DEFAULT_SIZE, 387, Short.MAX_VALUE)
-                    .addGroup(protocolPanel5Layout.createSequentialGroup()
+                    .addGroup(settingPanelFileLayout.createSequentialGroup()
                         .addComponent(filePathField)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(browseButton))
                     .addComponent(boxSettingSubfolder, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addContainerGap())
         );
-        protocolPanel5Layout.setVerticalGroup(
-            protocolPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(protocolPanel5Layout.createSequentialGroup()
-                .addGroup(protocolPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+        settingPanelFileLayout.setVerticalGroup(
+            settingPanelFileLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(settingPanelFileLayout.createSequentialGroup()
+                .addGroup(settingPanelFileLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(filePathField, javax.swing.GroupLayout.PREFERRED_SIZE, 28, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(browseButton))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(boxSettingOpenAfter)
                 .addGap(3, 3, 3)
                 .addComponent(boxSettingSubfolder)
-                .addContainerGap(9, Short.MAX_VALUE))
+                .addContainerGap(18, Short.MAX_VALUE))
         );
 
         javax.swing.GroupLayout generalPanelLayout = new javax.swing.GroupLayout(generalPanel);
@@ -1675,25 +1677,27 @@ public class TongaFrame extends JFrame {
             .addGroup(generalPanelLayout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(generalPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(protocolPanel3, javax.swing.GroupLayout.DEFAULT_SIZE, 411, Short.MAX_VALUE)
-                    .addComponent(protocolPanel4, javax.swing.GroupLayout.DEFAULT_SIZE, 411, Short.MAX_VALUE)
-                    .addComponent(protocolPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, 411, Short.MAX_VALUE)
-                    .addComponent(protocolPanel5, javax.swing.GroupLayout.DEFAULT_SIZE, 411, Short.MAX_VALUE))
+                    .addComponent(settingPanelLayer, javax.swing.GroupLayout.DEFAULT_SIZE, 419, Short.MAX_VALUE)
+                    .addComponent(settingPanelGeneral, javax.swing.GroupLayout.DEFAULT_SIZE, 419, Short.MAX_VALUE)
+                    .addComponent(settingPanelScale, javax.swing.GroupLayout.DEFAULT_SIZE, 419, Short.MAX_VALUE)
+                    .addComponent(settingPanelFile, javax.swing.GroupLayout.DEFAULT_SIZE, 419, Short.MAX_VALUE))
                 .addContainerGap())
         );
         generalPanelLayout.setVerticalGroup(
             generalPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(generalPanelLayout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(protocolPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, 97, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(settingPanelLayer, javax.swing.GroupLayout.PREFERRED_SIZE, 97, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(5, 5, 5)
-                .addComponent(protocolPanel4, javax.swing.GroupLayout.PREFERRED_SIZE, 88, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(settingPanelGeneral, javax.swing.GroupLayout.PREFERRED_SIZE, 88, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(5, 5, 5)
-                .addComponent(protocolPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, 65, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(settingPanelScale, javax.swing.GroupLayout.PREFERRED_SIZE, 65, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(5, 5, 5)
-                .addComponent(protocolPanel5, javax.swing.GroupLayout.PREFERRED_SIZE, 124, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(settingPanelFile, javax.swing.GroupLayout.PREFERRED_SIZE, 124, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap())
         );
+
+        settingPanelLayer.getAccessibleContext().setAccessibleName("");
 
         tabbedPane.addTab("General", generalPanel);
 
@@ -1843,8 +1847,8 @@ public class TongaFrame extends JFrame {
                         .addComponent(histoAdjAutoSingle, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(histoAdjAutoAll, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                    .addComponent(histoImg, javax.swing.GroupLayout.DEFAULT_SIZE, 411, Short.MAX_VALUE)
-                    .addComponent(histoSliderPanel, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 411, Short.MAX_VALUE))
+                    .addComponent(histoImg, javax.swing.GroupLayout.DEFAULT_SIZE, 419, Short.MAX_VALUE)
+                    .addComponent(histoSliderPanel, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 419, Short.MAX_VALUE))
                 .addContainerGap())
         );
         histogramPanelLayout.setVerticalGroup(
@@ -1879,7 +1883,7 @@ public class TongaFrame extends JFrame {
         leftPanelLayout.setVerticalGroup(
             leftPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(leftPanelLayout.createSequentialGroup()
-                .addComponent(imageZoom, javax.swing.GroupLayout.DEFAULT_SIZE, 412, Short.MAX_VALUE)
+                .addComponent(imageZoom, javax.swing.GroupLayout.DEFAULT_SIZE, 413, Short.MAX_VALUE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(tabbedPane, javax.swing.GroupLayout.PREFERRED_SIZE, 435, javax.swing.GroupLayout.PREFERRED_SIZE))
         );
@@ -1948,15 +1952,6 @@ public class TongaFrame extends JFrame {
 
         menuImport.setText("Import images");
 
-        menuFileImportStacks.setText("Stack image(s)");
-        menuFileImportStacks.setToolTipText("Import stack image files which have a fixed layer structure and might contain multiple images and layers.");
-        menuFileImportStacks.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                menuFileImportStacksActionPerformed(evt);
-            }
-        });
-        menuImport.add(menuFileImportStacks);
-
         menuFileImportImages.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_O, java.awt.event.InputEvent.CTRL_DOWN_MASK));
         menuFileImportImages.setText("As new images");
         menuFileImportImages.setToolTipText("Import new images with one layer each. Each file will become a new image with only one layer.");
@@ -1996,6 +1991,25 @@ public class TongaFrame extends JFrame {
             }
         });
         menuImport.add(menuFileImportLayersThis);
+        menuImport.add(jSeparator18);
+
+        menuFileImportStacks.setText("Stack image(s)");
+        menuFileImportStacks.setToolTipText("Import stack image files which have a fixed layer structure and might contain multiple images and layers.");
+        menuFileImportStacks.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                menuFileImportStacksActionPerformed(evt);
+            }
+        });
+        menuImport.add(menuFileImportStacks);
+
+        menuFileImportMultichannel.setText("A multichannel image set");
+        menuFileImportMultichannel.setToolTipText("Import an image set with multiple channels, where each channel is a separate file. Multiple new images with x amount of layers can be imported at once.");
+        menuFileImportMultichannel.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                menuFileImportMultichannelActionPerformed(evt);
+            }
+        });
+        menuImport.add(menuFileImportMultichannel);
 
         menuFile.add(menuImport);
 
@@ -2322,8 +2336,8 @@ public class TongaFrame extends JFrame {
         });
         jMenu12.add(menuProtocolCopyMask);
 
-        jMenuItem35.setText("Pop colour to a new layer");
-        jMenuItem35.setToolTipText("Extract the strength of a certain colour to a new grayscale image");
+        jMenuItem35.setText("Extract a colour to a new layer");
+        jMenuItem35.setToolTipText("Extract a certain colour from an image and place it into a new layer (as grayscale). The more similar a pixel colour will be to the selected colour, the brighter it will appear in the new layer.");
         jMenuItem35.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jMenuItem35ActionPerformed(evt);
@@ -2348,8 +2362,8 @@ public class TongaFrame extends JFrame {
         jMenu23.setText("High/low-speficic scaling");
         jMenu23.setToolTipText("");
 
-        menuLoCut.setText("Scale darkness to range");
-        menuLoCut.setToolTipText("Scale the image to a new range, stretching dark areas");
+        menuLoCut.setText("Limit between a range by scaling darkness");
+        menuLoCut.setToolTipText("Set a minimum darkness and maximum brightness limit. Dark values will be scaled smoothly, bright values will be discarded without scaling.");
         menuLoCut.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 menuLoCutActionPerformed(evt);
@@ -2357,8 +2371,8 @@ public class TongaFrame extends JFrame {
         });
         jMenu23.add(menuLoCut);
 
-        menuHiCut.setText("Scale brightness to range");
-        menuHiCut.setToolTipText("Scale the image to a new range, stretching bright areas");
+        menuHiCut.setText("Limit between a range by scaling brightness");
+        menuHiCut.setToolTipText("Set a minimum darkness and maximum brightness limit. Bright values will be scaled smoothly, dark values will be discarded without scaling.");
         menuHiCut.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 menuHiCutActionPerformed(evt);
@@ -2387,7 +2401,7 @@ public class TongaFrame extends JFrame {
         jMenu23.add(jSeparator11);
 
         menuLoCutNoise.setText("Limit the darkest values");
-        menuLoCutNoise.setToolTipText("Make almost black areas black");
+        menuLoCutNoise.setToolTipText("Make almost black areas black by removing % of the darkest values");
         menuLoCutNoise.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 menuLoCutNoiseActionPerformed(evt);
@@ -2396,7 +2410,7 @@ public class TongaFrame extends JFrame {
         jMenu23.add(menuLoCutNoise);
 
         menuHiCutPeak.setText("Limit the highest values");
-        menuHiCutPeak.setToolTipText("Make brightest areas less bright");
+        menuHiCutPeak.setToolTipText("Make brightest areas less bright by removing % of the brightest values");
         menuHiCutPeak.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 menuHiCutPeakActionPerformed(evt);
@@ -2467,7 +2481,7 @@ public class TongaFrame extends JFrame {
         jMenu14.add(jMenuItem64);
 
         jMenuItem59.setText("Gaussian blur (precise)");
-        jMenuItem59.setToolTipText("Precise gaussian blurring without approximation (please note this is <font color=\"red\">slow</font>)");
+        jMenuItem59.setToolTipText("Precise Gaussian blurring without approximation (please note this is <font color=\"red\">slow</font>)");
         jMenuItem59.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jMenuItem59ActionPerformed(evt);
@@ -2528,6 +2542,7 @@ public class TongaFrame extends JFrame {
         jMenu15.add(jMenuItem26);
 
         jMenuItem13.setText("Global Double Threshold");
+        jMenuItem13.setToolTipText("Global thresholding for the image brightness, with three levels instead of two");
         jMenuItem13.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jMenuItem13ActionPerformed(evt);
@@ -2578,8 +2593,8 @@ public class TongaFrame extends JFrame {
         jMenu11.add(jMenuItem50);
         jMenu11.add(jSeparator14);
 
-        menuDoG.setText("Difference of gaussians");
-        menuDoG.setToolTipText("Two gaussian passes are substracted from each other to produce a detection for objects");
+        menuDoG.setText("Difference of Gaussians");
+        menuDoG.setToolTipText("Two Gaussian blurs are substracted from each other to produce a detection for objects");
         menuDoG.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 menuDoGActionPerformed(evt);
@@ -2909,6 +2924,12 @@ public class TongaFrame extends JFrame {
         menuProtocols.add(jSeparator2);
 
         jMenu3.setText("For tissues");
+
+        jMenuItem87.setText("Coming in the future!");
+        jMenuItem87.setToolTipText("Stay tuned!");
+        jMenuItem87.setEnabled(false);
+        jMenu3.add(jMenuItem87);
+
         menuProtocols.add(jMenu3);
 
         jMenu7.setText("For nuclei");
@@ -3048,6 +3069,7 @@ public class TongaFrame extends JFrame {
         menuProtocols.add(jMenu8);
 
         jMenu2.setText("Untested");
+        jMenu2.setToolTipText("Potentially unstable protocols in development");
 
         jMenu4.setText("Experiment image analysis");
 
@@ -3143,16 +3165,14 @@ public class TongaFrame extends JFrame {
 
         menuCounting.setText("Counting");
 
-        jMenu1.setText("Old");
-
-        menuCountRGB.setText("Count RGBCMYKBW pixels");
-        menuCountRGB.setToolTipText("Count the number of pixels for each colour");
+        menuCountRGB.setText("Count the pixels of basic colours");
+        menuCountRGB.setToolTipText("Count the number of pixels for each basic colour (Red, Green, Blue, Cyan, Magenta, Yellow, Black, White)");
         menuCountRGB.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 menuCountRGBActionPerformed(evt);
             }
         });
-        jMenu1.add(menuCountRGB);
+        menuCounting.add(menuCountRGB);
 
         jMenuItem65.setText("Count red channel intensity on area");
         jMenuItem65.setToolTipText("Count the non-black area and the intensity of the red channel in it");
@@ -3161,7 +3181,7 @@ public class TongaFrame extends JFrame {
                 jMenuItem65ActionPerformed(evt);
             }
         });
-        jMenu1.add(jMenuItem65);
+        menuCounting.add(jMenuItem65);
 
         jMenuItem55.setText("Count background intensity on area");
         jMenuItem55.setToolTipText("Count the background (non-white) area and the intensity in it");
@@ -3170,7 +3190,7 @@ public class TongaFrame extends JFrame {
                 jMenuItem55ActionPerformed(evt);
             }
         });
-        jMenu1.add(jMenuItem55);
+        menuCounting.add(jMenuItem55);
 
         jMenuItem28.setText("Histogram distributions");
         jMenuItem28.setToolTipText("Count the number of pixels for each channel for a histogram");
@@ -3179,9 +3199,7 @@ public class TongaFrame extends JFrame {
                 jMenuItem28ActionPerformed(evt);
             }
         });
-        jMenu1.add(jMenuItem28);
-
-        menuCounting.add(jMenu1);
+        menuCounting.add(jMenuItem28);
 
         menuBar.add(menuCounting);
 
@@ -3915,10 +3933,10 @@ public class TongaFrame extends JFrame {
         Settings.setAutoscale();
     }//GEN-LAST:event_autoscaleComboActionPerformed
 
-    private void boxSettingNoRAMActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_boxSettingNoRAMActionPerformed
+    private void boxSettingBatchActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_boxSettingBatchActionPerformed
         UndoRedo.clear();
         refresh();
-    }//GEN-LAST:event_boxSettingNoRAMActionPerformed
+    }//GEN-LAST:event_boxSettingBatchActionPerformed
 
     private void jMenuItem62ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem62ActionPerformed
         launchFilter(Filters::swapColour, evt);
@@ -4087,7 +4105,7 @@ public class TongaFrame extends JFrame {
     }//GEN-LAST:event_jMenuItem5ActionPerformed
 
     private void jMenuItem6ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem6ActionPerformed
-        System.out.println(actionPanel.getSize());
+        //
     }//GEN-LAST:event_jMenuItem6ActionPerformed
 
     private void jMenuItem11ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem11ActionPerformed
@@ -4215,15 +4233,22 @@ public class TongaFrame extends JFrame {
         launchProtocol(BrightRemover::new, evt);
     }//GEN-LAST:event_jMenuItem86ActionPerformed
 
+    private void menuFileImportMultichannelActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_menuFileImportMultichannelActionPerformed
+        File[] files = IO.getFile(System.getProperty("user.dir"));
+        if (files != null) {
+            IO.importMultichannel(Arrays.asList(files));
+        }
+    }//GEN-LAST:event_menuFileImportMultichannelActionPerformed
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
     protected javax.swing.JComboBox<String> autoscaleCombo;
     protected javax.swing.JLabel autoscaleLabel;
     protected javax.swing.JLabel bleftLabel;
     public javax.swing.JCheckBox boxSettingAlphaBG;
     protected javax.swing.JCheckBox boxSettingAutoscale1;
+    protected javax.swing.JCheckBox boxSettingBatch;
     protected javax.swing.JCheckBox boxSettingHWRendering;
     protected javax.swing.JCheckBox boxSettingMultiThreading;
-    protected javax.swing.JCheckBox boxSettingNoRAM;
     protected javax.swing.JCheckBox boxSettingOpenAfter;
     protected javax.swing.JCheckBox boxSettingResultsAppend;
     protected javax.swing.JCheckBox boxSettingSubfolder;
@@ -4275,7 +4300,6 @@ public class TongaFrame extends JFrame {
     protected javax.swing.JCheckBoxMenuItem jCheckBoxMenuItem1;
     protected javax.swing.JLabel jLabel2;
     protected javax.swing.JList<String> jList4;
-    protected javax.swing.JMenu jMenu1;
     protected javax.swing.JMenu jMenu10;
     protected javax.swing.JMenu jMenu11;
     protected javax.swing.JMenu jMenu12;
@@ -4385,6 +4409,7 @@ public class TongaFrame extends JFrame {
     protected javax.swing.JMenuItem jMenuItem84;
     protected javax.swing.JMenuItem jMenuItem85;
     protected javax.swing.JMenuItem jMenuItem86;
+    protected javax.swing.JMenuItem jMenuItem87;
     protected javax.swing.JMenuItem jMenuItem9;
     protected javax.swing.JPanel jPanel1;
     protected javax.swing.JPanel jPanel2;
@@ -4401,6 +4426,7 @@ public class TongaFrame extends JFrame {
     protected javax.swing.JPopupMenu.Separator jSeparator15;
     protected javax.swing.JPopupMenu.Separator jSeparator16;
     protected javax.swing.JPopupMenu.Separator jSeparator17;
+    protected javax.swing.JPopupMenu.Separator jSeparator18;
     protected javax.swing.JPopupMenu.Separator jSeparator2;
     protected javax.swing.JPopupMenu.Separator jSeparator3;
     protected javax.swing.JSeparator jSeparator4;
@@ -4438,6 +4464,7 @@ public class TongaFrame extends JFrame {
     protected javax.swing.JMenuItem menuFileImportImages;
     protected javax.swing.JMenuItem menuFileImportLayers;
     protected javax.swing.JMenuItem menuFileImportLayersThis;
+    protected javax.swing.JMenuItem menuFileImportMultichannel;
     protected javax.swing.JMenuItem menuFileImportStacks;
     protected javax.swing.JMenuItem menuFileRedo;
     protected javax.swing.JMenuItem menuFileUndo;
@@ -4477,15 +4504,15 @@ public class TongaFrame extends JFrame {
     public javax.swing.JLabel protocolName;
     protected javax.swing.JSeparator protocolNameSeparator;
     protected javax.swing.JPanel protocolPanel;
-    protected javax.swing.JPanel protocolPanel1;
-    protected javax.swing.JPanel protocolPanel3;
-    protected javax.swing.JPanel protocolPanel4;
-    protected javax.swing.JPanel protocolPanel5;
     protected javax.swing.JPanel protocolSettingsPanel;
     protected javax.swing.JSeparator protocolSettingsSeparator;
     protected javax.swing.JSplitPane rSplitPane;
     public javax.swing.JTable resultTable;
     protected javax.swing.JPanel resultsPanel;
+    protected javax.swing.JPanel settingPanelFile;
+    protected javax.swing.JPanel settingPanelGeneral;
+    protected javax.swing.JPanel settingPanelLayer;
+    protected javax.swing.JPanel settingPanelScale;
     protected javax.swing.JComboBox<String> stackCombo;
     protected javax.swing.JToggleButton stackToggle;
     public javax.swing.JTabbedPane tabbedPane;

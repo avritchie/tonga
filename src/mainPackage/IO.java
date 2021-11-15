@@ -1,11 +1,13 @@
 package mainPackage;
 
+import java.awt.Component;
+import java.awt.Dimension;
+import java.awt.FlowLayout;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.nio.channels.ClosedChannelException;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Date;
@@ -13,11 +15,18 @@ import java.util.List;
 import java.util.concurrent.Semaphore;
 import javafx.application.Platform;
 import javax.imageio.ImageIO;
+import javax.swing.BoxLayout;
+import javax.swing.ButtonGroup;
 import javax.swing.JFileChooser;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JRadioButton;
 import javax.swing.JTable;
+import javax.swing.JTextField;
 import javax.swing.table.TableModel;
 import loci.common.services.ServiceException;
 import loci.formats.FormatException;
+import static mainPackage.Tonga.mainFrame;
 import static mainPackage.Tonga.picList;
 
 public class IO {
@@ -75,7 +84,7 @@ public class IO {
         }
     }
 
-    private static boolean importStack(File file) throws IOException, FormatException, ServiceException {
+    protected static boolean importStack(File file) throws IOException, FormatException, ServiceException {
         if (Settings.settingBatchProcessing()) {
             Tonga.setStatus("Stacked images cannot be opened in the batch-mode since the contents may vary.");
         } else {
@@ -87,6 +96,44 @@ public class IO {
     }
 
     public static void importStacks(List<File> files) {
+        if (Settings.settingBatchProcessing()) {
+            Tonga.setStatus("Stacked images cannot be opened in the batch-mode since the contents may vary.");
+        } else {
+            new Importer() {
+                int count;
+
+                @Override
+                void iterate() {
+                    count = picList.size();
+                    for (int i = 0; i < files.size(); i++) {
+                        file = files.get(i);
+                        readFile();
+                    }
+                }
+
+                @Override
+                void read() throws IOException, FormatException, ServiceException, FileNotFoundException {
+                    throw new FormatException("The file could not be imported as a stack image.");
+                }
+
+                @Override
+                void readBatch() throws Exception {
+                    throw new FormatException("Attempted to import stacks in the batch mode.");
+                }
+
+                @Override
+                boolean readStack() throws IOException, FormatException, ServiceException {
+                    return importStack(file);
+                }
+
+                @Override
+                String message() {
+                    count = picList.size() - count;
+                    return "Imported image file(s) containing a total of " + count + " new images";
+                }
+            }.importFile(files);
+        }
+        /*
         if (Settings.settingBatchProcessing()) {
             Tonga.setStatus("Stacked images cannot be opened in the batch-mode since the contents may vary.");
         } else {
@@ -126,10 +173,69 @@ public class IO {
             }
             );
             Tonga.bootThread(thread, "Importer", false, true);
-        }
+        }*/
     }
 
     public static void importLayers(List<File> files, boolean toAllImages) {
+        new Importer() {
+            int imgEnts;
+            int[] imgIds;
+            int imgId;
+            int mod;
+
+            @Override
+            void iterate() {
+                if (toAllImages) {
+                    // all images get new layers
+                    imgEnts = Tonga.imageListModel.size();
+                    imgIds = new int[imgEnts];
+                    for (int i = 0; i < imgEnts; i++) {
+                        imgIds[i] = i;
+                    }
+                } else {
+                    // only selected images get new layers
+                    imgEnts = Tonga.getImageIndexes().length;
+                    imgIds = Tonga.getImageIndexes();
+                }
+                if (files.size() % imgEnts == 0) {
+                    mod = files.size() / imgEnts;
+                    for (int i = 0; i < imgEnts; i++) {
+                        for (int j = 0; j < mod; j++) {
+                            file = files.get(i * mod + j);
+                            imgId = imgIds[i];
+                            readFile();
+                        }
+                    }
+                } else {
+                    Tonga.setStatus("The number of files has to be divisible with the number of images (" + imgEnts + ")");
+                    cancelled = true;
+                }
+            }
+
+            @Override
+            void read() throws Exception {
+                Tonga.injectNewLayer(file, "Layer", imgId);
+            }
+
+            @Override
+            void readBatch() throws Exception {
+                Tonga.injectNewLayer(file.getAbsolutePath(), "Layer", imgId);
+            }
+
+            @Override
+            boolean readStack() throws IOException, FormatException, ServiceException {
+                if (StackImporter.isStackImage(file)) {
+                    stackissue = true;
+                }
+                return false;
+            }
+
+            @Override
+            String message() {
+                return "Imported " + mod + " new layers to " + imgEnts + " images";
+            }
+        }.importFile(files);
+        /*
         if (Settings.settingBatchProcessing()) {
             int mod = files.size() / Tonga.imageListModel.size();
             for (int i = 0; i < Tonga.imageListModel.size(); i++) {
@@ -203,6 +309,77 @@ public class IO {
                 }
             });
             Tonga.bootThread(thread, "Importer", false, true);
+        }*/
+    }
+
+    public static void importMultichannel(List<File> files) {
+        Object[] reply = IO.askMultichannel();
+        if ((boolean) reply[0]) {
+            int channels = (int) reply[1];
+            boolean order = (boolean) reply[2]; //true = channel order, false = image order
+            int imgs = files.size() / channels;
+            new Importer() {
+                TongaImage image;
+
+                @Override
+                void iterate() {
+                    if (files.size() % channels == 0) {
+                        if (order) { //img1_ch1,img2_ch1,img1_ch2,img2_ch2
+                            for (int i = 0; i < imgs; i++) {
+                                for (int c = 0; c < channels; c++) {
+                                    file = files.get(c * imgs + i);
+                                    if (c == 0) {
+                                        image = new TongaImage(file);
+                                    }
+                                    readFile();
+                                }
+                                if (!image.layerList.isEmpty()) {
+                                    picList.add(image);
+                                }
+                            }
+                        } else { //img1_ch1,img1_ch2,img1_ch3
+                            for (int i = 0; i < files.size(); i++) {
+                                file = files.get(i);
+                                if (i % channels == 0) {
+                                    image = new TongaImage(file);
+                                }
+                                readFile();
+                                if (i % channels == channels - 1) {
+                                    if (!image.layerList.isEmpty()) {
+                                        picList.add(image);
+                                    }
+                                }
+                            }
+                        }
+                    } else {
+                        Tonga.setStatus("The number of files has to be divisible with the number of channels (" + channels + ")");
+                        cancelled = true;
+                    }
+                }
+
+                @Override
+                void read() throws Exception {
+                    image.layerList.add(new TongaLayer(getImageFromFile(file), "Channel #" + (image.layerList.size() + 1)));
+                }
+
+                @Override
+                void readBatch() throws Exception {
+                    image.layerList.add(new TongaLayer(file.getAbsolutePath(), "Channel #" + (image.layerList.size() + 1)));
+                }
+
+                @Override
+                boolean readStack() throws IOException, FormatException, ServiceException {
+                    if (StackImporter.isStackImage(file)) {
+                        stackissue = true;
+                    }
+                    return false;
+                }
+
+                @Override
+                String message() {
+                    return "Imported " + imgs + " new images with " + channels + " layers";
+                }
+            }.importFile(files);
         }
     }
 
@@ -212,8 +389,46 @@ public class IO {
                         + "Do you want to switch to the batch processing mode?<br><br>"
                         + "In the batch mode you can execute protocols to the files directly without a need to import them first. "
                         + "This can be useful if you already know what protocol and settings you want to use.", true, false)) {
-            Tonga.frame().boxSettingNoRAM.setSelected(true);
+            Tonga.frame().boxSettingBatch.setSelected(true);
         }
+        new Importer() {
+            @Override
+            void iterate() {
+                for (int i = 0; i < files.size(); i++) {
+                    file = files.get(i);
+                    readFile();
+                }
+            }
+
+            @Override
+            void read() throws Exception {
+                picList.add(new TongaImage(file, "Original"));
+                images++;
+            }
+
+            @Override
+            void readBatch() throws Exception {
+                picList.add(new TongaImage(file.getAbsolutePath(), "Original"));
+                images++;
+            }
+
+            @Override
+            boolean readStack() throws IOException, FormatException, ServiceException {
+                if (StackImporter.isStackImage(file)) {
+                    importStack(file);
+                    stacks++;
+                    return true;
+                } else {
+                    return false;
+                }
+            }
+
+            @Override
+            String message() {
+                return "Imported " + (images > 0 ? images + " new images" : "");
+            }
+        }.importFile(files);
+        /*
         if (Settings.settingBatchProcessing()) {
             for (int i = 0; i < files.size(); i++) {
                 File file = files.get(i);
@@ -267,7 +482,7 @@ public class IO {
                 }
             });
             Tonga.bootThread(thread, "Importer", false, true);
-        }
+        }*/
     }
 
     public static void importImage(List<File> files) {
@@ -275,6 +490,49 @@ public class IO {
                 + "Did you mean to import " + files.size() + " separate images with one layer each instead?", true, false)) {
             importImages(files);
         } else {
+            new Importer() {
+                TongaImage image;
+
+                @Override
+                void iterate() {
+                    image = new TongaImage(files.get(0));
+                    for (int i = 0; i < files.size(); i++) {
+                        file = files.get(i);
+                        readFile();
+                    }
+                    layers = image.layerList.size();
+                    if (layers > 0) {
+                        picList.add(image);
+                    }
+                }
+
+                @Override
+                void read() throws Exception {
+                    image.layerList.add(new TongaLayer(getImageFromFile(file), image.layerList.isEmpty() ? "Original" : "Layer"));
+                }
+
+                @Override
+                void readBatch() throws Exception {
+                    image.layerList.add(new TongaLayer(file.getAbsolutePath(), image.layerList.isEmpty() ? "Original" : "Layer"));
+                }
+
+                @Override
+                boolean readStack() throws IOException, FormatException, ServiceException {
+                    if (StackImporter.isStackImage(file)) {
+                        importStack(file);
+                        stacks++;
+                        return true;
+                    } else {
+                        return false;
+                    }
+                }
+
+                @Override
+                String message() {
+                    return "Imported " + (layers > 0 ? "a new image with " + layers + " layers" : "");
+                }
+            }.importFile(files);
+            /*
             if (Settings.settingBatchProcessing()) {
                 File file = files.get(0);
                 TongaImage ti = new TongaImage(file);
@@ -348,8 +606,58 @@ public class IO {
                     }
                 });
                 Tonga.bootThread(thread, "Importer", false, true);
+            }*/
+        }
+    }
+
+    public static Object[] askMultichannel() {
+        String inputText = "<html><body><p style='width: 300px;'>" + "Please input the number of channels in this dataset. "
+                + "E.g. if you have 8 images and each of them has a DAPI channel and a GFP channel, the number of channels will be 2. "
+                + "Make sure that every image has this many channels. In this example, you would have 16 separate image files in total."
+                + "<br><br>The number of channels:</p></body></html>";
+        String radioText = "<html><body><br><p style='width: 300px;'>" + "Please select the order of files. "
+                + "<font color=\"#7878f0\">Image order</font> means \"img1_ch1, img1_ch2, img1_ch3, img2_ch1, img2_ch2, img2_ch3\" type of order and "
+                + "<font color=\"#7878f0\">channel order</font> means \"ch1_img1, ch1_img2, ch1_img3, ch2_img1, ch2_img2, ch2_img3\" type of order.</p><br></body></html>";
+        JTextField input = new JTextField();
+        input.setAlignmentX(Component.LEFT_ALIGNMENT);
+        input.setMaximumSize(new Dimension(200, 30));
+        JPanel radioPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        JPanel inputPanel = new JPanel();
+        inputPanel.setLayout(new BoxLayout(inputPanel, BoxLayout.Y_AXIS));
+        JRadioButton channel = new JRadioButton();
+        JRadioButton image = new JRadioButton();
+        ButtonGroup group = new ButtonGroup();
+        channel.setText("Channel order");
+        image.setText("Image order");
+        image.setSelected(true);
+        group.add(channel);
+        group.add(image);
+        radioPanel.add(image);
+        radioPanel.add(channel);
+        inputPanel.add(input);
+        Object[] p = {inputText, inputPanel, radioText, radioPanel};
+        Object[] butt = {"Import", "Cancel"};
+        int r = JOptionPane.showOptionDialog(mainFrame, p, "Multichannel importer", JOptionPane.OK_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE, null, butt, butt[0]);
+        boolean proceed = r == 0;
+        int number = 0;
+        if (proceed) {
+            if (input.getText().isBlank()) {
+                Tonga.setStatus("Please input the number of channels.");
+                proceed = false;
+            } else {
+                try {
+                    number = Integer.parseInt(input.getText());
+                    if (number <= 0) {
+                        Tonga.setStatus("The number of channels must be more than 0.");
+                        proceed = false;
+                    }
+                } catch (NumberFormatException ex) {
+                    Tonga.setStatus(input.getText() + " is not a valid number.");
+                    proceed = false;
+                }
             }
         }
+        return new Object[]{proceed, number, channel.isSelected()};
     }
 
     public static CachedImage getImageFromFile(String file) throws FileNotFoundException, ServiceException, FormatException, IOException {
@@ -368,7 +676,8 @@ public class IO {
                     n = new CachedImage(file);
                     return n;
                 } catch (Exception ex) {
-                    Tonga.catchError(ex);
+                    Tonga.log.debug("Unable to directly import {}", file.toString());
+                    Tonga.log.debug("Will try the Bio-Formats importer instead");
                     return StackImporter.openFile(file)[0].layerList.get(0).layerImage;
                 }
             } catch (IOException | ServiceException | FormatException ex) {
@@ -460,29 +769,27 @@ public class IO {
 
     private static boolean exportImage(TongaImage p, ImageData i) {
         String name = p.imageName + "_[Stack]";
-        return bootExporter(i.toCachedImage(), name);
+        return exportImage(i.toCachedImage(), name);
     }
 
     private static boolean exportImage(TongaImage p, int layer) {
         String name = p.imageName + "_" + p.layerList.get(layer).layerName;
-        return bootExporter(p.layerList.get(layer).layerImage, name);
+        return exportImage(p.layerList.get(layer).layerImage, name);
     }
 
-    private static boolean bootExporter(BufferedImage i, String name) {
+    private static boolean exportImage(BufferedImage i, String name) {
         boolean ok = new Exporter() {
             @Override
-
             void write() throws IOException {
                 if (i.getClass() == CachedImage.class) {
                     CachedImage ci = (CachedImage) i;
-
                     ImageIO.write(ci.bits
                             == 16 ? ci.get8BitCopy() : i, "png", file);
                 } else {
                     ImageIO.write(i, "png", file);
                 }
             }
-        }.export(name, "png");
+        }.exportFile(name, "png");
         return ok;
     }
 
@@ -499,7 +806,7 @@ public class IO {
                     void write() throws IOException {
                         IO.toTSVfile(Tonga.frame().resultTable, file);
                     }
-                }.export(fname, "tsv");
+                }.exportFile(fname, "tsv");
                 if (ok) {
                     Tonga.setStatus("Table exported into TSV format");
                     Tonga.log.info("Table exported into TSV format.");
@@ -560,5 +867,13 @@ public class IO {
         } else {
             return name;
         }
+    }
+
+    static String legalName(String n) {
+        n = n.replaceAll("[^a-zA-Z0-9]", "");
+        if (n.isEmpty()) {
+            n = "null";
+        }
+        return n;
     }
 }

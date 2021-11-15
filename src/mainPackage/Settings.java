@@ -59,7 +59,7 @@ public class Settings {
     }
 
     public static boolean settingBatchProcessing() {
-        return host.boxSettingNoRAM.isSelected();
+        return host.boxSettingBatch.isSelected();
     }
 
     public static boolean settingOpenAfterExport() {
