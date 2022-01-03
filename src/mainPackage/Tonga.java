@@ -26,6 +26,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+import java.util.ResourceBundle;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import javax.swing.DefaultListCellRenderer;
@@ -65,6 +66,7 @@ public class Tonga {
     static int cpuThreads;
     static int javaFxVersion;
     static int javaREVersion;
+    static String tongaVersion;
     static OS currentOS;
 
     public static void main(String args[]) {
@@ -117,6 +119,7 @@ public class Tonga {
         picList = new ArrayList<>();
         cachedData = new ArrayList<>();
         currentOS = currentOS();
+        tongaVersion = readVersion();
         cpuThreads = Runtime.getRuntime().availableProcessors();
         screenWidth = Toolkit.getDefaultToolkit().getScreenSize().width;
         screenHeight = Toolkit.getDefaultToolkit().getScreenSize().height;
@@ -1133,6 +1136,13 @@ public class Tonga {
         } else {
             return getLayerIndex();
         }
+    }
+
+    private static String readVersion() {
+        ResourceBundle rb = ResourceBundle.getBundle("version");
+        String num;
+        num = rb.getString("buildnumber").replaceAll("\u00a0", "");
+        return "0.1.2." + num;
     }
 
     public enum OS {

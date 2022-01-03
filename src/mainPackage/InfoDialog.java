@@ -9,9 +9,9 @@ import java.awt.event.MouseEvent;
  */
 public class InfoDialog extends javax.swing.JFrame {
 
-    InfoDialog(String ver) {
+    InfoDialog() {
         initComponents();
-        versionLabel.setText("v0.1.2." + ver.replaceAll("\u00a0", ""));
+        versionLabel.setText("v" + Tonga.tongaVersion);
         addHyperlink();
     }
 
