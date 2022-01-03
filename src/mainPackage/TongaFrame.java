@@ -23,7 +23,6 @@ import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.Map;
 import java.util.Random;
-import java.util.ResourceBundle;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import javafx.embed.swing.JFXPanel;
@@ -78,7 +77,7 @@ public class TongaFrame extends JFrame {
     public Map<String, Filter> filterHistory;
     boolean accelDisabled, historyAdjusting;
     Integer resultHash;
-    Loader loaderDialog;
+    Splash splashDialog;
     InfoDialog infoDialog;
     Wizard wizardDialog;
 
@@ -87,6 +86,7 @@ public class TongaFrame extends JFrame {
         initMacSupport();
         try {
             SwingUtilities.invokeAndWait(() -> {
+                splashScreen();
                 initComponents();
                 initExtraComponents();
                 initFilterList();
@@ -109,24 +109,27 @@ public class TongaFrame extends JFrame {
         setSize(pw, ph);
         setLocationRelativeTo(null);
         setVisible(true);
-        loaderDialog.setVisible(false);
-        loaderDialog.setTitle("Processing...");
+        splashDialog.setVisible(false);
+    }
+
+    private void splashScreen() {
+        splashDialog = new Splash();
+        splashDialog.setLocationRelativeTo(null);
+        splashDialog.setVisible(true);
     }
 
     private void createDialogs() {
-        loaderDialog = new Loader(progressBar);
-        loaderDialog.setLocationRelativeTo(null);
-        loaderDialog.setIconImages(mainIcons);
-        loaderDialog.setVisible(true);
-        infoDialog = new InfoDialog(readVersion());
-        infoDialog.setLocationRelativeTo(null);
-        infoDialog.setIconImages(mainIcons);
-        closeListener(infoDialog);
+        infoDialog = new InfoDialog();
+        initializeDialog(infoDialog);
         wizardDialog = new Wizard();
-        wizardDialog.setLocationRelativeTo(null);
-        wizardDialog.setIconImages(mainIcons);
-        closeListener(wizardDialog);
+        initializeDialog(wizardDialog);
         Tonga.log.info("Dialogs initialized successfully");
+    }
+
+    private void initializeDialog(JFrame d) {
+        d.setLocationRelativeTo(null);
+        d.setIconImages(mainIcons);
+        closeListener(d);
     }
 
     void launchersEnabled(boolean yesorno) {
@@ -676,13 +679,6 @@ public class TongaFrame extends JFrame {
                 return this.size() > 10;
             }
         };
-    }
-
-    private String readVersion() {
-        ResourceBundle rb = ResourceBundle.getBundle("version");
-        String num;
-        num = rb.getString("buildnumber");
-        return num;
     }
 
     public void closeDialog(Window dialog) {

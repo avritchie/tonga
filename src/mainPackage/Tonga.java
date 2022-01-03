@@ -47,6 +47,7 @@ import org.slf4j.LoggerFactory;
 public class Tonga {
 
     static TongaFrame mainFrame;
+    static Loader loader;
     public static Logger log;
     private static Logger standardLogger;
     private static Logger debugLogger;
@@ -76,6 +77,7 @@ public class Tonga {
         initLogger();
         initLooks();
         mainFrame = new TongaFrame();
+        loader = new Loader();
         versionInfo();
         StackImporter.boot();
         Settings.boot();
@@ -96,7 +98,7 @@ public class Tonga {
     }
 
     public static Loader loader() {
-        return mainFrame.loaderDialog;
+        return loader;
     }
 
     public static void iteration() {

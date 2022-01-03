@@ -57,9 +57,6 @@ public class Key {
                                     Tonga.log.info("Thread {} abortion request.", Tonga.loader().threadTask.getName());
                                     Tonga.loader().abort();
                                 }
-                                if (Tonga.loader().hasFocus()) {
-                                    Tonga.loader().abort();
-                                }
                                 break;
                             case KeyEvent.VK_TAB:
                                 Tonga.switchLayer();
