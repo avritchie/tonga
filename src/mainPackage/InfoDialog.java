@@ -1,11 +1,7 @@
 package mainPackage;
 
-import java.awt.Desktop;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.io.IOException;
-import java.net.URI;
-import java.net.URISyntaxException;
 
 /**
  *
@@ -23,11 +19,7 @@ public class InfoDialog extends javax.swing.JFrame {
         jLabel8.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
-                try {
-                    Desktop.getDesktop().browse(new URI("https://github.com/avritchie/tonga"));
-                } catch (URISyntaxException | IOException ex) {
-                    Tonga.catchError(ex, "URI error.");
-                }
+                IO.launchURL("https://github.com/avritchie/tonga");
             }
         });
     }

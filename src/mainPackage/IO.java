@@ -1,6 +1,7 @@
 package mainPackage;
 
 import java.awt.Component;
+import java.awt.Desktop;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.image.BufferedImage;
@@ -8,6 +9,8 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Date;
@@ -839,6 +842,14 @@ public class IO {
             }
         } catch (IOException ex) {
             Tonga.catchError(ex, "Excel can not be started.");
+        }
+    }
+
+    public static void launchURL(String url) {
+        try {
+            Desktop.getDesktop().browse(new URI(url));
+        } catch (URISyntaxException | IOException ex) {
+            Tonga.catchError(ex, "URI error.");
         }
     }
 
