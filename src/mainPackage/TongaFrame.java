@@ -56,7 +56,6 @@ import mainPackage.JRangeSlider.RangeSliderUI;
 import mainPackage.PanelCreator.ControlReference;
 import mainPackage.PanelCreator.ControlType;
 import mainPackage.Tonga.OS;
-import static mainPackage.Tonga.mainFrame;
 
 /**
  *
@@ -627,29 +626,26 @@ public class TongaFrame extends JFrame {
             JMenu m = menuBar.getMenu(i);
             m.addMenuListener(accelListener);
         }
-        menuProtocols.addMenuListener(new MenuListener() {
+        menuWizard.addMenuListener(new MenuListener() {
             @Override
             public void menuCanceled(javax.swing.event.MenuEvent evt) {
             }
 
             @Override
             public void menuDeselected(javax.swing.event.MenuEvent evt) {
-                menuProtocols.setForeground(Tonga.tongaBlue);
-                menuProtocolWizard.setForeground(Tonga.tongaBlue);
+                menuWizard.setForeground(Tonga.tongaBlue);
             }
 
             @Override
             public void menuSelected(javax.swing.event.MenuEvent evt) {
-                menuProtocols.setForeground(Tonga.tongaLBlue);
-                menuProtocolWizard.setForeground(Tonga.tongaBlue);
+                menuWizard.setForeground(Tonga.tongaLBlue);
             }
         });
-        addColorListener(menuProtocolWizard);
     }
 
     void setUndoRedoMenu() {
-        menuFileUndo.setEnabled(UndoRedo.undoList != null);
-        menuFileRedo.setEnabled(UndoRedo.redoList != null);
+        menuFileUndo.setEnabled(UndoRedo.undoList != null || UndoRedo.redoList != null);
+        menuFileUndo.setText(UndoRedo.redoList != null ? "Redo" : "Undo");
     }
 
     void accelEnable(boolean b) {
@@ -777,7 +773,6 @@ public class TongaFrame extends JFrame {
         contextResultMenu = new javax.swing.JPopupMenu();
         contResClear = new javax.swing.JMenuItem();
         filterMenu = new javax.swing.JPopupMenu();
-        jMenuItem83 = new javax.swing.JMenuItem();
         frame = new javax.swing.JPanel();
         rSplitPane = new javax.swing.JSplitPane();
         jScrollPane4 = new javax.swing.JScrollPane();
@@ -852,7 +847,6 @@ public class TongaFrame extends JFrame {
         menuBar = new javax.swing.JMenuBar();
         menuFile = new javax.swing.JMenu();
         menuFileUndo = new javax.swing.JMenuItem();
-        menuFileRedo = new javax.swing.JMenuItem();
         jSeparator3 = new javax.swing.JPopupMenu.Separator();
         menuImport = new javax.swing.JMenu();
         menuFileImportImages = new javax.swing.JMenuItem();
@@ -872,9 +866,12 @@ public class TongaFrame extends JFrame {
         menuExportAllImages = new javax.swing.JMenuItem();
         menuExportAllStacks = new javax.swing.JMenuItem();
         jSeparator8 = new javax.swing.JPopupMenu.Separator();
-        menuAbout = new javax.swing.JMenuItem();
+        jMenuItem83 = new javax.swing.JMenuItem();
+        jMenuItem88 = new javax.swing.JMenuItem();
         jMenuItem80 = new javax.swing.JMenuItem();
+        menuAbout = new javax.swing.JMenuItem();
         menuTongaExit = new javax.swing.JMenuItem();
+        menuWizard = new javax.swing.JMenu();
         menuFilters = new javax.swing.JMenu();
         jMenu12 = new javax.swing.JMenu();
         jMenu6 = new javax.swing.JMenu();
@@ -980,8 +977,6 @@ public class TongaFrame extends JFrame {
         jMenuItem46 = new javax.swing.JMenuItem();
         jMenuItem54 = new javax.swing.JMenuItem();
         menuProtocols = new javax.swing.JMenu();
-        menuProtocolWizard = new javax.swing.JMenuItem();
-        jSeparator2 = new javax.swing.JPopupMenu.Separator();
         jMenu3 = new javax.swing.JMenu();
         jMenuItem87 = new javax.swing.JMenuItem();
         jMenu7 = new javax.swing.JMenu();
@@ -1003,6 +998,7 @@ public class TongaFrame extends JFrame {
         jMenuItem12 = new javax.swing.JMenuItem();
         jMenuItem72 = new javax.swing.JMenuItem();
         jMenuItem74 = new javax.swing.JMenuItem();
+        jSeparator2 = new javax.swing.JPopupMenu.Separator();
         jMenu2 = new javax.swing.JMenu();
         jMenu4 = new javax.swing.JMenu();
         menuProtocolCKMask = new javax.swing.JMenuItem();
@@ -1147,8 +1143,6 @@ public class TongaFrame extends JFrame {
             }
         });
 
-        jMenuItem83.setText("jMenuItem83");
-
         setDefaultCloseOperation(javax.swing.WindowConstants.DO_NOTHING_ON_CLOSE);
         setTitle("Tonga");
         setIconImages(mainIcons);
@@ -1174,7 +1168,7 @@ public class TongaFrame extends JFrame {
 
         rSplitPane.setRightComponent(jScrollPane4);
 
-        jPanel1.setBorder(javax.swing.BorderFactory.createTitledBorder(javax.swing.BorderFactory.createEtchedBorder(), null));
+        jPanel1.setBorder(javax.swing.BorderFactory.createTitledBorder(javax.swing.BorderFactory.createEtchedBorder(), "Images"));
         jPanel1.setMinimumSize(new java.awt.Dimension(100, 200));
         jPanel1.setPreferredSize(new java.awt.Dimension(100, 400));
 
@@ -1202,7 +1196,7 @@ public class TongaFrame extends JFrame {
 
         rSplitPane.setLeftComponent(jPanel1);
 
-        jPanel2.setBorder(javax.swing.BorderFactory.createTitledBorder(javax.swing.BorderFactory.createEtchedBorder(), null));
+        jPanel2.setBorder(javax.swing.BorderFactory.createTitledBorder(javax.swing.BorderFactory.createEtchedBorder(), "Layers"));
         jPanel2.setMinimumSize(new java.awt.Dimension(100, 200));
         jPanel2.setPreferredSize(new java.awt.Dimension(100, 200));
 
@@ -1963,7 +1957,7 @@ public class TongaFrame extends JFrame {
         menuFile.setText("Tonga");
 
         menuFileUndo.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_Z, java.awt.event.InputEvent.CTRL_DOWN_MASK));
-        menuFileUndo.setText("Undo");
+        menuFileUndo.setText("Undo/redo");
         menuFileUndo.setToolTipText("Revert the latest action");
         menuFileUndo.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -1971,16 +1965,6 @@ public class TongaFrame extends JFrame {
             }
         });
         menuFile.add(menuFileUndo);
-
-        menuFileRedo.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_Y, java.awt.event.InputEvent.CTRL_DOWN_MASK));
-        menuFileRedo.setText("Redo");
-        menuFileRedo.setToolTipText("Revert the latest revert");
-        menuFileRedo.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                menuFileRedoActionPerformed(evt);
-            }
-        });
-        menuFile.add(menuFileRedo);
         menuFile.add(jSeparator3);
 
         menuImport.setText("Import images");
@@ -2109,14 +2093,23 @@ public class TongaFrame extends JFrame {
         menuFile.add(menuExport);
         menuFile.add(jSeparator8);
 
-        menuAbout.setText("About");
-        menuAbout.setToolTipText("Author and version information");
-        menuAbout.addActionListener(new java.awt.event.ActionListener() {
+        jMenuItem83.setText("Manual");
+        jMenuItem83.setToolTipText("View the usage guide");
+        jMenuItem83.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                menuAboutActionPerformed(evt);
+                jMenuItem83ActionPerformed(evt);
             }
         });
-        menuFile.add(menuAbout);
+        menuFile.add(jMenuItem83);
+
+        jMenuItem88.setText("Feedback");
+        jMenuItem88.setToolTipText("Write feedback to the authors");
+        jMenuItem88.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jMenuItem88ActionPerformed(evt);
+            }
+        });
+        menuFile.add(jMenuItem88);
 
         jMenuItem80.setText("Logs");
         jMenuItem80.setToolTipText("Open the log file");
@@ -2126,6 +2119,15 @@ public class TongaFrame extends JFrame {
             }
         });
         menuFile.add(jMenuItem80);
+
+        menuAbout.setText("About");
+        menuAbout.setToolTipText("Author and version information");
+        menuAbout.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                menuAboutActionPerformed(evt);
+            }
+        });
+        menuFile.add(menuAbout);
 
         menuTongaExit.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_F4, java.awt.event.InputEvent.ALT_DOWN_MASK));
         menuTongaExit.setText("Exit");
@@ -2138,6 +2140,15 @@ public class TongaFrame extends JFrame {
         menuFile.add(menuTongaExit);
 
         menuBar.add(menuFile);
+
+        menuWizard.setForeground(Tonga.tongaBlue);
+        menuWizard.setText("Wizard");
+        menuWizard.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                menuWizardMouseClicked(evt);
+            }
+        });
+        menuBar.add(menuWizard);
 
         menuFilters.setText("Filters");
 
@@ -2941,20 +2952,7 @@ public class TongaFrame extends JFrame {
 
         menuBar.add(menuFilters);
 
-        menuProtocols.setForeground(Tonga.tongaBlue);
         menuProtocols.setText("Protocols");
-
-        menuProtocolWizard.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_W, java.awt.event.InputEvent.CTRL_DOWN_MASK));
-        menuProtocolWizard.setForeground(Tonga.tongaBlue);
-        menuProtocolWizard.setText("Launch the wizard! ✨");
-        menuProtocolWizard.setToolTipText("Select the protocol and settings by answering some questions");
-        menuProtocolWizard.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                menuProtocolWizardActionPerformed(evt);
-            }
-        });
-        menuProtocols.add(menuProtocolWizard);
-        menuProtocols.add(jSeparator2);
 
         jMenu3.setText("For tissues");
 
@@ -3100,6 +3098,7 @@ public class TongaFrame extends JFrame {
         jMenu8.add(jMenu16);
 
         menuProtocols.add(jMenu8);
+        menuProtocols.add(jSeparator2);
 
         jMenu2.setText("Untested");
         jMenu2.setToolTipText("Potentially unstable protocols in development");
@@ -3919,12 +3918,8 @@ public class TongaFrame extends JFrame {
     }//GEN-LAST:event_menuFileImportLayersThisActionPerformed
 
     private void menuFileUndoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_menuFileUndoActionPerformed
-        UndoRedo.undo();
+        UndoRedo.undoAction();
     }//GEN-LAST:event_menuFileUndoActionPerformed
-
-    private void menuFileRedoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_menuFileRedoActionPerformed
-        UndoRedo.redo();
-    }//GEN-LAST:event_menuFileRedoActionPerformed
 
     private void debugTestFilterActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_debugTestFilterActionPerformed
         Test.run(Tonga.getLayer().layerImage);
@@ -3933,14 +3928,6 @@ public class TongaFrame extends JFrame {
     private void jMenuItem56ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem56ActionPerformed
         launchFilter(Filters::illuminationCorrection, evt);
     }//GEN-LAST:event_jMenuItem56ActionPerformed
-
-    private void menuProtocolWizardActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_menuProtocolWizardActionPerformed
-        if (Tonga.thereIsImage()) {
-            popupDialog(wizardDialog);
-        } else {
-            Tonga.setStatus("Import the images to analyze first before opening the wizard");
-        }
-    }//GEN-LAST:event_menuProtocolWizardActionPerformed
 
     private void filterSettingsPanelComponentResized(java.awt.event.ComponentEvent evt) {//GEN-FIRST:event_filterSettingsPanelComponentResized
         Component[] child = filterSettingsPanel.getComponents();
@@ -4286,6 +4273,22 @@ public class TongaFrame extends JFrame {
         Tonga.removeImage();
     }//GEN-LAST:event_contImgClearActionPerformed
 
+    private void jMenuItem83ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem83ActionPerformed
+        IO.launchURL("https://github.com/avritchie/tonga/blob/master/README.md");
+    }//GEN-LAST:event_jMenuItem83ActionPerformed
+
+    private void jMenuItem88ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem88ActionPerformed
+        //
+    }//GEN-LAST:event_jMenuItem88ActionPerformed
+
+    private void menuWizardMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_menuWizardMouseClicked
+        if (Tonga.thereIsImage()) {
+            popupDialog(wizardDialog);
+        } else {
+            Tonga.setStatus("Import the images to analyze first before opening the wizard");
+        }
+    }//GEN-LAST:event_menuWizardMouseClicked
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
     protected javax.swing.JComboBox<String> autoscaleCombo;
     protected javax.swing.JLabel autoscaleLabel;
@@ -4459,6 +4462,7 @@ public class TongaFrame extends JFrame {
     protected javax.swing.JMenuItem jMenuItem85;
     protected javax.swing.JMenuItem jMenuItem86;
     protected javax.swing.JMenuItem jMenuItem87;
+    protected javax.swing.JMenuItem jMenuItem88;
     protected javax.swing.JMenuItem jMenuItem9;
     protected javax.swing.JPanel jPanel1;
     protected javax.swing.JPanel jPanel2;
@@ -4515,7 +4519,6 @@ public class TongaFrame extends JFrame {
     protected javax.swing.JMenuItem menuFileImportLayersThis;
     protected javax.swing.JMenuItem menuFileImportMultichannel;
     protected javax.swing.JMenuItem menuFileImportStacks;
-    protected javax.swing.JMenuItem menuFileRedo;
     protected javax.swing.JMenuItem menuFileUndo;
     protected javax.swing.JMenuItem menuFillArea;
     protected javax.swing.JMenuItem menuFillGap;
@@ -4540,13 +4543,13 @@ public class TongaFrame extends JFrame {
     protected javax.swing.JMenuItem menuProtocolCKMask;
     protected javax.swing.JMenuItem menuProtocolCopyMask;
     protected javax.swing.JMenuItem menuProtocolNucleusSep;
-    protected javax.swing.JMenuItem menuProtocolWizard;
     protected javax.swing.JMenu menuProtocols;
     protected javax.swing.JMenuItem menuSharpCorner;
     protected javax.swing.JMenuItem menuShrinkEdge;
     protected javax.swing.JMenuItem menuSmoothen;
     protected javax.swing.JMenuItem menuSpreadEdge;
     protected javax.swing.JMenuItem menuTongaExit;
+    protected javax.swing.JMenu menuWizard;
     protected javax.swing.JButton openExcel;
     protected javax.swing.JProgressBar progressBar;
     protected javax.swing.JPanel protocolHeadPanel;

@@ -145,11 +145,6 @@
         <Property name="useNullLayout" type="boolean" value="true"/>
       </Layout>
     </Container>
-    <Component class="javax.swing.JMenuItem" name="jMenuItem83">
-      <Properties>
-        <Property name="text" type="java.lang.String" value="jMenuItem83"/>
-      </Properties>
-    </Component>
     <Menu class="javax.swing.JMenuBar" name="menuBar">
       <SubComponents>
         <Menu class="javax.swing.JMenu" name="menuFile">
@@ -162,23 +157,11 @@
                 <Property name="accelerator" type="javax.swing.KeyStroke" editor="org.netbeans.modules.form.editors.KeyStrokeEditor">
                   <KeyStroke key="Ctrl+Z"/>
                 </Property>
-                <Property name="text" type="java.lang.String" value="Undo"/>
+                <Property name="text" type="java.lang.String" value="Undo/redo"/>
                 <Property name="toolTipText" type="java.lang.String" value="Revert the latest action"/>
               </Properties>
               <Events>
                 <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="menuFileUndoActionPerformed"/>
-              </Events>
-            </MenuItem>
-            <MenuItem class="javax.swing.JMenuItem" name="menuFileRedo">
-              <Properties>
-                <Property name="accelerator" type="javax.swing.KeyStroke" editor="org.netbeans.modules.form.editors.KeyStrokeEditor">
-                  <KeyStroke key="Ctrl+Y"/>
-                </Property>
-                <Property name="text" type="java.lang.String" value="Redo"/>
-                <Property name="toolTipText" type="java.lang.String" value="Revert the latest revert"/>
-              </Properties>
-              <Events>
-                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="menuFileRedoActionPerformed"/>
               </Events>
             </MenuItem>
             <MenuItem class="javax.swing.JPopupMenu$Separator" name="jSeparator3">
@@ -335,13 +318,22 @@
             </Menu>
             <MenuItem class="javax.swing.JPopupMenu$Separator" name="jSeparator8">
             </MenuItem>
-            <MenuItem class="javax.swing.JMenuItem" name="menuAbout">
+            <MenuItem class="javax.swing.JMenuItem" name="jMenuItem83">
               <Properties>
-                <Property name="text" type="java.lang.String" value="About"/>
-                <Property name="toolTipText" type="java.lang.String" value="Author and version information"/>
+                <Property name="text" type="java.lang.String" value="Manual"/>
+                <Property name="toolTipText" type="java.lang.String" value="View the usage guide"/>
               </Properties>
               <Events>
-                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="menuAboutActionPerformed"/>
+                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jMenuItem83ActionPerformed"/>
+              </Events>
+            </MenuItem>
+            <MenuItem class="javax.swing.JMenuItem" name="jMenuItem88">
+              <Properties>
+                <Property name="text" type="java.lang.String" value="Feedback"/>
+                <Property name="toolTipText" type="java.lang.String" value="Write feedback to the authors"/>
+              </Properties>
+              <Events>
+                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jMenuItem88ActionPerformed"/>
               </Events>
             </MenuItem>
             <MenuItem class="javax.swing.JMenuItem" name="jMenuItem80">
@@ -351,6 +343,15 @@
               </Properties>
               <Events>
                 <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jMenuItem80ActionPerformed"/>
+              </Events>
+            </MenuItem>
+            <MenuItem class="javax.swing.JMenuItem" name="menuAbout">
+              <Properties>
+                <Property name="text" type="java.lang.String" value="About"/>
+                <Property name="toolTipText" type="java.lang.String" value="Author and version information"/>
+              </Properties>
+              <Events>
+                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="menuAboutActionPerformed"/>
               </Events>
             </MenuItem>
             <MenuItem class="javax.swing.JMenuItem" name="menuTongaExit">
@@ -366,6 +367,17 @@
               </Events>
             </MenuItem>
           </SubComponents>
+        </Menu>
+        <Menu class="javax.swing.JMenu" name="menuWizard">
+          <Properties>
+            <Property name="foreground" type="java.awt.Color" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
+              <Connection code="Tonga.tongaBlue" type="code"/>
+            </Property>
+            <Property name="text" type="java.lang.String" value="Wizard"/>
+          </Properties>
+          <Events>
+            <EventHandler event="mouseClicked" listener="java.awt.event.MouseListener" parameters="java.awt.event.MouseEvent" handler="menuWizardMouseClicked"/>
+          </Events>
         </Menu>
         <Menu class="javax.swing.JMenu" name="menuFilters">
           <Properties>
@@ -1246,29 +1258,9 @@
         </Menu>
         <Menu class="javax.swing.JMenu" name="menuProtocols">
           <Properties>
-            <Property name="foreground" type="java.awt.Color" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
-              <Connection code="Tonga.tongaBlue" type="code"/>
-            </Property>
             <Property name="text" type="java.lang.String" value="Protocols"/>
           </Properties>
           <SubComponents>
-            <MenuItem class="javax.swing.JMenuItem" name="menuProtocolWizard">
-              <Properties>
-                <Property name="accelerator" type="javax.swing.KeyStroke" editor="org.netbeans.modules.form.editors.KeyStrokeEditor">
-                  <KeyStroke key="Ctrl+W"/>
-                </Property>
-                <Property name="foreground" type="java.awt.Color" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
-                  <Connection code="Tonga.tongaBlue" type="code"/>
-                </Property>
-                <Property name="text" type="java.lang.String" value="Launch the wizard! &#x2728;"/>
-                <Property name="toolTipText" type="java.lang.String" value="Select the protocol and settings by answering some questions"/>
-              </Properties>
-              <Events>
-                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="menuProtocolWizardActionPerformed"/>
-              </Events>
-            </MenuItem>
-            <MenuItem class="javax.swing.JPopupMenu$Separator" name="jSeparator2">
-            </MenuItem>
             <Menu class="javax.swing.JMenu" name="jMenu3">
               <Properties>
                 <Property name="text" type="java.lang.String" value="For tissues"/>
@@ -1432,6 +1424,8 @@
                 </Menu>
               </SubComponents>
             </Menu>
+            <MenuItem class="javax.swing.JPopupMenu$Separator" name="jSeparator2">
+            </MenuItem>
             <Menu class="javax.swing.JMenu" name="jMenu2">
               <Properties>
                 <Property name="text" type="java.lang.String" value="Untested"/>
