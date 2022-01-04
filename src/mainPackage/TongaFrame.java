@@ -783,7 +783,7 @@ public class TongaFrame extends JFrame {
         stackToggle = new javax.swing.JToggleButton();
         lSplitPane = new javax.swing.JSplitPane();
         imageBig = new javax.swing.JPanel();
-        leftPanel = new javax.swing.JPanel();
+        vSplitPane = new javax.swing.JSplitPane();
         imageZoom = new javax.swing.JPanel();
         tabbedPane = new javax.swing.JTabbedPane();
         protocolPanel = new javax.swing.JPanel();
@@ -1268,11 +1268,15 @@ public class TongaFrame extends JFrame {
 
         lSplitPane.setLeftComponent(imageBig);
 
-        leftPanel.setPreferredSize(new java.awt.Dimension(400, 600));
+        vSplitPane.setBorder(null);
+        vSplitPane.setDividerLocation(410);
+        vSplitPane.setDividerSize(6);
+        vSplitPane.setOrientation(javax.swing.JSplitPane.VERTICAL_SPLIT);
+        vSplitPane.setResizeWeight(0.6);
 
         imageZoom.setBorder(javax.swing.BorderFactory.createEtchedBorder());
         imageZoom.setMaximumSize(new java.awt.Dimension(800, 800));
-        imageZoom.setMinimumSize(new java.awt.Dimension(200, 200));
+        imageZoom.setMinimumSize(new java.awt.Dimension(200, 0));
         imageZoom.setPreferredSize(new java.awt.Dimension(400, 400));
         imageZoom.addComponentListener(new java.awt.event.ComponentAdapter() {
             public void componentResized(java.awt.event.ComponentEvent evt) {
@@ -1284,15 +1288,17 @@ public class TongaFrame extends JFrame {
         imageZoom.setLayout(imageZoomLayout);
         imageZoomLayout.setHorizontalGroup(
             imageZoomLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 0, Short.MAX_VALUE)
+            .addGap(0, 444, Short.MAX_VALUE)
         );
         imageZoomLayout.setVerticalGroup(
             imageZoomLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 409, Short.MAX_VALUE)
+            .addGap(0, 406, Short.MAX_VALUE)
         );
 
+        vSplitPane.setLeftComponent(imageZoom);
+
         tabbedPane.setBorder(javax.swing.BorderFactory.createEtchedBorder());
-        tabbedPane.setMinimumSize(new java.awt.Dimension(100, 300));
+        tabbedPane.setMinimumSize(new java.awt.Dimension(100, 435));
         tabbedPane.setPreferredSize(new java.awt.Dimension(400, 400));
 
         protocolName.setText("Sample protocol");
@@ -1361,7 +1367,7 @@ public class TongaFrame extends JFrame {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(protocolNameSeparator, javax.swing.GroupLayout.PREFERRED_SIZE, 5, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(8, 8, 8)
-                .addComponent(protocolSettingsPanel, javax.swing.GroupLayout.PREFERRED_SIZE, 305, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(protocolSettingsPanel, javax.swing.GroupLayout.DEFAULT_SIZE, 305, Short.MAX_VALUE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(protocolSettingsSeparator, javax.swing.GroupLayout.PREFERRED_SIZE, 5, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(3, 3, 3)
@@ -1396,11 +1402,11 @@ public class TongaFrame extends JFrame {
         filterSettingsPanel.setLayout(filterSettingsPanelLayout);
         filterSettingsPanelLayout.setHorizontalGroup(
             filterSettingsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 436, Short.MAX_VALUE)
+            .addGap(0, 415, Short.MAX_VALUE)
         );
         filterSettingsPanelLayout.setVerticalGroup(
             filterSettingsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 294, Short.MAX_VALUE)
+            .addGap(0, 298, Short.MAX_VALUE)
         );
 
         btnRunSingle2.setText("Run for single");
@@ -1468,7 +1474,7 @@ public class TongaFrame extends JFrame {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(filterNameSeparator, javax.swing.GroupLayout.PREFERRED_SIZE, 5, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(8, 8, 8)
-                .addComponent(filterSettingsPanel, javax.swing.GroupLayout.PREFERRED_SIZE, 298, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(filterSettingsPanel, javax.swing.GroupLayout.DEFAULT_SIZE, 302, Short.MAX_VALUE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(filterSettingsSeparator, javax.swing.GroupLayout.PREFERRED_SIZE, 5, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(3, 3, 3)
@@ -1590,7 +1596,7 @@ public class TongaFrame extends JFrame {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addGroup(settingPanelGeneralLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(boxSettingResultsAppend, javax.swing.GroupLayout.PREFERRED_SIZE, 160, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(boxSettingBatch, javax.swing.GroupLayout.DEFAULT_SIZE, 196, Short.MAX_VALUE))
+                    .addComponent(boxSettingBatch, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addContainerGap())
         );
         settingPanelGeneralLayout.setVerticalGroup(
@@ -1764,7 +1770,7 @@ public class TongaFrame extends JFrame {
         resultsPanel.setLayout(resultsPanelLayout);
         resultsPanelLayout.setHorizontalGroup(
             resultsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jScrollPane2, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 460, Short.MAX_VALUE)
+            .addComponent(jScrollPane2, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 439, Short.MAX_VALUE)
             .addGroup(resultsPanelLayout.createSequentialGroup()
                 .addContainerGap()
                 .addComponent(exportAsCSV, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
@@ -1775,7 +1781,7 @@ public class TongaFrame extends JFrame {
         resultsPanelLayout.setVerticalGroup(
             resultsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, resultsPanelLayout.createSequentialGroup()
-                .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 358, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 363, Short.MAX_VALUE)
                 .addGap(5, 5, 5)
                 .addGroup(resultsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                     .addComponent(exportAsCSV, javax.swing.GroupLayout.DEFAULT_SIZE, 32, Short.MAX_VALUE)
@@ -1798,7 +1804,7 @@ public class TongaFrame extends JFrame {
         histoImg.setLayout(histoImgLayout);
         histoImgLayout.setHorizontalGroup(
             histoImgLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(histoLabel, javax.swing.GroupLayout.DEFAULT_SIZE, 436, Short.MAX_VALUE)
+            .addComponent(histoLabel, javax.swing.GroupLayout.DEFAULT_SIZE, 415, Short.MAX_VALUE)
         );
         histoImgLayout.setVerticalGroup(
             histoImgLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -1847,7 +1853,7 @@ public class TongaFrame extends JFrame {
         histoSliderPanel.setLayout(histoSliderPanelLayout);
         histoSliderPanelLayout.setHorizontalGroup(
             histoSliderPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 440, Short.MAX_VALUE)
+            .addGap(0, 419, Short.MAX_VALUE)
         );
         histoSliderPanelLayout.setVerticalGroup(
             histoSliderPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -1862,9 +1868,9 @@ public class TongaFrame extends JFrame {
                 .addContainerGap()
                 .addGroup(histogramPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(histogramPanelLayout.createSequentialGroup()
-                        .addComponent(histoAdjApplySingle, javax.swing.GroupLayout.DEFAULT_SIZE, 217, Short.MAX_VALUE)
+                        .addComponent(histoAdjApplySingle, javax.swing.GroupLayout.DEFAULT_SIZE, 206, Short.MAX_VALUE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(histoAdjApplyAll, javax.swing.GroupLayout.DEFAULT_SIZE, 217, Short.MAX_VALUE))
+                        .addComponent(histoAdjApplyAll, javax.swing.GroupLayout.DEFAULT_SIZE, 207, Short.MAX_VALUE))
                     .addComponent(jSeparator9, javax.swing.GroupLayout.Alignment.TRAILING)
                     .addGroup(histogramPanelLayout.createSequentialGroup()
                         .addComponent(histoAdjAutoSingle, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
@@ -1878,7 +1884,7 @@ public class TongaFrame extends JFrame {
             histogramPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(histogramPanelLayout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(histoImg, javax.swing.GroupLayout.PREFERRED_SIZE, 280, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(histoImg, javax.swing.GroupLayout.DEFAULT_SIZE, 280, Short.MAX_VALUE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(histoSliderPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(1, 1, 1)
@@ -1896,24 +1902,10 @@ public class TongaFrame extends JFrame {
 
         tabbedPane.addTab("Histogram", histogramPanel);
 
-        javax.swing.GroupLayout leftPanelLayout = new javax.swing.GroupLayout(leftPanel);
-        leftPanel.setLayout(leftPanelLayout);
-        leftPanelLayout.setHorizontalGroup(
-            leftPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(tabbedPane, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-            .addComponent(imageZoom, javax.swing.GroupLayout.DEFAULT_SIZE, 448, Short.MAX_VALUE)
-        );
-        leftPanelLayout.setVerticalGroup(
-            leftPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(leftPanelLayout.createSequentialGroup()
-                .addComponent(imageZoom, javax.swing.GroupLayout.DEFAULT_SIZE, 413, Short.MAX_VALUE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(tabbedPane, javax.swing.GroupLayout.PREFERRED_SIZE, 435, javax.swing.GroupLayout.PREFERRED_SIZE))
-        );
-
+        vSplitPane.setRightComponent(tabbedPane);
         tabbedPane.getAccessibleContext().setAccessibleName("");
 
-        lSplitPane.setRightComponent(leftPanel);
+        lSplitPane.setRightComponent(vSplitPane);
 
         javax.swing.GroupLayout frameLayout = new javax.swing.GroupLayout(frame);
         frame.setLayout(frameLayout);
@@ -4487,7 +4479,6 @@ public class TongaFrame extends JFrame {
     protected javax.swing.JSplitPane lSplitPane;
     public javax.swing.JButton layerBackColor;
     public javax.swing.JList<String> layersList;
-    protected javax.swing.JPanel leftPanel;
     protected javax.swing.JMenuItem menuAbout;
     protected javax.swing.JMenuItem menuAlphaBright;
     protected javax.swing.JMenuItem menuAlphaColor;
@@ -4564,6 +4555,7 @@ public class TongaFrame extends JFrame {
     protected javax.swing.JComboBox<String> stackCombo;
     protected javax.swing.JToggleButton stackToggle;
     public javax.swing.JTabbedPane tabbedPane;
+    protected javax.swing.JSplitPane vSplitPane;
     // End of variables declaration//GEN-END:variables
 
 }
