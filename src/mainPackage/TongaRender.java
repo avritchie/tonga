@@ -117,8 +117,7 @@ public class TongaRender {
         int xlimit = Math.max(0, (int) (imageDimensions[0] * mainFactor - mainPanel.getWidth()));
         int ylimit = Math.max(0, (int) (imageDimensions[1] * mainFactor - mainPanel.getHeight()));
         dragDimensions = new int[]{xlimit, ylimit};
-        posx = Math.min(Math.max(0, posx), dragDimensions[0] / mainFactor);
-        posy = Math.min(Math.max(0, posy), dragDimensions[1] / mainFactor);
+        calculatePanelPosition(posx, posy);
     }
 
     private static void setZoomPosition() {
@@ -194,8 +193,7 @@ public class TongaRender {
             @Override
             public void mouseDragged(MouseEvent me) {
                 int mx = me.getX(), my = me.getY();
-                posx = Math.min(Math.max(0, posx + ((mousx - mx) / mainFactor)), dragDimensions[0] / mainFactor);
-                posy = Math.min(Math.max(0, posy + ((mousy - my) / mainFactor)), dragDimensions[1] / mainFactor);
+                calculatePanelPosition(posx + ((mousx - mx) / mainFactor), posy + ((mousy - my) / mainFactor));
                 mousx = mx;
                 mousy = my;
                 mouseMoved(me);
@@ -205,11 +203,8 @@ public class TongaRender {
             public void mouseMoved(MouseEvent me) {
                 if (Tonga.thereIsImage()) {
                     int mx = me.getX(), my = me.getY();
-                    //double mmx = (double) mx / mainPanel.getWidth() * (mainPanel.getWidth() + mainFactor);
-                    //double mmy = (double) my / mainPanel.getHeight() * (mainPanel.getHeight() + mainFactor);
                     if (mx <= imageDimensions[0] * mainFactor && my <= imageDimensions[1] * mainFactor) {
-                        imgx = (int) (posx + imageDimensions[0] * ((double) mx / (int) (imageDimensions[0] * mainFactor)));
-                        imgy = (int) (posy + imageDimensions[1] * ((double) my / (int) (imageDimensions[1] * mainFactor)));
+                        calculatePixelPosition(mx, my);
                     }
                     Tonga.frame().updateZoomLabel(imgx, imgy, mainFactor, zoomFactor);
                     redraw();
@@ -248,6 +243,15 @@ public class TongaRender {
             if (Tonga.getImageIndex() >= 0) {
                 if (Key.keyCtrl) {
                     mainFactor = Math.min(Math.max(mainFactor - (mwe.getWheelRotation() * (1 / (10 / mainFactor))), 0.1), 8);
+                    int oldImgX = imgx, oldImgY = imgy;
+                    double oldPosX = posx, oldPosY = posy;
+                    int mx = mwe.getX(), my = mwe.getY();
+                    calculatePixelPosition(mx, my);
+                    posx += oldImgX - imgx;
+                    posy += oldImgY - imgy;
+                    setDragBounds();
+                    imgx += posx - oldPosX;
+                    imgy += posy - oldPosY;
                 } else if (!zoomFreeze) {
                     zoomFactor = Math.min(Math.max(zoomFactor - (mwe.getWheelRotation() * (1 / (10 / zoomFactor))), 1), 16);
                 }
@@ -266,6 +270,16 @@ public class TongaRender {
         Scene scene2 = new Scene(root2);
         scene2.setFill(Color.GRAY);
         panel.setScene(scene2);
+    }
+
+    private static void calculatePixelPosition(int mx, int my) {
+        imgx = (int) (posx + imageDimensions[0] * ((double) mx / (int) (imageDimensions[0] * mainFactor)));
+        imgy = (int) (posy + imageDimensions[1] * ((double) my / (int) (imageDimensions[1] * mainFactor)));
+    }
+
+    private static void calculatePanelPosition(double x, double y) {
+        posx = Math.min(Math.max(0, x), dragDimensions[0] / mainFactor);
+        posy = Math.min(Math.max(0, y), dragDimensions[1] / mainFactor);
     }
 
     private static void resetZooms() {
@@ -371,7 +385,7 @@ public class TongaRender {
             renderImage = null;
         }
     }
-    
+
     public static ImageData renderImage(ImageData[] layersarray) {
         if (Tonga.getImage().stack) {
             return Blender.renderBlend(layersarray, Blender.modeBridge(Settings.settingBlendMode()));
