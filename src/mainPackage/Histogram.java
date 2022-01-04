@@ -3,6 +3,9 @@ package mainPackage;
 import java.awt.Color;
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferByte;
+import java.lang.reflect.InvocationTargetException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javafx.scene.image.Image;
 import javax.swing.ImageIcon;
 import javax.swing.JLabel;
@@ -19,18 +22,21 @@ public class Histogram {
     private static Integer imageHash = -1;
     private static int[] currentHisto;
     private static long lastStamp;
-    private static int pwidth = 0;
+    private static int panelWidth = 0, panelHeight = 0;
+    private static int diffWidth = 0, diffHeight = 0;
 
     protected static void boot() {
         histoPanel = Tonga.frame().histogramPanel;
         histoLabel = Tonga.frame().histoLabel;
         histoImg = Tonga.frame().histoImg;
         histoCol = histoImg.getBackground();
+        diffWidth = histoPanel.getWidth() - histoLabel.getWidth();
+        diffHeight = histoPanel.getHeight() - histoLabel.getHeight();
         Tonga.log.info("Histograms initialized successfully");
     }
 
     public static void update() {
-        if (pwidth > histoPanel.getWidth()) {
+        if (panelWidth > histoPanel.getWidth() || panelHeight > histoPanel.getHeight()) {
             clearHistogram(Color.white);
         }
         if (Settings.settingBatchProcessing()) {
@@ -44,6 +50,7 @@ public class Histogram {
         SwingUtilities.invokeLater(() -> {
             histoImg.setBackground(col);
             histoLabel.setIcon(null);
+            Tonga.log.trace("1Histopanel: {}, histolabel: {}, cached: {}", histoPanel.getHeight(), histoLabel.getHeight(), panelWidth);
         });
     }
 
@@ -51,7 +58,8 @@ public class Histogram {
         Thread thread = new Thread(() -> {
             long stamp = System.currentTimeMillis();
             try {
-                pwidth = histoPanel.getWidth();
+                panelWidth = histoPanel.getWidth();
+                panelHeight = histoPanel.getHeight();
                 boolean hw = Settings.settingHWAcceleration();
                 if (hw
                         ? (Tonga.thereIsImage() && TongaRender.renderImages != null && TongaRender.renderImages.length > 0)
@@ -69,7 +77,10 @@ public class Histogram {
                     }
                     if (renderHisto != null) {
                         Tonga.log.trace("Render a histogram for {} by {}", imgHash, stamp);
-                        BufferedImage currentImage = renderHistogram(renderHisto, histoLabel.getWidth(), histoLabel.getHeight(), (int) (imgSource.getHeight() * imgSource.getWidth()));
+                        BufferedImage currentImage = renderHistogram(renderHisto,
+                                histoPanel.getWidth() - diffWidth,
+                                histoPanel.getHeight() - diffHeight,
+                                (int) (imgSource.getHeight() * imgSource.getWidth()));
                         if (stamp > lastStamp) {
                             lastStamp = stamp;
                             SwingUtilities.invokeLater(() -> {
