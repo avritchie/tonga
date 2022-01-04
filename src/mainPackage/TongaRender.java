@@ -55,7 +55,7 @@ public class TongaRender {
     static int mousx = 0, mousy = 0;
     static int imgx = 0, imgy = 0;
     static int[] imageDimensions;
-    static int[] dragDimensions;
+    static double[] dragDimensions;
     static Thread bgRenderThread;
 
     static void boot() {
@@ -114,9 +114,9 @@ public class TongaRender {
     }
 
     private static void setDragBounds() {
-        int xlimit = Math.max(0, (int) (imageDimensions[0] * mainFactor - mainPanel.getWidth()));
-        int ylimit = Math.max(0, (int) (imageDimensions[1] * mainFactor - mainPanel.getHeight()));
-        dragDimensions = new int[]{xlimit, ylimit};
+        double xlimit = Math.max(0, (imageDimensions[0] * mainFactor - mainPanel.getWidth()));
+        double ylimit = Math.max(0, (imageDimensions[1] * mainFactor - mainPanel.getHeight()));
+        dragDimensions = new double[]{xlimit, ylimit};
         calculatePanelPosition(posx, posy);
     }
 
