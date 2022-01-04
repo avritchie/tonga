@@ -18,7 +18,17 @@ public class UndoRedo {
         Tonga.frame().setUndoRedoMenu();
     }
 
-    static void undo() {
+    static void undoAction() {
+        if (undoList == null) {
+            if (redoList != null) {
+                redo();
+            }
+        } else {
+            undo();
+        }
+    }
+
+    private static void undo() {
         if (undoList == null) {
             return;
         }
@@ -29,7 +39,7 @@ public class UndoRedo {
         Tonga.frame().setUndoRedoMenu();
     }
 
-    static void redo() {
+    private static void redo() {
         if (redoList == null) {
             return;
         }
