@@ -23,6 +23,7 @@ public class ROI {
     public ROISet set; //setti, johon tämä ROI kuuluu
     public Area area; //objektin täyttämä alue
     public int xcenter, ycenter;
+    public int xcentroid, ycentroid;
     public ImageData originalImage;
     public ROI mask; //maski joka ulottuu arean ulkopuolelle
     // alla olevat arvot ylikirjoitetaan tarvittaessa/käytettäessä
@@ -79,6 +80,13 @@ public class ROI {
         return (area.xstart == 0 || area.ystart == 0 || area.xstart + area.width == originalImage.width || area.ystart + area.height == originalImage.height);
     }
 
+    public int[] getCentroid() {
+        if (xcentroid == 0 && ycentroid == 0) {
+            calculateCentroid();
+        }
+        return new int[]{xcentroid, ycentroid};
+    }
+
     public double getCircularity() {
         if (circularity == 0.0d) {
             circularity = calculateCircularity();
@@ -128,6 +136,21 @@ public class ROI {
             }
         }
         size = s;
+    }
+
+    private void calculateCentroid() {
+        long xc = 0, yc = 0, s = 0;
+        for (int x = 0; x < area.width; x++) {
+            for (int y = 0; y < area.height; y++) {
+                if (area.area[x][y]) {
+                    xc += x;
+                    yc += y;
+                    s++;
+                }
+            }
+        }
+        xcentroid = area.xstart + (int) (xc / s);
+        ycentroid = area.ystart + (int) (yc / s);
     }
 
     protected void quantifyColor(ImageData img) {
@@ -577,10 +600,9 @@ public class ROI {
                     for (int i = -fspan; i < fspan; i++) {
                         if (i <= -(fspan - span) || i >= (fspan - span)) {
                             EdgePoint found = EdgeAnalyzer.getPos(list.list, base, i);
-                            if (found==null) {
+                            if (found == null) {
                                 return;
-                            }
-                            else if (edgeData.cornerPoints.contains(found)
+                            } else if (edgeData.cornerPoints.contains(found)
                                     || edgeData.cornerCandidates.contains(found)
                                     || edgeData.primaryCornerPoints.contains(found)) {
                                 // if the concave point is already detected as a real concave point, the whole process is redundant
@@ -589,8 +611,7 @@ public class ROI {
                                 point.pairings.closestConcaveAngle = 360;
                                 point.pairings.closestConcaveDistance = 0;
                                 return;
-                            }
-                            else if (found.angle < amin && GEO.getDist(found, prev) < 2) {
+                            } else if (found.angle < amin && GEO.getDist(found, prev) < 2) {
                                 if (lineDoesntGoThroughVoid(point, found, area)) {
                                     fpnt = found;
                                     amin = found.angle;
