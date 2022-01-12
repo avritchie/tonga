@@ -187,7 +187,7 @@ public class Wizard extends javax.swing.JFrame {
                 if (a[9]) { //segment
                     if (a[7]) { //numbersize
                         if (a[8]) { //fluorescence
-                            launchProtocol(_NucleusCounterNumber::new, new Object[]{a[22], null, a[14], a[10]});
+                            launchProtocol(_NucleusCounterNumber::new, new Object[]{a[22], a[14], a[10]});
                         } else { //phase contrast
                             //TODO
                         }
@@ -209,7 +209,7 @@ public class Wizard extends javax.swing.JFrame {
                 } else { //dont segment
                     if (a[7]) { //numbersize
                         if (a[8]) { //fluorescence
-                            //NON SEGM launchProtocol(_NucleusCounterNumber::new, new Object[]{a[22], null, a[14],a[10]});
+                            //NON SEGM launchProtocol(_NucleusCounterNumber::new, new Object[]{a[22], a[14],a[10]});
                         } else { //phase contrast
                             //TODO
                         }
