@@ -80,6 +80,7 @@ public class TongaFrame extends JFrame {
     InfoDialog infoDialog;
     Wizard wizardDialog;
     SendForm feedbackDialog;
+    TableViewer tableWindow;
 
     public TongaFrame() {
         loadIconKit();
@@ -4357,7 +4358,11 @@ public class TongaFrame extends JFrame {
     }//GEN-LAST:event_menuWizardMouseClicked
 
     private void maxTabButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_maxTabButtonActionPerformed
-        new TableViewer();
+        if (resultTable.getParent().getParent().equals(resultScrollPane)) {
+            tableWindow = new TableViewer();
+        } else {
+            tableWindow.requestFocus();
+        }
     }//GEN-LAST:event_maxTabButtonActionPerformed
 
     private void tabbedPaneStateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_tabbedPaneStateChanged
