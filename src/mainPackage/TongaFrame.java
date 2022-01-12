@@ -15,7 +15,6 @@ import java.awt.Window;
 import java.awt.desktop.*;
 import java.awt.event.*;
 import java.io.File;
-import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -98,8 +97,10 @@ public class TongaFrame extends JFrame {
                 constructMenuBar();
                 createCloseHandler();
             });
-        } catch (InterruptedException | InvocationTargetException ex) {
+        } catch (InterruptedException ex) {
             Tonga.catchError(ex, "UI creation failed.");
+        } catch (InvocationTargetException ex) {
+            Tonga.catchError(ex.getCause(), "UI creation failed.");
         }
     }
 
@@ -3587,7 +3588,7 @@ public class TongaFrame extends JFrame {
     }//GEN-LAST:event_menuAlphaColorActionPerformed
 
     private void layersListMouseReleased(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_layersListMouseReleased
-        if (evt.getButton() == MouseEvent.BUTTON3) {
+        if (Tonga.thereIsImage() && evt.getButton() == MouseEvent.BUTTON3) {
             if (Tonga.fullLayerIndexCount() == 1) {
                 contLayMerge.setText("Make a copy");
             } else {
@@ -3602,7 +3603,7 @@ public class TongaFrame extends JFrame {
     }//GEN-LAST:event_contImgRenameActionPerformed
 
     private void imagesListMouseReleased(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_imagesListMouseReleased
-        if (evt.getButton() == MouseEvent.BUTTON3) {
+        if (Tonga.thereIsImage() && evt.getButton() == MouseEvent.BUTTON3) {
             contextImageMenu.show((Component) evt.getSource(), evt.getX(), evt.getY());
         }
     }//GEN-LAST:event_imagesListMouseReleased
@@ -4254,22 +4255,7 @@ public class TongaFrame extends JFrame {
     }//GEN-LAST:event_jMenuItem79ActionPerformed
 
     private void jMenuItem80ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem80ActionPerformed
-        File file = new File(Tonga.getAppDataPath() + "tonga.log");
-        try {
-            switch (Tonga.currentOS()) {
-                case WINDOWS:
-                    Runtime.getRuntime().exec("notepad \"" + file.getAbsolutePath() + "\"");
-                    break;
-                case MAC:
-                    new ProcessBuilder("open", "-a", "TextEdit", file.getAbsolutePath()).start();
-                    break;
-                case UNKNOWN:
-                    Desktop.getDesktop().open(file);
-                    break;
-            }
-        } catch (IOException ex) {
-            Tonga.catchError(ex, "Excel can not be started.");
-        }
+        IO.openLogs();
     }//GEN-LAST:event_jMenuItem80ActionPerformed
 
     private void jMenuItem81ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem81ActionPerformed

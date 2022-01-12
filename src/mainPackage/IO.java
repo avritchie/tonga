@@ -62,7 +62,7 @@ public class IO {
     protected static void toTSVfile(JTable table, File file) {
         try {
             TableModel model = table.getModel();
-            try (FileWriter excel = new FileWriter(file)) {
+            try ( FileWriter excel = new FileWriter(file)) {
                 for (int i = 0; i < model.getColumnCount(); i++) {
                     excel.write(model.getColumnName(i).replaceAll("<[^>]*>", "") + "\t");
                 }
@@ -842,6 +842,25 @@ public class IO {
             }
         } catch (IOException ex) {
             Tonga.catchError(ex, "Excel can not be started.");
+        }
+    }
+
+    public static void openLogs() {
+        File file = new File(Tonga.getAppDataPath() + "tonga.log");
+        try {
+            switch (Tonga.currentOS()) {
+                case WINDOWS:
+                    Runtime.getRuntime().exec("notepad \"" + file.getAbsolutePath() + "\"");
+                    break;
+                case MAC:
+                    new ProcessBuilder("open", "-a", "TextEdit", file.getAbsolutePath()).start();
+                    break;
+                case UNKNOWN:
+                    Desktop.getDesktop().open(file);
+                    break;
+            }
+        } catch (IOException ex) {
+            Tonga.catchError(ex, "Logs can not be opened.");
         }
     }
 

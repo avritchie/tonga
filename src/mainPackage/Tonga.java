@@ -154,27 +154,31 @@ public class Tonga {
     }
 
     private static void initLogger() {
-        LoggerContext logger = (LoggerContext) LoggerFactory.getILoggerFactory();
-        FileAppender fap = new FileAppender();
-        fap.setContext(logger);
-        fap.setName("oslog");
-        fap.setFile(getAppDataPath() + "tonga.log");
-        fap.setImmediateFlush(true);
-        fap.setAppend(false);
-        PatternLayoutEncoder ple = new PatternLayoutEncoder();
-        ple.setContext(logger);
-        ple.setPattern("%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] [%level] %msg%n");
-        ple.start();
-        fap.setEncoder(ple);
-        fap.start();
-        standardLogger = logger.getLogger("tonga.logger");
-        standardLogger.addAppender(fap);
-        debugLogger = logger.getLogger("tonga.logger.debug");
-        debugLogger.addAppender(fap);
-        traceLogger = logger.getLogger("tonga.logger.trace");
-        traceLogger.addAppender(fap);
-        log = standardLogger;
-        Tonga.log.info("Logging initialized successfully");
+        try {
+            LoggerContext logger = (LoggerContext) LoggerFactory.getILoggerFactory();
+            FileAppender fap = new FileAppender();
+            fap.setContext(logger);
+            fap.setName("oslog");
+            fap.setFile(getAppDataPath() + "tonga.log");
+            fap.setImmediateFlush(true);
+            fap.setAppend(false);
+            PatternLayoutEncoder ple = new PatternLayoutEncoder();
+            ple.setContext(logger);
+            ple.setPattern("%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] [%level] %msg%n");
+            ple.start();
+            fap.setEncoder(ple);
+            fap.start();
+            standardLogger = logger.getLogger("tonga.logger");
+            standardLogger.addAppender(fap);
+            debugLogger = logger.getLogger("tonga.logger.debug");
+            debugLogger.addAppender(fap);
+            traceLogger = logger.getLogger("tonga.logger.trace");
+            traceLogger.addAppender(fap);
+            log = standardLogger;
+            Tonga.log.info("Logging initialized successfully");
+        } catch (Exception ex) {
+            catchError(ex, "Logging setup failed.");
+        }
     }
 
     protected static void debugMode() {
@@ -1224,12 +1228,21 @@ public class Tonga {
         //ex.printStackTrace(System.out);
         Tonga.log.error("Exception: " + ExceptionUtils.getStackTrace(ex));
         if (mainFrame == null || !mainFrame.isVisible()) {
+            Object[] butt = msg.contains("Logging") ? new String[]{"Exit"} : new String[]{"Exit", "Details"};
+            int r;
             if (ex instanceof NoClassDefFoundError) {
-                JOptionPane.showMessageDialog(null, "Tonga did not start correctly because an external class could not be found.\n"
-                        + "Please make sure you are not trying to launch the JAR file directly.", "Error", JOptionPane.ERROR_MESSAGE);
+                r = JOptionPane.showOptionDialog(null, "Tonga did not start correctly because an external class could not be found.\n"
+                        + "Please make sure you are not trying to launch the JAR file directly.", "Error",
+                        JOptionPane.YES_NO_OPTION, JOptionPane.ERROR_MESSAGE,
+                        null, butt, 0);
             } else {
-                JOptionPane.showMessageDialog(null, "Tonga did not " + (happyBoot ? "exit" : "start") + " correctly because an unexpected "
-                        + ex.getClass().getSimpleName() + " occured." + (msg == null ? "" : " " + msg), "Error", JOptionPane.ERROR_MESSAGE);
+                r = JOptionPane.showOptionDialog(null, "Tonga did not " + (happyBoot ? "exit" : "start") + " correctly because an unexpected "
+                        + ex.getClass().getSimpleName() + " occured." + (msg == null ? "" : " " + msg), "Error",
+                        JOptionPane.YES_NO_OPTION, JOptionPane.ERROR_MESSAGE,
+                        null, butt, 0);
+            }
+            if (r == 1) {
+                IO.openLogs();
             }
             System.exit(1);
         } else {
