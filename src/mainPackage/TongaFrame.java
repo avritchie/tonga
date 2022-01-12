@@ -80,6 +80,7 @@ public class TongaFrame extends JFrame {
     Splash splashDialog;
     InfoDialog infoDialog;
     Wizard wizardDialog;
+    SendForm feedbackDialog;
 
     public TongaFrame() {
         loadIconKit();
@@ -122,6 +123,8 @@ public class TongaFrame extends JFrame {
         initializeDialog(infoDialog);
         wizardDialog = new Wizard();
         initializeDialog(wizardDialog);
+        feedbackDialog = new SendForm();
+        initializeDialog(feedbackDialog);
         Tonga.log.info("Dialogs initialized successfully");
     }
 
@@ -508,6 +511,28 @@ public class TongaFrame extends JFrame {
             }
             Tonga.log.info("MacOS components initialized successfully");
         }
+    }
+
+    void logSysInfo() {
+        Tonga.log.info("The JRE version is {} and the JFX version is {}", Tonga.javaREVersion, Tonga.javaFxVersion);
+        Tonga.log.info("This CPU has {} threads available.", Runtime.getRuntime().availableProcessors());
+        Tonga.log.info("The display has {}% resolution scaling.", TongaRender.getDisplayScaling() * 100);
+        switch (Tonga.currentOS) {
+            case WINDOWS:
+                Tonga.log.info("The current operating system is Windows.");
+                break;
+            case MAC:
+                Tonga.log.info("The current operating system is Mac OS.");
+                break;
+            case UNKNOWN:
+                Tonga.log.info("Unknown operating system: " + System.getProperty("os.name"));
+                break;
+        }
+        Tonga.log.info("The local storage path is {}", Tonga.getAppDataPath());
+        Tonga.log.info("The cache storage path is {}", Tonga.getTempPath());
+        long mem = Runtime.getRuntime().totalMemory();
+        long memm = Runtime.getRuntime().maxMemory();
+        Tonga.log.info("Max RAM memory available: {} MB, currently {} MB ({}%) used.", (memm / 1000000), (mem / 1000000), ((int) ((double) mem / memm * 100)));
     }
 
     int[] getWindowSizeRecommendation() {
@@ -4149,25 +4174,7 @@ public class TongaFrame extends JFrame {
     }//GEN-LAST:event_jMenuItem69ActionPerformed
 
     private void debugSysInfoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_debugSysInfoActionPerformed
-        Tonga.log.debug("The JRE version is {} and the JFX version is {}", Tonga.javaREVersion, Tonga.javaFxVersion);
-        Tonga.log.debug("This CPU has {} threads available.", Runtime.getRuntime().availableProcessors());
-        Tonga.log.debug("The display has {}% resolution scaling.", TongaRender.getDisplayScaling() * 100);
-        switch (Tonga.currentOS) {
-            case WINDOWS:
-                Tonga.log.debug("The current operating system is Windows.");
-                break;
-            case MAC:
-                Tonga.log.debug("The current operating system is Mac OS.");
-                break;
-            case UNKNOWN:
-                Tonga.log.debug("Unknown operating system: " + System.getProperty("os.name"));
-                break;
-        }
-        Tonga.log.debug("The local storage path is {}", Tonga.getAppDataPath());
-        Tonga.log.debug("The cache storage path is {}", Tonga.getTempPath());
-        long mem = Runtime.getRuntime().totalMemory();
-        long memm = Runtime.getRuntime().maxMemory();
-        Tonga.log.debug("Max RAM memory available: {} MB, currently {} MB ({}%) used.", (memm / 1000000), (mem / 1000000), ((int) ((double) mem / memm * 100)));
+        logSysInfo();
     }//GEN-LAST:event_debugSysInfoActionPerformed
 
     private void jMenuItem70ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem70ActionPerformed
@@ -4352,7 +4359,7 @@ public class TongaFrame extends JFrame {
     }//GEN-LAST:event_jMenuItem83ActionPerformed
 
     private void jMenuItem88ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem88ActionPerformed
-        //
+        popupDialog(feedbackDialog);
     }//GEN-LAST:event_jMenuItem88ActionPerformed
 
     private void menuWizardMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_menuWizardMouseClicked
