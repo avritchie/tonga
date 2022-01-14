@@ -50,8 +50,8 @@
               </Group>
               <EmptySpace min="-2" pref="25" max="-2" attributes="0"/>
               <Group type="103" groupAlignment="0" max="-2" attributes="0">
-                  <Component id="jLabel1" pref="200" max="32767" attributes="0"/>
                   <Component id="jScrollPane2" pref="0" max="32767" attributes="0"/>
+                  <Component id="jLabel1" pref="242" max="32767" attributes="0"/>
               </Group>
               <EmptySpace min="-2" pref="25" max="-2" attributes="0"/>
           </Group>
@@ -75,7 +75,7 @@
                       </Group>
                       <EmptySpace min="-2" pref="20" max="-2" attributes="0"/>
                       <Group type="103" groupAlignment="0" attributes="0">
-                          <Component id="firstDescription" pref="98" max="32767" attributes="0"/>
+                          <Component id="firstDescription" pref="118" max="32767" attributes="0"/>
                           <Component id="secondDescription" max="32767" attributes="0"/>
                       </Group>
                       <EmptySpace type="separate" max="-2" attributes="0"/>
@@ -142,6 +142,11 @@
       <Properties>
         <Property name="text" type="java.lang.String" value="&lt;html&gt;&lt;b&gt;Selections so far&lt;/b&gt;&lt;br&gt;Double click a selection to go back...&lt;/html&gt;"/>
         <Property name="verticalAlignment" type="int" value="3"/>
+        <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
+          <Border info="org.netbeans.modules.form.compat2.border.EmptyBorderInfo">
+            <EmptyBorder bottom="2" left="2" right="2" top="2"/>
+          </Border>
+        </Property>
       </Properties>
     </Component>
     <Container class="javax.swing.JPanel" name="secondPanel">

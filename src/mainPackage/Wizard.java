@@ -8,6 +8,7 @@ package mainPackage;
 import java.awt.Component;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.util.Arrays;
 import java.util.function.Supplier;
 import javax.swing.DefaultListCellRenderer;
 import javax.swing.DefaultListModel;
@@ -156,7 +157,7 @@ public class Wizard extends javax.swing.JFrame {
             case 13:
                 return 9;
             case 14:
-                return 10;
+                return a[11] ? -1 : 10;
             case 16:
                 return -1;
             case 17:
@@ -179,6 +180,7 @@ public class Wizard extends javax.swing.JFrame {
     }
 
     private void selectProtocol() {
+        logSelections();
         launchStatus = false;
         if (a[0]) { //new images
             if (a[1]) { //tissue
@@ -187,13 +189,13 @@ public class Wizard extends javax.swing.JFrame {
                 if (a[9]) { //segment
                     if (a[7]) { //numbersize
                         if (a[8]) { //fluorescence
-                            launchProtocol(_NucleusCounterNumber::new, new Object[]{a[22], a[14], a[10]});
+                            launchProtocol(_NucleusCounterNumber::new, new Object[]{a[22], a[14], !a[10]});
                         } else { //phase contrast
                             //TODO
                         }
                     } else { //stainings
                         if (a[11]) { //positivity
-                            launchProtocol(_NucleusCounterPositivity::new, new Object[]{null, a[23], a[22], a[14], a[10]});
+                            launchProtocol(_NucleusCounterPositivity::new, new Object[]{null, a[23], a[22], a[14]});
                         } else { //intensity
                             if (a[12]) { //object themselves
                                 if (a[13]) { // whole/single stain
@@ -209,13 +211,13 @@ public class Wizard extends javax.swing.JFrame {
                 } else { //dont segment
                     if (a[7]) { //numbersize
                         if (a[8]) { //fluorescence
-                            //NON SEGM launchProtocol(_NucleusCounterNumber::new, new Object[]{a[22], a[14],a[10]});
+                            //NON SEGM launchProtocol(_NucleusCounterNumber::new, new Object[]{a[22], a[14],!a[10]});
                         } else { //phase contrast
                             //TODO
                         }
                     } else { //stainings
                         if (a[11]) { //positivity
-                            //NON SEGM launchProtocol(_NucleusCounterPositivity::new, new Object[]{null,a[23], a[22], a[14],a[10]});
+                            //NON SEGM launchProtocol(_NucleusCounterPositivity::new, new Object[]{null,a[23], a[22], a[14]});
                         } else { //intensity
                             if (a[12]) { //object themselves
                                 if (a[13]) { // whole/single stain
@@ -247,6 +249,7 @@ public class Wizard extends javax.swing.JFrame {
     }
 
     private void launchProtocol(Supplier<Protocol> supp, Object[] params) {
+        Tonga.log.info("Invoking \"{}\" with params {}", supp.get().getClass().getSimpleName(), Arrays.toString(params));
         Tonga.frame().launchProtocol(supp, null);
         Protocol cp = Tonga.frame().currentProtocol;
         cp.param.setControlParameters(cp.panelCreator, params);
@@ -255,9 +258,9 @@ public class Wizard extends javax.swing.JFrame {
 
     private void answerQuestion(boolean b) {
         int r = getDest(b);
+        listModel.addElement(new WizardReply(id, b, entries[id].key + ": " + entries[id].opt[b ? 0 : 1]));
+        a[id] = b;
         if (r != -1) {
-            listModel.addElement(new WizardReply(id, b, entries[id].key + ": " + entries[id].opt[b ? 0 : 1]));
-            a[id] = b;
             loadEntry(r);
         } else {
             selectProtocol();
@@ -319,6 +322,21 @@ public class Wizard extends javax.swing.JFrame {
             listModel.remove(i);
         }
         loadEntry(r.id);
+    }
+
+    private void logSelections() {
+        StringBuilder sb = new StringBuilder();
+        int l = listModel.getSize();
+        for (int i = 0; i < l; i++) {
+            WizardReply r = (WizardReply) listModel.get(i);
+            sb.append(r.id);
+            sb.append(":");
+            sb.append(a[r.id]);
+            if (i < l) {
+                sb.append(",");
+            }
+        }
+        Tonga.log.info("Wizard selections: {}", sb);
     }
 
     private class WizardEntry {
@@ -430,6 +448,7 @@ public class Wizard extends javax.swing.JFrame {
 
         jLabel1.setText("<html><b>Selections so far</b><br>Double click a selection to go back...</html>");
         jLabel1.setVerticalAlignment(javax.swing.SwingConstants.BOTTOM);
+        jLabel1.setBorder(javax.swing.BorderFactory.createEmptyBorder(2, 2, 2, 2));
 
         secondPanel.setBorder(javax.swing.BorderFactory.createEtchedBorder());
 
@@ -490,8 +509,8 @@ public class Wizard extends javax.swing.JFrame {
                     .addComponent(question, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addGap(25, 25, 25)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                    .addComponent(jLabel1, javax.swing.GroupLayout.DEFAULT_SIZE, 200, Short.MAX_VALUE)
-                    .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE))
+                    .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
+                    .addComponent(jLabel1, javax.swing.GroupLayout.DEFAULT_SIZE, 242, Short.MAX_VALUE))
                 .addGap(25, 25, 25))
         );
         layout.setVerticalGroup(
@@ -510,7 +529,7 @@ public class Wizard extends javax.swing.JFrame {
                             .addComponent(firstPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                         .addGap(20, 20, 20)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(firstDescription, javax.swing.GroupLayout.DEFAULT_SIZE, 98, Short.MAX_VALUE)
+                            .addComponent(firstDescription, javax.swing.GroupLayout.DEFAULT_SIZE, 118, Short.MAX_VALUE)
                             .addComponent(secondDescription))
                         .addGap(18, 18, 18)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
