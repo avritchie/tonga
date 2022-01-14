@@ -139,51 +139,54 @@ public class PanelParams {
     }
 
     public void setControlParameters(PanelCreator panelControls, Object... parameters) {
-        for (int i = 0, j = 0; i < parameters.length; i++, j++) {
-            if (parameters[i] != null) {
+        try {
+            for (int i = 0, j = 0; i < parameters.length; i++, j++) {
                 PanelControl pc = panelControls.getControls().get(j);
-                switch (pc.type) {
-                    case SLIDER:
-                        if (parameters[i].getClass() == Double.class) {
-                            ((JSlider) pc.comp).setValue(PanelControl.scaledVal((double) parameters[i], sliderParams(pc.data)));
-                        } else {
-                            ((JSlider) pc.comp).setValue((int) parameters[i]);
-                        }
-                        break;
-                    case RANGE:
-                        ((JRangeSlider) pc.comp).setValue((int) parameters[i]);
-                        i++;
-                        ((JRangeSlider) pc.comp).setUpperValue((int) parameters[i]);
-                        break;
-                    case COLOUR:
-                        if (parameters[i].getClass() == Integer.class) {
-                            ((JButton) pc.comp).setBackground(new Color((int) parameters[i]));
-                        } else if (parameters[i].getClass() == javafx.scene.paint.Color.class) {
-                            ((JButton) pc.comp).setBackground(COL.FX2awt(((javafx.scene.paint.Color) parameters[i])));
-                        }
-                        break;
-                    case SPINNER:
-                        if (parameters[i].getClass() == Integer.class) {
-                            ((JSpinner) pc.comp).setValue((int) parameters[i]);
-                        } else if (parameters[i].getClass() == Double.class) {
-                            ((JSpinner) pc.comp).setValue(((Double) parameters[i]).intValue());
-                        }
-                        break;
-                    case COMBO:
-                        ((JComboBox) pc.comp).setSelectedIndex((int) parameters[i]);
-                        break;
-                    case SELECT:
-                        ((JComboBox) pc.comp).setSelectedIndex((int) parameters[i]);
-                        break;
-                    case LAYER:
-                        // layers skipped
-                        i--;
-                        break;
-                    case TOGGLE:
-                        ((JToggleButton) pc.comp).setSelected((boolean) parameters[i]);
-                        break;
+                if (pc.type == LAYER) {
+                    // layers skipped
+                    i--;
+                } else if (parameters[i] != null) {
+                    switch (pc.type) {
+                        case SLIDER:
+                            if (parameters[i].getClass() == Double.class) {
+                                ((JSlider) pc.comp).setValue(PanelControl.scaledVal((double) parameters[i], sliderParams(pc.data)));
+                            } else {
+                                ((JSlider) pc.comp).setValue((int) parameters[i]);
+                            }
+                            break;
+                        case RANGE:
+                            ((JRangeSlider) pc.comp).setValue((int) parameters[i]);
+                            i++;
+                            ((JRangeSlider) pc.comp).setUpperValue((int) parameters[i]);
+                            break;
+                        case COLOUR:
+                            if (parameters[i].getClass() == Integer.class) {
+                                ((JButton) pc.comp).setBackground(new Color((int) parameters[i]));
+                            } else if (parameters[i].getClass() == javafx.scene.paint.Color.class) {
+                                ((JButton) pc.comp).setBackground(COL.FX2awt(((javafx.scene.paint.Color) parameters[i])));
+                            }
+                            break;
+                        case SPINNER:
+                            if (parameters[i].getClass() == Integer.class) {
+                                ((JSpinner) pc.comp).setValue((int) parameters[i]);
+                            } else if (parameters[i].getClass() == Double.class) {
+                                ((JSpinner) pc.comp).setValue(((Double) parameters[i]).intValue());
+                            }
+                            break;
+                        case COMBO:
+                            ((JComboBox) pc.comp).setSelectedIndex((int) parameters[i]);
+                            break;
+                        case SELECT:
+                            ((JComboBox) pc.comp).setSelectedIndex((int) parameters[i]);
+                            break;
+                        case TOGGLE:
+                            ((JToggleButton) pc.comp).setSelected((boolean) parameters[i]);
+                            break;
+                    }
                 }
             }
+        } catch (ArrayIndexOutOfBoundsException ex) {
+            Tonga.catchError(ex, "Too many launch parameters supplied.");
         }
     }
 
