@@ -33,7 +33,7 @@ public class _NucleusCounterIntensity extends Protocol {
         boolean deadMode = param.toggle[2];
         boolean imgMode = param.toggle[3];
 
-        return new ProcessorFast("Nucleus Intensities", bgMode ? 168 : 156) {
+        return new ProcessorFast("Nucleus Intensities", bgMode ? 230 : 215) {
 
             @Override
             protected void pixelProcessor() {
