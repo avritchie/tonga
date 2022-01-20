@@ -1,4 +1,4 @@
 Manifest-Version: 1.0
-Class-Path: lib/bioformats.jar
+Class-Path: lib/bioformats.jar lib/gapi.jar lib/logback.jar
 X-COMMENT: Main-Class will be added automatically by build
 
