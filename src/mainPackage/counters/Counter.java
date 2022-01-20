@@ -1,6 +1,5 @@
 package mainPackage.counters;
 
-import java.util.List;
 import javax.swing.SwingUtilities;
 import javax.swing.table.DefaultTableModel;
 import mainPackage.CachedImage;
@@ -16,16 +15,19 @@ public abstract class Counter {
     TableData data;
     String imageName;
     public String counterName;
+    public String[] columnNames;
 
     public Counter(String counter, String[] columns) {
         counterName = counter;
-        data = new TableData(columns);
+        columnNames = columns;
+        resetData();
     }
 
     public TableData runAll() {
         int index = Tonga.getLayerIndex();
         int images = Tonga.getImageList().size();
         String commonName = Tonga.getLayer().layerName;
+        resetData();
         Tonga.loader().setIterations(images);
         for (int i = 0; i < images; i++) {
             TongaImage pic = Tonga.getImageList().get(i);
@@ -38,6 +40,7 @@ public abstract class Counter {
     }
 
     public TableData runSingle() {
+        resetData();
         Tonga.loader().setIterations(1);
         return runSingle(Tonga.getImage(), Tonga.getLayerList().get(Tonga.getLayerIndex()));
     }
@@ -100,6 +103,10 @@ public abstract class Counter {
         throw new UnsupportedOperationException("No 16-bit version available");
     }
 
+    private void resetData() {
+        data = new TableData(columnNames);
+    }
+
     public static void publish(TableData tableData) {
         if (tableData == null || tableData.rows.isEmpty()) {
             Tonga.log.warn("Attempted to publish an empty data table.");
@@ -113,6 +120,8 @@ public abstract class Counter {
             if (model.getRowCount() == 0 && model.getColumnCount() == 0) {
                 renew = true;
             } else if (model.getColumnCount() != tableData.columns.length) {
+                renew = true;
+            } else {
                 for (int i = 0; i < model.getColumnCount(); i++) {
                     if (!model.getColumnName(i).equals(tableData.columns[i])) {
                         renew = true;
