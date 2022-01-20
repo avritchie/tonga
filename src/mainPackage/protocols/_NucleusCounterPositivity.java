@@ -20,8 +20,7 @@ public class _NucleusCounterPositivity extends Protocol {
             new ControlReference(TOGGLE, "Estimate and subtract the background", 1),
             new ControlReference(TOGGLE, "Ignore nuclei touching the edges", 1),
             //new ControlReference(SPINNER, "Ignore nuclei that are smaller than (pixels)", 500),
-            new ControlReference(TOGGLE, "Detect and remove dividing/dead cells", 1),
-            new ControlReference(TOGGLE, "Results as average per image", 0)};
+            new ControlReference(TOGGLE, "Detect and remove dividing/dead cells", 1)};
     }
 
     @Override
@@ -31,16 +30,15 @@ public class _NucleusCounterPositivity extends Protocol {
         boolean bgMode = param.toggle[0];
         boolean toucherMode = param.toggle[1];
         boolean deadMode = param.toggle[2];
-        boolean imgMode = param.toggle[3];
 
-        return new ProcessorFast("Positive Nuclei", bgMode ? 117 : 105) {
+        return new ProcessorFast("Positive Nuclei", bgMode ? 174 : 159) {
 
             @Override
             protected void pixelProcessor() {
                 Protocol nc = Protocol.load(__NucleusCounterSelfIntensity::new);
                 ImageData[] id = nc.runSilent(sourceImage,
                         new ImageData[]{inImage[0], inImage[1]},
-                        true, thresh, bgMode, toucherMode, deadMode, imgMode);
+                        true, thresh, bgMode, toucherMode, deadMode, true);
                 setOutputBy(id);
                 setDatasBy(nc);
             }
