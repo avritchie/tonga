@@ -19,7 +19,6 @@ public class ROISet {
 
     public List<ROI> list;
     public int width, height;
-    private STAT statsSize, statsStain;
     private boolean drawAngles;
     private boolean edgeOrder;
     protected int targetsize;
@@ -185,7 +184,7 @@ public class ROISet {
                     if (useAverage) {
                         val = 255 - ((int) (o.getStainAvg() * 255));
                     } else {
-                        val = 255 - ((int) (o.getStain() * fact));
+                        val = 255 - ((int) (o.getStainSum() * fact));
                     }
                     int color = 0xFFFF0000 | val << 8 | val;
                     out[pos] = color;
@@ -220,7 +219,7 @@ public class ROISet {
     }
 
     private double getMaxStain() {
-        return list.stream().mapToDouble(o -> o.getStain()).max().getAsDouble();
+        return list.stream().mapToDouble(o -> o.getStainSum()).max().getAsDouble();
     }
 
     public int[] drawStainArray(boolean useAverage) {
@@ -236,7 +235,7 @@ public class ROISet {
                     if (useAverage) {
                         val = 255 - ((int) (o.getStainAvg() * 255));
                     } else {
-                        val = 255 - ((int) (o.getStain() * fact));
+                        val = 255 - ((int) (o.getStainSum() * fact));
                     }
                     int color = 0xFFFF0000 | val << 8 | val;
                     out[pos] = color;
@@ -759,7 +758,7 @@ public class ROISet {
         Iterator<? extends ROI> it = list.iterator();
         while (it.hasNext()) {
             ROI roi = it.next();
-            Tonga.log.trace("Nucleus stain={}, ={}, avgstainmult={}, size={}, avgsizemult={}", roi.getStain(), (avgStain * (2.5 * multiplier)), roi.getSize(), (avgSize * (0.5 + (0.5 * multiplier))));
+            Tonga.log.trace("Nucleus stain={}, ={}, avgstainmult={}, size={}, avgsizemult={}", roi.getStainSum(), (avgStain * (2.5 * multiplier)), roi.getSize(), (avgSize * (0.5 + (0.5 * multiplier))));
             if (roi.getStainAvg() > avgStain * (2.5 * multiplier) && roi.getSize() * (0.5 + (0.5 * multiplier)) < avgSize) {
                 Tonga.log.trace("was NOT REMOVED");
                 //   it.remove();
@@ -820,17 +819,25 @@ public class ROISet {
     }
 
     public STAT statsForTotalSize() {
-        if (statsSize == null) {
-            statsSize = new STAT(list.stream().mapToDouble(l -> l.getSize()).toArray());
-        }
-        return statsSize;
+        return new STAT(list.stream().mapToDouble(l -> l.getSize()).toArray());
     }
 
-    public STAT statsForStain() {
-        if (statsStain == null) {
-            statsStain = new STAT(list.stream().mapToDouble(l -> l.getStainAvg()).toArray());
-        }
-        return statsStain;
+    public STAT statsForStainAvg() {
+        return new STAT(list.stream().mapToDouble(l -> l.getStainAvg()).toArray());
+    }
+
+    public STAT statsForStainSum() {
+        return new STAT(list.stream().mapToDouble(l -> l.getStainSum()).toArray());
+    }
+
+    public STAT statsForStainAvg(double avgRawBg) {
+        //subtract the background value
+        return new STAT(list.stream().mapToDouble(l -> l.getStainAvg(avgRawBg)).toArray());
+    }
+
+    public STAT statsForStainSum(double avgRawBg) {
+        //subtract the background value
+        return new STAT(list.stream().mapToDouble(l -> l.getStainSum(avgRawBg)).toArray());
     }
 
     public double avgCornerlessRoundness() {

@@ -60,7 +60,17 @@ public class ROI {
         return Math.max(area.width, area.height);
     }
 
-    public double getStain() {
+    public double getStainSum(double avgRawBg) {
+        //subtract the background value
+        return quantitativeValue - (avgRawBg * quantitativeSTAT.getN());
+    }
+
+    public double getStainAvg(double avgRawBg) {
+        //subtract the background value
+        return quantitativeValue / quantitativeSTAT.getN() - avgRawBg;
+    }
+
+    public double getStainSum() {
         return quantitativeValue;
     }
 

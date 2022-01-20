@@ -100,7 +100,7 @@ public class SetCounters {
                     row[3] = (Integer) cent[1];
                     row[4] = obj.getStainSTAT().getN();
                     row[5] = STAT.decToPerc(obj.getStainAvg());
-                    row[6] = obj.getStain();
+                    row[6] = obj.getStainSum();
                     if (f < set.objectsCount() - 1) {
                         row = data.newRow(name);
                     }
@@ -112,7 +112,7 @@ public class SetCounters {
 
     public static SetCounter countObjectStainsBGSingle(ROISet set, double bg) {
         return new SetCounter("Count staining", new String[]{"Image", "Object", "X", "Y", "Area",
-            "Stain %", "<html><b>Stain % w/o background</b></html>", "Stain sum", "Stain sum w/o background"}) {
+            "Stain %", "<html><b>Stain % w/o background</b></html>", "Stain sum", "<html><b>Stain sum w/o background</b></html>"}) {
 
             @Override
             protected void processor(Object[] row) {
@@ -127,9 +127,11 @@ public class SetCounters {
                     row[3] = (Integer) cent[1];
                     row[4] = obj.getStainSTAT().getN();
                     row[5] = STAT.decToPerc(obj.getStainAvg());
-                    row[6] = STAT.decToPerc((obj.getStain() - (obj.getSize() * bg)) / obj.getSize());
-                    row[7] = obj.getStain();
-                    row[8] = obj.getStain() - (obj.getSize() * bg);
+                    //row[6] = STAT.decToPerc((obj.getStainSum() - (obj.getSize() * bg)) / obj.getSize());
+                    row[6] = STAT.decToPerc(obj.getStainAvg(bg));
+                    row[7] = obj.getStainSum();
+                    //row[8] = obj.getStainSum() - (obj.getSize() * bg);
+                    row[8] = obj.getStainSum(bg);
                     if (f < set.objectsCount() - 1) {
                         row = data.newRow(name);
                     }
@@ -140,36 +142,48 @@ public class SetCounters {
     }
 
     public static SetCounter countObjectStainsImage(ROISet set) {
-        return new SetCounter("Count staining", new String[]{"Image", "Objects", "Avg.Stain", "Std.Stain", "Med.Stain"}) {
+        return new SetCounter("Count staining", new String[]{"Image", "Objects",
+            "<html><b>Avg.Stain %</b></html>", "Std.Stain %", "Med.Stain %",
+            "<html><b>Avg.Stain sum</b></html>", "Std.Stain sum", "Med.Stain sum"}) {
 
             @Override
             protected void processor(Object[] row) {
-                STAT stain = set.statsForStain();
+                STAT stain = set.statsForStainAvg();
                 row[1] = set.objectsCount();
-                row[2] = stain.getMean();
-                row[3] = stain.getStdDev();
-                row[4] = stain.getMedian();
+                row[2] = STAT.decToPerc(stain.getMean());
+                row[3] = STAT.decToPerc(stain.getStdDev());
+                row[4] = STAT.decToPerc(stain.getMedian());
+                stain = set.statsForStainSum();
+                row[5] = stain.getMean();
+                row[6] = stain.getStdDev();
+                row[7] = stain.getMedian();
             }
         };
     }
 
     public static SetCounter countObjectStainsBGImage(ROISet set, double bg) {
-        return new SetCounter("Count staining", new String[]{"Image", "Objects", "Background", "Avg.Stain w/o background", "Std.Stain", "Med.Stain w/o background"}) {
+        return new SetCounter("Count staining", new String[]{"Image", "Objects", "Background %",
+            "<html><b>Avg.Stain % w/o background</b></html>", "Std.Stain %", "Med.Stain % w/o background",
+            "<html><b>Avg.Stain sum w/o background</b></html>", "Std.Stain sum", "Med.Stain sum w/o background"}) {
 
             @Override
             protected void processor(Object[] row) {
-                STAT stain = set.statsForStain();
+                STAT stain = set.statsForStainAvg(bg);
                 row[1] = set.objectsCount();
-                row[2] = bg;
-                row[3] = stain.getMean() - bg;
-                row[4] = stain.getStdDev();
-                row[5] = stain.getMedian() - bg;
+                row[2] = STAT.decToPerc(bg);
+                row[3] = STAT.decToPerc(stain.getMean());
+                row[4] = STAT.decToPerc(stain.getStdDev());
+                row[5] = STAT.decToPerc(stain.getMedian());
+                stain = set.statsForStainSum(bg);
+                row[6] = stain.getMean();
+                row[7] = stain.getStdDev();
+                row[8] = stain.getMedian();
             }
         };
     }
 
     public static SetCounter countObjectPositive(ROISet set, double d) {
-        return new SetCounter("Count positivity", new String[]{"Image", "Cells", "Positive", "<html><b>Ratio %</b></html>"}) {
+        return new SetCounter("Count positivity", new String[]{"Image", "Objects", "Positive", "<html><b>Ratio %</b></html>"}) {
 
             @Override
             protected void processor(Object[] row) {
@@ -181,12 +195,17 @@ public class SetCounters {
     }
 
     public static SetCounter countObjectPositiveBG(ROISet set, double bg, double d) {
-        return new SetCounter("Count positivity", new String[]{"Image", "Cells", "Positive", "<html><b>Ratio %</b></html>"}) {
+        return new SetCounter("Count positivity", new String[]{"Image", "Objects", "Positive", "<html><b>Ratio %</b></html>"}) {
 
             @Override
             protected void processor(Object[] row) {
                 row[1] = set.objectsCount();
-                row[2] = set.objectsCountStainPositive((d - bg) * (1 / (1 - bg)));
+                //row[2] = set.objectsCountStainPositive((d - bg) * (1 / (1 - bg)));
+                //the threshold re-calculated to adjust for the range when bg removed
+                //with 0.5 intensity, 0.1 background, and 50% threshold the range is
+                //between 0.1 and 1.0, and thus the 50% threshold will be adjusted to halfway
+                //i.e. it will be changed to 55% (>0.55 is positive)
+                row[2] = set.objectsCountStainPositive((1 - bg) * d + bg);
                 row[3] = STAT.decToPerc(((Integer) row[2]) / (double) ((Integer) row[1]));
             }
         };
