@@ -2,7 +2,6 @@ package mainPackage.protocols;
 
 import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.logging.Logger;
 import mainPackage.utils.COL;
 import mainPackage.ImageData;
 import mainPackage.PanelCreator.ControlReference;
@@ -24,7 +23,7 @@ public class _EstimateNucleusSize extends Protocol {
     @Override
     protected ControlReference[] getParameters() {
         return new ControlReference[]{
-            new ControlReference(LAYER, "Image with nucleis is at which layer")};
+            new ControlReference(LAYER, "The layer with the objects")};
     }
 
     @Override

@@ -24,7 +24,7 @@ public class BreakImageRGB extends Protocol {
             new ControlReference(TOGGLE, "Green", 1),
             new ControlReference(TOGGLE, "Blue", 1),
             new ControlReference(TOGGLE, "Alpha", 0),
-            new ControlReference(TOGGLE, "Output at luminescence", 0)};
+            new ControlReference(TOGGLE, "Output as brightness", 0)};
     }
 
     @Override

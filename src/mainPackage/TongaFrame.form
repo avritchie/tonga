@@ -459,7 +459,7 @@
                   <SubComponents>
                     <MenuItem class="javax.swing.JMenuItem" name="jMenuItem30">
                       <Properties>
-                        <Property name="text" type="java.lang.String" value="Extreme color"/>
+                        <Property name="text" type="java.lang.String" value="Extreme colour"/>
                         <Property name="toolTipText" type="java.lang.String" value="Make every pixel have maximum colour"/>
                       </Properties>
                       <Events>
@@ -468,7 +468,7 @@
                     </MenuItem>
                     <MenuItem class="javax.swing.JMenuItem" name="jMenuItem32">
                       <Properties>
-                        <Property name="text" type="java.lang.String" value="Extreme color &amp; brightness"/>
+                        <Property name="text" type="java.lang.String" value="Extreme colour &amp; brightness"/>
                         <Property name="toolTipText" type="java.lang.String" value="Make every pixel completely bright and maximum colour"/>
                       </Properties>
                       <Events>
@@ -515,7 +515,7 @@
                     </MenuItem>
                     <MenuItem class="javax.swing.JMenuItem" name="menuAlphaColor">
                       <Properties>
-                        <Property name="text" type="java.lang.String" value="Covert colour to alpha"/>
+                        <Property name="text" type="java.lang.String" value="Convert colour to alpha"/>
                         <Property name="toolTipText" type="java.lang.String" value="Transform the selected colour into the alpha channel"/>
                       </Properties>
                       <Events>
@@ -734,6 +734,7 @@
                 <MenuItem class="javax.swing.JMenuItem" name="jMenuItem34">
                   <Properties>
                     <Property name="text" type="java.lang.String" value="Scale brightness to range"/>
+                    <Property name="toolTipText" type="java.lang.String" value="Set a minimum darkness and maximum brightness limit, and scale the pixel values to this range."/>
                   </Properties>
                   <Events>
                     <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jMenuItem34ActionPerformed"/>
@@ -745,7 +746,7 @@
                       <KeyStroke key="Shift+B"/>
                     </Property>
                     <Property name="text" type="java.lang.String" value="Scale brightness to maximum"/>
-                    <Property name="toolTipText" type="java.lang.String" value="Same as above, but ignore certain percentage of the darkest and brightest values to remove noise and bright dots"/>
+                    <Property name="toolTipText" type="java.lang.String" value="Same as above, but detect the minimum and maximum automatically, so that no data is lost."/>
                   </Properties>
                   <Events>
                     <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jMenuItem41ActionPerformed"/>
@@ -754,7 +755,7 @@
                 <MenuItem class="javax.swing.JMenuItem" name="jMenuItem60">
                   <Properties>
                     <Property name="text" type="java.lang.String" value="Scale brightness to maximum with adaptation"/>
-                    <Property name="toolTipText" type="java.lang.String" value="Same as above, but ignore some of the darkest and brightest values to remove noise and bright dots"/>
+                    <Property name="toolTipText" type="java.lang.String" value="Same as above, but ignore certain percentage of the darkest and brightest values to remove noise and bright dots"/>
                   </Properties>
                   <Events>
                     <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jMenuItem60ActionPerformed"/>
@@ -812,7 +813,7 @@
                 <MenuItem class="javax.swing.JMenuItem" name="menuBoxBlur">
                   <Properties>
                     <Property name="text" type="java.lang.String" value="Box blur"/>
-                    <Property name="toolTipText" type="java.lang.String" value="Precise box blurring without approximation (please note this is &lt;font color=&quot;red&quot;&gt;slow&lt;/font&gt;)"/>
+                    <Property name="toolTipText" type="java.lang.String" value="Implementation of the box blur in a given radius"/>
                   </Properties>
                   <Events>
                     <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="menuBoxBlurActionPerformed"/>
@@ -1160,7 +1161,7 @@
                     <MenuItem class="javax.swing.JMenuItem" name="jMenuItem25">
                       <Properties>
                         <Property name="text" type="java.lang.String" value="Distance to the edges"/>
-                        <Property name="toolTipText" type="java.lang.String" value="Calculate the distances to the edges with the watershed-algorithm"/>
+                        <Property name="toolTipText" type="java.lang.String" value="Create a distance map by calculating the distance to the closest edge for every pixel"/>
                       </Properties>
                       <Events>
                         <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jMenuItem25ActionPerformed"/>

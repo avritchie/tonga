@@ -2312,7 +2312,7 @@ public class TongaFrame extends JFrame {
 
         jMenu26.setText("Extremize");
 
-        jMenuItem30.setText("Extreme color");
+        jMenuItem30.setText("Extreme colour");
         jMenuItem30.setToolTipText("Make every pixel have maximum colour");
         jMenuItem30.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -2321,7 +2321,7 @@ public class TongaFrame extends JFrame {
         });
         jMenu26.add(jMenuItem30);
 
-        jMenuItem32.setText("Extreme color & brightness");
+        jMenuItem32.setText("Extreme colour & brightness");
         jMenuItem32.setToolTipText("Make every pixel completely bright and maximum colour");
         jMenuItem32.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -2363,7 +2363,7 @@ public class TongaFrame extends JFrame {
         });
         jMenu5.add(jMenuItem57);
 
-        menuAlphaColor.setText("Covert colour to alpha");
+        menuAlphaColor.setText("Convert colour to alpha");
         menuAlphaColor.setToolTipText("Transform the selected colour into the alpha channel");
         menuAlphaColor.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -2566,6 +2566,7 @@ public class TongaFrame extends JFrame {
         jMenu27.add(jMenu23);
 
         jMenuItem34.setText("Scale brightness to range");
+        jMenuItem34.setToolTipText("Set a minimum darkness and maximum brightness limit, and scale the pixel values to this range.");
         jMenuItem34.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jMenuItem34ActionPerformed(evt);
@@ -2575,7 +2576,7 @@ public class TongaFrame extends JFrame {
 
         jMenuItem41.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_B, java.awt.event.InputEvent.SHIFT_DOWN_MASK));
         jMenuItem41.setText("Scale brightness to maximum");
-        jMenuItem41.setToolTipText("Same as above, but ignore certain percentage of the darkest and brightest values to remove noise and bright dots");
+        jMenuItem41.setToolTipText("Same as above, but detect the minimum and maximum automatically, so that no data is lost.");
         jMenuItem41.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jMenuItem41ActionPerformed(evt);
@@ -2584,7 +2585,7 @@ public class TongaFrame extends JFrame {
         jMenu27.add(jMenuItem41);
 
         jMenuItem60.setText("Scale brightness to maximum with adaptation");
-        jMenuItem60.setToolTipText("Same as above, but ignore some of the darkest and brightest values to remove noise and bright dots");
+        jMenuItem60.setToolTipText("Same as above, but ignore certain percentage of the darkest and brightest values to remove noise and bright dots");
         jMenuItem60.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jMenuItem60ActionPerformed(evt);
@@ -2636,7 +2637,7 @@ public class TongaFrame extends JFrame {
         jMenu14.add(jSeparator6);
 
         menuBoxBlur.setText("Box blur");
-        menuBoxBlur.setToolTipText("Precise box blurring without approximation (please note this is <font color=\"red\">slow</font>)");
+        menuBoxBlur.setToolTipText("Implementation of the box blur in a given radius");
         menuBoxBlur.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 menuBoxBlurActionPerformed(evt);
@@ -2961,7 +2962,7 @@ public class TongaFrame extends JFrame {
         jMenu19.add(jMenuItem69);
 
         jMenuItem25.setText("Distance to the edges");
-        jMenuItem25.setToolTipText("Calculate the distances to the edges with the watershed-algorithm");
+        jMenuItem25.setToolTipText("Create a distance map by calculating the distance to the closest edge for every pixel");
         jMenuItem25.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jMenuItem25ActionPerformed(evt);

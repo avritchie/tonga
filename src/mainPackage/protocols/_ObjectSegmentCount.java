@@ -21,8 +21,8 @@ public class _ObjectSegmentCount extends Protocol {
             new ControlReference(LAYER, "Objects are on which layer"),
             new ControlReference(COLOUR, "Background is which colour", new int[]{0}),
             new ControlReference(SPINNER, "Ignore segmented objects smaller than (pixels)", 500),
-            new ControlReference(TOGGLE, "Report results as individual objects"),
-            new ControlReference(SLIDER, new Integer[]{10, 200, 580, 38}, "Average size of a nucleus", 1)};
+            new ControlReference(TOGGLE, "Report results as individual objects", 1),
+            new ControlReference(SLIDER, new Integer[]{10, 200, 580, 38}, "Average diameter of a nucleus", 1)};
     }
 
     @Override
