@@ -32,7 +32,11 @@ public class __DeadDividing extends Protocol {
 
             @Override
             protected void pixelProcessor() {
-                initTableData(new String[]{"Image", "Alive", "Dead/dividing", "Total"});
+                initTableData(new String[]{"Image", "Alive", "Dead/dividing", "Total"},
+                        new String[]{"The name of the image",
+                            "The number of nuclei considered alive",
+                            "The number of nuclei considered dead or dividing",
+                            "The total number of detected nuclei"});
                 ROISet set = new ImageTracer(inImage[0], sourceCol).trace();
                 int preCount = set.list.size();
                 set.filterDeadDividing(inImage[1]);

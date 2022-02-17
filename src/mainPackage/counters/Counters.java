@@ -8,8 +8,18 @@ import mainPackage.utils.STAT;
 public class Counters {
 
     public static Counter countRGBCMYK() {
-        return new Counter("Count coloured pixels", new String[]{"Image", "Total",
-            "Red", "Green", "Blue", "Yellow", "Fuchsia", "Cyan", "Black", "White"}) {
+        return new Counter("Count coloured pixels",
+                new String[]{"Image", "Total", "Red", "Green", "Blue", "Yellow", "Fuchsia", "Cyan", "Black", "White"},
+                new String[]{"The name of the image",
+                    "Total number of pixels",
+                    "Total number of red pixels",
+                    "Total number of green pixels",
+                    "Total number of blue pixels",
+                    "Total number of yellow pixels",
+                    "Total number of fuchsia pixels",
+                    "Total number of cyan pixels",
+                    "Total number of black pixels",
+                    "Total number of white pixels"}) {
             @Override
             protected void pixelIterator32(int[] pixels, int p, Object[] row) {
                 int col = pixels[p];
@@ -43,7 +53,13 @@ public class Counters {
     }
 
     public static Counter countRBStain() {
-        return new Counter("Count red values", new String[]{"Image", "Tissue %", "<html><b>Stain ‰</b></html>", "Tissue px", "Stain raw"}) {
+        return new Counter("Count red values",
+                new String[]{"Image", "Tissue %", "<html><b>Stain ‰</b></html>", "Tissue px", "Stain raw"},
+                new String[]{"The name of the image",
+                    "How big percentage of the image is considered to be tissue",
+                    "How much staining intensity there is in the tissue area, in promilles",
+                    "How big is the tissue area in the image in pixels",
+                    "The raw value of the total staining intensity detecteed in the image"}) {
             int totalpixels, blackpixels;
             double redvalue;
 
@@ -76,7 +92,13 @@ public class Counters {
     }
 
     public static Counter countBWBG() {
-        return new Counter("Count background", new String[]{"Image", "Area px", "Coverage %", "<html><b>Background %</b></html>", "Background avg raw"}) {
+        return new Counter("Count background",
+                new String[]{"Image", "Area px", "Coverage %", "<html><b>Background %</b></html>", "Background avg raw"},
+                new String[]{"The name of the image",
+                    "The total size of the detected background area(s) in pixels",
+                    "The percentage of the detected background area(s) from the total image size",
+                    "The average relative background intensity out of the maximum",
+                    "The average raw intensity measurement from every pixel in the background area"}) {
             int white, bgpixels;
             int intval;
             double decval;
@@ -120,15 +142,23 @@ public class Counters {
     }
 
     public static Counter analHisto() {
-        return new Counter("Histogram values", new String[]{"Image", "Point", "Bright", "Red", "Green", "Blue", "Saturation"}) {
+        return new Counter("Histogram values",
+                new String[]{"Image", "Point", "Bright", "Red", "Green", "Blue", "Saturation"},
+                new String[]{"The name of the image",
+                    "The brightness level, between 0 (black) and 255 (fully bright)",
+                    "The number of pixels in the image with the total brightness in this level",
+                    "The number of pixels in the image with the red channel brightness in this level",
+                    "The number of pixels in the image with the green channel brightness in this level",
+                    "The number of pixels in the image with the blue channel brightness in this level",
+                    "The number of pixels in the image with the saturation in this level",}) {
             TableData histo;
 
             @Override
             protected void preProcessor(ImageData targetImage, Object[] row) {
-                histo = createTable(data.columns, 256, imageName);
+                histo = TableData.createTable(data.columns, data.descriptions, 256, imageName);
                 histo.rows.forEach(i -> {
                     for (int j = 2; j < i.length; j++) {
-                        i[j] = box(0);
+                        i[j] = TableData.box(0);
                     }
                 });
             }
@@ -141,11 +171,11 @@ public class Counters {
                 int red = (col >> 16) & 0xFF;
                 int green = (col >> 8) & 0xFF;
                 int blue = (col) & 0xFF;
-                rowIntInc(histo, bright, 2);
-                rowIntInc(histo, red, 3);
-                rowIntInc(histo, green, 4);
-                rowIntInc(histo, blue, 5);
-                rowIntInc(histo, saturation, 6);
+                histo.rowIntInc(bright, 2);
+                histo.rowIntInc(red, 3);
+                histo.rowIntInc(green, 4);
+                histo.rowIntInc(blue, 5);
+                histo.rowIntInc(saturation, 6);
             }
 
             @Override

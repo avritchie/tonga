@@ -1,11 +1,9 @@
 package mainPackage.counters;
 
-import javax.swing.SwingUtilities;
-import javax.swing.table.DefaultTableModel;
+import mainPackage.TongaTable;
 import mainPackage.CachedImage;
 import mainPackage.IO;
 import mainPackage.ImageData;
-import mainPackage.Settings;
 import mainPackage.Tonga;
 import mainPackage.TongaImage;
 import mainPackage.TongaLayer;
@@ -16,10 +14,12 @@ public abstract class Counter {
     String imageName;
     public String counterName;
     public String[] columnNames;
+    public String[] columnDescriptions;
 
-    public Counter(String counter, String[] columns) {
+    public Counter(String counter, String[] columns, String[] descs) {
         counterName = counter;
         columnNames = columns;
+        columnDescriptions = descs;
         resetData();
     }
 
@@ -104,7 +104,7 @@ public abstract class Counter {
     }
 
     private void resetData() {
-        data = new TableData(columnNames);
+        data = new TableData(columnNames, columnDescriptions);
     }
 
     public static void publish(TableData tableData) {
@@ -113,61 +113,7 @@ public abstract class Counter {
             return;
         }
         Tonga.loader().maxProgress();
-        boolean renew = !Settings.settingResultsAppend();
-        // jos on asetus ja olemassaolevan datan rakenne on sama
-        if (Settings.settingResultsAppend()) {
-            DefaultTableModel model = (DefaultTableModel) Tonga.frame().resultTable.getModel();
-            if (model.getRowCount() == 0 && model.getColumnCount() == 0) {
-                renew = true;
-            } else if (model.getColumnCount() != tableData.columns.length) {
-                renew = true;
-            } else {
-                for (int i = 0; i < model.getColumnCount(); i++) {
-                    if (!model.getColumnName(i).equals(tableData.columns[i])) {
-                        renew = true;
-                        break;
-                    }
-                }
-            }
-        }
-        if (renew) {
-            SwingUtilities.invokeLater(() -> {
-                Tonga.frame().resultTable.setModel(new DefaultTableModel(tableData.getAsArray(), tableData.columns) {
-                    @Override
-                    public Class getColumnClass(int columnIndex) {
-                        return tableData.rows.get(0)[columnIndex].getClass();
-                    }
-                });
-                Tonga.frame().tabbedPane.repaint();
-                Tonga.frame().tabbedPane.setSelectedIndex(3);
-            });
-        } else {
-            DefaultTableModel model = (DefaultTableModel) Tonga.frame().resultTable.getModel();
-            tableData.rows.forEach(d -> {
-                model.addRow(d);
-            });
-            SwingUtilities.invokeLater(() -> {
-                Tonga.frame().tabbedPane.repaint();
-                Tonga.frame().tabbedPane.setSelectedIndex(3);
-            });
-        }
-    }
-
-    public static TableData createTable(String[] columns, int rowNumber, String rowTitle) {
-        TableData ret = new TableData(columns);
-        for (int i = 0; i < rowNumber; i++) {
-            ret.newRow(rowTitle)[1] = box(i);
-        }
-        return ret;
-    }
-
-    public static Integer box(int i) {
-        return Integer.valueOf(i);
-    }
-
-    public static void rowIntInc(TableData data, int row, int column) {
-        Integer target = (Integer) data.rows.get(row)[column];
-        data.rows.get(row)[column] = target + 1;
+        TongaTable.publishData(tableData);
     }
 
     private static ImageData retrieveImage(TongaLayer img) {

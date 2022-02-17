@@ -41,6 +41,7 @@ import javax.swing.JPopupMenu.Separator;
 import javax.swing.JSeparator;
 import javax.swing.JSlider;
 import javax.swing.JSpinner;
+import javax.swing.JTable;
 import javax.swing.JToggleButton;
 import javax.swing.JToolTip;
 import javax.swing.Popup;
@@ -474,6 +475,7 @@ public class TongaFrame extends JFrame {
         panelToolTips(filterPanel);
         addToolTipListener(stackToggle);
         addToolTipListener(maxTabButton);
+        addTableHeaderListener(resultTable);
     }
 
     private void initExtraComponents() {
@@ -568,6 +570,15 @@ public class TongaFrame extends JFrame {
                 }
             }
         }
+    }
+
+    private void addTableHeaderListener(JTable t) {
+        t.getTableHeader().addMouseMotionListener(new MouseAdapter() {
+            @Override
+            public void mouseMoved(MouseEvent evt) {
+                TongaTable.hover(t.columnAtPoint(evt.getPoint()));
+            }
+        });
     }
 
     private void addToolTipListener(Component c) {
@@ -4273,7 +4284,7 @@ public class TongaFrame extends JFrame {
                 (Math.round((new Random().nextDouble() + 5) * 10000) / 100.) + "",
                 (Math.round(((new Random().nextDouble() + 3) * 25) * 10000.) / 10000.) + "%"});
         }*/
-        TableData tableData = new TableData(new String[]{"Image", "Nucleus", "Size", "Intensity"});
+        TableData tableData = new TableData(new String[]{"Image", "Nucleus", "Size", "Intensity"}, new String[]{"Image name", "Nucleus number", "Size in pixels", "???"});
         for (int i = 0; i < 50; i++) {
             for (int j = 0; j < new Random().nextInt(50) + 50; j++) {
                 tableData.newRow(new Object[]{
@@ -4283,8 +4294,7 @@ public class TongaFrame extends JFrame {
                     (Math.round(((new Random().nextDouble() + 2) * 35) * 10000.) / 10000.) + "%"});
             }
         }
-        Counter.publish(tableData);
-        Tonga.loader().resetProgress();
+        TongaTable.publishData(tableData);
     }//GEN-LAST:event_jMenuItem82ActionPerformed
 
     private void boxSettingHWRenderingActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_boxSettingHWRenderingActionPerformed

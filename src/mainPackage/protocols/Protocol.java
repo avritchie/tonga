@@ -297,7 +297,7 @@ public abstract class Protocol {
         TableData finalData;
         Processor proc = processors[0];
         if (!proc.datas.isEmpty()) {
-            finalData = new TableData(proc.datas.get(0).columns);
+            finalData = new TableData(proc.datas.get(0).columns, proc.datas.get(0).descriptions);
             for (Processor processor : processors) {
                 processor.datas.forEach(d -> {
                     for (int j = 0; j < d.rowCount(); j++) {
@@ -306,7 +306,7 @@ public abstract class Protocol {
                 });
             }
         } else if (proc.data != null) {
-            finalData = new TableData(proc.data.columns);
+            finalData = new TableData(proc.data.columns, proc.data.descriptions);
             for (Processor processor : processors) {
                 for (int j = 0; j < processor.data.rowCount(); j++) {
                     finalData.newRow(processor.data.rows.get(j));

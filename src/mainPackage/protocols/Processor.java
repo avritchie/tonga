@@ -56,6 +56,10 @@ public abstract class Processor {
         data = new TableData(titles);
     }
 
+    protected void initTableData(String[] titles, String[] descs) {
+        data = new TableData(titles, descs);
+    }
+
     protected ImageData[] internalProcessing(TongaImage imageSource, TongaLayer[] layerAccess) {
         sourceImage = imageSource;
         sourceLayer = layerAccess;

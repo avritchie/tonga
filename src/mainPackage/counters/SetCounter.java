@@ -13,8 +13,8 @@ import mainPackage.morphology.ROISet;
 
 public abstract class SetCounter extends Counter {
 
-    public SetCounter(String name,String[] columns) {
-        super(name,columns);
+    public SetCounter(String name, String[] columns, String[] descs) {
+        super(name, columns, descs);
     }
 
     @Override

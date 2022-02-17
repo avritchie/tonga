@@ -34,7 +34,10 @@ public class _EstimateNucleusSize extends Protocol {
 
             @Override
             protected void pixelProcessor() {
-                initTableData(new String[]{"Image", "Ø", "Size"});
+                initTableData(new String[]{"Image", "Ø", "Size"},
+                        new String[]{"The name of the image",
+                            "The estimated average diameter of a nucleus in the image in pixels",
+                            "The estimated average area size of a nucleus in the image in pixels"});
                 //guess the size of the cells
                 boolean finished = false;
                 int nucleusSize = -1;

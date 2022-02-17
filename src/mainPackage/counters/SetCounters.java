@@ -9,7 +9,13 @@ import mainPackage.morphology.ROISet;
 public class SetCounters {
 
     public static SetCounter countCellsImage(CellSet set) {
-        return new SetCounter("Count cells", new String[]{"Image", "Objects", "Avg.Size", "Avg.Rndnss", "<html><b>Cells</b></html>"}) {
+        return new SetCounter("Count cells",
+                new String[]{"Image", "Objects", "Avg.Size", "Avg.Rndnss", "<html><b>Cells</b></html>"},
+                new String[]{"The name of the image",
+                    "The total number of objects in the image",
+                    "The average size of the objects in the image in pixels",
+                    "The average estimated roundness of the objects in the image",
+                    "The estimated number of cells in the image"}) {
 
             @Override
             protected void processor(Object[] row) {
@@ -23,7 +29,13 @@ public class SetCounters {
     }
 
     public static SetCounter countCellsSingle(CellSet set) {
-        return new SetCounter("Count cells", new String[]{"Image", "Object", "Area", "Corners", "<html><b>Cells</b></html>"}) {
+        return new SetCounter("Count cells",
+                new String[]{"Image", "Object", "Area", "Corners", "<html><b>Cells</b></html>"},
+                new String[]{"The name of the image",
+                    "The unique id number of the object in the image",
+                    "The total area size of the objects in pixels",
+                    "The number of concave points in the object",
+                    "The estimated number of cells in the object"}) {
 
             @Override
             protected void processor(Object[] row) {
@@ -45,7 +57,15 @@ public class SetCounters {
     }
 
     public static SetCounter countObjectsSingle(ROISet set) {
-        return new SetCounter("Count objects", new String[]{"Image", "Object", "X", "Y", "Area", "Width", "Height", "Rndnss %"}) {
+        return new SetCounter("Count objects", new String[]{"Image", "Object", "X", "Y", "Area", "Width", "Height", "Rndnss %"},
+                new String[]{"The name of the image",
+                    "The unique id number of nucleus in the image",
+                    "The X-coordinate pixel of the centroid of this nucleus in the image",
+                    "The Y-coordinate pixel of the centroid of this nucleus in the image",
+                    "The size of this nucleus in pixels",
+                    "The width of this nucleus in pixels",
+                    "The height of this nucleus in pixels",
+                    "An estimation of the roundness of the mask of this nucleus"}) {
 
             @Override
             protected void processor(Object[] row) {
@@ -71,7 +91,13 @@ public class SetCounters {
     }
 
     public static SetCounter countObjectsImage(ROISet set) {
-        return new SetCounter("Count objects", new String[]{"Image", "Objects", "Avg.Size", "Tot.Size", "Std.Size", "Med.Size"}) {
+        return new SetCounter("Count objects", new String[]{"Image", "Objects", "Avg.Size", "Tot.Size", "Std.Size", "Med.Size"},
+                new String[]{"The name of the image",
+                    "The total number of recognized nuclei in the image",
+                    "The average size of the nuclei in the image in pixels",
+                    "The total sum of the sizes of all the nuclei in the image",
+                    "The standard deviation of the nuclear size in the image in pixels",
+                    "The median nuclear size of the nuclei in the image in pixels"}) {
 
             @Override
             protected void processor(Object[] row) {
@@ -86,7 +112,14 @@ public class SetCounters {
     }
 
     public static SetCounter countObjectStainsSingle(ROISet set) {
-        return new SetCounter("Count staining", new String[]{"Image", "Object", "X", "Y", "Area", "<html><b>Stain %</b></html>", "<html><b>Stain sum</b></html>"}) {
+        return new SetCounter("Count staining", new String[]{"Image", "Object", "X", "Y", "Area", "<html><b>Stain %</b></html>", "<html><b>Stain sum</b></html>"},
+                new String[]{"The name of the image",
+                    "The unique id number of nucleus in the image",
+                    "The X-coordinate pixel of the centroid of this nucleus in the image",
+                    "The Y-coordinate pixel of the centroid of this nucleus in the image",
+                    "The size of this nucleus in pixels",
+                    "The average relative intensity of this nucleus",
+                    "The total relative intensity of this nucleus"}) {
 
             @Override
             protected void processor(Object[] row) {
@@ -112,7 +145,16 @@ public class SetCounters {
 
     public static SetCounter countObjectStainsBGSingle(ROISet set, double bg) {
         return new SetCounter("Count staining", new String[]{"Image", "Object", "X", "Y", "Area",
-            "Stain %", "<html><b>Stain % w/o background</b></html>", "Stain sum", "<html><b>Stain sum w/o background</b></html>"}) {
+            "Stain %", "<html><b>Stain % w/o background</b></html>", "Stain sum", "<html><b>Stain sum w/o background</b></html>"},
+                new String[]{"The name of the image",
+                    "The unique id number of nucleus in the image",
+                    "The X-coordinate pixel of the centroid of this nucleus in the image",
+                    "The Y-coordinate pixel of the centroid of this nucleus in the image",
+                    "The size of this nucleus in pixels",
+                    "The average relative intensity of this nucleus",
+                    "The average relative intensity of this nucleus with the average background intensity subtracted",
+                    "The total relative intensity of this nucleus",
+                    "The total relative intensity of this nucleus with the average background intensity subtracted for each pixel"}) {
 
             @Override
             protected void processor(Object[] row) {
@@ -144,7 +186,15 @@ public class SetCounters {
     public static SetCounter countObjectStainsImage(ROISet set) {
         return new SetCounter("Count staining", new String[]{"Image", "Objects",
             "<html><b>Avg.Stain %</b></html>", "Std.Stain %", "Med.Stain %",
-            "<html><b>Avg.Stain sum</b></html>", "Std.Stain sum", "Med.Stain sum"}) {
+            "<html><b>Avg.Stain sum</b></html>", "Std.Stain sum", "Med.Stain sum"},
+                new String[]{"The name of the image",
+                    "The total number of recognized nuclei in the image",
+                    "The average relative intensity from all the nuclei in the image",
+                    "The standard deviation of the relative intensity measurement between the nuclei",
+                    "The median relative intensity from all the nuclei in the image",
+                    "The average relative intensity sum from all the nuclei in the image",
+                    "The standard deviation of the intensity sum measurement between the nuclei",
+                    "The median relative intensity sum from all the nuclei in the image"}) {
 
             @Override
             protected void processor(Object[] row) {
@@ -164,7 +214,16 @@ public class SetCounters {
     public static SetCounter countObjectStainsBGImage(ROISet set, double bg) {
         return new SetCounter("Count staining", new String[]{"Image", "Objects", "Background %",
             "<html><b>Avg.Stain % w/o background</b></html>", "Std.Stain %", "Med.Stain % w/o background",
-            "<html><b>Avg.Stain sum w/o background</b></html>", "Std.Stain sum", "Med.Stain sum w/o background"}) {
+            "<html><b>Avg.Stain sum w/o background</b></html>", "Std.Stain sum", "Med.Stain sum w/o background"},
+                new String[]{"The name of the image",
+                    "The total number of recognized nuclei in the image",
+                    "The average relative background intensity in the image",
+                    "The average relative intensity from all the nuclei in the image with the average background intensity subtracted",
+                    "The standard deviation of the relative intensity measurement between the nuclei (with background subtracted)",
+                    "The median relative intensity from all the nuclei in the image with the average background intensity subtracted",
+                    "The average relative intensity sum from all the nuclei in the image with the average background intensity subtracted",
+                    "The standard deviation of the relative intensity sum measurement between the nuclei (with background subtracted)",
+                    "The median relative intensity sum from all the nuclei in the image with the average background intensity subtracted"}) {
 
             @Override
             protected void processor(Object[] row) {
@@ -183,7 +242,11 @@ public class SetCounters {
     }
 
     public static SetCounter countObjectPositive(ROISet set, double d) {
-        return new SetCounter("Count positivity", new String[]{"Image", "Objects", "Positive", "<html><b>Ratio %</b></html>"}) {
+        return new SetCounter("Count positivity", new String[]{"Image", "Objects", "Positive", "<html><b>Ratio %</b></html>"},
+                new String[]{"The name of the image",
+                    "The total number of recognized nuclei in the image",
+                    "The number of nuclei classified as positive",
+                    "The ratio of positive nuclei out of all detected nuclei"}) {
 
             @Override
             protected void processor(Object[] row) {
@@ -195,7 +258,11 @@ public class SetCounters {
     }
 
     public static SetCounter countObjectPositiveBG(ROISet set, double bg, double d) {
-        return new SetCounter("Count positivity", new String[]{"Image", "Objects", "Positive", "<html><b>Ratio %</b></html>"}) {
+        return new SetCounter("Count positivity", new String[]{"Image", "Objects", "Positive", "<html><b>Ratio %</b></html>"},
+                new String[]{"The name of the image",
+                    "The total number of recognized nuclei in the image",
+                    "The number of nuclei classified as positive",
+                    "The ratio of positive nuclei out of all detected nuclei"}) {
 
             @Override
             protected void processor(Object[] row) {
