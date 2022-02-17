@@ -6,7 +6,6 @@
 package mainPackage;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.channels.ClosedChannelException;
 import java.util.List;
@@ -78,6 +77,8 @@ public abstract class Importer {
                 Tonga.catchError(ex, "The file could not be imported because the format is unsupported.");
             } else if (ex instanceof IOException) {
                 Tonga.catchError(ex, "The file could not be imported because of an IO error.");
+            } else {
+                Tonga.catchError(ex, "The file could not be imported because of an unknown error.");
             }
             failures++;
             Tonga.loader().appendToNext();
