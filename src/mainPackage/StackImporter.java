@@ -3,7 +3,9 @@ package mainPackage;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import loci.common.DebugTools;
 import loci.common.services.DependencyException;
@@ -55,73 +57,83 @@ public class StackImporter {
     }
 
     public static TongaImage[] openFile(File file) throws IOException, FormatException, ServiceException {
-        TongaImage[] returnableImages;
+        List<TongaImage> returnableImages;
         BufferedImageReader input;
         OMEXMLMetadata xml;
         Color channelColor;
         int imageNumber; // images in a file
         int channelNumber; // channels in a image
+        int timeNumber; // time points in a image
         int sliceNumber; // z-slices in a channel
         int bitNumber; // 16 for 16-bit
         int maxPixelValue; // 65535 for 16-bit
         int maxChannels = 1; // maximum number of channels;
+        String imageName;
         // read basic data
         input = new BufferedImageReader();
         xml = setMetadata(input, file);
         input = determineChannelReaderType(input, xml, file);
         imageNumber = input.getSeriesCount();
-        returnableImages = createImages(imageNumber);
+        returnableImages = new ArrayList<>();
         // iterate through images in the files
         for (int i = 0; i < imageNumber; i++) {
             // read basic data
-            TongaImage ti = returnableImages[i];
             Tonga.log.debug("Names: {} | {}", xml.getImageName(i), file.getName());
-            ti.imageName = IO.fileName(xml.getImageName(i) == null ? file.getName() : xml.getImageName(i));
+            imageName = IO.fileName(xml.getImageName(i) == null ? file.getName() : xml.getImageName(i));
             input.setSeries(i);
             channelNumber = input.getEffectiveSizeC();
+            timeNumber = input.getSizeT();
             sliceNumber = input.getSizeZ();
             bitNumber = input.getBitsPerPixel();
             maxPixelValue = (int) Math.pow(2, bitNumber) - 1;
             maxChannels = Math.max(maxChannels, channelNumber);
             // create containing arrays
-            Tonga.log.debug("-------------\n{}", ti.imageName);
-            Tonga.log.debug("Contains {} channels and {} z-layers", channelNumber, sliceNumber);
+            Tonga.log.debug("-------------\n{}", imageName);
+            Tonga.log.debug("Contains {} channels, {} z-layers, and {} timepoints", channelNumber, sliceNumber, timeNumber);
             Tonga.log.debug("Has {} bits/pixel and the max value per pixel is {}", bitNumber, maxPixelValue);
-            // iterate through channels
-            for (int c = 0; c < channelNumber; c++) {
-                // read basic data
-                CachedImage image;
-                channelColor = xml.getChannelColor(i, c);
-                // create containing arrays
-                if (bitNumber == 8 && sliceNumber == 1) {
-                    image = new CachedImage(input.openImage(input.getIndex(0, c, 0)));
-                } else {
-                    // convert 16-bit etc to 8-bit
-                    short[] channel;
-                    BufferedImage[] slices = new BufferedImage[sliceNumber];
-                    // first load all the images of the channel as buffered images
-                    // then convert buffered image to int/short array with z-projection
-                    LOADER.appendProgress(1. / 2 / channelNumber / imageNumber);
-                    for (int z = 0; z < sliceNumber; z++) {
-                        slices[z] = input.openImage(input.getIndex(z, c, 0));
+            // iterate through timepoints
+            for (int t = 0; t < timeNumber; t++) {
+                TongaImage ti = new TongaImage();
+                ti.imageName = imageName + (timeNumber > 1 ? " T" + t : "");
+                // iterate through channels
+                for (int c = 0; c < channelNumber; c++) {
+                    // read basic data
+                    CachedImage image;
+                    channelColor = xml.getChannelColor(i, c);
+                    // create containing arrays
+                    if (bitNumber == 8 && sliceNumber == 1) {
+                        image = new CachedImage(input.openImage(input.getIndex(0, c, t)));
+                        LOADER.appendProgress(1. / channelNumber / timeNumber / imageNumber);
+                    } else {
+                        // convert 16-bit etc to 8-bit
+                        short[] channel;
+                        BufferedImage[] slices = new BufferedImage[sliceNumber];
+                        // first load all the images of the channel as buffered images
+                        // then convert buffered image to int/short array with z-projection
+                        LOADER.appendProgress(1. / 2 / channelNumber / timeNumber / imageNumber);
+                        for (int z = 0; z < sliceNumber; z++) {
+                            slices[z] = input.openImage(input.getIndex(z, c, t));
+                        }
+                        LOADER.appendProgress(1. / 4 / channelNumber / timeNumber / imageNumber);
+                        channel = TongaRender.sliceProjection(slices, maxPixelValue);
+                        LOADER.appendProgress(1. / 4 / channelNumber / timeNumber / imageNumber);
+                        image = new CachedImage(channel, slices[0].getWidth(), slices[0].getHeight());
+                        image.colour = getColour(channelColor);
+                        if (Settings.settingAutoscaleType() == Settings.Autoscale.IMAGE) {
+                            TongaRender.setDisplayRange(channel, image);
+                        }
                     }
-                    LOADER.appendProgress(1. / 4 / channelNumber / imageNumber);
-                    channel = TongaRender.sliceProjection(slices, maxPixelValue);
-                    LOADER.appendProgress(1. / 4 / channelNumber / imageNumber);
-                    image = new CachedImage(channel, slices[0].getWidth(), slices[0].getHeight());
-                    image.colour = getColour(channelColor);
-                    if (Settings.settingAutoscaleType() == Settings.Autoscale.IMAGE) {
-                        TongaRender.setDisplayRange(channel, image);
-                    }
+                    ti.layerList.add(new TongaLayer(image, getChannelName(channelColor, ti)));
                 }
-                ti.layerList.add(new TongaLayer(image, getChannelName(channelColor, ti)));
+                returnableImages.add(ti);
             }
         }
+        TongaImage[] finalImages = returnableImages.toArray(new TongaImage[returnableImages.size()]);
         if (Settings.settingAutoscaleType() == Settings.Autoscale.CHANNEL) {
-            TongaRender.setDisplayRange(maxChannels, returnableImages);
+            TongaRender.setDisplayRange(maxChannels, finalImages);
         }
         input.close(true);
-        return returnableImages;
+        return finalImages;
     }
 
     private static OMEXMLMetadata setMetadata(BufferedImageReader input, File file) throws ServiceException, FormatException, IOException {
@@ -134,6 +146,7 @@ public class StackImporter {
         return xml;
     }
 
+    @Deprecated
     private static TongaImage[] createImages(int images) {
         TongaImage[] imageArray = new TongaImage[images];
         Tonga.log.debug("Contains {} images", images);
