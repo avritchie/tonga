@@ -9,7 +9,9 @@ import mainPackage.Settings;
 import mainPackage.Tonga;
 import mainPackage.TongaImage;
 import mainPackage.TongaLayer;
+import mainPackage.counters.Counter;
 import mainPackage.counters.TableData;
+import ome.units.quantity.Length;
 
 public abstract class Processor {
 
@@ -53,10 +55,14 @@ public abstract class Processor {
     }
 
     protected void initTableData(String[] titles) {
-        data = new TableData(titles);
+        initTableData(titles, null, null);
     }
 
     protected void initTableData(String[] titles, String[] descs) {
+        initTableData(titles, descs, null);
+    }
+
+    protected void initTableData(String[] titles, String[] descs, Length scale) {
         data = new TableData(titles, descs);
     }
 
@@ -121,12 +127,25 @@ public abstract class Processor {
 
     abstract ImageData[] getProcessedImages();
 
-    protected void setDatasBy(Protocol prt) {
+    protected Counter processorCounter() {
+        // override for a custom counter
+        throw new UnsupportedOperationException("No counter supplied");
+    }
+
+    protected void addResultData(Protocol prt) {
         datas.add(prt.results);
     }
 
-    protected void setDatasBy(TableData prt) {
+    protected void addResultData(TableData prt) {
         datas.add(prt);
+    }
+
+    protected void addResultData(TongaImage img) {
+        datas.add(processorCounter().runSingle(img, null));
+    }
+
+    protected void addResultData(TongaImage img, ImageData id) {
+        datas.add(processorCounter().runSingle(img, id));
     }
 
     protected void newResultRow(Object... cols) {

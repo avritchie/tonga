@@ -7,6 +7,7 @@ import mainPackage.ImageData;
 import mainPackage.PanelCreator.ControlReference;
 import static mainPackage.PanelCreator.ControlType.LAYER;
 import mainPackage.Tonga;
+import mainPackage.counters.Counter;
 import mainPackage.filters.Filters;
 import mainPackage.morphology.ROI;
 import mainPackage.morphology.ROISet;
@@ -31,16 +32,13 @@ public class _EstimateNucleusSize extends Protocol {
         return new ProcessorFast(0, new String[]{"Nucleus Size"}, 8) {
 
             ImageData layer, layer2;
+            int nucleusSize;
 
             @Override
             protected void pixelProcessor() {
-                initTableData(new String[]{"Image", "Ø", "Size"},
-                        new String[]{"The name of the image",
-                            "The estimated average diameter of a nucleus in the image in pixels",
-                            "The estimated average area size of a nucleus in the image in pixels"});
                 //guess the size of the cells
+                nucleusSize = -1;
                 boolean finished = false;
-                int nucleusSize = -1;
                 double mp = 1.0;
                 int trs = 0;
                 while (!finished) {
@@ -147,10 +145,23 @@ public class _EstimateNucleusSize extends Protocol {
                     Tonga.log.trace("Blending parameter: {}", mp);
                 }
                 Tonga.loader().continueAppending();
-                Object[] newRow = data.newRow(sourceImage.imageName);
-                newRow[1] = (Integer) nucleusSize;
-                newRow[2] = (Integer) GEO.circleArea(nucleusSize);
+                addResultData(sourceImage);
                 Tonga.log.debug("Estimated nucleus diameter is {} pixels", nucleusSize);
+            }
+
+            @Override
+            protected Counter processorCounter() {
+                return new Counter("Estimate nucleus size", new String[]{"Image", "Ø (%unit)", "Area %unit2"},
+                        new String[]{"The name of the image",
+                            "The estimated average diameter of a nucleus in the image in %unit",
+                            "The estimated average area size of a nucleus in the image in %unit2"}) {
+
+                    @Override
+                    protected void pixelProcessor(ImageData targetImage, Object[] row) {
+                        row[1] = Counter.scaleUnit(nucleusSize, 1, sourceImage.imageScaling);
+                        row[2] = Counter.scaleUnit(GEO.circleArea(nucleusSize), 2, sourceImage.imageScaling);
+                    }
+                };
             }
         };
     }

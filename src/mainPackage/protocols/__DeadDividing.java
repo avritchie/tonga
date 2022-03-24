@@ -1,9 +1,10 @@
 package mainPackage.protocols;
 
-import mainPackage.Iterate;
+import mainPackage.ImageData;
 import mainPackage.PanelCreator.ControlReference;
 import static mainPackage.PanelCreator.ControlType.COLOUR;
 import static mainPackage.PanelCreator.ControlType.LAYER;
+import mainPackage.counters.Counter;
 import mainPackage.morphology.ImageTracer;
 import mainPackage.morphology.ROISet;
 import mainPackage.utils.COL;
@@ -21,32 +22,54 @@ public class __DeadDividing extends Protocol {
             new ControlReference(LAYER, "Get mask from which layer"),
             new ControlReference(LAYER, "Original DAPI/Hoechst"),
             new ControlReference(COLOUR, "Background colour", new int[]{0})};
-        //new ControlReference(SLIDER, new Integer[]{10, 200, 580, 38}, "Average size of a nucleus", 5)};
     }
 
     @Override
     protected Processor getProcessor() {
         int sourceCol = param.colorARGB[0];
 
-        return new ProcessorFast("Filtered", 1) {
+        return new ProcessorFast("Dead/dividing", 1) {
+
+            int preCount, postCount;
+            int[] rem;
 
             @Override
-            protected void pixelProcessor() {
-                initTableData(new String[]{"Image", "Alive", "Dead/dividing", "Total"},
+            protected void methodInit() {
+                ROISet set = new ImageTracer(inImage[0], sourceCol).trace();
+                preCount = set.list.size();
+                set.filterDeadDividing(inImage[1]);
+                postCount = set.list.size();
+                rem = set.drawToArray(true);
+            }
+
+            @Override
+            protected void methodCore(int p) {
+                outImage[0].pixels32[p] = inImage[0].pixels32[p] != sourceCol ? rem[p] == COL.BLACK ? COL.WHITE : COL.GRAY : COL.BLACK;
+            }
+
+            @Override
+            protected void methodFinal() {
+                addResultData(sourceImage);
+                //newResultRow(,,);
+            }
+
+            @Override
+            protected Counter processorCounter() {
+                return new Counter("Count dead and dividing nuclei", new String[]{"Image", "Alive", "Dead/dividing", "Total"},
                         new String[]{"The name of the image",
                             "The number of nuclei considered alive",
                             "The number of nuclei considered dead or dividing",
-                            "The total number of detected nuclei"});
-                ROISet set = new ImageTracer(inImage[0], sourceCol).trace();
-                int preCount = set.list.size();
-                set.filterDeadDividing(inImage[1]);
-                int postCount = set.list.size();
-                int[] rem = set.drawToArray(true);
-                Iterate.pixels(inImage[0], (int pos) -> {
-                    outImage[0].pixels32[pos] = inImage[0].pixels32[pos] != sourceCol ? rem[pos] == COL.BLACK ? COL.WHITE : COL.GRAY : COL.BLACK;
-                });
-                newResultRow(postCount, preCount - postCount, preCount);
+                            "The total number of detected nuclei"}) {
+
+                    @Override
+                    protected void pixelProcessor(ImageData targetImage, Object[] row) {
+                        row[1] = postCount;
+                        row[2] = preCount - postCount;
+                        row[3] = preCount;
+                    }
+                };
             }
         };
+
     }
 }
