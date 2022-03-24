@@ -11,12 +11,6 @@ public class TableData {
         rows = new ArrayList<>();
     }
 
-    public TableData(String[] titles) {
-        columns = titles;
-        descriptions = null;
-        rows = new ArrayList<>();
-    }
-
     public String[] columns;
     public String[] descriptions;
     public List<Object[]> rows;
