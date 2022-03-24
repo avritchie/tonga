@@ -6,7 +6,7 @@ import javafx.scene.image.Image;
 import javafx.scene.image.PixelReader;
 import javafx.scene.image.PixelWriter;
 import javafx.scene.image.WritableImage;
-import mainPackage.CachedImage;
+import mainPackage.MappedImage;
 import mainPackage.ImageData;
 import mainPackage.Tonga;
 
@@ -44,14 +44,14 @@ public class IMG {
     }
 
     public static void copyImage(ImageData original, WritableImage destination) {
-        copyImage(original.toCachedImage().getFXImage(), destination);
+        copyImage(original.toStreamedImage().getFXImage(), destination);
     }
 
     public static void copyImage(ImageData[] original, WritableImage destination) {
         copyImage(original[0], destination);
     }
 
-    public static void copyImage(CachedImage original, WritableImage destination) {
+    public static void copyImage(MappedImage original, WritableImage destination) {
         copyImage(original.getFXImage(), destination);
     }
 
@@ -75,10 +75,10 @@ public class IMG {
         return imgs;
     }
 
-    public static CachedImage[] imagesToCaches(Image[] img) {
-        CachedImage[] imgs = new CachedImage[img.length];
+    public static MappedImage[] imagesToCaches(Image[] img) {
+        MappedImage[] imgs = new MappedImage[img.length];
         for (int i = 0; i < img.length; i++) {
-            imgs[i] = new CachedImage(SwingFXUtils.fromFXImage(img[i], null));
+            imgs[i] = new MappedImage(SwingFXUtils.fromFXImage(img[i], null));
         }
         return imgs;
     }

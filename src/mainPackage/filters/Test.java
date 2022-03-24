@@ -1,6 +1,6 @@
 package mainPackage.filters;
 
-import mainPackage.CachedImage;
+import mainPackage.MappedImage;
 import mainPackage.ImageData;
 import mainPackage.Tonga;
 import mainPackage.TongaLayer;
@@ -28,7 +28,7 @@ public class Test {
         };
     }
 
-    public static void run(CachedImage fximage) {
+    public static void run(MappedImage fximage) {
         int width = fximage.getWidth();
         int height = fximage.getHeight();
         int[] in = fximage.getRGB(0, 0, width, height, null, 0, width);
@@ -47,8 +47,8 @@ public class Test {
             }
         }
         Tonga.log.debug("Test timing: {}", System.nanoTime() - timeStart);
-        CachedImage newImage = new ImageData(out, width, height).toCachedImage();
-        Tonga.injectNewLayer(new TongaLayer(newImage, "TESTI"));
+        MappedImage newImage = new ImageData(out, width, height).toCachedImage();
+        Tonga.injectNewLayer(newImage, "TESTI");
         Tonga.refreshLayerList();
     }
 }

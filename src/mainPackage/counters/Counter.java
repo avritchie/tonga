@@ -1,7 +1,7 @@
 package mainPackage.counters;
 
 import mainPackage.TongaTable;
-import mainPackage.CachedImage;
+import mainPackage.MappedImage;
 import mainPackage.IO;
 import mainPackage.ImageData;
 import mainPackage.Tonga;
@@ -53,7 +53,7 @@ public abstract class Counter {
 
     public TableData runSingle(TongaImage image, ImageData layer) {
         return runSingle(image.imageName, layer);
-    }
+        }
 
     public TableData runSingle(TongaImage image, TongaLayer layer) {
         ImageData img = retrieveImage(layer);
@@ -71,18 +71,18 @@ public abstract class Counter {
         Tonga.iteration();
         for (int y = 0; y < targetImage.height; y++) {
             for (int x = 0; x < targetImage.width; x++) {
-                if (targetImage.bits == 8) {
+        if (targetImage.bits == 8) {
                     pixelIterator32(targetImage.pixels32, y * targetImage.width + x, rowToEdit);
-                } else {
-                    try {
+        } else {
+            try {
                         pixelIterator16(targetImage.pixels16, y * targetImage.width + x, rowToEdit);
-                    } catch (UnsupportedOperationException ex) {
-                        Tonga.log.info("The method {} does not support 16-bit images.", counterName);
-                        targetImage.set8BitPixels();
+            } catch (UnsupportedOperationException ex) {
+                Tonga.log.info("The method {} does not support 16-bit images.", counterName);
+                targetImage.set8BitPixels();
                         pixelIterator32(targetImage.pixels32, y * targetImage.width + x, rowToEdit);
-                    }
-                }
             }
+        }
+    }
             Tonga.loader().appendProgress(targetImage.height);
             if (Tonga.loader().getTask().isInterrupted()) {
                 return;
@@ -117,7 +117,7 @@ public abstract class Counter {
     }
 
     private static ImageData retrieveImage(TongaLayer img) {
-        CachedImage toQuantify = null;
+        MappedImage toQuantify = null;
         if (img.isPointer) {
             try {
                 toQuantify = IO.getImageFromFile(img.path);

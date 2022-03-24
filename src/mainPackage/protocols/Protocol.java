@@ -14,7 +14,7 @@ import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import mainPackage.utils.COL;
-import mainPackage.CachedImage;
+import mainPackage.MappedImage;
 import mainPackage.ImageData;
 import mainPackage.PanelCreator;
 import mainPackage.PanelCreator.ControlReference;
@@ -160,7 +160,7 @@ public abstract class Protocol {
                 for (ImageData image : processed) {
                     String file = Tonga.getLayerList(imageId).get(0).path + "-out-" + image.name.replaceAll("/", "-") + ".png";
                     try {
-                        ImageIO.write(image.toCachedImage(), "png", new File(file));
+                        ImageIO.write(image.toStreamedImage(), "png", new File(file));
                     } catch (IOException ex) {
                         Tonga.catchError(ex, "Unable to write the file " + file);
                     }
@@ -259,7 +259,7 @@ public abstract class Protocol {
     private static void updateColorButtonColour(JButton button, JComboBox combo) {
         Color c;
         if (Tonga.thereIsImage() && !Settings.settingBatchProcessing()) {
-            CachedImage img = Tonga.getLayerList(Tonga.getImageIndex()).get(combo.getSelectedIndex()).layerImage;
+            MappedImage img = Tonga.getLayerList(Tonga.getImageIndex()).get(combo.getSelectedIndex()).layerImage;
             c = COL.layerCornerColour(img);
         } else {
             c = Color.BLACK;

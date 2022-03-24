@@ -319,18 +319,18 @@ public class TongaFrame extends JFrame {
     public void updateSavePath(File file) {
         if (filePathField.getText().isEmpty()) {
             String out = Tonga.formatPath(file.getParent());
-            String out2 = out;
-            if (Settings.settingSubfolders()) {
-                out += "\\output";
-                int ind = 0;
-                while (new File(out2).exists()) {
-                    out2 = out + ind;
-                    ind++;
+                String out2 = out;
+                if (Settings.settingSubfolders()) {
+                    out += "\\output";
+                    int ind = 0;
+                    while (new File(out2).exists()) {
+                        out2 = out + ind;
+                        ind++;
+                    }
                 }
+                filePathField.setText(out2);
             }
-            filePathField.setText(out2);
         }
-    }
 
     public void updateMainLabel(String str) {
         bleftLabel.setText("<html>" + str + "</html>");
@@ -811,6 +811,7 @@ public class TongaFrame extends JFrame {
         contLayDeleteAll = new javax.swing.JMenuItem();
         contextImageMenu = new javax.swing.JPopupMenu();
         contImgRename = new javax.swing.JMenuItem();
+        contImgScale = new javax.swing.JMenuItem();
         contImgSelectAll = new javax.swing.JMenuItem();
         contImgDelete = new javax.swing.JMenuItem();
         contImgClear = new javax.swing.JMenuItem();
@@ -860,10 +861,11 @@ public class TongaFrame extends JFrame {
         stackCombo = new javax.swing.JComboBox<>();
         jLabel2 = new javax.swing.JLabel();
         settingPanelGeneral = new javax.swing.JPanel();
+        boxSettingMultiThreading = new javax.swing.JCheckBox();
+        boxSettingMMapping = new javax.swing.JCheckBox();
+        boxSettingHWRendering = new javax.swing.JCheckBox();
         boxSettingBatch = new javax.swing.JCheckBox();
         boxSettingResultsAppend = new javax.swing.JCheckBox();
-        boxSettingMultiThreading = new javax.swing.JCheckBox();
-        boxSettingHWRendering = new javax.swing.JCheckBox();
         settingPanelScale = new javax.swing.JPanel();
         autoscaleLabel = new javax.swing.JLabel();
         autoscaleCombo = new javax.swing.JComboBox<>();
@@ -1145,6 +1147,14 @@ public class TongaFrame extends JFrame {
         });
         contextImageMenu.add(contImgRename);
 
+        contImgScale.setText("Set scaling");
+        contImgScale.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                contImgScaleActionPerformed(evt);
+            }
+        });
+        contextImageMenu.add(contImgScale);
+
         contImgSelectAll.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_A, java.awt.event.InputEvent.CTRL_DOWN_MASK));
         contImgSelectAll.setText("Select all");
         contImgSelectAll.addActionListener(new java.awt.event.ActionListener() {
@@ -1310,11 +1320,11 @@ public class TongaFrame extends JFrame {
         imageBig.setLayout(imageBigLayout);
         imageBigLayout.setHorizontalGroup(
             imageBigLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 0, Short.MAX_VALUE)
+            .addGap(0, 776, Short.MAX_VALUE)
         );
         imageBigLayout.setVerticalGroup(
             imageBigLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 0, Short.MAX_VALUE)
+            .addGap(0, 855, Short.MAX_VALUE)
         );
 
         lSplitPane.setLeftComponent(imageBig);
@@ -1608,12 +1618,13 @@ public class TongaFrame extends JFrame {
         settingPanelLayerLayout.setHorizontalGroup(
             settingPanelLayerLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(settingPanelLayerLayout.createSequentialGroup()
-                .addGap(2, 2, 2)
                 .addGroup(settingPanelLayerLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(settingPanelLayerLayout.createSequentialGroup()
-                        .addGap(21, 21, 21)
-                        .addComponent(jLabel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                    .addComponent(boxSettingAlphaBG, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                        .addGap(8, 8, 8)
+                        .addComponent(jLabel2, javax.swing.GroupLayout.DEFAULT_SIZE, 218, Short.MAX_VALUE))
+                    .addGroup(settingPanelLayerLayout.createSequentialGroup()
+                        .addContainerGap()
+                        .addComponent(boxSettingAlphaBG, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addGroup(settingPanelLayerLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(layerBackColor, javax.swing.GroupLayout.PREFERRED_SIZE, 161, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -1630,11 +1641,37 @@ public class TongaFrame extends JFrame {
                 .addGroup(settingPanelLayerLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel2, javax.swing.GroupLayout.PREFERRED_SIZE, 20, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(stackCombo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(30, 30, 30))
+                .addContainerGap(24, Short.MAX_VALUE))
         );
 
         settingPanelGeneral.setBorder(javax.swing.BorderFactory.createTitledBorder("General settings"));
         settingPanelGeneral.setPreferredSize(new java.awt.Dimension(370, 252));
+
+        boxSettingMultiThreading.setSelected(true);
+        boxSettingMultiThreading.setText("multithreading");
+        boxSettingMultiThreading.setToolTipText("Use multiple threads to execute protocols. Depending on the computer this can provide a large speed boost when processing multiple images.");
+        boxSettingMultiThreading.setMaximumSize(new java.awt.Dimension(200, 23));
+        boxSettingMultiThreading.setMinimumSize(new java.awt.Dimension(80, 23));
+        boxSettingMultiThreading.setPreferredSize(new java.awt.Dimension(120, 23));
+
+        boxSettingMMapping.setSelected(true);
+        boxSettingMMapping.setText("memory mapping");
+        boxSettingMMapping.setToolTipText("Use memory mapping to prevent running out of RAM.");
+        boxSettingMMapping.setMaximumSize(new java.awt.Dimension(200, 23));
+        boxSettingMMapping.setMinimumSize(new java.awt.Dimension(80, 23));
+        boxSettingMMapping.setPreferredSize(new java.awt.Dimension(120, 23));
+
+        boxSettingHWRendering.setSelected(true);
+        boxSettingHWRendering.setText("hardware rendering");
+        boxSettingHWRendering.setToolTipText("Use hardware acceleration to render images faster. Switch off in case of incompatilibity issues.");
+        boxSettingHWRendering.setMaximumSize(new java.awt.Dimension(200, 23));
+        boxSettingHWRendering.setMinimumSize(new java.awt.Dimension(80, 23));
+        boxSettingHWRendering.setPreferredSize(new java.awt.Dimension(120, 23));
+        boxSettingHWRendering.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                boxSettingHWRenderingActionPerformed(evt);
+            }
+        });
 
         boxSettingBatch.setText("work on disk");
         boxSettingBatch.setToolTipText("Only a file location pointer is imported - images are imported upon running a filter/protocol and the result is saved on disk.");
@@ -1653,52 +1690,36 @@ public class TongaFrame extends JFrame {
         boxSettingResultsAppend.setMinimumSize(new java.awt.Dimension(80, 23));
         boxSettingResultsAppend.setPreferredSize(new java.awt.Dimension(120, 23));
 
-        boxSettingMultiThreading.setSelected(true);
-        boxSettingMultiThreading.setText("multithreading");
-        boxSettingMultiThreading.setToolTipText("Use multiple threads to execute protocols. Depending on the computer this can provide a large speed boost when processing multiple images.");
-        boxSettingMultiThreading.setMaximumSize(new java.awt.Dimension(200, 23));
-        boxSettingMultiThreading.setMinimumSize(new java.awt.Dimension(80, 23));
-        boxSettingMultiThreading.setPreferredSize(new java.awt.Dimension(120, 23));
-
-        boxSettingHWRendering.setSelected(true);
-        boxSettingHWRendering.setText("hardware rendering");
-        boxSettingHWRendering.setToolTipText("Use hardware acceleration to render images faster. Switch off in case of incompatilibity issues.");
-        boxSettingHWRendering.setMaximumSize(new java.awt.Dimension(200, 23));
-        boxSettingHWRendering.setMinimumSize(new java.awt.Dimension(80, 23));
-        boxSettingHWRendering.setPreferredSize(new java.awt.Dimension(120, 23));
-        boxSettingHWRendering.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                boxSettingHWRenderingActionPerformed(evt);
-            }
-        });
-
         javax.swing.GroupLayout settingPanelGeneralLayout = new javax.swing.GroupLayout(settingPanelGeneral);
         settingPanelGeneral.setLayout(settingPanelGeneralLayout);
         settingPanelGeneralLayout.setHorizontalGroup(
             settingPanelGeneralLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(settingPanelGeneralLayout.createSequentialGroup()
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, settingPanelGeneralLayout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(settingPanelGeneralLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                    .addComponent(boxSettingMultiThreading, javax.swing.GroupLayout.DEFAULT_SIZE, 196, Short.MAX_VALUE)
+                .addGroup(settingPanelGeneralLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(boxSettingMMapping, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(boxSettingMultiThreading, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(boxSettingHWRendering, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addGap(25, 25, 25)
                 .addGroup(settingPanelGeneralLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(boxSettingResultsAppend, javax.swing.GroupLayout.PREFERRED_SIZE, 160, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(boxSettingBatch, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addComponent(boxSettingBatch, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(boxSettingResultsAppend, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addContainerGap())
         );
         settingPanelGeneralLayout.setVerticalGroup(
             settingPanelGeneralLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(settingPanelGeneralLayout.createSequentialGroup()
-                .addGap(0, 0, 0)
+                .addGap(1, 1, 1)
                 .addGroup(settingPanelGeneralLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(boxSettingBatch, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(boxSettingMultiThreading, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(0, 0, 0)
+                    .addComponent(boxSettingBatch, javax.swing.GroupLayout.PREFERRED_SIZE, 20, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(boxSettingMultiThreading, javax.swing.GroupLayout.PREFERRED_SIZE, 20, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(settingPanelGeneralLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(boxSettingHWRendering, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(boxSettingResultsAppend, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(20, Short.MAX_VALUE))
+                    .addComponent(boxSettingMMapping, javax.swing.GroupLayout.PREFERRED_SIZE, 20, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(boxSettingResultsAppend, javax.swing.GroupLayout.PREFERRED_SIZE, 20, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(boxSettingHWRendering, javax.swing.GroupLayout.PREFERRED_SIZE, 20, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(37, Short.MAX_VALUE))
         );
 
         settingPanelScale.setBorder(javax.swing.BorderFactory.createTitledBorder("Autoscaling settings"));
@@ -1728,7 +1749,7 @@ public class TongaFrame extends JFrame {
                 .addContainerGap()
                 .addComponent(autoscaleLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 78, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(autoscaleCombo, 0, 141, Short.MAX_VALUE)
+                .addComponent(autoscaleCombo, 0, 178, Short.MAX_VALUE)
                 .addGap(18, 18, 18)
                 .addComponent(boxSettingAutoscale1, javax.swing.GroupLayout.PREFERRED_SIZE, 107, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap())
@@ -1757,21 +1778,23 @@ public class TongaFrame extends JFrame {
         boxSettingOpenAfter.setText("open the folder after export");
 
         boxSettingSubfolder.setSelected(true);
-        boxSettingSubfolder.setText("create subfolders automatically");
+        boxSettingSubfolder.setText("auto-create subfolders");
 
         javax.swing.GroupLayout settingPanelFileLayout = new javax.swing.GroupLayout(settingPanelFile);
         settingPanelFile.setLayout(settingPanelFileLayout);
         settingPanelFileLayout.setHorizontalGroup(
             settingPanelFileLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(settingPanelFileLayout.createSequentialGroup()
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, settingPanelFileLayout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(settingPanelFileLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(boxSettingOpenAfter, javax.swing.GroupLayout.DEFAULT_SIZE, 350, Short.MAX_VALUE)
+                .addGroup(settingPanelFileLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                     .addGroup(settingPanelFileLayout.createSequentialGroup()
                         .addComponent(filePathField)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(browseButton))
-                    .addComponent(boxSettingSubfolder, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addGroup(settingPanelFileLayout.createSequentialGroup()
+                        .addComponent(boxSettingOpenAfter, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addGap(32, 32, 32)
+                        .addComponent(boxSettingSubfolder, javax.swing.GroupLayout.DEFAULT_SIZE, 193, Short.MAX_VALUE)))
                 .addContainerGap())
         );
         settingPanelFileLayout.setVerticalGroup(
@@ -1780,11 +1803,11 @@ public class TongaFrame extends JFrame {
                 .addGroup(settingPanelFileLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(filePathField, javax.swing.GroupLayout.PREFERRED_SIZE, 28, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(browseButton))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(boxSettingOpenAfter)
-                .addGap(3, 3, 3)
-                .addComponent(boxSettingSubfolder)
-                .addContainerGap(18, Short.MAX_VALUE))
+                .addGap(7, 7, 7)
+                .addGroup(settingPanelFileLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(boxSettingOpenAfter)
+                    .addComponent(boxSettingSubfolder))
+                .addContainerGap(20, Short.MAX_VALUE))
         );
 
         javax.swing.GroupLayout generalPanelLayout = new javax.swing.GroupLayout(generalPanel);
@@ -1804,13 +1827,13 @@ public class TongaFrame extends JFrame {
             generalPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(generalPanelLayout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(settingPanelLayer, javax.swing.GroupLayout.PREFERRED_SIZE, 97, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(settingPanelLayer, javax.swing.GroupLayout.PREFERRED_SIZE, 92, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(5, 5, 5)
-                .addComponent(settingPanelGeneral, javax.swing.GroupLayout.PREFERRED_SIZE, 88, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(5, 5, 5)
+                .addComponent(settingPanelGeneral, javax.swing.GroupLayout.PREFERRED_SIZE, 120, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(settingPanelScale, javax.swing.GroupLayout.PREFERRED_SIZE, 65, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(5, 5, 5)
-                .addComponent(settingPanelFile, javax.swing.GroupLayout.PREFERRED_SIZE, 124, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(settingPanelFile, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap())
         );
 
@@ -3508,8 +3531,6 @@ public class TongaFrame extends JFrame {
                 .addGap(6, 6, 6))
         );
 
-        bleftLabel.getAccessibleContext().setAccessibleName("<html>Welcome to Tonga!Welcome to Tonga!Welcome to Tonga!Welcome to Tonga!Welcome to Tonga!Welcome to Tonga!Welcome to Tonga!Welcome to Tonga!Welcome to Tonga!Welcome to Tonga!Welcome to Tonga!Welcome to Tonga!Welcome to Tonga!Welcome to Tonga!Welcome to Tonga!Welcome to Tonga!Welcome to Tonga!Welcome to Tonga!Welcome to Tonga!Welcome to Tonga!Welcome to Tonga!Welcome to Tonga!Welcome to Tonga!Welcome to Tonga!Welcome to Tonga!Welcome to Tonga!Welcome to Tonga!Welcome to Tonga!Welcome to Tonga!Welcome to Tonga!Welcome to Tonga!Welcome to Tonga!Welcome to Tonga!Welcome to Tonga!Welcome to Tonga!Welcome to Tonga!Welcome to Tonga!Welcome to Tonga!Welcome to Tonga!Welcome to Tonga!</html>");
-
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
@@ -4380,6 +4401,10 @@ public class TongaFrame extends JFrame {
         maxButtEnable();
     }//GEN-LAST:event_tabbedPaneStateChanged
 
+    private void contImgScaleActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_contImgScaleActionPerformed
+        //
+    }//GEN-LAST:event_contImgScaleActionPerformed
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
     protected javax.swing.JComboBox<String> autoscaleCombo;
     protected javax.swing.JLabel autoscaleLabel;
@@ -4388,6 +4413,7 @@ public class TongaFrame extends JFrame {
     protected javax.swing.JCheckBox boxSettingAutoscale1;
     protected javax.swing.JCheckBox boxSettingBatch;
     protected javax.swing.JCheckBox boxSettingHWRendering;
+    protected javax.swing.JCheckBox boxSettingMMapping;
     protected javax.swing.JCheckBox boxSettingMultiThreading;
     protected javax.swing.JCheckBox boxSettingOpenAfter;
     protected javax.swing.JCheckBox boxSettingResultsAppend;
@@ -4402,6 +4428,7 @@ public class TongaFrame extends JFrame {
     protected javax.swing.JMenuItem contImgClear;
     protected javax.swing.JMenuItem contImgDelete;
     protected javax.swing.JMenuItem contImgRename;
+    protected javax.swing.JMenuItem contImgScale;
     protected javax.swing.JMenuItem contImgSelectAll;
     protected javax.swing.JMenuItem contLayDeleteAll;
     protected javax.swing.JMenuItem contLayDeleteThis;

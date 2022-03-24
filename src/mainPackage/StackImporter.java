@@ -98,11 +98,11 @@ public class StackImporter {
                 // iterate through channels
                 for (int c = 0; c < channelNumber; c++) {
                     // read basic data
-                    CachedImage image;
+                    MappedImage image;
                     channelColor = xml.getChannelColor(i, c);
                     // create containing arrays
                     if (bitNumber == 8 && sliceNumber == 1) {
-                        image = new CachedImage(input.openImage(input.getIndex(0, c, t)));
+                        image = new MappedImage(input.openImage(input.getIndex(0, c, t)));
                         LOADER.appendProgress(1. / channelNumber / timeNumber / imageNumber);
                     } else {
                         // convert 16-bit etc to 8-bit
@@ -117,7 +117,7 @@ public class StackImporter {
                         LOADER.appendProgress(1. / 4 / channelNumber / timeNumber / imageNumber);
                         channel = TongaRender.sliceProjection(slices, maxPixelValue);
                         LOADER.appendProgress(1. / 4 / channelNumber / timeNumber / imageNumber);
-                        image = new CachedImage(channel, slices[0].getWidth(), slices[0].getHeight());
+                        image = new MappedImage(channel, slices[0].getWidth(), slices[0].getHeight());
                         image.colour = getColour(channelColor);
                         if (Settings.settingAutoscaleType() == Settings.Autoscale.IMAGE) {
                             TongaRender.setDisplayRange(channel, image);
@@ -144,16 +144,6 @@ public class StackImporter {
         MetadataRetrieve retrieve = xmlService.asRetrieve(metaData);
         xml = xmlService.getOMEMetadata(retrieve);
         return xml;
-    }
-
-    @Deprecated
-    private static TongaImage[] createImages(int images) {
-        TongaImage[] imageArray = new TongaImage[images];
-        Tonga.log.debug("Contains {} images", images);
-        for (int i = 0; i < imageArray.length; i++) {
-            imageArray[i] = new TongaImage();
-        }
-        return imageArray;
     }
 
     private static BufferedImageReader determineChannelReaderType(BufferedImageReader input, OMEXMLMetadata xml, File file) {

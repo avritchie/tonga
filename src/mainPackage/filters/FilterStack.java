@@ -23,7 +23,7 @@ public abstract class FilterStack extends Filter {
     }
 
     @Override
-    public ImageData runSingle(CachedImage[] layers) {
+    public ImageData runSingle(MappedImage[] layers) {
         return ((ImageData) super.runSingle(layers));
     }
 
@@ -43,7 +43,7 @@ public abstract class FilterStack extends Filter {
     }
 
     @Override
-    public ImageData runSingle(CachedImage layer) {
+    public ImageData runSingle(MappedImage layer) {
         return (ImageData) runSingle(new ImageData[]{new ImageData(layer)});
     }
 

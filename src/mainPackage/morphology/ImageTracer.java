@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.Stack;
 import javafx.scene.image.Image;
 import javafx.scene.paint.Color;
-import mainPackage.CachedImage;
+import mainPackage.MappedImage;
 import mainPackage.ImageData;
 import mainPackage.Tonga;
 import mainPackage.utils.COL;
@@ -37,7 +37,7 @@ public class ImageTracer {
         this(new ImageData(img), bg);
     }
 
-    public ImageTracer(CachedImage img, Color bg) {
+    public ImageTracer(MappedImage img, Color bg) {
         this(new ImageData(img), bg);
     }
 

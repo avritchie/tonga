@@ -8,34 +8,34 @@ import javafx.scene.image.Image;
 public class TongaLayer {
 
     public String layerName;
-    public CachedImage layerImage;
+    public MappedImage layerImage;
     public boolean isGhost;
     public int width;
     public int height;
     public String path;
     public boolean isPointer;
 
-    public TongaLayer(CachedImage image) {
+    public TongaLayer(MappedImage image) {
         this(image, null);
     }
 
     public TongaLayer(Image image) {
-        this(SwingFXUtils.fromFXImage(image,null), null);
+        this(SwingFXUtils.fromFXImage(image, null), null);
     }
 
     public TongaLayer(Image image, String name) {
-        this(SwingFXUtils.fromFXImage(image,null), name);
+        this(SwingFXUtils.fromFXImage(image, null), name);
     }
 
     public TongaLayer(BufferedImage image) {
-        this(new CachedImage(image), null);
+        this(new MappedImage(image), null);
     }
 
     public TongaLayer(BufferedImage image, String name) {
-        this(new CachedImage(image), name);
+        this(new MappedImage(image), name);
     }
 
-    public TongaLayer(CachedImage image, String name) {
+    public TongaLayer(MappedImage image, String name) {
         layerName = name;
         layerImage = image;
         isGhost = false;

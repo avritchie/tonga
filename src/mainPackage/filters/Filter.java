@@ -6,7 +6,7 @@ import java.util.List;
 import javafx.scene.image.Image;
 import mainPackage.TongaLayer;
 import javax.imageio.ImageIO;
-import mainPackage.CachedImage;
+import mainPackage.MappedImage;
 import mainPackage.IO;
 import mainPackage.ImageData;
 import mainPackage.PanelCreator;
@@ -143,7 +143,7 @@ public abstract class Filter {
         return tongas;
     }
 
-    public Object runSingle(CachedImage[] layers) {
+    public Object runSingle(MappedImage[] layers) {
         return runSingle(ImageData.convertToImageData(layers));
     }
 
@@ -162,7 +162,7 @@ public abstract class Filter {
         return ((ImageData[]) runSingle(new ImageData[]{new ImageData(layer)}))[0];
     }
 
-    public ImageData runSingle(CachedImage layer) {
+    public ImageData runSingle(MappedImage layer) {
         return ((ImageData[]) runSingle(new ImageData[]{new ImageData(layer)}))[0];
     }
 
@@ -233,7 +233,7 @@ public abstract class Filter {
                         if (Settings.settingBatchProcessing()) {
                             String file = i.name.replaceAll("/", "-") + ".png";
                             try {
-                                ImageIO.write(i.toCachedImage(), "png", new File(file));
+                                ImageIO.write(i.toStreamedImage(), "png", new File(file));
                             } catch (IOException ex) {
                                 Tonga.catchError(ex, "Unable to write the file " + file);
                             }

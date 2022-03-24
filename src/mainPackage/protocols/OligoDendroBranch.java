@@ -12,7 +12,7 @@ import javafx.scene.paint.Color;
 import mainPackage.Blender;
 import mainPackage.Tonga;
 import mainPackage.utils.COL;
-import mainPackage.CachedImage;
+import mainPackage.MappedImage;
 import mainPackage.utils.IMG;
 import mainPackage.utils.GEO;
 import mainPackage.ImageData;
@@ -21,7 +21,6 @@ import static mainPackage.PanelCreator.ControlType.*;
 import mainPackage.filters.ConnectEdges;
 import mainPackage.filters.Filters;
 import mainPackage.filters.FiltersPass;
-import mainPackage.filters.FiltersRender;
 import mainPackage.morphology.ImageTracer;
 import mainPackage.morphology.ROI;
 import mainPackage.morphology.ROISet;
@@ -73,7 +72,7 @@ public class OligoDendroBranch extends Protocol {
                 Tonga.log.debug("There are {} nuclei", nuclei.objectsCount());
                 IMG.copyImage(nucleiLayer, outImage[0]);
                 // BADI
-                bodyLayer = Blender.renderBlend(ImageData.convertToImageData(new CachedImage[]{
+                bodyLayer = Blender.renderBlend(ImageData.convertToImageData(new MappedImage[]{
                     sourceLayer[0].layerImage,
                     sourceLayer[1].layerImage,
                     sourceLayer[2].layerImage,

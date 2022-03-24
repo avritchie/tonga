@@ -8,7 +8,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.scene.image.WritableImage;
-import mainPackage.CachedImage;
+import mainPackage.MappedImage;
 
 public class COL {
 
@@ -46,7 +46,7 @@ public class COL {
         return 0;
     }
 
-    public static Color layerCornerColour(CachedImage lim) {
+    public static Color layerCornerColour(MappedImage lim) {
         Integer[] c = new Integer[4];
         c[0] = lim.getRGB(0, 0);
         c[1] = lim.getRGB(0, lim.getHeight() - 1);

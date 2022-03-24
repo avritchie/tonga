@@ -40,7 +40,6 @@ import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 import javax.swing.event.ListSelectionEvent;
-import mainPackage.CachedImage.CacheBuffer;
 import mainPackage.UndoRedo.Action;
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.slf4j.LoggerFactory;
@@ -59,7 +58,7 @@ public class Tonga {
     static int[] currentLayer, previousLayer;
     static int screenWidth, screenHeight;
     static ArrayList<TongaImage> picList;
-    static ArrayList<CacheBuffer> cachedData;
+    static ArrayList<MappedBuffer> mappedData;
     static DefaultListModel imageListModel, layerListModel;
     static boolean taskIsRunning;
     static int iterationCounter;
@@ -117,7 +116,7 @@ public class Tonga {
         tongaBlue = new Color(120, 120, 240);
         tongaLBlue = new Color(241, 241, 254);
         picList = new ArrayList<>();
-        cachedData = new ArrayList<>();
+        mappedData = new ArrayList<>();
         currentOS = currentOS();
         tongaVersion = readVersion();
         cpuThreads = Runtime.getRuntime().availableProcessors();
@@ -378,8 +377,8 @@ public class Tonga {
                     } else {
                         setStatus(tl.layerName + "  |  " + tl.layerImage.bits + "-bit  |  " + tl.width + "x"
                                 + tl.height + " px  |  " + String.format("%.2f", tl.layerImage.size / 1048576.).replace(",", ".") + " MB");
-                    }
                 }
+            }
             }
 
             @Override
@@ -501,7 +500,7 @@ public class Tonga {
         injectNewLayer(layer, getImageIndex());
     }
 
-    public static void injectNewLayer(CachedImage pic, String name) {
+    public static void injectNewLayer(MappedImage pic, String name) {
         injectNewLayer(pic, name, getImageIndex());
     }
 
@@ -510,11 +509,11 @@ public class Tonga {
     }
 
     public static void injectNewLayer(File file, String name, int imageIndex) throws Exception {
-        CachedImage img = IO.getImageFromFile(file);
+        MappedImage img = IO.getImageFromFile(file);
         injectNewLayer(new TongaLayer(img, name), imageIndex);
     }
 
-    public static void injectNewLayer(CachedImage pic, String name, int imageIndex) {
+    public static void injectNewLayer(MappedImage pic, String name, int imageIndex) {
         injectNewLayer(new TongaLayer(pic, name), imageIndex);
     }
 
@@ -951,8 +950,8 @@ public class Tonga {
             } else {
                 IO.importImage(Arrays.stream(args).map(a -> new File(a)).collect(Collectors.toList()));
             }
+            }
         }
-    }
 
     private static void redraw() {
         TongaRender.resetHash();
@@ -1052,7 +1051,8 @@ public class Tonga {
             if (!Settings.settingBatchProcessing()) {
                 picList.forEach(p -> {
                     p.layerList.forEach(i -> {
-                        al.remove(i.layerImage.getBuffer().getFile());
+                        if (i.layerImage.isMapped()) {
+                        al.remove(((MappedBuffer) i.layerImage.getBuffer()).getFile());}
                     });
                 });
             }
@@ -1061,11 +1061,13 @@ public class Tonga {
                     if (r.type == Action.ADD) {
                         if (r.container.getClass() == TongaImage.class) {
                             ((TongaImage) r.container).layerList.forEach(i -> {
-                                al.remove(i.layerImage.getBuffer().getFile());
+                        if (i.layerImage.isMapped()) {
+                                al.remove(((MappedBuffer) i.layerImage.getBuffer()).getFile());}
                             });
                         }
                         if (r.container.getClass() == TongaLayer.class) {
-                            al.remove(((TongaLayer) r.container).layerImage.getBuffer().getFile());
+                        if (((TongaLayer) r.container).layerImage.isMapped()) {
+                            al.remove(((MappedBuffer)((TongaLayer) r.container).layerImage.getBuffer()).getFile());}
                         }
                     }
                 });
@@ -1075,17 +1077,19 @@ public class Tonga {
                     if (r.type == Action.ADD) {
                         if (r.container.getClass() == TongaImage.class) {
                             ((TongaImage) r.container).layerList.forEach(i -> {
-                                al.remove(i.layerImage.getBuffer().getFile());
+                        if (i.layerImage.isMapped()) {
+                                al.remove(((MappedBuffer) i.layerImage.getBuffer()).getFile());}
                             });
                         }
                         if (r.container.getClass() == TongaLayer.class) {
-                            al.remove(((TongaLayer) r.container).layerImage.getBuffer().getFile());
-                        }
+                        if (((TongaLayer) r.container).layerImage.isMapped()) {
+                            al.remove(((MappedBuffer)((TongaLayer) r.container).layerImage.getBuffer()).getFile());
+                        }}
                     }
                 });
             }
             //remove everything cached that was not removed
-            ArrayList<CacheBuffer> remainingCache = new ArrayList<>(cachedData);
+            ArrayList<MappedBuffer> remainingCache = new ArrayList<>(mappedData);
             remainingCache.forEach(f -> {
                 if (al.contains(f.getFile())) {
                     al.remove(f.getFile());
@@ -1119,12 +1123,12 @@ public class Tonga {
     }
 
     public static String formatPath(String string) {
-        if (currentOS == OS.MAC) {
-            return string.replace("\\", "/");
-        } else {
-            return string;
+            if (currentOS == OS.MAC) {
+                return string.replace("\\", "/");
+            } else {
+                return string;
+            }
         }
-    }
 
     static int fullLayerIndexCount() {
         if (getImage().stack) {
@@ -1179,7 +1183,7 @@ public class Tonga {
         try {
             try {
                 //remove everything cached
-                ArrayList<CacheBuffer> remainingCache = new ArrayList<>(cachedData);
+                ArrayList<MappedBuffer> remainingCache = new ArrayList<>(mappedData);
                 remainingCache.forEach(f -> {
                     f.freeCache();
                 });

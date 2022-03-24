@@ -4,6 +4,7 @@ import java.awt.Point;
 import java.awt.color.ColorSpace;
 import java.awt.image.BandedSampleModel;
 import java.awt.image.BufferedImage;
+import java.awt.image.ColorModel;
 import java.awt.image.ComponentColorModel;
 import java.awt.image.DataBuffer;
 import java.awt.image.DataBufferByte;
@@ -11,21 +12,12 @@ import java.awt.image.IndexColorModel;
 import java.awt.image.SampleModel;
 import java.awt.image.WritableRaster;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.RandomAccessFile;
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.IntBuffer;
-import java.nio.MappedByteBuffer;
 import java.nio.ShortBuffer;
-import java.nio.channels.ClosedChannelException;
-import java.nio.channels.FileChannel;
 import java.util.NoSuchElementException;
-import java.util.Random;
-import java.util.zip.CRC32;
 import javafx.scene.image.Image;
 import javafx.scene.image.PixelBuffer;
 import javafx.scene.image.PixelFormat;
@@ -36,19 +28,17 @@ import javax.imageio.ImageReader;
 import javax.imageio.ImageTypeSpecifier;
 import javax.imageio.stream.ImageInputStream;
 
-public class CachedImage extends BufferedImage {
+public class MappedImage extends BufferedImage {
 
     public int bits;
     int colour;
+    int size;
     int min;
     int max;
-    int size;
+    private boolean mapped;
 
-    public CachedImage(int width, int height, boolean bits) {
-        super(new ComponentColorModel(ColorSpace.getInstance(bits ? ColorSpace.CS_GRAY : ColorSpace.CS_sRGB), !bits, !bits, bits ? 1 : 3, bits ? 1 : 0),
-                new CacheRaster(
-                        new BandedSampleModel(bits ? DataBuffer.TYPE_USHORT : DataBuffer.TYPE_BYTE, width, height, bits ? 1 : 4),
-                        new CacheBuffer(bits ? DataBuffer.TYPE_USHORT : DataBuffer.TYPE_BYTE, width, height, bits ? 1 : 4, bits)), !bits, null);
+    private MappedImage(int width, int height, boolean bits, DataBuffer db) {
+        super(getColor(bits), new WrappedRaster(getSample(width, height, bits), db), !bits, null);
         this.bits = bits ? 16 : 8;
         this.colour = 0xFFFFFFFF;
         this.min = 0;
@@ -56,18 +46,30 @@ public class CachedImage extends BufferedImage {
         this.size = width * height * (bits ? 2 : 4);
     }
 
-    public CachedImage(short[] bytes, int width, int height) {
-        this(width, height, true);
+    public MappedImage(int width, int height, boolean bits, boolean mapping) {
+        this(width, height, bits, (mapping && Settings.settingMemoryMapping())
+                ? new MappedBuffer(bits ? DataBuffer.TYPE_USHORT : DataBuffer.TYPE_BYTE, width, height, bits ? 1 : 4, bits)
+                : new MemoryBuffer(bits ? DataBuffer.TYPE_USHORT : DataBuffer.TYPE_BYTE, width, height, bits ? 1 : 4, bits));
+        this.mapped = mapping && Settings.settingMemoryMapping();
+        Tonga.log.trace("{} image created.", mapping ? "Mapped" : "Cached");
+    }
+
+    /*public CachedImage(int width, int height, boolean bits) {
+        this(width, height, bits, new DataBufferByte(width * height * (bits ? 2 : 1), bits ? 1 : 4));
+    }
+     */
+    public MappedImage(short[] bytes, int width, int height) {
+        this(width, height, true, true);
         this.setShorts(bytes);
     }
 
-    public CachedImage(int[] bytes, int width, int height) {
-        this(width, height, false);
+    public MappedImage(int[] bytes, int width, int height) {
+        this(width, height, false, true);
         this.setARGB(bytes);
     }
 
-    public CachedImage(ImageData id) {
-        this(id.width, id.height, id.bits == 16);
+    public MappedImage(ImageData id, boolean mapping) {
+        this(id.width, id.height, id.bits == 16, mapping);
         if (id.pixels32 == null && id.pixels16 == null) {
             id.setPixels();
         }
@@ -79,8 +81,8 @@ public class CachedImage extends BufferedImage {
         }
     }
 
-    public CachedImage(BufferedImage bi) {
-        this(bi.getWidth(), bi.getHeight(), bi.getType() == BufferedImage.TYPE_USHORT_GRAY);
+    public MappedImage(BufferedImage bi) {
+        this(bi.getWidth(), bi.getHeight(), bi.getType() == BufferedImage.TYPE_USHORT_GRAY, true);
         //source may vary - ensure compatilibty with the bands model
         if (!this.getColorModel().isCompatibleRaster(bi.getRaster())) {
             Tonga.log.debug("Incompatible colour model");
@@ -92,11 +94,20 @@ public class CachedImage extends BufferedImage {
         this.getRaster().setRect(bi.getRaster());
     }
 
-    public CachedImage(File f) {
+    public MappedImage(File f) {
         this(getBufferedFile(f));
         if (this.bits == 16 && Settings.settingAutoscaleType() != Settings.Autoscale.NONE) {
             TongaRender.setDisplayRange(getShorts(), this);
         }
+    }
+
+    private static ColorModel getColor(boolean bits) {
+        ColorSpace colorSpace = ColorSpace.getInstance(bits ? ColorSpace.CS_GRAY : ColorSpace.CS_sRGB);
+        return new ComponentColorModel(colorSpace, !bits, !bits, bits ? 1 : 3, bits ? 1 : 0);
+    }
+
+    private static SampleModel getSample(int width, int height, boolean bits) {
+        return new BandedSampleModel(bits ? DataBuffer.TYPE_USHORT : DataBuffer.TYPE_BYTE, width, height, bits ? 1 : 4);
     }
 
     private static BufferedImage getBufferedFile(File f) {
@@ -210,7 +221,7 @@ public class CachedImage extends BufferedImage {
         byte[] bytes;
         WritableImage wi;
         if (bits == 16) {
-            ByteBuffer buffer = ((CacheBuffer) this.getRaster().getDataBuffer()).buffer;
+            ByteBuffer buffer = ((MemoryBuffer) this.getRaster().getDataBuffer()).buffer;
             buffer.position(0);
             bytes = new byte[buffer.remaining() * 2];
             int rem = buffer.remaining() / 2, s, b;
@@ -230,7 +241,7 @@ public class CachedImage extends BufferedImage {
             PixelFormat<ByteBuffer> format = PixelFormat.getByteBgraPreInstance();
             wi = new WritableImage(new PixelBuffer<>(getWidth(), getHeight(), ByteBuffer.wrap(bytes), format));
         } else {
-            bytes = ((CacheBuffer) this.getRaster().getDataBuffer()).getData();
+            bytes = ((MemoryBuffer) this.getRaster().getDataBuffer()).getData();
             st = System.nanoTime();
             PixelFormat<ByteBuffer> format = PixelFormat.getByteBgraInstance();
             wi = new WritableImage(getWidth(), getHeight());
@@ -251,7 +262,7 @@ public class CachedImage extends BufferedImage {
     }
 
     public final int[] getARGB() {
-        ByteBuffer bb = ((CacheBuffer) this.getRaster().getDataBuffer()).buffer;
+        ByteBuffer bb = getByteBuffer();
         bb.position(0);
         if (bits == 16) {
             ShortBuffer sb = bb.asShortBuffer();
@@ -268,7 +279,7 @@ public class CachedImage extends BufferedImage {
     }
 
     public final short[] getShorts() {
-        ByteBuffer bb = ((CacheBuffer) this.getRaster().getDataBuffer()).buffer;
+        ByteBuffer bb = getByteBuffer();
         bb.position(0);
         ShortBuffer ib = bb.asShortBuffer();
         short[] array = new short[ib.remaining()];
@@ -277,144 +288,41 @@ public class CachedImage extends BufferedImage {
     }
 
     public final void setARGB(int[] argb) {
-        ByteBuffer bb = ((CacheBuffer) this.getRaster().getDataBuffer()).buffer;
+        ByteBuffer bb = getByteBuffer();
         bb.position(0);
         IntBuffer ib = bb.order(ByteOrder.LITTLE_ENDIAN).asIntBuffer();
         ib.put(argb);
     }
 
     public final void setShorts(short[] shorts) {
-        ByteBuffer bb = ((CacheBuffer) this.getRaster().getDataBuffer()).buffer;
+        ByteBuffer bb = getByteBuffer();
         bb.position(0);
         ShortBuffer ib = bb.asShortBuffer();
         ib.put(shorts);
     }
 
-    private void setAttributes(ImageData id) {
+    protected final void setAttributes(ImageData id) {
         this.colour = id.colour;
         this.min = id.min;
         this.max = id.max;
     }
 
-    public CacheBuffer getBuffer() {
-        return (CacheBuffer) this.getRaster().getDataBuffer();
+    public MemoryBuffer getBuffer() {
+        return (MemoryBuffer) this.getRaster().getDataBuffer();
     }
 
-    public static class CacheRaster extends WritableRaster {
+    public ByteBuffer getByteBuffer() {
+        return getBuffer().buffer;
+    }
 
-        public CacheRaster(SampleModel sm, CacheBuffer db) {
+    boolean isMapped() {
+        return mapped;
+    }
+
+    public static class WrappedRaster extends WritableRaster {
+
+        public WrappedRaster(SampleModel sm, DataBuffer db) {
             super(sm, db, new Point());
         }
-    }
-
-    public static class CacheBuffer extends DataBuffer {
-
-        private static int ID = 0;
-        private File file;
-        private RandomAccessFile raf;
-        private MappedByteBuffer buffer;
-        private boolean bits;
-
-        public CacheBuffer(int type, int width, int height, int banks, boolean bits) {
-            super(type, width * height, banks);
-            this.bits = bits;
-            try {
-                file = new File(Tonga.getTempPath());
-                while (file.exists()) {
-                    File nfile = new File(Tonga.getTempPath() + getHash(ID++) + ".bin");
-                    if (nfile.exists()) {
-                        Tonga.log.warn("Hash clash for " + nfile.getName());
-                    } else {
-                        file = nfile;
-                    }
-                }
-                raf = new RandomAccessFile(file, "rw");
-                buffer = raf.getChannel().map(FileChannel.MapMode.READ_WRITE, 0, bits ? size * 2 : size * banks);
-                Tonga.cachedData.add(this);
-            } catch (FileNotFoundException ex) {
-                Tonga.catchError(ex, "Buffer creation failed.");
-            } catch (ClosedChannelException ex) {
-                Tonga.catchError(ex, "Interrupted during buffering.");
-            } catch (IOException ex) {
-                Tonga.catchError(ex, "Buffer creation failed.");
-            }
-        }
-
-        public File getFile() {
-            return file;
-        }
-
-        public byte[] getData() {
-            buffer.position(0);
-            byte[] array = new byte[buffer.remaining()];
-            buffer.get(array);
-            return array;
-        }
-
-        public void setData(byte[] array) {
-            buffer.position(0);
-            buffer.put(array);
-        }
-
-        @Override
-        public int getElem(int bank, int i) {
-            if (bits) {
-                return buffer.getShort(i * 2) & 0xffff;
-            } else {
-                return buffer.get(i * 4 + (bank != 3 ? Math.abs(bank - 2) : bank)) & 0xff;
-            }
-        }
-
-        @Override
-        public void setElem(int bank, int i, int val) {
-            if (bits) {
-                buffer.putShort(i * 2, (short) val);
-            } else {
-                buffer.put(i * 4 + (bank != 3 ? Math.abs(bank - 2) : bank), (byte) val);
-            }
-        }
-
-        @Override
-        protected void finalize() throws Throwable {
-            super.finalize();
-            new Thread() {
-                @Override
-                public void run() {
-                    freeCache();
-                }
-            }.start();
-        }
-
-        protected void freeCache() {
-            try {
-                raf.close();
-            } catch (IOException ex) {
-                Tonga.catchError(ex, "RandomAccessFile closing error.");
-            }
-            clean(buffer);
-            file.delete();
-            Tonga.cachedData.remove(this);
-            Tonga.log.trace("Freeing " + file.getName());
-        }
-
-        private void clean(MappedByteBuffer b) {
-            try {
-                Class<?> unsafeClass = Class.forName("sun.misc.Unsafe");
-                Field unsafeField = unsafeClass.getDeclaredField("theUnsafe");
-                unsafeField.setAccessible(true);
-                Method invokeCleaner = unsafeClass.getMethod("invokeCleaner", ByteBuffer.class);
-                invokeCleaner.invoke(unsafeField.get(null), b);
-            } catch (Exception ex) {
-                Tonga.catchError(ex, "MappedByteBuffer cleaning error.");
-            }
-        }
-    }
-
-    private static String getHash(int identifier) {
-        CRC32 crc = new CRC32();
-        crc.update((int) (System.nanoTime() & 0x00000000FFFFFFFFL));
-        String s = Long.toHexString(crc.getValue());
-        crc.update(new Random().nextInt() + identifier);
-        return s + Long.toHexString(crc.getValue());
     }
 }

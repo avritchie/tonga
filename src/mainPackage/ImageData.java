@@ -1,5 +1,6 @@
 package mainPackage;
 
+import java.awt.image.BufferedImage;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.scene.image.Image;
 
@@ -15,7 +16,7 @@ public class ImageData {
     public int max;
     public boolean alpha; //false = normal, true = ghost
     public String name;
-    public final CachedImage ref;
+    public final MappedImage ref;
 
     public ImageData(int[] bytes, int width, int height) {
         this(bytes, width, height, null);
@@ -60,7 +61,7 @@ public class ImageData {
     }
 
     public ImageData(Image img) {
-        this(new CachedImage(SwingFXUtils.fromFXImage(img, null)));
+        this(new MappedImage(SwingFXUtils.fromFXImage(img, null)));
     }
 
     public ImageData(TongaLayer layer) {
@@ -68,15 +69,15 @@ public class ImageData {
         this.alpha = layer.isGhost;
     }
 
-    public ImageData(CachedImage img) {
+    public ImageData(MappedImage img) {
         this(img, null);
     }
 
     public ImageData(Image img, String name) {
-        this(new CachedImage(SwingFXUtils.fromFXImage(img, null)), name);
+        this(new MappedImage(SwingFXUtils.fromFXImage(img, null)), name);
     }
 
-    public ImageData(CachedImage img, String name) {
+    public ImageData(MappedImage img, String name) {
         this.width = img.getWidth();
         this.height = img.getHeight();
         this.bits = img.bits;
@@ -96,17 +97,25 @@ public class ImageData {
         this.name = n;
     }
 
-    public CachedImage toCachedImage() {
+    public MappedImage toCachedImage() {
         if (ref != null) {
             return ref;
         } else {
-            Tonga.log.warn("Cacheless ImageData cached.");
-            return new CachedImage(this);
+            Tonga.log.trace("Mapping of internal image data.");
+            return new MappedImage(this, true);
+        }
+    }
+
+    public MappedImage toStreamedImage() {
+        if (ref != null) {
+            return ref;
+        } else {
+            return new MappedImage(this, false);
         }
     }
 
     public Image toFXImage() {
-        return toCachedImage().getFXImage();
+        return toStreamedImage().getFXImage();
     }
 
     public TongaLayer toLayer() {
@@ -128,8 +137,8 @@ public class ImageData {
             if (layers[i].getClass() == Image.class) {
                 idlayers[i] = new ImageData((Image) layers[i]);
             }
-            if (layers[i].getClass() == CachedImage.class) {
-                idlayers[i] = new ImageData((CachedImage) layers[i]);
+            if (layers[i].getClass() == MappedImage.class) {
+                idlayers[i] = new ImageData((MappedImage) layers[i]);
             }
         }
         return idlayers;

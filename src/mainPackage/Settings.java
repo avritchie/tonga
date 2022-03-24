@@ -86,6 +86,10 @@ public class Settings {
         return host.boxSettingHWRendering.isSelected();
     }
 
+    public static boolean settingMemoryMapping() {
+        return host.boxSettingMMapping.isSelected();
+    }
+
     public static boolean settingsOverrideSizeEstimate() {
         return Tonga.frame().jCheckBoxMenuItem1.isSelected();
     }
@@ -153,7 +157,7 @@ public class Settings {
                     byte gs = in.readByte();
                     host.boxSettingAutoscale1.setSelected(((gs) & 1) == 1);
                     host.boxSettingResultsAppend.setSelected(((gs >> 1) & 1) == 1);
-                    //host.boxSettingNoRAM.setSelected(((gs >> 2) & 1) == 1);
+                    host.boxSettingMMapping.setSelected(((gs >> 2) & 1) == 1);
                     host.boxSettingOpenAfter.setSelected(((gs >> 3) & 1) == 1);
                     host.boxSettingSubfolder.setSelected(((gs >> 4) & 1) == 1);
                     host.boxSettingAlphaBG.setSelected(((gs >> 5) & 1) == 1);
@@ -201,7 +205,7 @@ public class Settings {
             try ( DataOutputStream out = new DataOutputStream(new FileOutputStream(sconf))) {
                 byte gs = (byte) ((host.boxSettingAutoscale1.isSelected() ? 1 : 0)
                         | (host.boxSettingResultsAppend.isSelected() ? 1 : 0) << 1
-                        //| (host.boxSettingNoRAM.isSelected() ? 1 : 0) << 2
+                        | (host.boxSettingMMapping.isSelected() ? 1 : 0) << 2
                         | (host.boxSettingOpenAfter.isSelected() ? 1 : 0) << 3
                         | (host.boxSettingSubfolder.isSelected() ? 1 : 0) << 4
                         | (host.boxSettingAlphaBG.isSelected() ? 1 : 0) << 5

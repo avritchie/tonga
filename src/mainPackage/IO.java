@@ -663,7 +663,7 @@ public class IO {
         return new Object[]{proceed, number, channel.isSelected()};
     }
 
-    public static CachedImage getImageFromFile(String file) throws FileNotFoundException, ServiceException, FormatException, IOException {
+    public static MappedImage getImageFromFile(String file) throws FileNotFoundException, ServiceException, FormatException, IOException {
         return getImageFromFile(new File(file));
     }
 
@@ -671,12 +671,12 @@ public class IO {
         return new ImageData(getImageFromFile(new File(file)));
     }
 
-    public static CachedImage getImageFromFile(File file) throws FileNotFoundException, ServiceException, FormatException, IOException {
+    public static MappedImage getImageFromFile(File file) throws FileNotFoundException, ServiceException, FormatException, IOException {
         if (file.exists()) {
             try {
                 try {
-                    CachedImage n;
-                    n = new CachedImage(file);
+                    MappedImage n;
+                    n = new MappedImage(file);
                     return n;
                 } catch (Exception ex) {
                     Tonga.log.debug("Unable to directly import {}", file.toString());
@@ -772,7 +772,7 @@ public class IO {
 
     private static boolean exportImage(TongaImage p, ImageData i) {
         String name = p.imageName + "_[Stack]";
-        return exportImage(i.toCachedImage(), name);
+        return exportImage(i.toStreamedImage(), name);
     }
 
     private static boolean exportImage(TongaImage p, int layer) {
@@ -784,8 +784,8 @@ public class IO {
         boolean ok = new Exporter() {
             @Override
             void write() throws IOException {
-                if (i.getClass() == CachedImage.class) {
-                    CachedImage ci = (CachedImage) i;
+                if (i.getClass() == MappedImage.class) {
+                    MappedImage ci = (MappedImage) i;
                     ImageIO.write(ci.bits
                             == 16 ? ci.get8BitCopy() : i, "png", file);
                 } else {

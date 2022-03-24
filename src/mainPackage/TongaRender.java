@@ -407,7 +407,7 @@ public class TongaRender {
                 }
                 if (Settings.settingHWAcceleration()) {
                     if (renderImages[imgs.getKey()] == null) {
-                        renderImages[imgs.getKey()] = ((CachedImage) imgs.getValue()).getFXImage();
+                        renderImages[imgs.getKey()] = ((MappedImage) imgs.getValue()).getFXImage();
                     }
                 } else {
                     if (renderCopies[imgs.getKey()] == null) {
@@ -520,7 +520,7 @@ public class TongaRender {
         return bytes;
     }
 
-    static void setDisplayRange(short[] channel, CachedImage image) {
+    static void setDisplayRange(short[] channel, MappedImage image) {
         int[] hist = HISTO.getHistogram(channel);
         int[] p = HISTO.getMinMaxAdapt(hist, Settings.settingAutoscaleAggressive() ? 0.1 : 0);
         image.min = p[0];
@@ -536,7 +536,7 @@ public class TongaRender {
         }
         for (TongaImage ti : returnableImages) {
             for (int j = 0; j < ti.layerList.size(); j++) {
-                CachedImage ci = ti.layerList.get(j).layerImage;
+                MappedImage ci = ti.layerList.get(j).layerImage;
                 if (ci.bits == 16) {
                     int[] hist = HISTO.getHistogram(ci.getShorts());
                     int[] b = HISTO.getMinMaxAdapt(hist, Settings.settingAutoscaleAggressive() ? 0.1 : 0);
@@ -550,7 +550,7 @@ public class TongaRender {
         }
         for (TongaImage ti : returnableImages) {
             for (int j = 0; j < ti.layerList.size(); j++) {
-                CachedImage ci = ti.layerList.get(j).layerImage;
+                MappedImage ci = ti.layerList.get(j).layerImage;
                 if (ci.bits == 16) {
                     ci.min = min[j];
                     ci.max = max[j];
@@ -559,8 +559,8 @@ public class TongaRender {
         }
     }
 
-    public static CachedImage imageToCache(Image img) {
-        return new CachedImage(SwingFXUtils.fromFXImage(img, null));
+    public static MappedImage imageToCache(Image img) {
+        return new MappedImage(SwingFXUtils.fromFXImage(img, null));
     }
 
     public static void renderGraphics(GraphicsContext cont, int sx, int sy, int sw, int sh, int dx, int dy, int dw, int dh) {
