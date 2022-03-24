@@ -14,7 +14,6 @@ import mainPackage.Tonga;
 import mainPackage.filters.Filters;
 import mainPackage.morphology.ImageTracer;
 import mainPackage.utils.DRAW;
-import mainPackage.utils.RGB;
 
 public class AreaAroundObject extends Protocol {
 
@@ -57,7 +56,7 @@ public class AreaAroundObject extends Protocol {
                 //
                 int[][] hitsMax = objectAreaTracing();
                 for (int cell = 1; cell <= centers.size(); cell++) {
-                    data.newRow(sourceImage.imageName, Integer.toString(cell),
+                    newResultRow(Integer.toString(cell),
                             String.format("%.3f", ((double) hitsMax[cell][0] / (double) hitsMax[cell][1] * 100)) + "%");
                 }
             }

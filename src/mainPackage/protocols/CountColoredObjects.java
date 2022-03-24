@@ -32,7 +32,7 @@ public class CountColoredObjects extends Protocol {
         double thresh = param.slider[0] / 100.0;
         int color = param.combo[0];
         boolean indv = param.toggle[0];
-        
+
         return new ProcessorFast("Areas", 1) {
 
             @Override
@@ -58,10 +58,10 @@ public class CountColoredObjects extends Protocol {
             protected void methodFinal() {
                 ROISet set = new ImageTracer(outImage[0], Color.BLACK).trace();
                 set.filterOutSmallObjects(limit);
-                outImage[0] = set.drawToImageData();
-                datas.add(indv
-                        ? SetCounters.countObjectsSingle(set).runSingle(sourceImage, sourceLayer[0])
-                        : SetCounters.countObjectsImage(set).runSingle(sourceImage, sourceLayer[0]));
+                setOutputBy(set.drawToImageData());
+                addResultData(indv
+                        ? SetCounters.countObjectsSingle(set).runSingle(sourceImage)
+                        : SetCounters.countObjectsImage(set).runSingle(sourceImage));
             }
         };
     }

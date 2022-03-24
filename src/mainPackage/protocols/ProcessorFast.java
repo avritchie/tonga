@@ -1,8 +1,8 @@
 package mainPackage.protocols;
 
 import mainPackage.ImageData;
-import mainPackage.Iterate;
 import mainPackage.Tonga;
+import mainPackage.morphology.ROISet;
 import mainPackage.utils.IMG;
 
 public abstract class ProcessorFast extends Processor {
@@ -91,6 +91,14 @@ public abstract class ProcessorFast extends Processor {
             //outImage[i].pixels32 = id[i].pixels32;
             IMG.copyPixels(id[i].pixels32, outImage[i].pixels32);
         }
+    }
+
+    protected void setOutputBy(ROISet set) {
+        setOutputBy(set, 0);
+    }
+
+    protected void setOutputBy(ROISet set, int i) {
+        outImage[i].pixels32 = set.drawToArray();
     }
 
     protected void setOutputBy(ImageData id) {

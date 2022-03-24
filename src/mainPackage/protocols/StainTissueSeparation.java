@@ -1,6 +1,7 @@
 package mainPackage.protocols;
 
 import mainPackage.ImageData;
+import mainPackage.Iterate;
 import mainPackage.PanelCreator.ControlReference;
 import static mainPackage.PanelCreator.ControlType.*;
 import mainPackage.counters.Counters;
@@ -30,10 +31,8 @@ public class StainTissueSeparation extends Protocol {
 
         return new ProcessorFast("Tissue separation", 13) {
 
-            int[] collVals, tissueVals, red2Vals, red3Vals;
-            double[] ishVals;
-            double threshReduce;
-            ImageData layer, layer2, layer3, test1, test2;
+            int[] collVals;
+            ImageData layer, layer2, layer3;
 
             @Override
             protected void methodInit() {
@@ -50,7 +49,7 @@ public class StainTissueSeparation extends Protocol {
                 layer = Filters.bwBrightness().runSingle(inImage[0]);
                 layer2 = layer;
                 layer = Filters.autoscaleWithAdapt().runSingle(layer, 5);
-                layer = Filters.cutFilter().runSingle(layer, new Object[]{0,225});
+                layer = Filters.cutFilter().runSingle(layer, new Object[]{0, 225});
                 layer = Filters.invert().runSingle(layer);
                 layer3 = layer;
                 layer = Filters.multiply().runSingle(layer, 1600.);
@@ -60,15 +59,12 @@ public class StainTissueSeparation extends Protocol {
                 layer = Filters.gaussApprox().runSingle(layer, 4.);
                 layer = Filters.thresholdBright().runSingle(layer, 67);
                 layer = FiltersPass.filterObjectSize().runSingle(layer, COL.BLACK, 0, false, 500);
-                for (int y = 0; y < sourceHeight[0]; y++) {
-                    for (int x = 0; x < sourceWidth[0]; x++) {
-                        int p = (y * sourceWidth[0] + x);
-                        int ishVal = 255 - collVals[p];
-                        int ishARGB = (255 << 16 | (255 - ishVal) << 8 | (255 - ishVal) | 0xff << 24);
-                        outImage[0].pixels32[p] = (layer.pixels32[p] & 0xFF) == 0 ? ishARGB : 0x0;
-                    }
-                }
-                datas.add(Counters.countRBStain().runSingle(sourceImage.imageName, outImage[0]));
+                Iterate.pixels(inImage[0], (int p) -> {
+                    int ishVal = 255 - collVals[p];
+                    int ishARGB = (255 << 16 | (255 - ishVal) << 8 | (255 - ishVal) | 0xff << 24);
+                    outImage[0].pixels32[p] = (layer.pixels32[p] & 0xFF) == 0 ? ishARGB : 0x0;
+                });
+                addResultData(Counters.countRBStain().runSingle(sourceImage, outImage[0]));
             }
         };
     }

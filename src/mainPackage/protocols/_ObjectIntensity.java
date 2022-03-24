@@ -43,13 +43,13 @@ public class _ObjectIntensity extends Protocol {
                 set.quantifyEvenColour(inImage[0]);
                 if (binst) {
                     outImage[0].pixels32 = set.drawStainArray(thresh, false);
-                    datas.add(SetCounters.countObjectPositive(set, thresh).runSingle(sourceImage));
+                    addResultData(SetCounters.countObjectPositive(set, thresh).runSingle(sourceImage));
                 } else {
                     outImage[0].pixels32 = set.drawStainArray(true);
                     if (perimg) {
-                        datas.add(SetCounters.countObjectStainsImage(set).runSingle(sourceImage));
+                        addResultData(SetCounters.countObjectStainsImage(set).runSingle(sourceImage));
                     } else {
-                        datas.add(SetCounters.countObjectStainsSingle(set).runSingle(sourceImage));
+                        addResultData(SetCounters.countObjectStainsSingle(set).runSingle(sourceImage));
                     }
                 }
             }

@@ -1,6 +1,5 @@
 package mainPackage.protocols;
 
-import javafx.scene.paint.Color;
 import mainPackage.utils.COL;
 import mainPackage.ImageData;
 import mainPackage.PanelCreator.ControlReference;
@@ -49,12 +48,11 @@ public class NucleusEduCounterShitty extends Protocol {
                 imageDAPI.filterOutSmallObjects(500);
                 CellSet imageEdU = new CellSet(new ImageTracer(eduLayer, COL.BLACK).trace());
                 imageEdU.filterOutSmallObjects(500);
-                outImage[0] = imageDAPI.drawToImageData();
-                outImage[1] = imageEdU.drawToImageData();
-                Object[] dataRow = data.newRow(sourceImage.imageName);
-                dataRow[1] = imageDAPI.totalCellCount();
-                dataRow[2] = imageEdU.totalCellCount();
-                dataRow[3] = ((Integer) dataRow[2]) / (double) ((Integer) dataRow[1]);
+                setOutputBy(imageDAPI, 0);
+                setOutputBy(imageEdU, 1);
+                int totalDAPI = imageDAPI.totalCellCount();
+                int totalEdU = imageEdU.totalCellCount();
+                newResultRow(totalDAPI, totalEdU, totalEdU / (double) totalDAPI);
             }
         };
     }

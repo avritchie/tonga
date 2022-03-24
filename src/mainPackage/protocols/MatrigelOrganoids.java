@@ -1,6 +1,5 @@
 package mainPackage.protocols;
 
-import javafx.scene.effect.BlendMode;
 import javafx.scene.paint.Color;
 import mainPackage.Blender;
 import mainPackage.Blender.Blend;
@@ -9,7 +8,6 @@ import mainPackage.ImageData;
 import mainPackage.Iterate;
 import mainPackage.PanelCreator.ControlReference;
 import static mainPackage.PanelCreator.ControlType.*;
-import mainPackage.TongaRender;
 import mainPackage.counters.SetCounters;
 import mainPackage.filters.ConnectEdges;
 import mainPackage.filters.Filters;
@@ -72,7 +70,7 @@ public class MatrigelOrganoids extends Protocol {
                 set.quantifyStainAgainstChannel(Filters.dog().runSingle(inImage[0], 2, 40, false));
                 set.filterOutDimObjects(2);
                 set.filterOutSmallObjects(limit);
-                set = set.getPositionFilteredSet(work, COL.BLACK,false);
+                set = set.getPositionFilteredSet(work, COL.BLACK, false);
                 work = set.drawToImageData();
                 // old nucl final mask ends
                 //work = new __NucleusFinalMask().runSilent(sourceImage,new ImageData[]{layer, inImage[0], inImage[0]},new Object[]{Color.BLACK, limit, false, 0, false})[0];
@@ -94,7 +92,7 @@ public class MatrigelOrganoids extends Protocol {
                 outImage[0].pixels32 = set.drawToArray();
                 outImage[1].pixels32 = l2.pixels32;
                 outImage[2].pixels32 = l3.pixels32;
-                datas.add(SetCounters.countObjectsSingle(set).runSingle(sourceImage, sourceLayer[0]));
+                addResultData(SetCounters.countObjectsSingle(set).runSingle(sourceImage));
             }
         };
     }

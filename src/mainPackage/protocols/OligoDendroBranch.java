@@ -105,10 +105,9 @@ public class OligoDendroBranch extends Protocol {
                         radius, sCol, new PixelWriter[]{outWriter[3], outWriter[4]}, onlyOne);
                 Tonga.log.trace("There are {} hitmaxes", centers.size());
                 for (int cell = 1; cell < hitsMax.length; cell++) {
-                    Object[] dataRow = data.newRow(sourceImage.imageName);
-                    dataRow[1] = cell;
-                    dataRow[2] = String.format("%.3f", ((double) hitsMax[cell][0] / (double) hitsMax[cell][1] * 100)) + "%";
-                    dataRow[3] = String.format("%.4f", ((double) hitsMax[cell][2] / (double) hitsMax[cell][3] * 100)) + "%";
+                    newResultRow(cell,
+                            String.format("%.3f", ((double) hitsMax[cell][0] / (double) hitsMax[cell][1] * 100)) + "%",
+                            String.format("%.4f", ((double) hitsMax[cell][2] / (double) hitsMax[cell][3] * 100)) + "%");
                 }
             }
         };

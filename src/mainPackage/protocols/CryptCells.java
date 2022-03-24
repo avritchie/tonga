@@ -116,8 +116,8 @@ public class CryptCells extends Protocol {
                 layer = FilterCrisps.run().runSingle(layer);
                 ROISet set = new ImageTracer(layer, Color.BLACK).trace();
                 set.filterOutSmallObjects(100);
-                outImage[0].pixels32 = set.drawToArray();
-                datas.add(SetCounters.countObjectsImage(set).runSingle(sourceImage, sourceLayer[0]));
+                setOutputBy(set);
+                addResultData(SetCounters.countObjectsImage(set).runSingle(sourceImage));
             }
         };
     }

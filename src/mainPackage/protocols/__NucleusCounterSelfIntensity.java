@@ -52,7 +52,7 @@ public class __NucleusCounterSelfIntensity extends Protocol {
                 mask = asi.runSilent(sourceImage, new ImageData[]{mask[0], inImage[1], inImage[0]},
                         COL.BLACK, binMode, thresh, imgMode, true, bgMode);
                 setOutputBy(mask);
-                setDatasBy(asi);
+                addResultData(asi);
             }
         };
     }

@@ -57,9 +57,9 @@ public class _AreaSurroundIntensity extends Protocol {
             @Override
             protected void methodFinal() {
                 if (perimg) {
-                    setDatasBy(SetCounters.countObjectStainsImage(set).runSingle(sourceImage));
+                    addResultData(SetCounters.countObjectStainsImage(set).runSingle(sourceImage));
                 } else {
-                    setDatasBy(SetCounters.countObjectStainsSingle(set).runSingle(sourceImage));
+                    addResultData(SetCounters.countObjectStainsSingle(set).runSingle(sourceImage));
                 }
             }
         };

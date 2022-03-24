@@ -5,7 +5,6 @@ import mainPackage.ImageData;
 import mainPackage.Iterate;
 import mainPackage.PanelCreator.ControlReference;
 import static mainPackage.PanelCreator.ControlType.*;
-import mainPackage.TongaRender;
 import mainPackage.counters.SetCounters;
 import mainPackage.morphology.ImageTracer;
 import mainPackage.morphology.ROISet;
@@ -59,24 +58,24 @@ public class _AreaStainIntensity extends Protocol {
                 if (binst) {
                     outImage[0].pixels32 = set.drawStainArray(thresh, false);
                     if (rembg) {
-                        datas.add(SetCounters.countObjectPositiveBG(set, bgval, thresh).runSingle(sourceImage));
+                        addResultData(SetCounters.countObjectPositiveBG(set, bgval, thresh).runSingle(sourceImage));
                     } else {
-                        datas.add(SetCounters.countObjectPositive(set, thresh).runSingle(sourceImage));
+                        addResultData(SetCounters.countObjectPositive(set, thresh).runSingle(sourceImage));
 
                     }
                 } else {
                     outImage[0].pixels32 = set.drawStainArray(rendav);
                     if (rembg) {
                         if (perimg) {
-                            datas.add(SetCounters.countObjectStainsBGImage(set, bgval).runSingle(sourceImage));
+                            addResultData(SetCounters.countObjectStainsBGImage(set, bgval).runSingle(sourceImage));
                         } else {
-                            datas.add(SetCounters.countObjectStainsBGSingle(set, bgval).runSingle(sourceImage));
+                            addResultData(SetCounters.countObjectStainsBGSingle(set, bgval).runSingle(sourceImage));
                         }
                     } else {
                         if (perimg) {
-                            datas.add(SetCounters.countObjectStainsImage(set).runSingle(sourceImage));
+                            addResultData(SetCounters.countObjectStainsImage(set).runSingle(sourceImage));
                         } else {
-                            datas.add(SetCounters.countObjectStainsSingle(set).runSingle(sourceImage));
+                            addResultData(SetCounters.countObjectStainsSingle(set).runSingle(sourceImage));
                         }
                     }
                 }

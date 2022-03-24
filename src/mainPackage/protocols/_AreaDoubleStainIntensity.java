@@ -59,7 +59,7 @@ public class _AreaDoubleStainIntensity extends Protocol {
                         param.colorARGB[0], false, 0, imgMode, false, bgMode);
                 setOutputBy(stComb, 1);
                 setOutputBy(mask[0], 0);
-                setDatasBy(asi);
+                addResultData(asi);
             }
         };
     }

@@ -37,9 +37,9 @@ public class _ObjectCount extends Protocol {
             protected void methodFinal() {
                 ROISet set = new ImageTracer(inImage[0], bg).trace();
                 if (image) {
-                    datas.add(SetCounters.countObjectsSingle(set).runSingle(sourceImage));
+                    addResultData(SetCounters.countObjectsSingle(set).runSingle(sourceImage));
                 } else {
-                    datas.add(SetCounters.countObjectsImage(set).runSingle(sourceImage));
+                    addResultData(SetCounters.countObjectsImage(set).runSingle(sourceImage));
                 }
             }
         };

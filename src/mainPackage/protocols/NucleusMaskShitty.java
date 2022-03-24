@@ -3,6 +3,7 @@ package mainPackage.protocols;
 import javafx.scene.paint.Color;
 import mainPackage.utils.COL;
 import mainPackage.ImageData;
+import mainPackage.Iterate;
 import mainPackage.PanelCreator.ControlReference;
 import static mainPackage.PanelCreator.ControlType.*;
 import mainPackage.filters.ConnectEdges;
@@ -30,23 +31,22 @@ public class NucleusMaskShitty extends Protocol {
     @Override
     protected Processor getProcessor() {
 
-        return new ProcessorFast(1, new String[]{"DAPI", "EdU"}) {
+        return new ProcessorFast("DAPI") {
 
             ImageData layerOne, layerTwo, layerComb;
             int[] layerDoG1, layerDoG2, layerDoG3, layerDoG4, layerInts;
 
             @Override
             protected void methodInit() {
-                initTableData(new String[]{"Image", "Cells", "EdU", "Ratio"});
+                initTableData(new String[]{"Image", "Objects", "Cells"});
             }
 
             @Override
-            protected void methodCore(int p) {
+            protected void pixelProcessor() {
             }
 
             @Override
             protected void methodFinal() {
-                Object[] dataRow = data.newRow(sourceImage.imageName);
                 layerInts = new int[inImage[0].totalPixels()];
                 layerComb = new ImageData(sourceWidth[0], sourceHeight[0]);
                 // original and gamma-enchanced version of the image
@@ -58,16 +58,13 @@ public class NucleusMaskShitty extends Protocol {
                 layerDoG3 = Filters.dog().runSingle(layerTwo, 3, 30).pixels32;
                 layerDoG4 = Filters.dog().runSingle(layerTwo, 5, 10).pixels32;
                 // combine different gaussians into one excluding noise background by substracting the darkest values
-                for (int y = 0; y < sourceHeight[0]; y++) {
-                    for (int x = 0; x < sourceWidth[0]; x++) {
-                        int p = (y * sourceWidth[0] + x);
-                        int val = Math.max(0, Math.min(255, (int) (((layerDoG1[p] & 0xFF)
-                                + (layerDoG2[p] & 0xFF)
-                                + (layerDoG3[p] & 0xFF)
-                                + (layerDoG4[p] & 0xFF)) * 1.05) - 10));
-                        layerComb.pixels32[p] = RGB.argb(val);
-                    }
-                }
+                Iterate.pixels(inImage[0], (int p) -> {
+                    int val = Math.max(0, Math.min(255, (int) (((layerDoG1[p] & 0xFF)
+                            + (layerDoG2[p] & 0xFF)
+                            + (layerDoG3[p] & 0xFF)
+                            + (layerDoG4[p] & 0xFF)) * 1.05) - 10));
+                    layerComb.pixels32[p] = RGB.argb(val);
+                });
                 // free memory
                 layerDoG1 = null;
                 layerDoG2 = null;
@@ -84,21 +81,16 @@ public class NucleusMaskShitty extends Protocol {
                 layerTwo = ConnectEdges.run().runSingle(layerTwo);
                 layerTwo = FiltersPass.filterObjectDimension().runSingle(layerTwo, COL.BLACK, 20, false, 0);
                 // combine thresholdings into one
-                for (int y = 0; y < sourceHeight[0]; y++) {
-                    for (int x = 0; x < sourceWidth[0]; x++) {
-                        int p = (y * sourceWidth[0] + x);
-                        layerInts[p] = layerOne.pixels32[p] == COL.BLACK || layerTwo.pixels32[p] == COL.WHITE ? COL.BLACK : COL.WHITE;
-                    }
-                }
+                Iterate.pixels(inImage[0], (int p) -> {
+                    layerInts[p] = layerOne.pixels32[p] == COL.BLACK || layerTwo.pixels32[p] == COL.WHITE ? COL.BLACK : COL.WHITE;
+                });
                 // trace objects
                 layerOne = new ImageData(layerInts, sourceWidth[0], sourceHeight[0]);
                 ROISet set = new ImageTracer(layerOne, Color.BLACK).trace();
                 set.filterOutSmallObjects(param.spinner[0]);
                 CellSet cells = new CellSet(set);
-                outImage[0].pixels32 = set.drawToArray();
-                dataRow[1] = cells.totalCellCount();
-                dataRow[2] = cells.totalCellCount();
-                dataRow[3] = ((Integer) dataRow[2]) / (double) ((Integer) dataRow[1]);
+                setOutputBy(set);
+                newResultRow(cells.objectsCount(), cells.totalCellCount());
             }
         };
     }

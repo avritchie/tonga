@@ -4,7 +4,6 @@ import javafx.scene.image.PixelReader;
 import javafx.scene.image.PixelWriter;
 import javafx.scene.image.WritableImage;
 import javafx.scene.paint.Color;
-import mainPackage.utils.IMG;
 import mainPackage.ImageData;
 import mainPackage.PanelCreator.ControlReference;
 import static mainPackage.PanelCreator.ControlType.*;
@@ -47,7 +46,7 @@ public class NucleusEdUCounter extends Protocol {
             @Override
             protected void methodFinal() {
                 initTableData(new String[]{"Image", "Cells", "EdU", "Ratio"});
-                Object[] dataRow = data.newRow(sourceImage.imageName);
+                int[] total = new int[2];
                 for (int i = 0; i < (twoChannels ? 2 : 1); i++) {
                     layerDoG = Filters.dog().runSingle(inImage[i], 2, 20, false);
                     ///
@@ -89,10 +88,10 @@ public class NucleusEdUCounter extends Protocol {
                     ROISet set = new ImageTracer(layerF, Color.BLACK).trace();
                     set.filterOutSmallObjects(limit);
                     CellSet cells = new CellSet(set);
-                    outImage[0] = set.drawToImageData();
-                    dataRow[i + 1] = cells.totalCellCount();
+                    setOutputBy(set, i);
+                    total[i] = cells.totalCellCount();
                 }
-                dataRow[3] = ((Integer) dataRow[2]) / (double) ((Integer) dataRow[1]);
+                newResultRow(total[0], total[1], total[1] / (double) total[0]);
             }
         };
     }

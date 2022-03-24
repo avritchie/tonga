@@ -58,12 +58,8 @@ public class _BackgroundArea extends Protocol {
             }
 
             @Override
-            protected void methodCore(int pos) {
-            }
-
-            @Override
             protected void methodFinal() {
-                datas.add(Counters.countBWBG().runSingle(sourceImage.imageName, outImage[0]));
+                addResultData(Counters.countBWBG().runSingle(sourceImage, outImage[0]));
             }
         };
     }

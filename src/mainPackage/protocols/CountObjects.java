@@ -44,10 +44,10 @@ public class CountObjects extends Protocol {
                 if (holes) {
                     set.fillInnerHoles();
                 }
-                outImage[0] = set.drawToImageData();
-                datas.add(indv
-                        ? SetCounters.countObjectsSingle(set).runSingle(sourceImage, sourceLayer[0])
-                        : SetCounters.countObjectsImage(set).runSingle(sourceImage, sourceLayer[0]));
+                setOutputBy(set);
+                addResultData(indv
+                        ? SetCounters.countObjectsSingle(set).runSingle(sourceImage)
+                        : SetCounters.countObjectsImage(set).runSingle(sourceImage));
             }
         };
     }

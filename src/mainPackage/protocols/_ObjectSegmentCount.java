@@ -46,11 +46,11 @@ public class _ObjectSegmentCount extends Protocol {
                 ROISet set = new ImageTracer(temp, bg).trace();
                 set.filterOutSmallObjects(limit);
                 //set.findOuterEdges();
-                outImage[0] = set.drawToImageData();
+                setOutputBy(set);
                 if (image) {
-                    datas.add(SetCounters.countObjectsSingle(set).runSingle(sourceImage));
+                    addResultData(SetCounters.countObjectsSingle(set).runSingle(sourceImage));
                 } else {
-                    datas.add(SetCounters.countObjectsImage(set).runSingle(sourceImage));
+                    addResultData(SetCounters.countObjectsImage(set).runSingle(sourceImage));
                 }
             }
         };

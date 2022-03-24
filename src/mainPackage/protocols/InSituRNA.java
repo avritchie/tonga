@@ -217,7 +217,7 @@ public class InSituRNA extends Protocol {
                         outImage[0].pixels32[p] = (tissueMethod == 3 || (layer.pixels32[p] & 0xFF) == 0x0) ? ishARGB : COL.BLACK;
                     }
                 }
-                datas.add(Counters.countRBStain().runSingle(sourceImage.imageName, outImage[0]));
+                addResultData(Counters.countRBStain().runSingle(sourceImage, outImage[0]));
             }
         };
     }

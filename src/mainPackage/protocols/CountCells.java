@@ -1,9 +1,7 @@
 package mainPackage.protocols;
 
-import mainPackage.ImageData;
 import mainPackage.PanelCreator.ControlReference;
 import static mainPackage.PanelCreator.ControlType.*;
-import mainPackage.counters.Counters;
 import mainPackage.counters.SetCounters;
 import mainPackage.morphology.CellSet;
 import mainPackage.morphology.ImageTracer;
@@ -35,10 +33,10 @@ public class CountCells extends Protocol {
             protected void methodFinal() {
                 CellSet set = new CellSet(new ImageTracer(sourceLayer[0], param.color[0]).trace());
                 set.filterOutSmallObjects(param.spinner[0]);
-                outImage[0] = set.drawToImageData();
-                datas.add(param.toggle[0]
-                        ? SetCounters.countCellsSingle(set).runSingle(sourceImage, sourceLayer[0])
-                        : SetCounters.countCellsImage(set).runSingle(sourceImage, sourceLayer[0]));
+                setOutputBy(set);
+                addResultData(param.toggle[0]
+                        ? SetCounters.countCellsSingle(set).runSingle(sourceImage)
+                        : SetCounters.countCellsImage(set).runSingle(sourceImage));
             }
         };
     }
