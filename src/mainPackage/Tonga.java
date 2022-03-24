@@ -1004,14 +1004,16 @@ public class Tonga {
 
     private static void handleArguments(String[] args) {
         if (args.length > 0) {
-            Tonga.log.debug("Launch arguments: {}", Arrays.toString(args));
             if (args[0].equals("-debug")) {
                 debugMode();
-            } else {
-                IO.importImage(Arrays.stream(args).map(a -> new File(a)).collect(Collectors.toList()));
             }
+            Tonga.log.debug("Launch arguments: {}", Arrays.toString(args));
+            List<File> fargs = Arrays.stream(args).filter(a -> !a.startsWith("-")).map(a -> new File(a)).collect(Collectors.toList());
+            if (fargs.size() > 0) {
+                IO.importImage(fargs);
             }
         }
+    }
 
     private static void redraw() {
         TongaRender.resetHash();
