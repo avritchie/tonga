@@ -1183,12 +1183,17 @@ public class Tonga {
     }
 
     public static String formatPath(String string) {
+        if (string == null) {
+            Tonga.log.warn("Attempted to set null as the output path");
+            return "";
+        } else {
             if (currentOS == OS.MAC) {
                 return string.replace("\\", "/");
             } else {
                 return string;
             }
         }
+    }
 
     static int fullLayerIndexCount() {
         if (getImage().stack) {

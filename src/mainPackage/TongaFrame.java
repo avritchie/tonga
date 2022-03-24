@@ -318,7 +318,10 @@ public class TongaFrame extends JFrame {
 
     public void updateSavePath(File file) {
         if (filePathField.getText().isEmpty()) {
-            String out = Tonga.formatPath(file.getParent());
+            Tonga.log.debug("Set the output path from: {}", file.toString());
+            File parent = file.getParentFile();
+            if (parent != null && parent.isDirectory()) {
+                String out = Tonga.formatPath(parent.getAbsolutePath());
                 String out2 = out;
                 if (Settings.settingSubfolders()) {
                     out += "\\output";
@@ -330,7 +333,9 @@ public class TongaFrame extends JFrame {
                 }
                 filePathField.setText(out2);
             }
+            Tonga.log.debug("The location is invalid: {}", parent.toString());
         }
+    }
 
     public void updateMainLabel(String str) {
         bleftLabel.setText("<html>" + str + "</html>");
