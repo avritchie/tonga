@@ -17,13 +17,15 @@ public class __NucleusMask extends Protocol {
         return new ControlReference[]{
             new ControlReference(LAYER, "The channel with DAPI/Hoechst"),
             new ControlReference(TOGGLE, "Ignore nuclei touching the edges", 1),
-            new ControlReference(TOGGLE, "Detect and remove dividing/dead cells", 1)};
+            new ControlReference(TOGGLE, "Detect and remove dividing/dead cells", 1),
+            new ControlReference(TOGGLE, "Perform overlapping area segmenting", 1)};
     }
 
     @Override
     protected Processor getProcessor() {
         boolean toucherMode = param.toggle[0];
         boolean deadMode = param.toggle[1];
+        boolean segmMode = param.toggle[2];
 
         return new ProcessorFast(3, "Nuclei", 200) {
 
@@ -40,7 +42,7 @@ public class __NucleusMask extends Protocol {
                 separation = subprotocol.runSilent(sourceImage, inImage[0], nuclSize);
                 setOutputBy(separation[0], 1);
                 subprotocol = Protocol.load(__ObjectSegment::new);
-                separation = subprotocol.runSilent(sourceImage, separation[0], COL.BLACK, nuclSize, true);
+                separation = subprotocol.runSilent(sourceImage, separation[0], COL.BLACK, nuclSize, segmMode ? 0 : 2, true);
                 setOutputBy(separation[0], 2);
                 subprotocol = Protocol.load(__NucleusFinalMask::new);
                 separation = subprotocol.runSilent(sourceImage, new ImageData[]{separation[0], inImage[0]}, toucherMode, deadMode, nuclSize);

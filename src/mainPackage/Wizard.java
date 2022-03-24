@@ -186,48 +186,24 @@ public class Wizard extends javax.swing.JFrame {
             if (a[1]) { //tissue
                 //TODO
             } else { //objects
-                if (a[9]) { //segment
-                    if (a[7]) { //numbersize
-                        if (a[8]) { //fluorescence
-                            launchProtocol(_NucleusCounterNumber::new, new Object[]{a[22], a[14], !a[10]});
-                        } else { //phase contrast
-                            //TODO
-                        }
-                    } else { //stainings
-                        if (a[11]) { //positivity
-                            launchProtocol(_NucleusCounterPositivity::new, new Object[]{null, a[23], a[22], a[14]});
-                        } else { //intensity
-                            if (a[12]) { //object themselves
-                                if (a[13]) { // whole/single stain
-                                    launchProtocol(_NucleusCounterIntensity::new, new Object[]{a[23], a[22], a[14], a[10]});
-                                } else { // separate/two stains
-                                    launchProtocol(_NucleusCounterDoubleIntensity::new, new Object[]{a[23], a[22], a[14], a[10]});
-                                }
-                            } else { //object surroundings
-                                launchProtocol(_NucleusCounterSurroundIntensity::new, new Object[]{a[22], a[14], null, a[10]});
-                            }
-                        }
+                if (a[7]) { //numbersize
+                    if (a[8]) { //fluorescence
+                        launchProtocol(_NucleusCounterNumber::new, new Object[]{a[22], a[9], a[14], !a[10]});
+                    } else { //phase contrast
+                        //TODO
                     }
-                } else { //dont segment
-                    if (a[7]) { //numbersize
-                        if (a[8]) { //fluorescence
-                            //NON SEGM launchProtocol(_NucleusCounterNumber::new, new Object[]{a[22], a[14],!a[10]});
-                        } else { //phase contrast
-                            //TODO
-                        }
-                    } else { //stainings
-                        if (a[11]) { //positivity
-                            //NON SEGM launchProtocol(_NucleusCounterPositivity::new, new Object[]{null,a[23], a[22], a[14]});
-                        } else { //intensity
-                            if (a[12]) { //object themselves
-                                if (a[13]) { // whole/single stain
-                                    //NON SEGM launchProtocol(_NucleusCounterIntensity::new, new Object[]{a[23], a[22], a[14],a[10]});
-                                } else { // separate/two stains
-                                    //NON SEGMN launchProtocol(_NucleusCounterDoubleIntensity::new, new Object[]{a[23], a[22], a[14],a[10]});
-                                }
-                            } else { //object surroundings
-                                //NON SEGM launchProtocol(_NucleusCounterSurroundIntensity::new, new Object[]{a[22], a[14],null,a[10]});
+                } else { //stainings
+                    if (a[11]) { //positivity
+                        launchProtocol(_NucleusCounterPositivity::new, new Object[]{null, a[23], a[22], a[9], a[14]});
+                    } else { //intensity
+                        if (a[12]) { //object themselves
+                            if (a[13]) { // whole/single stain
+                                launchProtocol(_NucleusCounterIntensity::new, new Object[]{a[23], a[22], a[9], a[14], a[10]});
+                            } else { // separate/two stains
+                                launchProtocol(_NucleusCounterDoubleIntensity::new, new Object[]{a[23], a[22], a[9], a[14], a[10]});
                             }
+                        } else { //object surroundings
+                            launchProtocol(_NucleusCounterSurroundIntensity::new, new Object[]{a[22], a[9], a[14], null, a[10]});
                         }
                     }
                 }

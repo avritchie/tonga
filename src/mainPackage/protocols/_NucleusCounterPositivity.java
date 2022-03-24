@@ -19,6 +19,7 @@ public class _NucleusCounterPositivity extends Protocol {
             new ControlReference(SLIDER, "Intensity to consider positive (%)", 50),
             new ControlReference(TOGGLE, "Estimate and subtract the background", 1),
             new ControlReference(TOGGLE, "Ignore nuclei touching the edges", 1),
+            new ControlReference(TOGGLE, "Segment overlapping nuclei", 1),
             //new ControlReference(SPINNER, "Ignore nuclei that are smaller than (pixels)", 500),
             new ControlReference(TOGGLE, "Detect and remove dividing/dead cells", 1)};
     }
@@ -29,7 +30,8 @@ public class _NucleusCounterPositivity extends Protocol {
         int thresh = param.slider[0];
         boolean bgMode = param.toggle[0];
         boolean toucherMode = param.toggle[1];
-        boolean deadMode = param.toggle[2];
+        boolean segmMode = param.toggle[2];
+        boolean deadMode = param.toggle[3];
 
         return new ProcessorFast("Positive Nuclei", bgMode ? 174 : 159) {
 
@@ -38,9 +40,9 @@ public class _NucleusCounterPositivity extends Protocol {
                 Protocol nc = Protocol.load(__NucleusCounterSelfIntensity::new);
                 ImageData[] id = nc.runSilent(sourceImage,
                         new ImageData[]{inImage[0], inImage[1]},
-                        true, thresh, bgMode, toucherMode, deadMode, true);
+                        true, thresh, bgMode, toucherMode, segmMode, deadMode, true);
                 setOutputBy(id);
-                setDatasBy(nc);
+                addResultData(nc);
             }
         };
     }

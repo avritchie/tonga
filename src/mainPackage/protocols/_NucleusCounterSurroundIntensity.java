@@ -18,6 +18,7 @@ public class _NucleusCounterSurroundIntensity extends Protocol {
             new ControlReference(LAYER, "The channel with DAPI/Hoechst"),
             new ControlReference(LAYER, "The channel with the stain"),
             new ControlReference(TOGGLE, "Ignore nuclei touching the edges", 1),
+            new ControlReference(TOGGLE, "Segment overlapping nuclei", 1),
             new ControlReference(TOGGLE, "Detect and remove dividing/dead cells", 1),
             new ControlReference(SPINNER, "Radius", 50),
             new ControlReference(TOGGLE, "Results as average per image", 0)};
@@ -26,8 +27,9 @@ public class _NucleusCounterSurroundIntensity extends Protocol {
     @Override
     protected Processor getProcessor() {
         boolean toucherMode = param.toggle[0];
-        boolean deadMode = param.toggle[1];
-        boolean imgMode = param.toggle[2];
+        boolean segmMode = param.toggle[1];
+        boolean deadMode = param.toggle[2];
+        boolean imgMode = param.toggle[3];
         int radius = param.spinner[0];
 
         return new ProcessorFast("Nucleus Surroundings", 162) {
@@ -38,11 +40,11 @@ public class _NucleusCounterSurroundIntensity extends Protocol {
             protected void pixelProcessor() {
                 Protocol nc = Protocol.load(__NucleusMask::new);
                 Protocol asi = Protocol.load(_AreaSurroundIntensity::new);
-                mask = nc.runSilent(sourceImage, new ImageData[]{inImage[0]}, toucherMode, deadMode);
+                mask = nc.runSilent(sourceImage, new ImageData[]{inImage[0]}, toucherMode, deadMode, segmMode);
                 mask = asi.runSilent(sourceImage, new ImageData[]{mask[0], inImage[1], inImage[0]},
                         COL.BLACK, radius, imgMode);
                 setOutputBy(mask);
-                setDatasBy(asi);
+                addResultData(asi);
             }
         };
     }

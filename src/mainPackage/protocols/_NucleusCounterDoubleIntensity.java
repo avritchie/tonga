@@ -3,8 +3,6 @@ package mainPackage.protocols;
 import mainPackage.ImageData;
 import mainPackage.PanelCreator.ControlReference;
 import static mainPackage.PanelCreator.ControlType.*;
-import mainPackage.filters.Filters;
-import mainPackage.filters.FiltersRender;
 import mainPackage.utils.COL;
 
 public class _NucleusCounterDoubleIntensity extends Protocol {
@@ -22,6 +20,7 @@ public class _NucleusCounterDoubleIntensity extends Protocol {
             new ControlReference(LAYER, "The channel with the stain two"),
             new ControlReference(TOGGLE, "Estimate and subtract the background", 1),
             new ControlReference(TOGGLE, "Ignore nuclei touching the edges", 1),
+            new ControlReference(TOGGLE, "Segment overlapping nuclei", 1),
             new ControlReference(TOGGLE, "Detect and remove dividing/dead cells", 1),
             new ControlReference(TOGGLE, "Results as average per image", 0)};
     }
@@ -30,8 +29,9 @@ public class _NucleusCounterDoubleIntensity extends Protocol {
     protected Processor getProcessor() {
         boolean bgMode = param.toggle[0];
         boolean toucherMode = param.toggle[1];
-        boolean deadMode = param.toggle[2];
-        boolean imgMode = param.toggle[3];
+        boolean segmMode = param.toggle[2];
+        boolean deadMode = param.toggle[3];
+        boolean imgMode = param.toggle[4];
 
         return new ProcessorFast(2, "Nucleus Stainings", bgMode ? 173 : 161) {
 
@@ -41,11 +41,11 @@ public class _NucleusCounterDoubleIntensity extends Protocol {
             protected void pixelProcessor() {
                 Protocol nc = Protocol.load(__NucleusMask::new);
                 Protocol asi = Protocol.load(_AreaDoubleStainIntensity::new);
-                mask = nc.runSilent(sourceImage, new ImageData[]{inImage[0]}, toucherMode, deadMode);
+                mask = nc.runSilent(sourceImage, new ImageData[]{inImage[0]}, toucherMode, deadMode, segmMode);
                 mask = asi.runSilent(sourceImage, new ImageData[]{mask[0], inImage[1], inImage[2], inImage[0]},
                         COL.BLACK, imgMode, bgMode);
                 setOutputBy(mask);
-                setDatasBy(asi);
+                addResultData(asi);
             }
         };
     }

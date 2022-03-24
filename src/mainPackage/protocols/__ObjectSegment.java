@@ -23,6 +23,7 @@ public class __ObjectSegment extends Protocol {
             new ControlReference(LAYER, "Objects are on which layer"),
             new ControlReference(COLOUR, "Background is which colour", new int[]{0}),
             new ControlReference(SPINNER, "Average object diameter (pixels)", 60),
+            new ControlReference(COMBO, new String[]{"Normal", "Strict", "Very strict"}, "Criteria for separation"),
             new ControlReference(TOGGLE, "Perform twice", 0),};
     }
 
@@ -30,6 +31,7 @@ public class __ObjectSegment extends Protocol {
     protected Processor getProcessor() {
         Color bg = param.color[0];
         int nucleusSize = param.spinner[0];
+        int mode = param.combo[0];
 
         return new ProcessorFast(Tonga.log.isDebugEnabled() ? 2 : 1, "Objects", 5) {
 
@@ -48,7 +50,7 @@ public class __ObjectSegment extends Protocol {
                 set.findInnerEdges();
                 set.analyzeCorners();
                 set.analyzeCornerIntersections();
-                set.segment(0);
+                set.segment(mode);
                 //this image is optional and for debug use
                 if (Tonga.log.isDebugEnabled()) {
                     outImage[1] = set.drawToImageData();
@@ -60,7 +62,7 @@ public class __ObjectSegment extends Protocol {
                     set.findInnerEdges();
                     set.analyzeCorners();
                     set.analyzeCornerIntersections();
-                    set.segment(0);
+                    set.segment(mode);
                 }
                 outImage[0] = set.drawToImageData(true);
                 //set = new ImageTracer(outImage[0], COL.BLACK).trace();

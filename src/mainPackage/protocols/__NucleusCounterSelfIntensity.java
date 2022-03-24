@@ -23,6 +23,7 @@ public class __NucleusCounterSelfIntensity extends Protocol {
             new ControlReference(TOGGLE, "Ignore nuclei touching the edges", 1),
             //new ControlReference(SLIDER, new Integer[]{10, 200, 580, 38}, "Average size of a nucleus", 1),
             //new ControlReference(SPINNER, "Ignore nuclei that are smaller than (pixels)", 500),
+            new ControlReference(TOGGLE, "Segment overlapping nuclei", 1),
             new ControlReference(TOGGLE, "Detect and remove dividing/dead cells", 1),
             new ControlReference(TOGGLE, "Results as average per image", 0)};
     }
@@ -35,8 +36,9 @@ public class __NucleusCounterSelfIntensity extends Protocol {
         boolean binMode = param.toggle[0];
         boolean bgMode = param.toggle[1];
         boolean toucherMode = param.toggle[2];
-        boolean deadMode = param.toggle[3];
-        boolean imgMode = param.toggle[4];
+        boolean segmMode = param.toggle[3];
+        boolean deadMode = param.toggle[4];
+        boolean imgMode = param.toggle[5];
 
         return new ProcessorFast("Nucleus Staining", bgMode ? 117 : 105) {
 
@@ -46,7 +48,7 @@ public class __NucleusCounterSelfIntensity extends Protocol {
             protected void pixelProcessor() {
                 Protocol nc = Protocol.load(__NucleusMask::new);
                 Protocol asi = Protocol.load(_AreaStainIntensity::new);
-                mask = nc.runSilent(sourceImage, new ImageData[]{inImage[0]}, toucherMode, deadMode);
+                mask = nc.runSilent(sourceImage, new ImageData[]{inImage[0]}, toucherMode, deadMode, segmMode);
                 mask = asi.runSilent(sourceImage, new ImageData[]{mask[0], inImage[1], inImage[0]},
                         COL.BLACK, binMode, thresh, imgMode, true, bgMode);
                 setOutputBy(mask);
