@@ -4379,7 +4379,7 @@ public class TongaFrame extends JFrame {
     }//GEN-LAST:event_contImgClearActionPerformed
 
     private void jMenuItem83ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem83ActionPerformed
-        IO.launchURL("https://github.com/avritchie/tonga/blob/master/README.md");
+        IO.launchURL("https://github.com/avritchie/tonga/wiki/");
     }//GEN-LAST:event_jMenuItem83ActionPerformed
 
     private void jMenuItem88ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem88ActionPerformed
