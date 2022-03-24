@@ -89,6 +89,8 @@ public class TongaFrame extends JFrame {
         try {
             SwingUtilities.invokeAndWait(() -> {
                 splashScreen();
+            });
+            SwingUtilities.invokeAndWait(() -> {
                 initComponents();
                 initExtraComponents();
                 initFilterList();
