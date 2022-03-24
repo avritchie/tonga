@@ -57,14 +57,15 @@ public class SetCounters {
     }
 
     public static SetCounter countObjectsSingle(ROISet set) {
-        return new SetCounter("Count objects", new String[]{"Image", "Object", "X", "Y", "Area", "Width", "Height", "Rndnss %"},
+        return new SetCounter("Count objects", new String[]{"Image", "Object", "X", "Y",
+            "Area %unit2", "Width %unit", "Height %unit", "Rndnss %"},
                 new String[]{"The name of the image",
                     "The unique id number of nucleus in the image",
                     "The X-coordinate pixel of the centroid of this nucleus in the image",
                     "The Y-coordinate pixel of the centroid of this nucleus in the image",
-                    "The size of this nucleus in pixels",
-                    "The width of this nucleus in pixels",
-                    "The height of this nucleus in pixels",
+                    "The area size of this nucleus in %unit2",
+                    "The width of this nucleus in %unit",
+                    "The height of this nucleus in %unit",
                     "An estimation of the roundness of the mask of this nucleus"}) {
 
             @Override
@@ -77,9 +78,9 @@ public class SetCounters {
                     int[] cent = obj.getCentroid();
                     row[2] = (Integer) cent[0];
                     row[3] = (Integer) cent[1];
-                    row[4] = (Integer) obj.getSize();
-                    row[5] = (Integer) obj.getWidth();
-                    row[6] = (Integer) obj.getHeight();
+                    row[4] = scaleUnit(obj.getSize(), 2);
+                    row[5] = scaleUnit(obj.getWidth(), 1);
+                    row[6] = scaleUnit(obj.getHeight(), 1);
                     row[7] = STAT.decToPerc(obj.getCircularity());
                     if (f < set.objectsCount() - 1) {
                         row = data.newRow(name);
@@ -91,33 +92,35 @@ public class SetCounters {
     }
 
     public static SetCounter countObjectsImage(ROISet set) {
-        return new SetCounter("Count objects", new String[]{"Image", "Objects", "Avg.Size", "Tot.Size", "Std.Size", "Med.Size"},
+        return new SetCounter("Count objects", new String[]{"Image", "Objects",
+            "Med.Size %unit2", "Avg.Size %unit2", "Tot.Size %unit2", "Std.Size %unit2",},
                 new String[]{"The name of the image",
                     "The total number of recognized nuclei in the image",
-                    "The average size of the nuclei in the image in pixels",
-                    "The total sum of the sizes of all the nuclei in the image",
-                    "The standard deviation of the nuclear size in the image in pixels",
-                    "The median nuclear size of the nuclei in the image in pixels"}) {
+                    "The average size of the nuclei in the image in %unit2",
+                    "The total sum of the sizes of all the nuclei in the image in %unit2",
+                    "The standard deviation of the nuclear size in the image in %unit2",
+                    "The median nuclear size of the nuclei in the image in %unit2"}) {
 
             @Override
             protected void processor(Object[] row) {
                 //ROISet set = getROISet(traced, targetImage);
                 row[1] = set.objectsCount();
-                row[2] = set.statsForTotalSize().getMean();
-                row[3] = set.totalAreaSize();
-                row[4] = set.statsForTotalSize().getStdDev();
-                row[5] = set.statsForTotalSize().getMedian();
+                row[2] = scaleUnit(set.statsForTotalSize().getMean(), 2);
+                row[3] = scaleUnit(set.totalAreaSize(), 2);
+                row[4] = scaleUnit(set.statsForTotalSize().getStdDev(), 2);
+                row[5] = scaleUnit(set.statsForTotalSize().getMedian(), 2);
             }
         };
     }
 
     public static SetCounter countObjectStainsSingle(ROISet set) {
-        return new SetCounter("Count staining", new String[]{"Image", "Object", "X", "Y", "Area", "<html><b>Stain %</b></html>", "<html><b>Stain sum</b></html>"},
+        return new SetCounter("Count staining", new String[]{"Image", "Object", "X", "Y",
+            "Area %unit2", "<html><b>Stain %</b></html>", "<html><b>Stain sum</b></html>"},
                 new String[]{"The name of the image",
                     "The unique id number of nucleus in the image",
                     "The X-coordinate pixel of the centroid of this nucleus in the image",
                     "The Y-coordinate pixel of the centroid of this nucleus in the image",
-                    "The size of this nucleus in pixels",
+                    "The area size of this nucleus in %unit2",
                     "The average relative intensity of this nucleus",
                     "The total relative intensity of this nucleus"}) {
 
@@ -131,7 +134,7 @@ public class SetCounters {
                     int[] cent = obj.getCentroid();
                     row[2] = (Integer) cent[0];
                     row[3] = (Integer) cent[1];
-                    row[4] = obj.getStainSTAT().getN();
+                    row[4] = scaleUnit(obj.getStainSTAT().getN(), 2);
                     row[5] = STAT.decToPerc(obj.getStainAvg());
                     row[6] = obj.getStainSum();
                     if (f < set.objectsCount() - 1) {
@@ -144,13 +147,13 @@ public class SetCounters {
     }
 
     public static SetCounter countObjectStainsBGSingle(ROISet set, double bg) {
-        return new SetCounter("Count staining", new String[]{"Image", "Object", "X", "Y", "Area",
+        return new SetCounter("Count staining", new String[]{"Image", "Object", "X", "Y", "Area %unit2",
             "Stain %", "<html><b>Stain % w/o background</b></html>", "Stain sum", "<html><b>Stain sum w/o background</b></html>"},
                 new String[]{"The name of the image",
                     "The unique id number of nucleus in the image",
                     "The X-coordinate pixel of the centroid of this nucleus in the image",
                     "The Y-coordinate pixel of the centroid of this nucleus in the image",
-                    "The size of this nucleus in pixels",
+                    "The area size of this nucleus in %unit2",
                     "The average relative intensity of this nucleus",
                     "The average relative intensity of this nucleus with the average background intensity subtracted",
                     "The total relative intensity of this nucleus",
@@ -167,12 +170,12 @@ public class SetCounters {
                     int[] cent = obj.getCentroid();
                     row[2] = (Integer) cent[0];
                     row[3] = (Integer) cent[1];
-                    row[4] = obj.getStainSTAT().getN();
+                    row[4] = scaleUnit(obj.getStainSTAT().getN(), 2);
                     row[5] = STAT.decToPerc(obj.getStainAvg());
                     //row[6] = STAT.decToPerc((obj.getStainSum() - (obj.getSize() * bg)) / obj.getSize());
                     row[6] = STAT.decToPerc(obj.getStainAvg(bg));
                     row[7] = obj.getStainSum();
-                    //row[8] = obj.getStainSum() - (obj.getSize() * bg);
+                    //row[7] = obj.getStainSum() - (obj.getSize() * bg);
                     row[8] = obj.getStainSum(bg);
                     if (f < set.objectsCount() - 1) {
                         row = data.newRow(name);

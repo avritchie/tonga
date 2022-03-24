@@ -6,6 +6,8 @@ import ch.qos.logback.classic.encoder.PatternLayoutEncoder;
 import ch.qos.logback.core.FileAppender;
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.Dimension;
+import java.awt.FlowLayout;
 import java.awt.KeyboardFocusManager;
 import java.awt.Toolkit;
 import java.awt.datatransfer.DataFlavor;
@@ -32,15 +34,20 @@ import java.util.stream.IntStream;
 import javax.swing.DefaultListCellRenderer;
 import javax.swing.DefaultListModel;
 import javax.swing.JCheckBox;
+import javax.swing.JComboBox;
 import javax.swing.JList;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JTextField;
 import javax.swing.ListModel;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 import javax.swing.event.ListSelectionEvent;
 import mainPackage.UndoRedo.Action;
+import ome.units.UNITS;
+import ome.units.quantity.Length;
+import ome.units.unit.Unit;
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.slf4j.LoggerFactory;
 
@@ -343,7 +350,7 @@ public class Tonga {
                 int i = l.locationToIndex(e.getPoint());
                 if (i > -1) {
                     TongaImage ti = (TongaImage) (m.getElementAt(i));
-                    setStatus(ti.imageName + "  |  " + ti.layerList.size() + " layers");
+                    setStatus(ti.description());
                 }
             }
 
@@ -372,13 +379,8 @@ public class Tonga {
                 int i = l.locationToIndex(e.getPoint());
                 if (i > -1) {
                     TongaLayer tl = (TongaLayer) (m.getElementAt(i));
-                    if (tl.isPointer) {
-                        setStatus(tl.layerName + "  |  " + tl.path);
-                    } else {
-                        setStatus(tl.layerName + "  |  " + tl.layerImage.bits + "-bit  |  " + tl.width + "x"
-                                + tl.height + " px  |  " + String.format("%.2f", tl.layerImage.size / 1048576.).replace(",", ".") + " MB");
+                    setStatus(tl.description());
                 }
-            }
             }
 
             @Override
@@ -825,6 +827,64 @@ public class Tonga {
         }
         UndoRedo.end();
         //query().popup(getImage());
+    }
+
+    public static void setImageScaling() {
+        Length exl = getImage().imageScaling;
+        String inputText = "<html>Scaling and unit (per pixel):</html>";
+        JTextField scaleNum = new JTextField();
+        if (exl != null) {
+            scaleNum.setText(getImage().imageScaling.value().toString());
+        }
+        scaleNum.setAlignmentX(Component.LEFT_ALIGNMENT);
+        scaleNum.setPreferredSize(new Dimension(100, 30));
+        scaleNum.requestFocusInWindow();
+        scaleNum.selectAll();
+        String[] units = {"nm", "µm", "mm", "cm"};
+        JComboBox scaleNam = new JComboBox(units);
+        scaleNam.setSelectedIndex(1);
+        JPanel radioPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        radioPanel.add(scaleNum);
+        radioPanel.add(scaleNam);
+        Object[] p = {inputText, radioPanel};
+        Object[] butt = {"Change", "Cancel"};
+        int r = JOptionPane.showOptionDialog(mainFrame, p, "Set scaling", JOptionPane.OK_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE, null, butt, "Change");
+        if (r == JOptionPane.OK_OPTION) {
+            Length nlen = null;
+            try {
+                if (!scaleNum.getText().isEmpty()) {
+                    Double scale = Double.parseDouble(scaleNum.getText().replace(",", "."));
+                    Unit<Length> unit = null;
+                    switch (scaleNam.getSelectedIndex()) {
+                        case 0:
+                            unit = UNITS.NANOMETER;
+                            break;
+                        case 1:
+                            unit = UNITS.MICROMETER;
+                            break;
+                        case 2:
+                            unit = UNITS.MILLIMETER;
+                            break;
+                        case 3:
+                            unit = UNITS.CENTIMETER;
+                            break;
+                    }
+                    nlen = new Length(scale, unit);
+                }
+                int[] images = getImageIndexes();
+                for (int i = 0; i < images.length; i++) {
+                    TongaImage im = getImageList().get(images[i]);
+                    im.imageScaling = nlen;
+                }
+                if (nlen == null) {
+                    Tonga.setStatus("Scaling removed");
+                } else {
+                    Tonga.setStatus("Scaling changed to " + nlen.value().doubleValue() + " " + nlen.unit().getSymbol() + " / px");
+                }
+            } catch (NumberFormatException ex) {
+                Tonga.setStatus("Please input a valid (decimal) number");
+            }
+        }
     }
 
     public static boolean askYesNo(String title, String text, boolean doNotShowAgain, boolean defaultOption) {

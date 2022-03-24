@@ -23,6 +23,7 @@ import loci.formats.ome.OMEXMLMetadata;
 import loci.formats.services.OMEXMLService;
 import mainPackage.utils.HISTO;
 import mainPackage.utils.RGB;
+import ome.units.quantity.Length;
 import ome.xml.model.primitives.Color;
 
 public class StackImporter {
@@ -68,6 +69,7 @@ public class StackImporter {
         int bitNumber; // 16 for 16-bit
         int maxPixelValue; // 65535 for 16-bit
         int maxChannels = 1; // maximum number of channels;
+        Length unitX, unitY; // the pixel scale unit
         String imageName;
         // read basic data
         input = new BufferedImageReader();
@@ -84,17 +86,23 @@ public class StackImporter {
             channelNumber = input.getEffectiveSizeC();
             timeNumber = input.getSizeT();
             sliceNumber = input.getSizeZ();
+            unitX = xml.getPixelsPhysicalSizeX(i);
+            unitY = xml.getPixelsPhysicalSizeY(i);
             bitNumber = input.getBitsPerPixel();
             maxPixelValue = (int) Math.pow(2, bitNumber) - 1;
             maxChannels = Math.max(maxChannels, channelNumber);
             // create containing arrays
             Tonga.log.debug("-------------\n{}", imageName);
             Tonga.log.debug("Contains {} channels, {} z-layers, and {} timepoints", channelNumber, sliceNumber, timeNumber);
+            if (unitX == null || unitY == null) {
+                Tonga.log.debug("Does not have measurement metadata");
+            } else {
+                Tonga.log.debug("Has the scale {} {} / px (x), {} {} / px (y)", unitX.value(), unitX.unit().getSymbol(), unitY.value(), unitY.unit().getSymbol());
+            }
             Tonga.log.debug("Has {} bits/pixel and the max value per pixel is {}", bitNumber, maxPixelValue);
             // iterate through timepoints
             for (int t = 0; t < timeNumber; t++) {
-                TongaImage ti = new TongaImage();
-                ti.imageName = imageName + (timeNumber > 1 ? " T" + t : "");
+                TongaImage ti = new TongaImage(imageName + (timeNumber > 1 ? " T" + t : ""), getScaling(unitX, unitY));
                 // iterate through channels
                 for (int c = 0; c < channelNumber; c++) {
                     // read basic data
@@ -233,6 +241,16 @@ public class StackImporter {
             return 0xFFFFFFFF;
         } else {
             return channelColor.getRed() << 16 | channelColor.getGreen() << 8 | channelColor.getBlue() | 0xFF << 24;
+        }
+    }
+
+    private static Length getScaling(Length unitX, Length unitY) {
+        if (unitX == null || unitY == null) {
+            return null;
+        } else if (unitX.compareTo(unitY) == 0) {
+            return unitX;
+        } else {
+            return null;
         }
     }
 }

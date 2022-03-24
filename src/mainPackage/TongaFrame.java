@@ -3805,7 +3805,7 @@ public class TongaFrame extends JFrame {
     }//GEN-LAST:event_jMenuItem22ActionPerformed
 
     private void menuProtocolCKMaskActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_menuProtocolCKMaskActionPerformed
-        launchProtocol(Cytokeratin::new, evt);
+        launchProtocol(IFTissueStaining::new, evt);
     }//GEN-LAST:event_menuProtocolCKMaskActionPerformed
 
     private void jMenuItem9ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem9ActionPerformed
@@ -4402,7 +4402,7 @@ public class TongaFrame extends JFrame {
     }//GEN-LAST:event_tabbedPaneStateChanged
 
     private void contImgScaleActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_contImgScaleActionPerformed
-        //
+        Tonga.setImageScaling();
     }//GEN-LAST:event_contImgScaleActionPerformed
 
     // Variables declaration - do not modify//GEN-BEGIN:variables

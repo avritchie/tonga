@@ -3,10 +3,12 @@ package mainPackage;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Objects;
+import ome.units.quantity.Length;
 
 public class TongaImage {
 
     public String imageName;
+    public Length imageScaling;
     public ArrayList<TongaLayer> layerList;
     public int[] activeLayers;
     public boolean stack;
@@ -21,16 +23,13 @@ public class TongaImage {
         layerList.add(new TongaLayer(file, name));
     }
 
-    public TongaImage() {
-        this("");
-    }
-
     public TongaImage(File file) {
-        this(IO.fileName(file.getName()));
+        this(IO.fileName(file.getName()), (Length) null);
     }
 
-    private TongaImage(String name) {
+    public TongaImage(String name, Length scale) {
         imageName = name;
+        imageScaling = scale;
         layerList = new ArrayList<>();
         activeLayers = new int[]{0};
         stack = false;
@@ -65,5 +64,15 @@ public class TongaImage {
             return false;
         }
         return Objects.equals(this.layerList, other.layerList);
+    }
+
+    protected String description() {
+        StringBuilder desc = new StringBuilder();
+        desc.append(imageName).append("  |  ");
+        desc.append(layerList.size()).append(" layers");
+        if (imageScaling != null) {
+            desc.append("  |  ").append(Math.round(imageScaling.value().doubleValue() * 10000) / 10000.).append(" ").append(imageScaling.unit().getSymbol()).append(" / px");
+        }
+        return desc.toString();
     }
 }

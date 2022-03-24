@@ -315,6 +315,7 @@ public abstract class Protocol {
         } else {
             return null;
         }
+        Counter.setUnit(finalData);
         return finalData;
     }
 

@@ -82,4 +82,17 @@ public class TongaLayer {
     public String toString() {
         return layerName;
     }
+
+    protected String description() {
+        StringBuilder desc = new StringBuilder();
+        desc.append(layerName);
+        desc.append("  |  ");
+        if (isPointer) {
+            desc.append(path);
+        } else {
+            desc.append(layerImage.bits).append("-bit  |  ").append(width).append("x").append(height).append(" px  |  ");
+            desc.append(String.format("%.2f", layerImage.size / 1048576.).replace(",", ".")).append(" MB");
+        }
+        return desc.toString();
+    }
 }

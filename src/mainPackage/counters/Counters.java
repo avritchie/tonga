@@ -54,11 +54,11 @@ public class Counters {
 
     public static Counter countRBStain() {
         return new Counter("Count red values",
-                new String[]{"Image", "Tissue %", "<html><b>Stain ‰</b></html>", "Tissue px", "Stain raw"},
+                new String[]{"Image", "Tissue %", "<html><b>Stain ‰</b></html>", "Tissue %unit2", "Stain raw"},
                 new String[]{"The name of the image",
                     "How big percentage of the image is considered to be tissue",
                     "How much staining intensity there is in the tissue area, in promilles",
-                    "How big is the tissue area in the image in pixels",
+                    "How big is the tissue area in the image in %unit2",
                     "The raw value of the total staining intensity detecteed in the image"}) {
             int totalpixels, blackpixels;
             double redvalue;
@@ -85,7 +85,7 @@ public class Counters {
             protected void postProcessor(ImageData targetImage, Object[] row) {
                 row[1] = STAT.decToPerc(1 - (double) blackpixels / totalpixels);
                 row[2] = STAT.decToProm(redvalue / (totalpixels - blackpixels));
-                row[3] = totalpixels - blackpixels;
+                row[3] = scaleUnit(totalpixels - blackpixels, 2);
                 row[4] = redvalue;
             }
         };
@@ -93,9 +93,9 @@ public class Counters {
 
     public static Counter countBWBG() {
         return new Counter("Count background",
-                new String[]{"Image", "Area px", "Coverage %", "<html><b>Background %</b></html>", "Background avg raw"},
+                new String[]{"Image", "Area %unit2", "Coverage %", "<html><b>Background %</b></html>", "Background avg raw"},
                 new String[]{"The name of the image",
-                    "The total size of the detected background area(s) in pixels",
+                    "The total size of the detected background area(s) in %unit2",
                     "The percentage of the detected background area(s) from the total image size",
                     "The average relative background intensity out of the maximum",
                     "The average raw intensity measurement from every pixel in the background area"}) {
@@ -133,7 +133,7 @@ public class Counters {
             @Override
             protected void postProcessor(ImageData targetImage, Object[] row) {
                 bgpixels = targetImage.totalPixels() - white;
-                row[1] = bgpixels;
+                row[1] = scaleUnit(bgpixels, 2);
                 row[2] = STAT.decToPerc(((double) bgpixels) / targetImage.totalPixels());
                 row[3] = STAT.decToPerc(decval / bgpixels);
                 row[4] = intval / (double) bgpixels;
