@@ -111,6 +111,7 @@ public abstract class Protocol {
         if (!Tonga.loader().hasAborted()) {
             results = collectData(processors);
             if (results != null) {
+                Counter.setUnit(results);
                 Counter.publish(results);
             }
             /*
@@ -315,7 +316,6 @@ public abstract class Protocol {
         } else {
             return null;
         }
-        Counter.setUnit(finalData);
         return finalData;
     }
 
