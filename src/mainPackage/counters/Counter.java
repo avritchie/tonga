@@ -115,15 +115,8 @@ public abstract class Counter {
         if (scaling == null) {
             return new Object[]{pixels, null, null};
         } else {
-            double value;
-            if (pixels instanceof Double) {
-                value = (Double) pixels;
-            } else if (pixels instanceof Long) {
-                value = (Long) pixels;
-            } else if (pixels instanceof Integer) {
-                value = (Integer) pixels;
-            } else {
-                Tonga.catchError("Non-numeric result data passed as numeric data");
+            Double value = TableData.getType(pixels);
+            if (value == null) {
                 return new Object[]{pixels, null, null};
             }
             value = value * Math.pow(scaling.value().doubleValue(), dimensions);

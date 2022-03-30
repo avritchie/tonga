@@ -2,6 +2,7 @@ package mainPackage.counters;
 
 import java.util.ArrayList;
 import java.util.List;
+import mainPackage.Tonga;
 
 public class TableData {
 
@@ -65,6 +66,27 @@ public class TableData {
 
     public static Integer box(int i) {
         return Integer.valueOf(i);
+    }
+
+    public static Double getType(Object objs) {
+        double value;
+        Object obj;
+        if (objs instanceof Object[]) {
+            obj = ((Object[]) objs)[0];
+        } else {
+            obj = objs;
+        }
+        if (obj instanceof Double) {
+            value = (Double) obj;
+        } else if (obj instanceof Long) {
+            value = (Long) obj;
+        } else if (obj instanceof Integer) {
+            value = (Integer) obj;
+        } else {
+            Tonga.catchError("Non-numeric result data passed as numeric data");
+            return null;
+        }
+        return value;
     }
 
     public void rowIntInc(int row, int column) {

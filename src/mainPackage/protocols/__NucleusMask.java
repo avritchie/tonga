@@ -4,6 +4,7 @@ import mainPackage.utils.COL;
 import mainPackage.ImageData;
 import mainPackage.PanelCreator.ControlReference;
 import static mainPackage.PanelCreator.ControlType.*;
+import mainPackage.counters.TableData;
 
 public class __NucleusMask extends Protocol {
 
@@ -37,7 +38,7 @@ public class __NucleusMask extends Protocol {
                 //guess the size of the cells/
                 subprotocol = Protocol.load(_EstimateNucleusSize::new);
                 subprotocol.runSilent(sourceImage, inImage[0]);
-                double nuclSize = (Integer) subprotocol.results.getVal(0, 1);
+                double nuclSize = TableData.getType(subprotocol.results.getVal(0, 1));
                 subprotocol = Protocol.load(__NucleusPrimaryMask::new);
                 separation = subprotocol.runSilent(sourceImage, inImage[0], nuclSize);
                 setOutputBy(separation[0], 1);
