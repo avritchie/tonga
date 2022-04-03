@@ -41,6 +41,7 @@ public class __NucleusFinalMask extends Protocol {
 
         return new ProcessorFast(27, "Objects", 82) {
             ImageData mask, sMask, mMask, aMask;
+            ROISet set;
 
             @Override
             protected void pixelProcessor() {
@@ -51,12 +52,12 @@ public class __NucleusFinalMask extends Protocol {
                 int largeLimit = (int) (nuclSize * 0.33 * nuclSize * 0.33); // 500
                 int local = (int) Math.pow(nuclSize * 0.3, 0.8); // 10
                 //erosion for Dim / dividing detection
-                int dimErode = (int) Math.pow(nuclSize * 0.12, 0.8); // 5
+                int dimErode = (int) Math.pow(nuclSize * 0.2, 0.7) - 1; // 5
                 //ALSO radius for detecting the gaps between objects by mask extension overlap
                 int overlapRad = (int) Math.pow(nuclSize * 0.13, 0.9);
                 int smoothErode = (int) Math.pow(nuclSize * 0.05, 0.6);
                 int maxDiff = (int) Math.pow(nuclSize * 0.12, 0.4); // 3
-                int finSmooth = (int) Math.pow(nuclSize * 0.18, 0.48); // 3
+                int finSmooth = (int) Math.pow(nuclSize * 0.33, 0.5) - 1; // 3
                 int maxSmooth = (int) Math.pow(nuclSize * 0.05, 0.8); // 2
                 //radius for dilating the edges for nucloli etc. removal from nucleus edges
                 int edgeFiller = (int) Math.pow(nuclSize * 0.03, 0.5); // 1
@@ -73,9 +74,11 @@ public class __NucleusFinalMask extends Protocol {
                 }
                 setSampleOutputBy(mask, 1);
                 //intensity gradient edge detection
-                mask = Filters.maximumDiffEdge().runSingle(mask, 0, maxDiff, false, 0);
-                setSampleOutputBy(mask, 2);
-                mask = Filters.invert().runSingle(mask);
+                aMask = Filters.maximumDiffEdge().runSingle(mask, 0, maxDiff, false, 0);
+                setSampleOutputBy(aMask, 2);
+                aMask = Filters.invert().runSingle(aMask);
+                //blend intensity max against the original to protect the nucleus edges from eroding
+                mask = Blender.renderBlend(aMask, mask, Blend.MAXIMUM);
                 setSampleOutputBy(mask, 3);
                 //local thresholding of the intensity gradient for binarization
                 aMask = Filters.localThreshold().runConditional(mask, inImage[0], 10, local);
@@ -199,22 +202,30 @@ public class __NucleusFinalMask extends Protocol {
                     });
                     DRAW.copyPixels(mask,4);*/
                 //smoothen the final shapes by erode-smooth-dilate principle
-                mask = FiltersPass.edgeErode().runSingle(mask, COL.BLACK, smoothErode, true, true);
+                if (smoothErode > 0) {
+                    mask = FiltersPass.edgeErode().runSingle(mask, COL.BLACK, smoothErode, true, true);
+                }
                 //get the separation mask from the new smoother and eroded version to avoid accidental merging due to the smoothing
                 sMask = FiltersPass.getRadiusOverlap().runSingle(mask, COL.BLACK, overlapRad);
                 setSampleOutputBy(mask, 24);
-                mask = FiltersPass.gaussSmoothing().runSingle(mask, finSmooth, 2);
+                if (finSmooth > 0) {
+                    mask = FiltersPass.gaussSmoothing().runSingle(mask, finSmooth, 2);
+                }
                 setSampleOutputBy(mask, 25);
-                mask = FiltersPass.edgeDilate().runSingle(mask, COL.BLACK, smoothErode + 1, true);
+                if (smoothErode > 0) {
+                    mask = FiltersPass.edgeDilate().runSingle(mask, COL.BLACK, smoothErode + 1, true);
+                }
                 //apply the overlap mask in case dilation and smoothing merged something
                 Iterate.pixels(inImage[0], (int p) -> {
                     mask.pixels32[p] = sMask.pixels32[p] == COL.WHITE || mask.pixels32[p] == COL.BLACK ? COL.BLACK : mask.pixels32[p];
                 });
+                //remove minor leftover holes
+                mask = FiltersPass.fillInnerAreasSizeShape().runSingle(mask, COL.BLACK, smallLimit, 80);
                 setSampleOutputBy(mask, 26);
                 //dividing and dim detection - unwanted outlier shapes by using intensity and morphology information
                 //first erode so that any edge bleed etc does not affect the measurements
                 mMask = FiltersPass.edgeErode().runSingle(mask, COL.BLACK, dimErode, false, true);
-                ROISet set = new ImageTracer(mMask, COL.BLACK).trace();
+                set = new ImageTracer(mMask, COL.BLACK).trace();
                 int largeErodedLimit = (int) (GEO.circleCircumference(largeLimit) * dimErode * 1.25);
                 set.quantifyStainAgainstChannel(Filters.dog().runSingle(inImage[1], minNucl, maxNucl, false));
                 set.filterOutDimObjects(set.avgStain() * 0.05);
