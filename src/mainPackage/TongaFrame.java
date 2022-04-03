@@ -100,6 +100,7 @@ public class TongaFrame extends JFrame {
                 constructToolTipSystem();
                 constructMenuBar();
                 createCloseHandler();
+                adjustWindow();
             });
         } catch (InterruptedException ex) {
             Tonga.catchError(ex, "UI creation failed.");
@@ -108,10 +109,13 @@ public class TongaFrame extends JFrame {
         }
     }
 
-    void display() {
+    private void adjustWindow() {
         int[] winSize = getWindowSizeRecommendation();
         lSplitPane.setDividerLocation((int) ((winSize[0] - 600) * 0.7) + 200);
         setSize(winSize[0], winSize[1]);
+    }
+
+    void display() {
         setLocationRelativeTo(null);
         setVisible(true);
         splashDialog.setVisible(false);
@@ -1057,7 +1061,7 @@ public class TongaFrame extends JFrame {
         jSeparator2 = new javax.swing.JPopupMenu.Separator();
         jMenu2 = new javax.swing.JMenu();
         jMenu4 = new javax.swing.JMenu();
-        menuProtocolCKMask = new javax.swing.JMenuItem();
+        menuProtocolIFMask = new javax.swing.JMenuItem();
         jMenuItem48 = new javax.swing.JMenuItem();
         jMenuItem39 = new javax.swing.JMenuItem();
         jMenuItem2 = new javax.swing.JMenuItem();
@@ -3248,13 +3252,13 @@ public class TongaFrame extends JFrame {
 
         jMenu4.setText("Experiment image analysis");
 
-        menuProtocolCKMask.setText("Cytokeratin staining");
-        menuProtocolCKMask.addActionListener(new java.awt.event.ActionListener() {
+        menuProtocolIFMask.setText("IF staining");
+        menuProtocolIFMask.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                menuProtocolCKMaskActionPerformed(evt);
+                menuProtocolIFMaskActionPerformed(evt);
             }
         });
-        jMenu4.add(menuProtocolCKMask);
+        jMenu4.add(menuProtocolIFMask);
 
         jMenuItem48.setText("Oligodendrocyte branching");
         jMenuItem48.addActionListener(new java.awt.event.ActionListener() {
@@ -3811,9 +3815,9 @@ public class TongaFrame extends JFrame {
         launchProtocol(MatrigelOrganoids::new, evt);
     }//GEN-LAST:event_jMenuItem22ActionPerformed
 
-    private void menuProtocolCKMaskActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_menuProtocolCKMaskActionPerformed
+    private void menuProtocolIFMaskActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_menuProtocolIFMaskActionPerformed
         launchProtocol(IFTissueStaining::new, evt);
-    }//GEN-LAST:event_menuProtocolCKMaskActionPerformed
+    }//GEN-LAST:event_menuProtocolIFMaskActionPerformed
 
     private void jMenuItem9ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem9ActionPerformed
         launchProtocol(CryptCells::new, evt);
@@ -4666,8 +4670,8 @@ public class TongaFrame extends JFrame {
     protected javax.swing.JMenuItem menuMapLuminescence;
     protected javax.swing.JMenuItem menuMultiplyPxls;
     protected javax.swing.JMenuItem menuOpaque;
-    protected javax.swing.JMenuItem menuProtocolCKMask;
     protected javax.swing.JMenuItem menuProtocolCopyMask;
+    protected javax.swing.JMenuItem menuProtocolIFMask;
     protected javax.swing.JMenuItem menuProtocolNucleusSep;
     protected javax.swing.JMenu menuProtocols;
     protected javax.swing.JMenuItem menuSharpCorner;

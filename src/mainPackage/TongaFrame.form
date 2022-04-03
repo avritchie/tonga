@@ -1446,12 +1446,12 @@
                     <Property name="text" type="java.lang.String" value="Experiment image analysis"/>
                   </Properties>
                   <SubComponents>
-                    <MenuItem class="javax.swing.JMenuItem" name="menuProtocolCKMask">
+                    <MenuItem class="javax.swing.JMenuItem" name="menuProtocolIFMask">
                       <Properties>
-                        <Property name="text" type="java.lang.String" value="Cytokeratin staining"/>
+                        <Property name="text" type="java.lang.String" value="IF staining"/>
                       </Properties>
                       <Events>
-                        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="menuProtocolCKMaskActionPerformed"/>
+                        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="menuProtocolIFMaskActionPerformed"/>
                       </Events>
                     </MenuItem>
                     <MenuItem class="javax.swing.JMenuItem" name="jMenuItem48">
