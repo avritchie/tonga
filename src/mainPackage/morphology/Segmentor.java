@@ -150,23 +150,8 @@ public class Segmentor {
                 // both are each others closest and also parallel
                 // raw distance does not matter
                 if (!p.pairingMap.isEmpty()) {
-                    EdgePoint ep;
-                    if (p.closest.size() > 1) {
-                        Pairing cc1, cc2;
-                        ep = p.closestEdge(0);
-                        cc1 = p.pairingMap.get(ep);
-                        cc2 = p.pairingMap.get(p.closestEdge(1));
-                        if (cc1.parallelity < 0.1
-                                && ep.pairings.closestEdge(0).equals(point)
-                                && p.closestLine(0) == ep
-                                && cc1.edgeDistance * 3 < cc2.edgeDistance
-                                && cc1.lineDistance * 2 < cc2.lineDistance) {
-                            justPair(point, ep, "edge/line closest pair");
-                        }
-                    }
-                    ep = p.closest(0);
-                    if (!point.hasBeenPairedYet
-                            && !ep.pairings.pairingMap.isEmpty()
+                    EdgePoint ep = p.closest(0);
+                    if (!ep.pairings.pairingMap.isEmpty()
                             && ep.pairings.closest(0).equals(point)) {
                         if ((p.pairingMap.get(ep).parallelity < 0.15
                                 || (p.pairingMap.get(ep).parallelity < 0.25 && (p.intersectors.contains(ep) || p.intersectorsSecondary.contains(ep))))
@@ -174,6 +159,28 @@ public class Segmentor {
                                 && ep.angle + point.angle < 300) {
                             justPair(point, ep, "both-sided closeness and parallelity");
                         }
+                    }
+                }
+            }
+        };
+    }
+
+    private formPairs closeEdgePairs() {
+        return new formPairs() {
+            @Override
+            void logic(EdgePoint point) {
+                // both are each others closest and also parallel
+                // raw distance does not matter
+                if (!p.pairingMap.isEmpty() && p.closest.size() > 1) {
+                    EdgePoint ep = p.closestEdge(0);
+                    Pairing cc1 = p.pairingMap.get(ep);
+                    Pairing cc2 = p.pairingMap.get(p.closestEdge(1));
+                    if (cc1.parallelity < 0.1
+                            && ep.pairings.closestEdge(0).equals(point)
+                            && p.closestLine(0) == ep
+                            && cc1.edgeDistance * 3 < cc2.edgeDistance
+                            && cc1.lineDistance * 2 < cc2.lineDistance) {
+                        justPair(point, ep, "edge/line closest pair");
                     }
                 }
             }
@@ -372,6 +379,8 @@ public class Segmentor {
         commonMidpoint().pair(ROI);
         closePairs().pair(ROI);
         closePairs().pairBuddies(ROI);
+        closeEdgePairs().pair(ROI);
+        closeEdgePairs().pairBuddies(ROI);
         secondaryCloseParallel().pair(ROI);
         closeOpposite().pair(ROI);
         closeFreeOpposite().pair(ROI);
