@@ -1,0 +1,10 @@
+{
+  "jrePath": "jre",
+  "classPath": [
+    "Tonga.main"
+  ],
+  "mainClass": "mainPackage.Tonga",
+  "useZgcIfSupportedOs": true,
+  "vmArgs": [
+  ]
+}
