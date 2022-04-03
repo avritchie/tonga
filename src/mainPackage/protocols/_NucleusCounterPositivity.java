@@ -33,7 +33,7 @@ public class _NucleusCounterPositivity extends Protocol {
         boolean segmMode = param.toggle[2];
         boolean deadMode = param.toggle[3];
 
-        return new ProcessorFast("Positive Nuclei", bgMode ? 174 : 159) {
+        return new ProcessorFast("Positive Nuclei", bgMode ? 235 : 220) {
 
             @Override
             protected void pixelProcessor() {

@@ -56,7 +56,7 @@ public class __NucleusPrimaryMask extends Protocol {
                 // dilation radius for hole removal
                 int dilate = (int) Math.pow(nuclSize * 0.1, 0.5); // 2
                 // remove inner areas
-                int inRem = (int) (nuclArea / Math.max(Math.pow(nuclSize * 2, 0.4), 5)); // 5
+                int inRem = (int) (nuclArea / Math.max(Math.pow(nuclSize * 2, 0.4), 6)); // 5
                 layerComb = new ImageData(sourceWidth[0], sourceHeight[0]);
                 // illumination/contrast-corrected version of the image
                 layerCorrect = Filters.gamma().runSingle(inImage[0], 0.5);

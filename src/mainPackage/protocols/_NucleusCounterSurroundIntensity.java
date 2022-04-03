@@ -32,7 +32,7 @@ public class _NucleusCounterSurroundIntensity extends Protocol {
         boolean imgMode = param.toggle[3];
         int radius = param.spinner[0];
 
-        return new ProcessorFast("Nucleus Surroundings", 162) {
+        return new ProcessorFast("Nucleus Surroundings", 225) {
 
             ImageData[] mask;
 
