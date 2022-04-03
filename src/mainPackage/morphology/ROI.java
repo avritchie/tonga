@@ -605,11 +605,12 @@ public class ROI {
             }
             if (edgePoint != null) {
                 int fspan = span;
+                int lspan = list.list.size();
                 while (fspan <= span * 3) {
                     Point prev = edgePoint;
                     for (int i = -fspan; i < fspan; i++) {
                         if (i <= -(fspan - span) || i >= (fspan - span)) {
-                            EdgePoint found = EdgeAnalyzer.getPos(list.list, base, i);
+                            EdgePoint found = i > lspan ? null : EdgeAnalyzer.getPos(list.list, base, i);
                             if (found == null) {
                                 return;
                             } else if (edgeData.cornerPoints.contains(found)
