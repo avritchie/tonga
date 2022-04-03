@@ -55,18 +55,17 @@ public class Histogram {
     }
 
     private static void updateHistogram() {
-        Thread thread = new Thread(() -> {
-            long stamp = System.currentTimeMillis();
-            try {
-                panelWidth = histoPanel.getWidth();
-                panelHeight = histoPanel.getHeight();
-                boolean hw = Settings.settingHWAcceleration();
-                if (hw
-                        ? (Tonga.thereIsImage() && TongaRender.renderImages != null && TongaRender.renderImages.length > 0)
-                        : (Tonga.thereIsImage() && TongaRender.renderImage != null)) {
-                    Image imgSource = hw
-                            ? TongaRender.renderImages[Tonga.selectedLayerIndex()]
-                            : TongaRender.renderImage;
+        panelWidth = histoPanel.getWidth();
+        panelHeight = histoPanel.getHeight();
+        boolean hw = Settings.settingHWAcceleration();
+        long stamp = System.currentTimeMillis();
+        Image imgSource = Tonga.thereIsImage()
+                ? hw && TongaRender.renderImages != null && TongaRender.renderImages.length > Tonga.selectedLayerIndex()
+                ? TongaRender.renderImages[Tonga.selectedLayerIndex()]
+                : !hw ? TongaRender.renderImage : null : null;
+        if (imgSource != null) {
+            Thread thread = new Thread(() -> {
+                try {
                     int imgHash = imgSource.hashCode();
                     int[] renderHisto = currentHisto;
                     if (imageHash != imgHash) {
@@ -91,17 +90,17 @@ public class Histogram {
                             Tonga.log.trace("Discard a histogram for {} by {}", imgHash, stamp);
                         }
                     }
-                } else {
-                    Tonga.log.trace("No image by {}", stamp);
+                } catch (Exception ex) {
+                    Tonga.catchError(ex, "Histogram rendering error.");
                     clearHistogram(histoCol);
                 }
-            } catch (NullPointerException | IndexOutOfBoundsException ex) {
-                Tonga.catchError(ex, "Histogram rendering error.");
-                clearHistogram(histoCol);
-            }
-        });
-        thread.setName("Histogram");
-        thread.start();
+            });
+            thread.setName("Histogram");
+            thread.start();
+        } else {
+            Tonga.log.trace("No image by {}", stamp);
+            clearHistogram(histoCol);
+        }
     }
 
     private static BufferedImage renderHistogram(int[] histo, int width, int height, int sourcepixels) {
@@ -113,9 +112,9 @@ public class Histogram {
         int pos = 0;
         while (pos < pixels) {
             int x = pos % width, y = height - (pos / width), xp = (int) Math.floor(x / widthRelation);
-            px[pos++] = (byte) ((Math.sqrt(histo[(int) (x / widthRelation)]) * heightRelation < y)
-                    ? (xp >= Tonga.frame().histoRange.getValue()
-                    && xp <= Tonga.frame().histoRange.getUpperValue()) ? 0xFF : 0xF0 : 0x0);
+            px[pos++] = (byte) (Math.sqrt(histo[(int) (x / widthRelation)]) * heightRelation < y
+                    ? xp >= Tonga.frame().histoRange.getValue()
+                    && xp <= Tonga.frame().histoRange.getUpperValue() ? 0xFF : 0xF0 : 0x0);
         }
         return img;
     }
