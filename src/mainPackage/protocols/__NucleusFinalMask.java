@@ -204,6 +204,7 @@ public class __NucleusFinalMask extends Protocol {
                 //smoothen the final shapes by erode-smooth-dilate principle
                 if (smoothErode > 0) {
                     mask = FiltersPass.edgeErode().runSingle(mask, COL.BLACK, smoothErode, true, true);
+                    mask = Filters.dotConnectRemove().runSingle(mask, COL.BLACK, false);
                 }
                 //get the separation mask from the new smoother and eroded version to avoid accidental merging due to the smoothing
                 sMask = FiltersPass.getRadiusOverlap().runSingle(mask, COL.BLACK, overlapRad);
