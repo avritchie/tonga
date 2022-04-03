@@ -1123,15 +1123,15 @@ public class Tonga {
                     if (r.type == Action.ADD) {
                         if (r.container.getClass() == TongaImage.class) {
                             ((TongaImage) r.container).layerList.forEach(i -> {
-                        if (i.layerImage.isMapped()) {
+                                if (i.layerImage.isMapped()) {
                                 al.remove(((MappedBuffer) i.layerImage.getBuffer()).getFile());}
                             });
                         }
                         if (r.container.getClass() == TongaLayer.class) {
-                        if (((TongaLayer) r.container).layerImage.isMapped()) {
+                            if (((TongaLayer) r.container).layerImage.isMapped()) {
                             al.remove(((MappedBuffer)((TongaLayer) r.container).layerImage.getBuffer()).getFile());}
+                            }
                         }
-                    }
                 });
             }
             if (UndoRedo.undoList != null) {
@@ -1139,12 +1139,12 @@ public class Tonga {
                     if (r.type == Action.ADD) {
                         if (r.container.getClass() == TongaImage.class) {
                             ((TongaImage) r.container).layerList.forEach(i -> {
-                        if (i.layerImage.isMapped()) {
+                                if (i.layerImage.isMapped()) {
                                 al.remove(((MappedBuffer) i.layerImage.getBuffer()).getFile());}
                             });
                         }
                         if (r.container.getClass() == TongaLayer.class) {
-                        if (((TongaLayer) r.container).layerImage.isMapped()) {
+                            if (((TongaLayer) r.container).layerImage.isMapped()) {
                             al.remove(((MappedBuffer)((TongaLayer) r.container).layerImage.getBuffer()).getFile());
                         }}
                     }
@@ -1215,9 +1215,11 @@ public class Tonga {
 
     private static String readVersion() {
         ResourceBundle rb = ResourceBundle.getBundle("version");
-        String num;
-        num = rb.getString("buildnumber").replaceAll("\u00a0", "");
-        return "0.1.2." + num;
+        String maj = rb.getString("majorversion");
+        String min = rb.getString("minorversion");
+        String pat = rb.getString("patchversion");
+        String bui = rb.getString("buildnumber").replaceAll("\u00a0", "");
+        return maj + "." + min + "." + pat + "." + bui;
     }
 
     public enum OS {
