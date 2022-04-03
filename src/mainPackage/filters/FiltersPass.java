@@ -565,14 +565,19 @@ public class FiltersPass {
     public static FilterFast getExtendedMask() {
         return new FilterFast("Edges", new ControlReference[]{
             new ControlReference(COLOUR, "Background colour", -2),
-            new ControlReference(SPINNER, "Radius (px)", 5)}) {
+            new ControlReference(SPINNER, "Radius (px)", 5),
+            new ControlReference(TOGGLE, "Render overlaps", 0)}) {
 
             @Override
             protected void processor() {
                 ROISet set = new ImageTracer(inData, param.color[0]).trace();
                 set.getExtendedMasks(param.spinner[0]);
                 set.findOuterMaskEdges();
-                setOutputBy(set.drawToImageData());
+                if (param.toggle[0]) {
+                    setOutputBy(set.drawMaskArray());
+                } else {
+                    setOutputBy(set.drawToImageData());
+                }
             }
 
             @Override
