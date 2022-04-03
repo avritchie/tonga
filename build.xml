@@ -16,10 +16,24 @@
             <entry key="builddate" value="now" type="date"/>
         </propertyfile>
     </target>
-    <target name="-post-compile">
+    <target name="-post-jar">
         <copy todir="${dist.dir}/">
             <fileset dir="include/"/>
         </copy>
+        <copy file="${dist.dir}/Tonga.jar" tofile="${dist.dir}/Mac/Tonga.app/Contents/Resources/Tonga.main"/>
+        <copy file="${dist.dir}/Tonga.jar" tofile="${dist.dir}/Win/Tonga.main"/>
+        <property file="${src.dir}/version.properties"></property>
+        <replace file="${dist.dir}/Mac/Tonga.app/Contents/Info.plist" token="VERSIONSTRING" value="${majorversion}.${minorversion}.${patchversion}"/>
+        <exec executable="cmd">
+            <arg value="/c"/>
+            <arg value="${basedir}\misc\Version.bat"/>
+            <arg value="${majorversion}.${minorversion}.${patchversion}.${buildnumber}"/>
+        </exec>
+        <exec executable="cmd">
+            <arg value="/c"/>
+            <arg value="${basedir}\misc\Zip.bat"/>
+            <arg value="${majorversion}.${minorversion}.${patchversion}.${buildnumber}"/>
+        </exec>
     </target>
     <!--
 
