@@ -1399,7 +1399,8 @@ public class Filters {
         
          */
         int b = in32[pos];
-        int[] bs = new int[(r * 2 + 1) * (r * 2 + 1) - 4];
+        int s = (r * 2 + 1) * (r * 2 + 1) - 4;
+        int[] bs = new int[s < 1 ? 1 : s];
         int c = 0;
         for (int x = -r; x <= r; x++) {
             for (int y = -r; y <= r; y++) {
