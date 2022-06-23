@@ -887,29 +887,42 @@ public class Tonga {
         }
     }
 
-    public static boolean askYesNo(String title, String text, boolean doNotShowAgain, boolean defaultOption) {
+    private static boolean dialog(String title, String text, Object[] butts, boolean doNotShowAgain, boolean defaultOption) {
         int hash = title.hashCode();
         boolean neverShow = Settings.getNeverShow(hash);
+        String neverText = "Never " + (butts.length == 1 ? "show" : "ask") + " this again";
+        int dialogStyle = butts.length == 1 ? JOptionPane.INFORMATION_MESSAGE : JOptionPane.QUESTION_MESSAGE;
         text = "<html><body><p style='width: 300px;'>" + text + "</p><br></body></html>";
         if (neverShow == true) {
             return defaultOption;
         } else {
-            JCheckBox cb = new JCheckBox("Never ask this again");
+            JCheckBox cb = new JCheckBox(neverText);
             Object p;
             if (doNotShowAgain) {
                 p = new Object[]{text, cb};
             } else {
                 p = new Object[]{text};
             }
-            Object[] butt = {"Yes", "No"};
-            int r = JOptionPane.showOptionDialog(mainFrame, p, title, JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, null, butt, butt[defaultOption ? 0 : 1]);
+            int r = JOptionPane.showOptionDialog(mainFrame, p, title,
+                    JOptionPane.DEFAULT_OPTION, dialogStyle,
+                    null, butts, butts[defaultOption ? 0 : 1]);
             boolean selection = r == 0;
             if (cb.isSelected()) {
-                Tonga.log.info("Disabled the \"{}\" question.", title);
+                Tonga.log.info("Disabled the \"{}\" question ({})", title, hash);
                 Settings.setNeverShow(hash, selection);
             }
             return selection;
         }
+    }
+
+    public static boolean askYesNo(String title, String text, boolean doNotShowAgain, boolean defaultOption) {
+        Object[] butt = {"Yes", "No"};
+        return dialog(title, text, butt, doNotShowAgain, defaultOption);
+    }
+
+    public static void notify(String title, String text, boolean doNotShowAgain) {
+        Object[] butt = {"Ok"};
+        dialog(title, text, butt, doNotShowAgain, true);
     }
 
     public static String getAppDataPath() {
@@ -1114,7 +1127,8 @@ public class Tonga {
                 picList.forEach(p -> {
                     p.layerList.forEach(i -> {
                         if (i.layerImage.isMapped()) {
-                        al.remove(((MappedBuffer) i.layerImage.getBuffer()).getFile());}
+                            al.remove(((MappedBuffer) i.layerImage.getBuffer()).getFile());
+                        }
                     });
                 });
             }
@@ -1124,14 +1138,16 @@ public class Tonga {
                         if (r.container.getClass() == TongaImage.class) {
                             ((TongaImage) r.container).layerList.forEach(i -> {
                                 if (i.layerImage.isMapped()) {
-                                al.remove(((MappedBuffer) i.layerImage.getBuffer()).getFile());}
+                                    al.remove(((MappedBuffer) i.layerImage.getBuffer()).getFile());
+                                }
                             });
                         }
                         if (r.container.getClass() == TongaLayer.class) {
                             if (((TongaLayer) r.container).layerImage.isMapped()) {
-                            al.remove(((MappedBuffer)((TongaLayer) r.container).layerImage.getBuffer()).getFile());}
+                                al.remove(((MappedBuffer) ((TongaLayer) r.container).layerImage.getBuffer()).getFile());
                             }
                         }
+                    }
                 });
             }
             if (UndoRedo.undoList != null) {
@@ -1140,13 +1156,15 @@ public class Tonga {
                         if (r.container.getClass() == TongaImage.class) {
                             ((TongaImage) r.container).layerList.forEach(i -> {
                                 if (i.layerImage.isMapped()) {
-                                al.remove(((MappedBuffer) i.layerImage.getBuffer()).getFile());}
+                                    al.remove(((MappedBuffer) i.layerImage.getBuffer()).getFile());
+                                }
                             });
                         }
                         if (r.container.getClass() == TongaLayer.class) {
                             if (((TongaLayer) r.container).layerImage.isMapped()) {
-                            al.remove(((MappedBuffer)((TongaLayer) r.container).layerImage.getBuffer()).getFile());
-                        }}
+                                al.remove(((MappedBuffer) ((TongaLayer) r.container).layerImage.getBuffer()).getFile());
+                            }
+                        }
                     }
                 });
             }
@@ -1320,6 +1338,12 @@ public class Tonga {
             System.exit(1);
         } else {
             setStatus("<font color=\"red\">Unexpected " + ex.getClass().getSimpleName() + " occured.</font> " + (msg != null ? msg + " " : "") + "See the log for details (Tonga -> Logs from the menu bar).");
+            if (ex instanceof OutOfMemoryError && !Settings.settingMemoryMapping()) {
+                notify("Memory", "Tonga has ran out of RAM memory. "
+                        + "The task you are trying to execute requires more memory than what your computer has available.<br><br>"
+                        + "You can enable memory mapping from the settings to reduce RAM usage and prevent many occasions of this error.<br>"
+                        + "This setting can be found from the <b>General</b> tab -> <b>memory mapping</b>", true);
+            }
         }
     }
 }
