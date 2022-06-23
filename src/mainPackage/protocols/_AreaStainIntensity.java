@@ -23,11 +23,11 @@ public class _AreaStainIntensity extends Protocol {
             new ControlReference(LAYER, "Track objects at which layer"),
             new ControlReference(LAYER, "The image with the stain"),
             new ControlReference(COLOUR, "Background is which color", new int[]{0}),
-            new ControlReference(TOGGLE, "Binary staining", 1, new int[]{4, 1, 7, 0}),
+            new ControlReference(TOGGLE, "Binary staining", 1, new int[]{4, 1, 6, 0}),
             new ControlReference(SLIDER, "Binary threshold (%)"),
             new ControlReference(TOGGLE, "Results as average per image", 0),
             new ControlReference(TOGGLE, "Render the image using the average stain", 0),
-            new ControlReference(TOGGLE, "Estimate and subtract the background", 0, new int[]{7, 1}),
+            new ControlReference(TOGGLE, "Estimate and subtract the background", 0, new int[]{8, 1}),
             new ControlReference(LAYER, "The image with DAPI/Hoechst")};
     }
 
