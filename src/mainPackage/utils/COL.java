@@ -125,6 +125,19 @@ public class COL {
         return RGB.argb(rf, gf, bf);
     }
 
+    public static int blendColorWeighted(int c1, int c2, double ratio) {
+        int r1 = (c1 >> 16) & 255;
+        int g1 = (c1 >> 8) & 255;
+        int b1 = c1 & 255;
+        int r2 = (c2 >> 16) & 255;
+        int g2 = (c2 >> 8) & 255;
+        int b2 = c2 & 255;
+        int rf = (int) (r1 * ratio + r2 * (1 - ratio));
+        int gf = (int) (g1 * ratio + g2 * (1 - ratio));
+        int bf = (int) (b1 * ratio + b2 * (1 - ratio));
+        return RGB.argb(rf, gf, bf);
+    }
+
     public static int blendColorAlpha(int c1, int c2) {
         double a1 = ((c1 >> 24) & 255) / 255.;
         int r1 = (c1 >> 16) & 255;

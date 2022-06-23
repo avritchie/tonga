@@ -302,16 +302,27 @@ public class Filters {
     }
 
     public static FilterFast opaque() {
-        return new FilterFast("Opaque", noParams) {
+        return new FilterFast("Opaque",
+                new ControlReference[]{
+                    new ControlReference(TOGGLE, "Replace with a new colour", 0, new int[]{1, 1}),
+                    new ControlReference(COLOUR, "Colour to replace with")}) {
             @Override
             protected void processor() {
-                Iterate.pixels(this, (int pos) -> {
-                    int color = in32[pos];
-                    int r = (color >> 16) & 0xFF;
-                    int g = (color >> 8) & 0xFF;
-                    int b = color & 0xFF;
-                    out32[pos] = RGB.argb(r, g, b);
-                });
+                if (!param.toggle[0]) {
+                    Iterate.pixels(this, (int pos) -> {
+                        int color = in32[pos];
+                        int r = (color >> 16) & 0xFF;
+                        int g = (color >> 8) & 0xFF;
+                        int b = color & 0xFF;
+                        out32[pos] = RGB.argb(r, g, b);
+                    });
+                } else {
+                    Iterate.pixels(this, (int pos) -> {
+                        int color = in32[pos];
+                        int a = (color >> 24) & 0xFF;
+                        out32[pos] = COL.blendColorWeighted(color, param.colorARGB[0], a / 255.);
+                    });
+                }
             }
 
             @Override
