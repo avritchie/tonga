@@ -46,6 +46,53 @@
             <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="contLayMergeActionPerformed"/>
           </Events>
         </MenuItem>
+        <Menu class="javax.swing.JMenu" name="contLayColor">
+          <Properties>
+            <Property name="text" type="java.lang.String" value="Change colour"/>
+          </Properties>
+          <SubComponents>
+            <MenuItem class="javax.swing.JMenuItem" name="contLayColorRed">
+              <Properties>
+                <Property name="text" type="java.lang.String" value="Red"/>
+              </Properties>
+              <Events>
+                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="contLayColorRedActionPerformed"/>
+              </Events>
+            </MenuItem>
+            <MenuItem class="javax.swing.JMenuItem" name="contLayColorGreen">
+              <Properties>
+                <Property name="text" type="java.lang.String" value="Green"/>
+              </Properties>
+              <Events>
+                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="contLayColorGreenActionPerformed"/>
+              </Events>
+            </MenuItem>
+            <MenuItem class="javax.swing.JMenuItem" name="contLayColorBlue">
+              <Properties>
+                <Property name="text" type="java.lang.String" value="Blue"/>
+              </Properties>
+              <Events>
+                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="contLayColorBlueActionPerformed"/>
+              </Events>
+            </MenuItem>
+            <MenuItem class="javax.swing.JMenuItem" name="contLayColorGray">
+              <Properties>
+                <Property name="text" type="java.lang.String" value="Grayscale"/>
+              </Properties>
+              <Events>
+                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="contLayColorGrayActionPerformed"/>
+              </Events>
+            </MenuItem>
+            <MenuItem class="javax.swing.JMenuItem" name="contLayColorCustom">
+              <Properties>
+                <Property name="text" type="java.lang.String" value="Custom"/>
+              </Properties>
+              <Events>
+                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="contLayColorCustomActionPerformed"/>
+              </Events>
+            </MenuItem>
+          </SubComponents>
+        </Menu>
         <MenuItem class="javax.swing.JMenuItem" name="contLayDeleteThis">
           <Properties>
             <Property name="accelerator" type="javax.swing.KeyStroke" editor="org.netbeans.modules.form.editors.KeyStrokeEditor">
@@ -2302,7 +2349,7 @@
                                           <Group type="103" groupAlignment="0" attributes="0">
                                               <Component id="protocolName" max="32767" attributes="0"/>
                                               <Component id="protocolNameSeparator" alignment="0" max="32767" attributes="0"/>
-                                              <Component id="protocolSettingsPanel" alignment="0" pref="419" max="32767" attributes="0"/>
+                                              <Component id="protocolSettingsPanel" alignment="0" pref="411" max="32767" attributes="0"/>
                                               <Component id="protocolSettingsSeparator" alignment="1" max="32767" attributes="0"/>
                                               <Group type="102" alignment="1" attributes="0">
                                                   <Component id="btnRunSingle" max="32767" attributes="0"/>
@@ -2322,7 +2369,7 @@
                                           <EmptySpace min="-2" max="-2" attributes="0"/>
                                           <Component id="protocolNameSeparator" min="-2" pref="5" max="-2" attributes="0"/>
                                           <EmptySpace min="-2" pref="8" max="-2" attributes="0"/>
-                                          <Component id="protocolSettingsPanel" pref="310" max="32767" attributes="0"/>
+                                          <Component id="protocolSettingsPanel" pref="302" max="32767" attributes="0"/>
                                           <EmptySpace min="-2" max="-2" attributes="0"/>
                                           <Component id="protocolSettingsSeparator" min="-2" pref="5" max="-2" attributes="0"/>
                                           <EmptySpace min="-2" pref="3" max="-2" attributes="0"/>
@@ -2429,7 +2476,7 @@
                                   <Group type="102" attributes="0">
                                       <EmptySpace max="-2" attributes="0"/>
                                       <Group type="103" groupAlignment="0" attributes="0">
-                                          <Component id="filterSettingsPanel" alignment="0" pref="419" max="32767" attributes="0"/>
+                                          <Component id="filterSettingsPanel" alignment="0" pref="411" max="32767" attributes="0"/>
                                           <Component id="filterSettingsSeparator" alignment="1" max="32767" attributes="0"/>
                                           <Group type="102" alignment="1" attributes="0">
                                               <Component id="btnRunSingle2" max="32767" attributes="0"/>
@@ -2458,7 +2505,7 @@
                                       <EmptySpace min="-2" max="-2" attributes="0"/>
                                       <Component id="filterNameSeparator" min="-2" pref="5" max="-2" attributes="0"/>
                                       <EmptySpace min="-2" pref="8" max="-2" attributes="0"/>
-                                      <Component id="filterSettingsPanel" pref="307" max="32767" attributes="0"/>
+                                      <Component id="filterSettingsPanel" pref="294" max="32767" attributes="0"/>
                                       <EmptySpace min="-2" max="-2" attributes="0"/>
                                       <Component id="filterSettingsSeparator" min="-2" pref="5" max="-2" attributes="0"/>
                                       <EmptySpace min="-2" pref="3" max="-2" attributes="0"/>
@@ -2656,7 +2703,7 @@
                                               <Component id="jLabel2" alignment="3" min="-2" pref="20" max="-2" attributes="0"/>
                                               <Component id="stackCombo" alignment="3" min="-2" max="-2" attributes="0"/>
                                           </Group>
-                                          <EmptySpace pref="24" max="32767" attributes="0"/>
+                                          <EmptySpace pref="21" max="32767" attributes="0"/>
                                       </Group>
                                   </Group>
                                 </DimensionLayout>
@@ -2767,7 +2814,7 @@
                                           </Group>
                                           <EmptySpace max="-2" attributes="0"/>
                                           <Component id="boxSettingHWRendering" min="-2" pref="20" max="-2" attributes="0"/>
-                                          <EmptySpace pref="37" max="32767" attributes="0"/>
+                                          <EmptySpace pref="23" max="32767" attributes="0"/>
                                       </Group>
                                   </Group>
                                 </DimensionLayout>
@@ -2895,7 +2942,7 @@
                                               <Component id="autoscaleCombo" alignment="3" min="-2" max="-2" attributes="0"/>
                                               <Component id="boxSettingAutoscale1" alignment="3" min="-2" max="-2" attributes="0"/>
                                           </Group>
-                                          <EmptySpace min="0" pref="20" max="32767" attributes="0"/>
+                                          <EmptySpace min="0" pref="18" max="32767" attributes="0"/>
                                       </Group>
                                   </Group>
                                 </DimensionLayout>
@@ -2965,7 +3012,7 @@
                                               <Group type="102" attributes="0">
                                                   <Component id="boxSettingOpenAfter" max="32767" attributes="0"/>
                                                   <EmptySpace min="-2" pref="32" max="-2" attributes="0"/>
-                                                  <Component id="boxSettingSubfolder" pref="193" max="32767" attributes="0"/>
+                                                  <Component id="boxSettingSubfolder" max="32767" attributes="0"/>
                                               </Group>
                                           </Group>
                                           <EmptySpace max="-2" attributes="0"/>
@@ -2984,7 +3031,7 @@
                                               <Component id="boxSettingOpenAfter" alignment="3" min="-2" max="-2" attributes="0"/>
                                               <Component id="boxSettingSubfolder" alignment="3" min="-2" max="-2" attributes="0"/>
                                           </Group>
-                                          <EmptySpace pref="20" max="32767" attributes="0"/>
+                                          <EmptySpace pref="16" max="32767" attributes="0"/>
                                       </Group>
                                   </Group>
                                 </DimensionLayout>
@@ -3164,8 +3211,8 @@
                                               <EmptySpace min="-2" max="-2" attributes="0"/>
                                               <Component id="histoAdjAutoAll" max="32767" attributes="0"/>
                                           </Group>
-                                          <Component id="histoImg" alignment="0" pref="419" max="32767" attributes="0"/>
-                                          <Component id="histoSliderPanel" alignment="1" pref="419" max="32767" attributes="0"/>
+                                          <Component id="histoImg" alignment="0" pref="411" max="32767" attributes="0"/>
+                                          <Component id="histoSliderPanel" alignment="1" pref="411" max="32767" attributes="0"/>
                                       </Group>
                                       <EmptySpace max="-2" attributes="0"/>
                                   </Group>
@@ -3175,7 +3222,7 @@
                               <Group type="103" groupAlignment="0" attributes="0">
                                   <Group type="102" alignment="0" attributes="0">
                                       <EmptySpace min="-2" max="-2" attributes="0"/>
-                                      <Component id="histoImg" pref="285" max="32767" attributes="0"/>
+                                      <Component id="histoImg" pref="267" max="32767" attributes="0"/>
                                       <EmptySpace min="-2" max="-2" attributes="0"/>
                                       <Component id="histoSliderPanel" min="-2" max="-2" attributes="0"/>
                                       <EmptySpace min="-2" pref="1" max="-2" attributes="0"/>
