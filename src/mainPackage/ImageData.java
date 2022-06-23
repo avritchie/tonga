@@ -1,8 +1,8 @@
 package mainPackage;
 
-import java.awt.image.BufferedImage;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.scene.image.Image;
+import mainPackage.utils.IMG;
 
 public class ImageData {
 
@@ -87,6 +87,20 @@ public class ImageData {
         this.min = img.min;
         this.max = img.max;
         setPixels();
+    }
+
+    public ImageData(ImageData img) {
+        //creates a copy
+        this.width = img.width;
+        this.height = img.height;
+        this.bits = img.bits;
+        this.name = img.name;
+        this.ref = null;
+        this.colour = img.colour;
+        this.min = img.min;
+        this.max = img.max;
+        this.pixels16 = img.pixels16 == null ? null : IMG.copyArray(img.pixels16);
+        this.pixels32 = img.pixels32 == null ? null : IMG.copyArray(img.pixels32);
     }
 
     public int totalPixels() {
@@ -178,5 +192,9 @@ public class ImageData {
         for (int i = 1; i < height; i++) {
             System.arraycopy(array, 0, array, width * i, width);
         }
+    }
+
+    public ImageData copy() {
+        return new ImageData(this);
     }
 }

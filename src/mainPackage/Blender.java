@@ -8,6 +8,12 @@ import mainPackage.utils.RGB;
 public class Blender {
 
     public static ImageData renderOverlay(ImageData[] layersarray) {
+        //16-bit images can't be blended because unless they are same colour
+        //64-bit image would be necessary to maintain the bit depth
+        //therefore 16-bit images will be converted to 8-bit
+        for (ImageData la : layersarray) {
+            la.set8BitPixels();
+        }
         int[] dim = TongaRender.getMaxDim(layersarray);
         ImageData temp = new ImageData(dim[0], dim[1]);
         for (int y = 0; y < temp.height; y++) {
@@ -23,6 +29,7 @@ public class Blender {
         return temp;
     }
 
+    @Deprecated
     public static ImageData renderOverlay2(ImageData[] layersarray) {
         int[] dim = TongaRender.getMaxDim(layersarray);
         ImageData temp = new ImageData(dim[0], dim[1]);
@@ -75,6 +82,12 @@ public class Blender {
     }
 
     public static ImageData renderBlend(ImageData[] layersarray, Blend mode) {
+        //16-bit images can't be blended because unless they are same colour
+        //64-bit image would be necessary to maintain the bit depth
+        //therefore 16-bit images will be converted to 8-bit
+        for (ImageData la : layersarray) {
+            la.set8BitPixels();
+        }
         switch (mode) {
             case ADD:
                 return new BlendOperation() {
@@ -186,16 +199,13 @@ public class Blender {
             ImageData temp = new ImageData(dim[0], dim[1]);
             boolean ass = TongaRender.allSameSize(layersarray);
             if (ass) {
-                for (int y = 0; y < temp.height; y++) {
-                    for (int x = 0; x < temp.width; x++) {
-                        int p = y * temp.width + x;
-                        set(p, layersarray[0].pixels32, doubles);
-                        for (int i = 1; i < layersarray.length; i++) {
-                            blend(layersarray[i].pixels32[p]);
-                        }
-                        temp.pixels32[p] = ret(doubles);
+                Iterate.pixels(temp, (p) -> {
+                    set(p, layersarray[0].pixels32, doubles);
+                    for (int i = 1; i < layersarray.length; i++) {
+                        blend(layersarray[i].pixels32[p]);
                     }
-                }
+                    temp.pixels32[p] = ret(doubles);
+                });
             } else {
                 for (int y = 0; y < temp.height; y++) {
                     for (int x = 0; x < temp.width; x++) {

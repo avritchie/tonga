@@ -7,6 +7,13 @@ import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 import java.awt.event.MouseWheelEvent;
 import java.awt.image.BufferedImage;
+import java.awt.image.ColorModel;
+import java.awt.image.DataBuffer;
+import java.awt.image.DataBufferByte;
+import java.awt.image.DataBufferUShort;
+import java.awt.image.IndexColorModel;
+import java.awt.image.Raster;
+import java.awt.image.SampleModel;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -31,6 +38,7 @@ import javafx.scene.paint.ImagePattern;
 import javafx.scene.paint.Paint;
 import javax.swing.JPanel;
 import loci.formats.gui.AWTImageTools;
+import loci.formats.gui.Index16ColorModel;
 import static mainPackage.Tonga.picList;
 import mainPackage.utils.COL;
 import mainPackage.utils.HISTO;
@@ -387,7 +395,9 @@ public class TongaRender {
     }
 
     public static ImageData renderImage(ImageData[] layersarray) {
-        if (Tonga.getImage().stack) {
+        if (layersarray.length == 1) {
+            return layersarray[0].copy();
+        } else if (Tonga.getImage().stack) {
             return Blender.renderBlend(layersarray, Blender.modeBridge(Settings.settingBlendMode()));
         } else {
             return Blender.renderOverlay(layersarray);
@@ -425,23 +435,88 @@ public class TongaRender {
         mainPHash = 0;
     }
 
-    static short[] sliceProjection(BufferedImage[] slcs, int bits) {
-        int w = slcs[0].getWidth();
-        int h = slcs[0].getHeight();
+    static <T> BufferedImage sliceProjection(BufferedImage[] slcs, int maxval) {
+        BufferedImage ref = slcs[0];
+        int w = ref.getWidth();
+        int h = ref.getHeight();
         int pc = w * h;
-        short[] buf = new short[pc];
-        short[][][] ss = new short[slcs.length][0][0];
-        for (int i = 0; i < slcs.length; i++) {
-            ss[i] = AWTImageTools.getShorts(slcs[i]);
-        }
-        for (int p = 0; p < pc; p++) {
-            long v = 0;
+        byte[][] bBuf = null; //[channel][pixel]
+        short[][] sBuf = null; //[channel][pixel]
+        byte[][][] bb; //[slice][channel][pixel]
+        short[][][] ss; //[slice][channel][pixel]
+        if (maxval > 255) {
+            sBuf = new short[1][pc];
+            ss = new short[slcs.length][0][0];
             for (int i = 0; i < slcs.length; i++) {
-                v += ss[i][0][p] & bits;
+                ss[i] = AWTImageTools.getShorts(slcs[i]);
             }
-            buf[p] = (short) (v / slcs.length);
+            for (int c = 0; c < 1; c++) {
+                for (int p = 0; p < pc; p++) {
+                    long v = 0;
+                    for (int i = 0; i < slcs.length; i++) {
+                        v += ss[i][c][p] & maxval;
+                    }
+                    sBuf[c][p] = (short) (v / slcs.length);
+                }
+            }
+        } else {
+            bBuf = new byte[1][pc];
+            bb = new byte[slcs.length][0][0];
+            for (int i = 0; i < slcs.length; i++) {
+                bb[i] = AWTImageTools.getBytes(slcs[i]);
+            }
+            for (int c = 0; c < 1; c++) {
+                for (int p = 0; p < pc; p++) {
+                    long v = 0;
+                    for (int i = 0; i < slcs.length; i++) {
+                        v += bb[i][c][p] & maxval;
+                    }
+                    bBuf[c][p] = (byte) (v / slcs.length);
+                }
+            }
         }
-        return buf;
+        BufferedImage bufImg = rebuffer(ref, maxval > 255 ? sBuf[0] : bBuf[0], maxval > 255);
+        return bufImg;
+    }
+
+    static BufferedImage rebuffer(BufferedImage reference, Object buffer, boolean bits) {
+        //set a new buffer for an image while keeping the type and colours untouched
+        int w = reference.getWidth();
+        int h = reference.getHeight();
+        int type = reference.getType();
+        ColorModel color = reference.getColorModel();
+        BufferedImage bi;
+        switch (type) {
+            case BufferedImage.TYPE_BYTE_INDEXED: {
+                bi = new BufferedImage(w, h, type, (IndexColorModel) color);
+                break;
+            }
+            case BufferedImage.TYPE_CUSTOM: {
+                bi = new BufferedImage(w, h, BufferedImage.TYPE_USHORT_GRAY);
+                break;
+            }
+            default: {
+                bi = new BufferedImage(w, h, type);
+                break;
+            }
+        }
+        DataBuffer rdb = bi.getRaster().getDataBuffer();
+        if (bits) {
+            short[] sBuf = (short[]) buffer;
+            System.arraycopy(sBuf, 0, ((DataBufferUShort) rdb).getData(), 0, sBuf.length);
+        } else {
+            byte[] bBuf = (byte[]) buffer;
+            System.arraycopy(bBuf, 0, ((DataBufferByte) rdb).getData(), 0, bBuf.length);
+        }
+        return bi;
+    }
+
+    static short[][] separate16bit(BufferedImage buf) {
+        return AWTImageTools.getShorts(buf);
+    }
+
+    static short[] make16bit(BufferedImage buf) {
+        return AWTImageTools.getShorts(buf)[0];
     }
 
     static int[] multiplyBits(int[] i, double f) {

@@ -64,6 +64,7 @@ public class StackImporter {
         Color channelColor;
         int imageNumber; // images in a file
         int channelNumber; // channels in a image
+        int splitChannelNumber; // how many new channels were split
         int timeNumber; // time points in a image
         int sliceNumber; // z-slices in a channel
         int bitNumber; // 16 for 16-bit
@@ -84,13 +85,13 @@ public class StackImporter {
             imageName = IO.fileName(xml.getImageName(i) == null ? file.getName() : xml.getImageName(i));
             input.setSeries(i);
             channelNumber = input.getEffectiveSizeC();
+            splitChannelNumber = 0;
             timeNumber = input.getSizeT();
             sliceNumber = input.getSizeZ();
             unitX = xml.getPixelsPhysicalSizeX(i);
             unitY = xml.getPixelsPhysicalSizeY(i);
             bitNumber = input.getBitsPerPixel();
             maxPixelValue = (int) Math.pow(2, bitNumber) - 1;
-            maxChannels = Math.max(maxChannels, channelNumber);
             // create containing arrays
             Tonga.log.debug("-------------\n{}", imageName);
             Tonga.log.debug("Contains {} channels, {} z-layers, and {} timepoints", channelNumber, sliceNumber, timeNumber);
@@ -107,31 +108,56 @@ public class StackImporter {
                 for (int c = 0; c < channelNumber; c++) {
                     // read basic data
                     MappedImage image;
+                    BufferedImage channel;
                     channelColor = xml.getChannelColor(i, c);
-                    // create containing arrays
-                    if (bitNumber == 8 && sliceNumber == 1) {
-                        image = new MappedImage(input.openImage(input.getIndex(0, c, t)));
-                        LOADER.appendProgress(1. / channelNumber / timeNumber / imageNumber);
-                    } else {
-                        // convert 16-bit etc to 8-bit
-                        short[] channel;
-                        BufferedImage[] slices = new BufferedImage[sliceNumber];
+                    // handle z
+                    if (sliceNumber > 1) {
+                        // create a z-projection if necessary
                         // first load all the images of the channel as buffered images
-                        // then convert buffered image to int/short array with z-projection
-                        LOADER.appendProgress(1. / 2 / channelNumber / timeNumber / imageNumber);
+                        BufferedImage[] slices = new BufferedImage[sliceNumber];
                         for (int z = 0; z < sliceNumber; z++) {
                             slices[z] = input.openImage(input.getIndex(z, c, t));
                         }
                         LOADER.appendProgress(1. / 4 / channelNumber / timeNumber / imageNumber);
+                        // then convert buffered images into one with z-projection
                         channel = TongaRender.sliceProjection(slices, maxPixelValue);
                         LOADER.appendProgress(1. / 4 / channelNumber / timeNumber / imageNumber);
-                        image = new MappedImage(channel, slices[0].getWidth(), slices[0].getHeight());
-                        image.colour = getColour(channelColor);
-                        if (Settings.settingAutoscaleType() == Settings.Autoscale.IMAGE) {
-                            TongaRender.setDisplayRange(channel, image);
+                    } else {
+                        // no need for z-projection
+                        channel = input.openImage(input.getIndex(0, c, t));
+                        LOADER.appendProgress(1. / 2 / channelNumber / timeNumber / imageNumber);
+                    }
+                    // handle bits/formats and separate into channels if necessary
+                    if (bitNumber == 8) {
+                        // if 8bit then just force the output as ARGB
+                        image = new MappedImage(channel);
+                        ti.layerList.add(new TongaLayer(image, getChannelName(channelColor, ti)));
+                        LOADER.appendProgress(1. / 2 / channelNumber / timeNumber / imageNumber);
+                    } else {
+                        // if not force the output as grayscale shorts
+                        short[][] subchannel = new short[channel.getRaster().getNumBands()][]; //[channel][p]
+                        // if the channel type is a 16-bit (A)RGB (=not supported)
+                        if (channel.getRaster().getNumBands() > 1) {
+                            // then separate into multiple grayscale 16bit channels
+                            subchannel = TongaRender.separate16bit(channel);
+                            splitChannelNumber = subchannel.length - 1;
+                        } else {
+                            // force 12-bits etc as grayscale shorts
+                            subchannel[0] = TongaRender.make16bit(channel);
+                        }
+                        LOADER.appendProgress(1. / 4 / channelNumber / timeNumber / imageNumber);
+                        // iterate any separated channels and add all as layers
+                        for (short[] sub : subchannel) {
+                            image = new MappedImage(sub, channel.getWidth(), channel.getHeight());
+                            image.colour = getColour(channelColor);
+                            if (Settings.settingAutoscaleType() == Settings.Autoscale.IMAGE) {
+                                TongaRender.setDisplayRange(sub, image);
+                            }
+                            ti.layerList.add(new TongaLayer(image, getChannelName(channelColor, ti)));
+                            LOADER.appendProgress(1. / 4 / subchannel.length / channelNumber / timeNumber / imageNumber);
                         }
                     }
-                    ti.layerList.add(new TongaLayer(image, getChannelName(channelColor, ti)));
+                    maxChannels = Math.max(maxChannels, channelNumber + splitChannelNumber);
                 }
                 returnableImages.add(ti);
             }
@@ -224,7 +250,7 @@ public class StackImporter {
     static boolean isStackImage(File file) throws ServiceException, FormatException, IOException, IllegalStateException {
         BufferedImageReader input = new BufferedImageReader();
         try {
-            setMetadata(input, file);
+            input.setId(file.getAbsolutePath());
         } catch (FormatException fe) {
             Tonga.log.warn("The file format is unsupported: {}", fe.getMessage());
         }
