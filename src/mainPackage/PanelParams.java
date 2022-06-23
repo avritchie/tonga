@@ -45,7 +45,7 @@ public class PanelParams {
                     break;
                 case COLOUR:
                     color[colors] = COL.awt2FX(((JButton) pc.comp).getBackground());
-                    colorARGB[colors] = COL.FX2awt(color[colors]).getRGB() | 0xFF000000;
+                    colorARGB[colors] = COL.FX2awt(color[colors]).getRGB();
                     colors++;
                     break;
                 case SPINNER:

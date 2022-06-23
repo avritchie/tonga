@@ -56,7 +56,7 @@ public class COL {
                 .collect(Collectors.groupingBy(Function.identity(), Collectors.counting()))
                 .entrySet().stream().max((o1, o2) -> o1.getValue().compareTo(o2.getValue()))
                 .map(Map.Entry::getKey).orElse(null);
-        return new Color(mc);
+        return new Color(mc, true);
     }
 
     public static javafx.scene.paint.Color awt2FX(Color c) {
@@ -64,7 +64,7 @@ public class COL {
     }
 
     public static int colorToARGBInt(javafx.scene.paint.Color c) {
-        return COL.FX2awt(c).getRGB() | -16777216;
+        return COL.FX2awt(c).getRGB();
     }
 
     public static javafx.scene.paint.Color ARGBintToColor(int c) {
@@ -72,11 +72,7 @@ public class COL {
     }
 
     public static Color FX2awt(javafx.scene.paint.Color c) {
-        return Color.getHSBColor((float) (c.getHue() / 360.0), (float) c.getSaturation(), (float) c.getBrightness());
-    }
-
-    public static int rgb(javafx.scene.paint.Color color) {
-        return COL.FX2awt(color).getRGB();
+        return new Color((int) (c.getRed() * 255), (int) (c.getGreen() * 255), (int) (c.getBlue() * 255), (int) (c.getOpacity() * 255));
     }
 
     public static int colorDec(int color, double rc, double gc, double bc) {
