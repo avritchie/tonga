@@ -64,7 +64,7 @@ public class TongaFrame extends JFrame {
 
     /*
     --module-path "C:\Users\Victoria\AppData\Roaming\NetBeans\Libraries\javafx\lib" --add-modules "javafx.base,javafx.graphics,javafx.swing"
-    /Volumes/ALEXANDRA/lib/mac
+    /Volumes/ALEXANDRA/Scripts/Java/Projects/Tonga/legacy/Mac/lib/mac
      */
     ArrayList<Image> mainIcons;
     Protocol currentProtocol;
@@ -327,17 +327,17 @@ public class TongaFrame extends JFrame {
             Tonga.log.debug("Set the output path from: {}", file.toString());
             File parent = file.getParentFile();
             if (parent != null && parent.isDirectory()) {
-                String out = Tonga.formatPath(parent.getAbsolutePath());
-                String out2 = out;
+                String out = parent.getAbsolutePath();
                 if (Settings.settingSubfolders()) {
                     out += "\\output";
+                    String outo = out;
                     int ind = 0;
-                    while (new File(out2).exists()) {
-                        out2 = out + ind;
+                    while (new File(Tonga.formatPath(out)).exists()) {
+                        out = outo + ind;
                         ind++;
                     }
                 }
-                filePathField.setText(out2);
+                filePathField.setText(Tonga.formatPath(out));
             }
             Tonga.log.debug("The location is invalid: {}", parent.toString());
         }
