@@ -93,7 +93,7 @@ public class SetCounters {
 
     public static SetCounter countObjectsImage(ROISet set) {
         return new SetCounter("Count objects", new String[]{"Image", "Objects",
-            "Med.Size %unit2", "Avg.Size %unit2", "Tot.Size %unit2", "Std.Size %unit2",},
+            "Avg.Size %unit2", "Med.Size %unit2", "Tot.Size %unit2", "Std.Size %unit2"},
                 new String[]{"The name of the image",
                     "The total number of recognized nuclei in the image",
                     "The average size of the nuclei in the image in %unit2",
@@ -106,9 +106,9 @@ public class SetCounters {
                 //ROISet set = getROISet(traced, targetImage);
                 row[1] = set.objectsCount();
                 row[2] = scaleUnit(set.statsForTotalSize().getMean(), 2);
-                row[3] = scaleUnit(set.totalAreaSize(), 2);
-                row[4] = scaleUnit(set.statsForTotalSize().getStdDev(), 2);
-                row[5] = scaleUnit(set.statsForTotalSize().getMedian(), 2);
+                row[3] = scaleUnit(set.statsForTotalSize().getMedian(), 2);
+                row[4] = scaleUnit(set.totalAreaSize(), 2);
+                row[5] = scaleUnit(set.statsForTotalSize().getStdDev(), 2);
             }
         };
     }
