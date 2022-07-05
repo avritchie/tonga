@@ -31,25 +31,39 @@ public abstract class FilterFast extends Filter {
         inData.setPixels();
         in32 = inData.pixels32;
         in16 = inData.pixels16;
-        if (inData.bits == 16) {
+        boolean shortMode = inData.bits == 16;
+        if (shortMode) {
             try {
                 outData = new ImageData(new short[inData.totalPixels()], width, height);
                 outData.setAttributes(inData);
                 out32 = outData.pixels32;
                 out16 = outData.pixels16;
                 processor16();
-                return outData;
             } catch (UnsupportedOperationException uoe) {
                 Tonga.log.info("The method {} does not support 16-bit images.", this.getName());
                 inData.set8BitPixels();
                 in32 = inData.pixels32;
+                shortMode = false;
             }
         }
-        outData = new ImageData(new int[inData.totalPixels()], width, height);
-        out32 = outData.pixels32;
-        out16 = outData.pixels16;
-        processor();
-        return outData;
+        if (!shortMode) {
+            outData = new ImageData(new int[inData.totalPixels()], width, height);
+            out32 = outData.pixels32;
+            out16 = outData.pixels16;
+            processor();
+        }
+        ImageData out = outData;
+        clean();
+        return out;
+    }
+
+    private void clean() {
+        inData = null;
+        outData = null;
+        in32 = null;
+        in16 = null;
+        out32 = null;
+        out16 = null;
     }
 
     @Override
