@@ -1,6 +1,7 @@
 package mainPackage.counters;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import mainPackage.Tonga;
 
@@ -42,6 +43,10 @@ public class TableData {
         Object[] row = new Object[columnCount()];
         System.arraycopy(param, 0, row, 0, columnCount());
         rows.add(row);
+    }
+
+    public void delRow(int i) {
+        rows.remove(i);
     }
 
     public Object getVal(int row, int column) {
@@ -92,5 +97,42 @@ public class TableData {
     public void rowIntInc(int row, int column) {
         Integer target = (Integer) this.rows.get(row)[column];
         this.rows.get(row)[column] = target + 1;
+    }
+
+    public TableData copy() {
+        TableData td = new TableData(this.columns, this.descriptions);
+        for (int i = 0; i < this.rowCount(); i++) {
+            Object[] nr = new Object[this.columnCount()];
+            System.arraycopy(this.rows.get(i), 0, nr, 0, this.columnCount());
+            td.newRow(nr);
+        }
+        return td;
+    }
+
+    public boolean equals(TableData obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        final TableData other = (TableData) obj;
+        if (!Arrays.deepEquals(this.columns, other.columns)) {
+            return false;
+        }
+        if (!Arrays.deepEquals(this.descriptions, other.descriptions)) {
+            return false;
+        }
+        if (this.rowCount() != other.rowCount()) {
+            return false;
+        }
+        for (int i = 0; i < this.rowCount(); i++) {
+            for (int j = 0; j < this.columnCount(); j++) {
+                if (!this.rows.get(i)[j].equals(other.rows.get(i)[j])) {
+                    return false;
+                }
+            }
+        }
+        return true;
     }
 }

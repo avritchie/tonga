@@ -1,20 +1,21 @@
 package mainPackage;
 
 import java.util.ArrayList;
+import mainPackage.counters.TableData;
 
 public class UndoRedo {
 
-    static ImageStructure comparableStructure;
+    static TongaStructure comparableStructure;
     static ArrayList<TongaAction> undoList;
     static ArrayList<TongaAction> redoList;
 
     static void start() {
-        comparableStructure = new ImageStructure();
+        comparableStructure = new TongaStructure();
     }
 
     static void end() {
         redoList = null;
-        undoList = ImageStructure.getActionList(comparableStructure);
+        undoList = TongaStructure.getActionList(comparableStructure);
         Tonga.frame().setUndoRedoMenu();
     }
 
@@ -32,9 +33,9 @@ public class UndoRedo {
         if (undoList == null) {
             return;
         }
-        ImageStructure is = new ImageStructure();
+        TongaStructure is = new TongaStructure();
         TongaAction.executeActionList(undoList);
-        redoList = ImageStructure.getActionList(is);
+        redoList = TongaStructure.getActionList(is);
         undoList = null;
         Tonga.frame().setUndoRedoMenu();
     }
@@ -43,9 +44,9 @@ public class UndoRedo {
         if (redoList == null) {
             return;
         }
-        ImageStructure is = new ImageStructure();
+        TongaStructure is = new TongaStructure();
         TongaAction.executeActionList(redoList);
-        undoList = ImageStructure.getActionList(is);
+        undoList = TongaStructure.getActionList(is);
         redoList = null;
         Tonga.frame().setUndoRedoMenu();
     }
@@ -56,30 +57,32 @@ public class UndoRedo {
         Tonga.frame().setUndoRedoMenu();
     }
 
-    public static class ImageStructure {
+    public static class TongaStructure {
 
         int size;
         int[] imgSel;
         int[] layerSel;
-        ArrayList<ImageStructure> subList;
+        ArrayList<TongaStructure> subList;
         ArrayList<String> nameList;
         ArrayList<Object> referenceList;
+        TableData results;
 
-        public ImageStructure() {
+        public TongaStructure() {
             size = Tonga.picList.size();
             imgSel = Tonga.getImageIndexes();
             layerSel = Tonga.getLayerIndexes();
             subList = new ArrayList<>();
             nameList = new ArrayList<>();
             referenceList = new ArrayList<>();
+            results = TongaStructure.getResults();
             Tonga.picList.forEach((TongaImage ti) -> {
                 nameList.add(ti.imageName);
                 referenceList.add(ti);
-                subList.add(new ImageStructure(ti));
+                subList.add(new TongaStructure(ti));
             });
         }
 
-        public ImageStructure(TongaImage ti) {
+        public TongaStructure(TongaImage ti) {
             size = ti.layerList.size();
             layerSel = ti.activeLayers;
             subList = null;
@@ -91,7 +94,16 @@ public class UndoRedo {
             });
         }
 
-        public static ArrayList<TongaAction> getActionList(ImageStructure cs) {
+        private static TableData getResults() {
+            TableData td = TongaTable.td;
+            if (td == null) {
+                return null;
+            } else {
+                return td.copy();
+            }
+        }
+
+        public static ArrayList<TongaAction> getActionList(TongaStructure cs) {
             ArrayList<TongaAction> al = new ArrayList<>();
             boolean rename = false;
             if (cs.size != Tonga.picList.size()) {
@@ -122,7 +134,7 @@ public class UndoRedo {
             if (!rename) {
                 for (int r = 0; r < cs.size; r++) {
                     ArrayList<TongaLayer> cl = ((TongaImage) cs.referenceList.get(r)).layerList;
-                    ImageStructure pl = cs.subList.get(r);
+                    TongaStructure pl = cs.subList.get(r);
                     if (pl.size != cl.size()) {
                         if (pl.size > cl.size()) {
                             for (int i = 0, j = 0; i < pl.size; i++) {
@@ -152,6 +164,9 @@ public class UndoRedo {
                     al.add(new TongaAction(Action.SELECT, cs.subList.get(j).layerSel, cs.imgSel.length > 0 ? j : -99, -1));
                     j++;
                 }
+                if (cs.results != TongaTable.td && (cs.results == null || !cs.results.equals(TongaTable.td))) {
+                    al.add(new TongaAction(Action.TABLE, cs.results));
+                }
             }
             al.add(new TongaAction(Action.SELECT, cs.imgSel, cs.imgSel.length > 0 ? -1 : -99, -1));
             return al.isEmpty() ? null : al;
@@ -163,7 +178,8 @@ public class UndoRedo {
         RENAME,
         ADD,
         DELETE,
-        SELECT
+        SELECT,
+        TABLE
     }
 
     public static class TongaAction {
@@ -173,8 +189,8 @@ public class UndoRedo {
         Object container;
         Action type;
 
-        public TongaAction(Action type, Object image) {
-            this(type, image, -1, -1);
+        public TongaAction(Action type, Object data) {
+            this(type, data, -1, -1);
         }
 
         public TongaAction(Action type, Object image, int position) {
@@ -229,7 +245,13 @@ public class UndoRedo {
                 }
             } //process the rest
             else if (!processSelections) {
-                if (ac.imageId == -1) {
+                if (ac.type == Action.TABLE) {
+                    if (ac.container == null) {
+                        TongaTable.clearData();
+                    } else {
+                        TongaTable.overwriteData((TableData) ac.container);
+                    }
+                } else if (ac.imageId == -1) {
                     switch (ac.type) {
                         case DELETE:
                             Tonga.picList.remove(ac.position);

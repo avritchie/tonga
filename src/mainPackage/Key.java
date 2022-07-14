@@ -108,6 +108,8 @@ public class Key {
             } else {
                 Tonga.removeLayer();
             }
+        } else if (Tonga.frame().resultTable.hasFocus()) {
+            TongaTable.deleteRow();
         }
     }
 

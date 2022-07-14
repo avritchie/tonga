@@ -40,7 +40,7 @@ public class TongaTable {
         return true;
     }
 
-    private static void overwriteData(TableData tableData) {
+    public static void overwriteData(TableData tableData) {
         td = tableData;
         SwingUtilities.invokeLater(() -> {
             Tonga.frame().resultTable.setModel(new DefaultTableModel(tableData.getAsArray(), tableData.columns) {
@@ -52,11 +52,34 @@ public class TongaTable {
         });
     }
 
-    private static void appendData(TableData tableData) {
+    public static void appendData(TableData tableData) {
         DefaultTableModel model = (DefaultTableModel) Tonga.frame().resultTable.getModel();
         tableData.rows.forEach(d -> {
             model.addRow(d);
+            td.newRow(d);
         });
+    }
+
+    public static void clearData() {
+        td = null;
+        SwingUtilities.invokeLater(() -> {
+            Tonga.frame().resultTable.setModel(new DefaultTableModel());
+            Tonga.frame().resultTable.repaint();
+        });
+    }
+
+    public static void deleteRow() {
+        int[] sels = Tonga.frame().resultTable.getSelectedRows();
+        DefaultTableModel model = (DefaultTableModel) Tonga.frame().resultTable.getModel();
+        for (int i = sels.length - 1; i >= 0; i--) {
+            if (td.rowCount() == 1) {
+                clearData();
+                return;
+            } else {
+                model.removeRow(sels[i]);
+                td.delRow(sels[i]);
+            }
+        }
     }
 
     private static void refresh() {
