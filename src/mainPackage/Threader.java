@@ -63,4 +63,9 @@ public abstract class Threader {
         @Override
         public abstract void run();
     }
+
+    public static String getCaller(int id) {
+        StackTraceElement[] ste = Thread.currentThread().getStackTrace();
+        return ste[id].getMethodName();
+    }
 }

@@ -33,6 +33,7 @@ public class ImageData {
         this.max = 0;
         this.name = name;
         this.ref = null;
+        Tonga.log.trace("Allocated a new int ImageData of {} bytes by {}", bytes.length * 4, Threader.getCaller(5));
     }
 
     public ImageData(short[] bytes, int width, int height) {
@@ -50,6 +51,7 @@ public class ImageData {
         this.max = 0xFFFF;
         this.name = null;
         this.ref = null;
+        Tonga.log.trace("Allocated a new short ImageData of {} bytes by {}", bytes.length * 2, Threader.getCaller(5));
     }
 
     public ImageData(int width, int height) {
@@ -115,7 +117,10 @@ public class ImageData {
         if (ref != null) {
             return ref;
         } else {
-            Tonga.log.trace("Mapping of internal image data.");
+            String caller = Threader.getCaller(3);
+            if (!caller.equals("injectAsLayers")) {
+                Tonga.log.warn("Mapping of internal image data by {}", caller);
+            }
             return new MappedImage(this, true);
         }
     }

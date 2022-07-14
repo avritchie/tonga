@@ -178,6 +178,7 @@ public class Tonga {
             traceLogger = logger.getLogger("tonga.logger.trace");
             traceLogger.addAppender(fap);
             log = standardLogger;
+            Tonga.log.info("TONGA v{}", tongaVersion);
             Tonga.log.info("Logging initialized successfully");
         } catch (Exception ex) {
             catchError(ex, "Logging setup failed.");
@@ -185,9 +186,14 @@ public class Tonga {
     }
 
     protected static void debugMode() {
+        if (Tonga.log.isDebugEnabled()) {
+            frame().menuDebug.setVisible(false);
+            disableDebugging();
+        } else {
             frame().menuDebug.setVisible(true);
             enableDebugLogging();
         }
+    }
 
     protected static void enableDebugLogging() {
         log = debugLogger;
@@ -197,6 +203,11 @@ public class Tonga {
     protected static void enableDebugTracing() {
         log = traceLogger;
         Tonga.log.trace("Tracing mode enabled.");
+    }
+
+    protected static void disableDebugging() {
+        log = standardLogger;
+        Tonga.log.info("Debug mode disabled.");
     }
 
     private static void initListSelectors() {
