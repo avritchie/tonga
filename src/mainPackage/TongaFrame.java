@@ -338,8 +338,9 @@ public class TongaFrame extends JFrame {
                     }
                 }
                 filePathField.setText(Tonga.formatPath(out));
+            } else {
+                Tonga.log.debug("The location is invalid: {}", parent.toString());
             }
-            Tonga.log.debug("The location is invalid: {}", parent.toString());
         }
     }
 
@@ -3830,7 +3831,7 @@ public class TongaFrame extends JFrame {
 
     private void debugMemoryActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_debugMemoryActionPerformed
         long mem = Runtime.getRuntime().totalMemory();
-        Tonga.freeMemory();
+        MappingManager.freeMemory();
         long memn = Runtime.getRuntime().totalMemory();
         Tonga.log.debug("Initial memory: {} MB", (mem / 1000000));
         Tonga.log.debug("Current memory: {} MB", (memn / 1000000));
