@@ -47,17 +47,23 @@ public class MappedImage extends BufferedImage {
     }
 
     public MappedImage(int width, int height, boolean bits, boolean mapping) {
-        this(width, height, bits, (mapping && Settings.settingMemoryMapping())
-                ? new MappedBuffer(bits ? DataBuffer.TYPE_USHORT : DataBuffer.TYPE_BYTE, width, height, bits ? 1 : 4, bits)
-                : new MemoryBuffer(bits ? DataBuffer.TYPE_USHORT : DataBuffer.TYPE_BYTE, width, height, bits ? 1 : 4, bits));
+        this(width, height, bits, getBuffer(width, height, bits, mapping && Settings.settingMemoryMapping()));
         this.mapped = mapping && Settings.settingMemoryMapping();
-        Tonga.log.trace("{} image created.", mapping ? "Mapped" : "Cached");
     }
 
-    /*public CachedImage(int width, int height, boolean bits) {
-        this(width, height, bits, new DataBufferByte(width * height * (bits ? 2 : 1), bits ? 1 : 4));
+    private static DataBuffer getBuffer(int width, int height, boolean bits, boolean mapping) {
+        DataBuffer db;
+        if (mapping) {
+            MappedBuffer mb = new MappedBuffer(bits ? DataBuffer.TYPE_USHORT : DataBuffer.TYPE_BYTE, width, height, bits ? 1 : 4, bits);
+            MappingManager.manage(mb);
+            db = mb;
+        } else {
+            db = new MemoryBuffer(bits ? DataBuffer.TYPE_USHORT : DataBuffer.TYPE_BYTE, width, height, bits ? 1 : 4, bits);
+        }
+        Tonga.log.trace("{} image created.", mapping ? "Mapped" : "Cached");
+        return db;
     }
-     */
+
     public MappedImage(short[] bytes, int width, int height) {
         this(width, height, true, true);
         this.setShorts(bytes);

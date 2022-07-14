@@ -4,9 +4,6 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.RandomAccessFile;
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
-import java.nio.ByteBuffer;
 import java.nio.MappedByteBuffer;
 import java.nio.channels.ClosedChannelException;
 import java.nio.channels.FileChannel;
@@ -18,6 +15,7 @@ public class MappedBuffer extends MemoryBuffer {
     private static int ID = 0;
     private File file;
     private RandomAccessFile raf;
+    private Mapping mapping;
 
     public MappedBuffer(int type, int width, int height, int banks, boolean bits) {
         super(type, width * height, banks, bits);
@@ -33,7 +31,7 @@ public class MappedBuffer extends MemoryBuffer {
             }
             raf = new RandomAccessFile(file, "rw");
             buffer = raf.getChannel().map(FileChannel.MapMode.READ_WRITE, 0, bits ? size * 2 : size * banks);
-            Tonga.mappedData.add(this);
+            mapping = new Mapping((MappedByteBuffer) buffer, raf, file);
         } catch (FileNotFoundException ex) {
             Tonga.catchError(ex, "Buffer creation failed.");
         } catch (ClosedChannelException ex) {
@@ -43,43 +41,8 @@ public class MappedBuffer extends MemoryBuffer {
         }
     }
 
-    public File getFile() {
-        return file;
-    }
-
-    @Override
-    protected void finalize() throws Throwable {
-        super.finalize();
-        new Thread() {
-            @Override
-            public void run() {
-                freeCache();
-            }
-        }.start();
-    }
-
-    protected void freeCache() {
-        try {
-            raf.close();
-        } catch (IOException ex) {
-            Tonga.catchError(ex, "RandomAccessFile closing error.");
-        }
-        clean((MappedByteBuffer) buffer);
-        file.delete();
-        Tonga.mappedData.remove(this);
-        Tonga.log.trace("Freeing " + file.getName());
-    }
-
-    private void clean(MappedByteBuffer b) {
-        try {
-            Class<?> unsafeClass = Class.forName("sun.misc.Unsafe");
-            Field unsafeField = unsafeClass.getDeclaredField("theUnsafe");
-            unsafeField.setAccessible(true);
-            Method invokeCleaner = unsafeClass.getMethod("invokeCleaner", ByteBuffer.class);
-            invokeCleaner.invoke(unsafeField.get(null), b);
-        } catch (Exception ex) {
-            Tonga.catchError(ex, "MappedByteBuffer cleaning error.");
-        }
+    public Mapping getMapping() {
+        return mapping;
     }
 
     private static String getHash(int identifier) {

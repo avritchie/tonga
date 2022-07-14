@@ -44,7 +44,6 @@ import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 import javax.swing.event.ListSelectionEvent;
-import mainPackage.UndoRedo.Action;
 import ome.units.UNITS;
 import ome.units.quantity.Length;
 import ome.units.unit.Unit;
@@ -65,7 +64,6 @@ public class Tonga {
     static int[] currentLayer, previousLayer;
     static int screenWidth, screenHeight;
     static ArrayList<TongaImage> picList;
-    static ArrayList<MappedBuffer> mappedData;
     static DefaultListModel imageListModel, layerListModel;
     static boolean taskIsRunning;
     static int iterationCounter;
@@ -123,7 +121,6 @@ public class Tonga {
         tongaBlue = new Color(120, 120, 240);
         tongaLBlue = new Color(241, 241, 254);
         picList = new ArrayList<>();
-        mappedData = new ArrayList<>();
         currentOS = currentOS();
         tongaVersion = readVersion();
         cpuThreads = Runtime.getRuntime().availableProcessors();
@@ -188,9 +185,9 @@ public class Tonga {
     }
 
     protected static void debugMode() {
-        frame().menuDebug.setVisible(true);
-        enableDebugLogging();
-    }
+            frame().menuDebug.setVisible(true);
+            enableDebugLogging();
+        }
 
     protected static void enableDebugLogging() {
         log = debugLogger;
@@ -1100,91 +1097,8 @@ public class Tonga {
         }
         mainFrame.launchersEnabled(true);
         UndoRedo.end();
-        freeMemory();
+        MappingManager.freeMemory();
         refreshCanvases();
-    }
-
-    protected static void freeMemory() {
-        freeUnsusedCache();
-        Runtime.getRuntime().gc();
-    }
-
-    private static void freeUnsusedCache() {
-        Thread remover = new Thread(() -> {
-            //list all files in cache
-            File[] fl = new File(Tonga.getTempPath()).listFiles();
-            ArrayList<File> al = new ArrayList<>();
-            al.addAll(Arrays.asList(fl));
-            //remove directories
-            Iterator<File> it = al.iterator();
-            while (it.hasNext()) {
-                if (it.next().isDirectory()) {
-                    it.remove();
-                }
-            }
-            //remove all files which are still in use
-            if (!Settings.settingBatchProcessing()) {
-                picList.forEach(p -> {
-                    p.layerList.forEach(i -> {
-                        if (i.layerImage.isMapped()) {
-                            al.remove(((MappedBuffer) i.layerImage.getBuffer()).getFile());
-                        }
-                    });
-                });
-            }
-            if (UndoRedo.redoList != null) {
-                UndoRedo.redoList.forEach(r -> {
-                    if (r.type == Action.ADD) {
-                        if (r.container.getClass() == TongaImage.class) {
-                            ((TongaImage) r.container).layerList.forEach(i -> {
-                                if (i.layerImage.isMapped()) {
-                                    al.remove(((MappedBuffer) i.layerImage.getBuffer()).getFile());
-                                }
-                            });
-                        }
-                        if (r.container.getClass() == TongaLayer.class) {
-                            if (((TongaLayer) r.container).layerImage.isMapped()) {
-                                al.remove(((MappedBuffer) ((TongaLayer) r.container).layerImage.getBuffer()).getFile());
-                            }
-                        }
-                    }
-                });
-            }
-            if (UndoRedo.undoList != null) {
-                UndoRedo.undoList.forEach(r -> {
-                    if (r.type == Action.ADD) {
-                        if (r.container.getClass() == TongaImage.class) {
-                            ((TongaImage) r.container).layerList.forEach(i -> {
-                                if (i.layerImage.isMapped()) {
-                                    al.remove(((MappedBuffer) i.layerImage.getBuffer()).getFile());
-                                }
-                            });
-                        }
-                        if (r.container.getClass() == TongaLayer.class) {
-                            if (((TongaLayer) r.container).layerImage.isMapped()) {
-                                al.remove(((MappedBuffer) ((TongaLayer) r.container).layerImage.getBuffer()).getFile());
-                            }
-                        }
-                    }
-                });
-            }
-            //remove everything cached that was not removed
-            ArrayList<MappedBuffer> remainingCache = new ArrayList<>(mappedData);
-            remainingCache.forEach(f -> {
-                if (al.contains(f.getFile())) {
-                    al.remove(f.getFile());
-                    f.freeCache();
-                }
-            });
-            //remove everything else
-            /*al.forEach(f -> {
-                f.delete();
-            });*/
-            Runtime.getRuntime().gc();
-            Tonga.log.debug("Cache cleaned");
-        });
-        remover.setName("CacheCleaner");
-        remover.start();
     }
 
     private static void versionInfo() {
@@ -1270,10 +1184,7 @@ public class Tonga {
         try {
             try {
                 //remove everything cached
-                ArrayList<MappedBuffer> remainingCache = new ArrayList<>(mappedData);
-                remainingCache.forEach(f -> {
-                    f.freeCache();
-                });
+                MappingManager.unmapAll();
                 //remove any other files
                 File dir = new File(getTempPath());
                 for (File file : dir.listFiles()) {
