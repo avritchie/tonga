@@ -344,6 +344,10 @@ public class TongaFrame extends JFrame {
         }
     }
 
+    public void clearSavePath() {
+        filePathField.setText("");
+    }
+
     public void updateMainLabel(String str) {
         bleftLabel.setText("<html>" + str + "</html>");
     }

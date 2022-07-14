@@ -623,8 +623,12 @@ public class Tonga {
     protected static void refreshChanges(String string) {
         int preList = imageListModel.size();
         refreshElements(string);
-        if (preList != imageListModel.size()) {
+        int postList = imageListModel.size();
+        if (preList != postList) {
             selectImage();
+            if (postList == 0) {
+                frame().clearSavePath();
+            }
         }
         refreshCanvases();
     }
