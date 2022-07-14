@@ -23,14 +23,12 @@ public abstract class Processor {
     protected int iterations;
     protected int outputImageNumber;
     protected List<TableData> datas;
-    protected TableData data;
 
     public Processor(int outputs, String[] output, int iters) {
         outputNames = output;
         outputImageNumber = outputs;
         iterations = iters;
         datas = new ArrayList<>();
-        data = null;
     }
 
     public Processor(int outputs, String output, int iters) {
@@ -63,7 +61,7 @@ public abstract class Processor {
     }
 
     protected void initTableData(String[] titles, String[] descs, Length scale) {
-        data = new TableData(titles, descs);
+        datas.add(new TableData(titles, descs));
     }
 
     protected ImageData[] internalProcessing(TongaImage imageSource, TongaLayer[] layerAccess) {
@@ -81,20 +79,20 @@ public abstract class Processor {
     }
 
     private void processorInit() {
-        if (Settings.settingBatchProcessing()) {
-            Arrays.stream(sourceLayer).forEach(i -> {
-                try {
-                    if (i.layerImage == null) {
-                        Tonga.log.info("Loading a file to process from " + i.path);
-                        i.layerImage = IO.getImageFromFile(i.path);
+            if (Settings.settingBatchProcessing()) {
+                Arrays.stream(sourceLayer).forEach(i -> {
+                    try {
+                        if (i.layerImage == null) {
+                            Tonga.log.info("Loading a file to process from " + i.path);
+                            i.layerImage = IO.getImageFromFile(i.path);
+                        }
+                    } catch (Exception ex) {
+                        Tonga.catchError(ex, "Unable to read the file " + i.path);
                     }
-                } catch (Exception ex) {
-                    Tonga.catchError(ex, "Unable to read the file " + i.path);
-                }
-            });
-        }
-        sourceWidth = Arrays.stream(sourceLayer).mapToInt((a) -> (int) a.layerImage.getWidth()).toArray();
-        sourceHeight = Arrays.stream(sourceLayer).mapToInt((a) -> (int) a.layerImage.getHeight()).toArray();
+                });
+            }
+            sourceWidth = Arrays.stream(sourceLayer).mapToInt((a) -> (int) a.layerImage.getWidth()).toArray();
+            sourceHeight = Arrays.stream(sourceLayer).mapToInt((a) -> (int) a.layerImage.getHeight()).toArray();
         if (outputNames.length < outputImageNumber) {
             String outputName = outputNames[0];
             outputNames = new String[outputImageNumber];
@@ -149,7 +147,7 @@ public abstract class Processor {
     }
 
     protected void newResultRow(Object... cols) {
-        Object[] newRow = data.newRow(sourceImage.imageName);
+        Object[] newRow = datas.get(0).newRow(sourceImage.imageName);
         for (int i = 0; i < cols.length; i++) {
             Object cc = cols[i];
             newRow[i + 1] = cc.getClass().equals(int.class) ? (Integer) cc

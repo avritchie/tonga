@@ -16,6 +16,7 @@ import javax.swing.JComboBox;
 import mainPackage.utils.COL;
 import mainPackage.MappedImage;
 import mainPackage.ImageData;
+import mainPackage.MappingManager;
 import mainPackage.PanelCreator;
 import mainPackage.PanelCreator.ControlReference;
 import mainPackage.PanelCreator.ControlType;
@@ -64,12 +65,15 @@ public abstract class Protocol {
         return method.get();
     }
 
-    private void execute(int imageId, Processor processor) {
+    private void execute(int imageId, Processor[] processors, List<TableData>[] procdatas, int pid) {
+        Processor processor = processors[pid];
         TongaImage sourceImage = Tonga.getImageList().get(imageId);
         TongaLayer[] sourceLayers = getLayers(param.layer, sourceImage.layerList);
         ImageData[] processed = processor.internalProcessing(sourceImage, sourceLayers);
         injectAsLayers(processed, imageId);
-        Runtime.getRuntime().gc();
+        procdatas[pid] = processor.datas;
+        processors[pid] = null;
+        MappingManager.trash();
     }
 
     public void runProtocol(boolean all) {
@@ -85,6 +89,8 @@ public abstract class Protocol {
         }
         int procIterations = processors[0].iterations;
         int procOutputImages = processors[0].outputImageNumber;
+        //init data storage for result outputs
+        List<TableData>[] procdatas = new List[iters];
         //set target value for the progress bar
         Tonga.loader().setIterations(procIterations * iters);
         List<Integer> procImgs = new ArrayList<>();
@@ -93,7 +99,7 @@ public abstract class Protocol {
             if (multithreading) {
                 procImgs.add(imageId);
             } else {
-                execute(imageId, processors[all ? imageId : 0]);
+                execute(imageId, processors, procdatas, all ? imageId : 0);
             }
         }
         //run multithreaded
@@ -101,7 +107,7 @@ public abstract class Protocol {
             new Threader() {
                 @Override
                 public void action(int imageId) {
-                    execute(imageId, processors[all ? imageId : 0]);
+                    execute(imageId, processors, procdatas, all ? imageId : 0);
                 }
             }.runThreaded(procImgs, getName());
         }
@@ -109,7 +115,7 @@ public abstract class Protocol {
         Tonga.loader().maxProgress();
         //publish the datas
         if (!Tonga.loader().hasAborted()) {
-            results = collectData(processors);
+            results = collectData(procdatas);
             if (results != null) {
                 Counter.setUnit(results);
                 Counter.publish(results);
@@ -294,24 +300,17 @@ public abstract class Protocol {
         return true;
     }
 
-    private static TableData collectData(Processor[] processors) {
+    private static TableData collectData(List<TableData>[] procdatas) {
         TableData finalData;
-        Processor proc = processors[0];
-        if (!proc.datas.isEmpty()) {
-            finalData = new TableData(proc.datas.get(0).columns, proc.datas.get(0).descriptions);
-            for (Processor processor : processors) {
-                processor.datas.forEach(d -> {
+        List<TableData> tdatl = procdatas[0];
+        if (!tdatl.isEmpty()) {
+            finalData = new TableData(tdatl.get(0).columns, tdatl.get(0).descriptions);
+            for (List<TableData> tdat : procdatas) {
+                tdat.forEach(d -> {
                     for (int j = 0; j < d.rowCount(); j++) {
                         finalData.newRow(d.rows.get(j));
                     }
                 });
-            }
-        } else if (proc.data != null) {
-            finalData = new TableData(proc.data.columns, proc.data.descriptions);
-            for (Processor processor : processors) {
-                for (int j = 0; j < processor.data.rowCount(); j++) {
-                    finalData.newRow(processor.data.rows.get(j));
-                }
             }
         } else {
             return null;
@@ -320,6 +319,6 @@ public abstract class Protocol {
     }
 
     private TableData collectData(Processor processor) {
-        return collectData(new Processor[]{processor});
+        return collectData(new List[]{processor.datas});
     }
 }
