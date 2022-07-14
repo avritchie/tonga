@@ -823,6 +823,7 @@ public class Tonga {
                 }
             }
             refreshLayerList();
+            UndoRedo.end();
         }
         //query().popup(getLayerIndexes(), getImageIndexes());
     }
@@ -830,10 +831,11 @@ public class Tonga {
     public static void renameImage() {
         String newName = (String) JOptionPane.showInputDialog(mainFrame, "New name:", "Rename", JOptionPane.QUESTION_MESSAGE, null, null, getImage().imageName);
         if (newName != null) {
+            UndoRedo.start();
             getImage().imageName = newName;
             refreshImageList();
+            UndoRedo.end();
         }
-        UndoRedo.end();
         //query().popup(getImage());
     }
 
