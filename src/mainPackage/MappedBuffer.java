@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.RandomAccessFile;
+import java.nio.ByteBuffer;
 import java.nio.MappedByteBuffer;
 import java.nio.channels.ClosedChannelException;
 import java.nio.channels.FileChannel;
@@ -46,10 +47,14 @@ public class MappedBuffer extends MemoryBuffer {
     }
 
     private static String getHash(int identifier) {
-        CRC32 crc = new CRC32();
-        crc.update((int) (System.nanoTime() & 0x00000000FFFFFFFFL));
-        String s = Long.toHexString(crc.getValue());
-        crc.update(new Random().nextInt() + identifier);
-        return s + Long.toHexString(crc.getValue());
+        CRC32 crc1 = new CRC32();
+        int i = (int) (System.nanoTime() & 0x00000000FFFFFFFFL);
+        byte[] b1 = ByteBuffer.allocate(4).putInt(i).array();
+        crc1.update(b1);
+        CRC32 crc2 = new CRC32();
+        int j = new Random().nextInt() + identifier;
+        byte[] b2 = ByteBuffer.allocate(4).putInt(j).array();
+        crc2.update(b2);
+        return Long.toHexString(crc1.getValue()) + Long.toHexString(crc2.getValue());
     }
 }
