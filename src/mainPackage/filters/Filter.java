@@ -147,10 +147,6 @@ public abstract class Filter {
         return runSingle(ImageData.convertToImageData(layers));
     }
 
-    public Object runSingle(Image[] layers) {
-        return runSingle(ImageData.convertToImageData(layers));
-    }
-
     public ImageData runSingle(ImageData layer) {
         if (layer == null) {
             Tonga.catchError(new NullPointerException(), "Filter was given an empty layer to work with.");
@@ -164,10 +160,6 @@ public abstract class Filter {
 
     public ImageData runSingle(MappedImage layer) {
         return ((ImageData[]) runSingle(new ImageData[]{new ImageData(layer)}))[0];
-    }
-
-    public ImageData runSingle(TongaLayer layer) {
-        return runSingle(layer.layerImage);
     }
 
     public ImageData[] runSingle(int image, int[] indexes) {

@@ -43,7 +43,7 @@ public class _EstimateNucleusSize extends Protocol {
                 int trs = 0;
                 while (!finished) {
                     Tonga.log.trace("An attempt to recognize nucleus size");
-                    layer = Filters.dog().runSingle(sourceLayer[0], (int) (3 * mp), (int) (60 * mp));
+                    layer = Filters.dog().runSingle(inImage[0], (int) (3 * mp), (int) (60 * mp));
                     layer2 = Filters.thresholdBright().runSingle(layer, 5);
                     layer = Filters.thresholdBright().runSingle(layer, 2);
                     ROISet set = new ImageTracer(layer2, COL.BLACK).trace();

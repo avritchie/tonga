@@ -31,7 +31,7 @@ public class CountCells extends Protocol {
 
             @Override
             protected void methodFinal() {
-                CellSet set = new CellSet(new ImageTracer(sourceLayer[0], param.color[0]).trace());
+                CellSet set = new CellSet(new ImageTracer(inImage[0], param.color[0]).trace());
                 set.filterOutSmallObjects(param.spinner[0]);
                 setOutputBy(set);
                 addResultData(param.toggle[0]

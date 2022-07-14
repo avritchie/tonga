@@ -49,9 +49,9 @@ public class AreaAroundObject extends Protocol {
             protected void methodFinal() {
                 initTableData(new String[]{"Image", "Cell", "Area"});
                 outImage[0].fill(COL.BLACK);
-                nucleiLayer = Filters.thresholdBright().runSingle(sourceLayer[0], 100);
-                areaLayer = Filters.thresholdBright().runSingle(sourceLayer[1], 100);
-                bodyLayer = Filters.thresholdBright().runSingle(sourceLayer[2], 100);
+                nucleiLayer = Filters.thresholdBright().runSingle(inImage[0], 100);
+                areaLayer = Filters.thresholdBright().runSingle(inImage[1], 100);
+                bodyLayer = Filters.thresholdBright().runSingle(inImage[2], 100);
                 centers = new ImageTracer(nucleiLayer, param.color[0]).trace().getCenterPoints();
                 //
                 int[][] hitsMax = objectAreaTracing();

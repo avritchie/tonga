@@ -35,8 +35,8 @@ public class ObjectsSeparated extends Protocol {
 
             @Override
             protected void pixelProcessor() {
-                ROISet separSet = new ImageTracer(sourceLayer[0], bg).trace();
-                ImageTracer origSet = new ImageTracer(sourceLayer[1], bg);
+                ROISet separSet = new ImageTracer(inImage[0], bg).trace();
+                ImageTracer origSet = new ImageTracer(inImage[1], bg);
                 List<ROI> newRois = new ArrayList<>();
                 List<ROI> oldRois = new ArrayList<>();
                 Map<Integer, ROI> detcPos = new HashMap<>();

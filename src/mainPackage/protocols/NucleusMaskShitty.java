@@ -50,7 +50,7 @@ public class NucleusMaskShitty extends Protocol {
                 layerInts = new int[inImage[0].totalPixels()];
                 layerComb = new ImageData(sourceWidth[0], sourceHeight[0]);
                 // original and gamma-enchanced version of the image
-                layerOne = new ImageData(sourceLayer[0]);
+                layerOne = new ImageData(inImage[0]);
                 layerTwo = Filters.gamma().runSingle(layerOne, 0.5);
                 // process with different difference of gaussians -settings
                 layerDoG1 = Filters.dog().runSingle(layerOne, 3, 30).pixels32;

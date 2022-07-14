@@ -28,11 +28,6 @@ public abstract class FilterStack extends Filter {
     }
 
     @Override
-    public ImageData runSingle(Image[] layers) {
-        return ((ImageData) super.runSingle(layers));
-    }
-
-    @Override
     public ImageData runSingle(ImageData layer) {
         return (ImageData) runSingle(new ImageData[]{layer});
     }

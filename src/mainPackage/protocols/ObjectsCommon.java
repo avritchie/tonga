@@ -32,8 +32,8 @@ public class ObjectsCommon extends Protocol {
 
             @Override
             protected void pixelProcessor() {
-                ROISet filteredSet = new ImageTracer(sourceLayer[0], bg).trace();
-                ImageTracer origSet = new ImageTracer(sourceLayer[1], bg);
+                ROISet filteredSet = new ImageTracer(inImage[0], bg).trace();
+                ImageTracer origSet = new ImageTracer(inImage[1], bg);
                 List<ROI> newRois = new ArrayList<>();
                 filteredSet.list.forEach(roi -> {
                     ROI newRoi = origSet.traceSingleObjectAtPoint(roi.area.firstxpos, roi.area.firstypos);
