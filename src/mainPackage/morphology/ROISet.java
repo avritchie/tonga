@@ -49,9 +49,10 @@ public class ROISet {
 
         abstract void drawingMethod(ROI o);
 
-        public int[] draw() {
+        public int[] draw(int[] dest) {
             Tonga.iteration();
-            out = new int[width * height];
+            //use destination array if supplied
+            out = dest != null ? dest : new int[width * height];
             IMG.fillArray(out, width, height, COL.BLACK);
             for (int i = 0; i < list.size(); i++) {
                 preDrawingMethod(list.get(i));
@@ -90,6 +91,18 @@ public class ROISet {
     }
 
     public int[] drawToArray(boolean noEffects) {
+        return drawToArray(noEffects, null);
+    }
+
+    public void drawTo(ImageData dest) {
+        drawTo(dest,false);
+    }
+
+    public void drawTo(ImageData dest, boolean noEffects) {
+        drawToArray(noEffects, dest.pixels32);
+    }
+
+    public int[] drawToArray(boolean noEffects, int[] dest) {
         return new setRenderer() {
 
             @Override
@@ -159,7 +172,7 @@ public class ROISet {
                     }
                 }
             }
-        }.draw();
+        }.draw(dest);
     }
 
     public int[] drawSurroundArray(boolean useAverage) {
@@ -190,7 +203,7 @@ public class ROISet {
                     out[pos] = color;
                 });
             }
-        }.draw();
+        }.draw(null);
     }
 
     public int[] drawMaskArray() {
@@ -211,7 +224,7 @@ public class ROISet {
                     out[pos] = COL.WHITE;
                 });
             }
-        }.draw();
+        }.draw(null);
     }
 
     private ROI getBiggest() {
@@ -241,7 +254,7 @@ public class ROISet {
                     out[pos] = color;
                 });
             }
-        }.draw();
+        }.draw(null);
     }
 
     public ImageData drawEdgeImage() {
@@ -254,7 +267,7 @@ public class ROISet {
                     });
                 }
             }
-        }.draw(), width, height);
+        }.draw(null), width, height);
     }
 
     public ImageData drawEdgeStainImage(double binThreshold) {
@@ -271,7 +284,7 @@ public class ROISet {
                 }
 
             }
-        }.draw(), width, height);
+        }.draw(null), width, height);
     }
 
     public int[] drawStainArray(double binThreshold, boolean remove) {
@@ -294,7 +307,7 @@ public class ROISet {
                     });
                 }
             }
-        }.draw();
+        }.draw(null);
     }
 
     public ImageData drawStainImage(double binThreshold, boolean remove) {
