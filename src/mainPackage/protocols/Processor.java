@@ -3,8 +3,10 @@ package mainPackage.protocols;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.function.UnaryOperator;
 import mainPackage.IO;
 import mainPackage.ImageData;
+import mainPackage.Iterate;
 import mainPackage.Settings;
 import mainPackage.Tonga;
 import mainPackage.TongaImage;
@@ -87,6 +89,12 @@ public abstract class Processor {
         this.sourceImage = sourceImage;
         this.sourceLayer = null;
         this.sourceData = sourceDatas;
+    }
+
+    public static void applyOperator(ImageData id, ImageData dest, UnaryOperator<Integer> op) {
+        Iterate.pixels(id, (int p) -> {
+            dest.pixels32[p] = op.apply(p);
+        });
     }
 
     private void processorInit() {
