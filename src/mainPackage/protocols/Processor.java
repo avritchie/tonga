@@ -20,6 +20,7 @@ public abstract class Processor {
     public int[] sourceHeight;
     public TongaImage sourceImage;
     public TongaLayer[] sourceLayer;
+    public ImageData[] sourceData;
     protected int iterations;
     protected int outputImageNumber;
     protected List<TableData> datas;
@@ -64,9 +65,7 @@ public abstract class Processor {
         datas.add(new TableData(titles, descs));
     }
 
-    protected ImageData[] internalProcessing(TongaImage imageSource, TongaLayer[] layerAccess) {
-        sourceImage = imageSource;
-        sourceLayer = layerAccess;
+    protected ImageData[] internalProcessing() {
         processorInit();
         methodInit();
         pixelProcessor();
@@ -78,7 +77,21 @@ public abstract class Processor {
         return getProcessedImages();
     }
 
+    protected void setSources(TongaImage sourceImage, TongaLayer[] sourceLayers) {
+        this.sourceImage = sourceImage;
+        this.sourceLayer = sourceLayers;
+        this.sourceData = null;
+    }
+
+    protected void setSources(TongaImage sourceImage, ImageData[] sourceDatas) {
+        this.sourceImage = sourceImage;
+        this.sourceLayer = null;
+        this.sourceData = sourceDatas;
+    }
+
     private void processorInit() {
+        if (sourceLayer != null) {
+            //executed normally with TongaLayers
             if (Settings.settingBatchProcessing()) {
                 Arrays.stream(sourceLayer).forEach(i -> {
                     try {
@@ -93,6 +106,11 @@ public abstract class Processor {
             }
             sourceWidth = Arrays.stream(sourceLayer).mapToInt((a) -> (int) a.layerImage.getWidth()).toArray();
             sourceHeight = Arrays.stream(sourceLayer).mapToInt((a) -> (int) a.layerImage.getHeight()).toArray();
+        } else {
+            //executed directly with ImageDatas (silently)
+            sourceWidth = Arrays.stream(sourceData).mapToInt((a) -> (int) a.width).toArray();
+            sourceHeight = Arrays.stream(sourceData).mapToInt((a) -> (int) a.height).toArray();
+        }
         if (outputNames.length < outputImageNumber) {
             String outputName = outputNames[0];
             outputNames = new String[outputImageNumber];

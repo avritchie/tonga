@@ -39,7 +39,13 @@ public abstract class ProcessorOld extends Processor {
 
     @Override
     protected void setProcessorImages() {
-        inReader = Arrays.stream(sourceLayer).map((a) -> a.layerImage.getFXImage().getPixelReader()).toArray(PixelReader[]::new);
+        if (sourceLayer != null) {
+            //executed normally with TongaLayers
+            inReader = Arrays.stream(sourceLayer).map((a) -> a.layerImage.getFXImage().getPixelReader()).toArray(PixelReader[]::new);
+        } else {
+            //executed directly with ImageDatas (silently)
+            inReader = Arrays.stream(sourceData).map((a) -> a.toFXImage().getPixelReader()).toArray(PixelReader[]::new);
+        }
         outImage = getWriters();
         outWriter = Arrays.stream(outImage).map((a) -> a.getPixelWriter()).toArray(PixelWriter[]::new);
     }

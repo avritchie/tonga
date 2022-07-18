@@ -36,13 +36,19 @@ public abstract class ProcessorFast extends Processor {
 
     @Override
     protected void setProcessorImages() {
-        inImage = new ImageData[sourceLayer.length];
-        for (int i = 0; i < sourceLayer.length; i++) {
-            inImage[i] = new ImageData(sourceLayer[i]);
-            inImage[i].setPixels();
-            if (inImage[i].bits == 16) {
-                inImage[i].set8BitPixels();
+        if (sourceLayer != null) {
+            //executed normally with TongaLayers
+            inImage = new ImageData[sourceLayer.length];
+            for (int i = 0; i < sourceLayer.length; i++) {
+                inImage[i] = new ImageData(sourceLayer[i]);
+                inImage[i].setPixels();
+                if (inImage[i].bits == 16) {
+                    inImage[i].set8BitPixels();
+                }
             }
+        } else {
+            //executed directly with ImageDatas (silently)
+            inImage = sourceData;
         }
         outImage = new ImageData[outputImageNumber];
         for (int i = 0; i < outputImageNumber; i++) {

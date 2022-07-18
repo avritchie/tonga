@@ -41,6 +41,7 @@ public abstract class Filter {
     public int width, height;
     public boolean conditional; //execute only on given pixels
     public int[] conditionalPixels; //the given pixels, must be black/other
+    public ImageData destination; //execute directly to the destination array
 
     public Filter(String name, ControlReference[] params) {
         this(name, params, 1, 1);
@@ -186,6 +187,19 @@ public abstract class Filter {
     public ImageData runSingle(ImageData layer, Object... parameters) {
         param.setFilterParameters(parameterData, parameters);
         return runSingle(layer);
+    }
+
+    public void runTo(ImageData source, Object... parameters) {
+        runTo(source, source, parameters);
+    }
+
+    public void runTo(ImageData source, ImageData dest, Object... parameters) {
+        param.setFilterParameters(parameterData, parameters);
+        if (dest == null) {
+            Tonga.catchError(new NullPointerException(), "Filter was given an empty destination to work to.");
+        }
+        destination = dest;
+        handle(source);
     }
 
     //run the filter only on pixels where condlayer is not black; both must be the same size (!)

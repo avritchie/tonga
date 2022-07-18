@@ -34,10 +34,16 @@ public abstract class FilterFast extends Filter {
         boolean shortMode = inData.bits == 16;
         if (shortMode) {
             try {
-                outData = new ImageData(new short[inData.totalPixels()], width, height);
-                outData.setAttributes(inData);
+                //use the destination array if available and fits
+                if (destination != null && destination.bits == 16) {
+                    outData = destination;
+                } else {
+                    outData = new ImageData(new short[inData.totalPixels()], width, height);
+                    outData.setAttributes(inData);
+                }
                 out32 = outData.pixels32;
                 out16 = outData.pixels16;
+                //
                 processor16();
             } catch (UnsupportedOperationException uoe) {
                 Tonga.log.info("The method {} does not support 16-bit images.", this.getName());
@@ -47,10 +53,18 @@ public abstract class FilterFast extends Filter {
             }
         }
         if (!shortMode) {
-            outData = new ImageData(new int[inData.totalPixels()], width, height);
+            //use the destination array if available and fits
+            if (destination != null && destination.bits == 8) {
+                outData = destination;
+            } else {
+                outData = new ImageData(new int[inData.totalPixels()], width, height);
+            }
             out32 = outData.pixels32;
             out16 = outData.pixels16;
             processor();
+        }
+        if (inData == outData) {
+            Tonga.log.debug("Filter destination is the same as its source for {}", this.processName);
         }
         ImageData out = outData;
         clean();
@@ -64,6 +78,7 @@ public abstract class FilterFast extends Filter {
         in16 = null;
         out32 = null;
         out16 = null;
+        destination = null;
     }
 
     @Override
