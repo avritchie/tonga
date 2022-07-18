@@ -192,13 +192,15 @@ public class ImageTracer {
             maxY = Math.max(maxY, y);
             minY = Math.min(minY, y);
             checkPosition check = (int xx, int yy) -> {
-                int p = width * yy + xx;
-                try {
-                    if (!assigned[p] && !area[xx][yy] && evaluate.evaluate(p)) {
-                        recursiveStack.push(p);
-                        assigned[p] = true;
+                if (xx < width && xx >= 0 && yy < height && yy >= 0) {
+                    int p = width * yy + xx;
+                    try {
+                        if (!assigned[p] && !area[xx][yy] && evaluate.evaluate(p)) {
+                            recursiveStack.push(p);
+                            assigned[p] = true;
+                        }
+                    } catch (IndexOutOfBoundsException exp) {
                     }
-                } catch (IndexOutOfBoundsException exp) {
                 }
             };
             check.check(x + 1, y);
