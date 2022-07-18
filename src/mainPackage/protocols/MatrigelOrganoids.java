@@ -9,7 +9,6 @@ import mainPackage.Iterate;
 import mainPackage.PanelCreator.ControlReference;
 import static mainPackage.PanelCreator.ControlType.*;
 import mainPackage.counters.SetCounters;
-import mainPackage.filters.ConnectEdges;
 import mainPackage.filters.Filters;
 import mainPackage.filters.FiltersPass;
 import mainPackage.filters.Smoother;
@@ -46,8 +45,8 @@ public class MatrigelOrganoids extends Protocol {
                 work = Filters.niblack().runSingle(inImage[0], 10, 16 + thresh * 2, 3 + thresh);
                 layer = Blender.renderBlend(layer, work, Blend.MULTIPLY);
                 layer = Filters.invert().runSingle(layer);
-                layer = ConnectEdges.run().runSingle(layer);
-                layer = ConnectEdges.run().runSingle(layer);
+                layer = Filters.connectEdges().runSingle(layer);
+                layer = Filters.connectEdges().runSingle(layer);
                 layer = FiltersPass.filterObjectSize().runSingle(layer, COL.BLACK, limit, false, 0);
                 // old nucl final mask starts
                 work = Filters.gamma().runSingle(inImage[0], 50);

@@ -18,7 +18,6 @@ import mainPackage.utils.GEO;
 import mainPackage.ImageData;
 import mainPackage.PanelCreator.ControlReference;
 import static mainPackage.PanelCreator.ControlType.*;
-import mainPackage.filters.ConnectEdges;
 import mainPackage.filters.Filters;
 import mainPackage.filters.FiltersPass;
 import mainPackage.morphology.ImageTracer;
@@ -81,7 +80,7 @@ public class OligoDendroBranch extends Protocol {
                 bodyLayer = Filters.thresholdBright().runSingle(bodyLayer, 15);
                 bodyLayer = FiltersPass.edgeErode().runSingle(bodyLayer, COL.BLACK, 1, false, true);
                 bodyLayer = FiltersPass.filterObjectSize().runSingle(bodyLayer, COL.BLACK, 500, false, 0);
-                bodyLayer = ConnectEdges.run().runSingle(bodyLayer);
+                bodyLayer = Filters.connectEdges().runSingle(bodyLayer);
                 bodyLayer = Filters.gaussApprox().runSingle(bodyLayer, 4.0);
                 bodyLayer = Filters.thresholdBright().runSingle(bodyLayer, 30);
                 bodyLayer = Filters.distanceTransform().runSingle(bodyLayer);

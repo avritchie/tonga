@@ -3747,7 +3747,7 @@ public class TongaFrame extends JFrame {
     }//GEN-LAST:event_jMenuItem16ActionPerformed
 
     private void menuFillGapActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_menuFillGapActionPerformed
-        launchFilter(ConnectEdges::run, evt);
+        launchFilter(Filters::connectEdges, evt);
     }//GEN-LAST:event_menuFillGapActionPerformed
 
     private void jMenuItem20ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem20ActionPerformed

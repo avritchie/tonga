@@ -6,7 +6,6 @@ import mainPackage.ImageData;
 import mainPackage.Iterate;
 import mainPackage.PanelCreator.ControlReference;
 import static mainPackage.PanelCreator.ControlType.*;
-import mainPackage.filters.ConnectEdges;
 import mainPackage.filters.Filters;
 import mainPackage.filters.FiltersPass;
 import mainPackage.morphology.CellSet;
@@ -78,7 +77,7 @@ public class NucleusMaskShitty extends Protocol {
                 // clean background and connect holes on the local threshold
                 layerTwo = Filters.invert().runSingle(layerTwo);
                 layerTwo = FiltersPass.edgeDilate().runSingle(layerTwo, COL.BLACK, 1, false);
-                layerTwo = ConnectEdges.run().runSingle(layerTwo);
+                layerTwo = Filters.connectEdges().runSingle(layerTwo);
                 layerTwo = FiltersPass.filterObjectDimension().runSingle(layerTwo, COL.BLACK, 20, false, 0);
                 // combine thresholdings into one
                 Iterate.pixels(inImage[0], (int p) -> {

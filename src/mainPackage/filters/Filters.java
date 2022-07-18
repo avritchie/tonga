@@ -1,6 +1,7 @@
 package mainPackage.filters;
 
 import java.util.Arrays;
+import java.util.Stack;
 import mainPackage.utils.COL;
 import mainPackage.utils.IMG;
 import mainPackage.utils.GEO;
@@ -1251,6 +1252,95 @@ public class Filters {
                             Math.min(0xFF, Math.max(0x00, (in32[pos] & 0xFF) - (gauss[pos] & 0xFF) + avgb)),
                             Math.min(0xFF, Math.max(0x00, (in32[pos] >> 24 & 0xFF) - (gauss[pos] >> 24 & 0xFF) + avga)));
                 });
+            }
+
+            @Override
+            protected void processor16() {
+                throw new UnsupportedOperationException("No 16-bit version available");
+            }
+        };
+    }
+
+    public static FilterFast connectEdges() {
+        return new FilterFast("Connected",
+                new ControlReference[]{
+                    new ControlReference(COLOUR, "Background colour", -2),
+                    new ControlReference(TOGGLE, "Iterative")}) {
+
+            int c;
+            Stack<Integer> stack;
+
+            @Override
+            protected void processor() {
+                IMG.copyPixels(in32, out32);
+                stack = new Stack<>();
+                Iterate.pixels(this, (int p) -> {
+                    c = out32[p];
+                    if (c != param.colorARGB[0]) {
+                        isGap(p, 0, -1);
+                        isGap(p, 0, 1);
+                        isGap(p, -1, 0);
+                        isGap(p, 1, 0);
+                        isCorner(p, 1, -1);
+                        isCorner(p, 1, 1);
+                        isCorner(p, -1, 1);
+                        isCorner(p, -1, -1);
+                    }
+                });
+                if (param.toggle[0]) {
+                    while (!stack.empty()) {
+                        int p = stack.pop();
+                        c = out32[p];
+                        isGap(p, 0, -1);
+                        isGap(p, 0, 1);
+                        isGap(p, -1, 0);
+                        isGap(p, 1, 0);
+                        isCorner(p, 1, -1);
+                        isCorner(p, 1, 1);
+                        isCorner(p, -1, 1);
+                        isCorner(p, -1, -1);
+                    }
+                }
+            }
+
+            private void isGap(int p, int x, int y) {
+                int np = p + x + y * width;
+                int w = p / width;
+                try {
+                    if (w == (p + x) / width && out32[np] == param.colorARGB[0]
+                            && ((w == (p + x * 2) / width && out32[p + x * 2 + y * 2 * width] != param.colorARGB[0])
+                            || (((w == (p + x * 3) / width && out32[p + x * 3 + y * 3 * width] != param.colorARGB[0])
+                            && ((p + (y + x) * width < out32.length
+                            && p + (y + x) * width > -1
+                            && out32[p + (x + y) + (y + x) * width] != param.colorARGB[0]
+                            && w == (p + x + y) / width)
+                            || (p + (y - x) * width < out32.length
+                            && p + (y - x) * width > -1
+                            && out32[p + (x - y) + (y - x) * width] != param.colorARGB[0]
+                            && w == (p + x - y) / width)))))) {
+                        out32[np] = c;
+                        stack.push(np);
+                    }
+                } catch (IndexOutOfBoundsException ex) {
+                    //edge
+                }
+            }
+
+            private void isCorner(int p, int x, int y) {
+                int np = p + x + y * width;
+                int w = p / width;
+                try {
+                    if ((w == (p + x) / width && out32[np] == param.colorARGB[0])
+                            && (w == (p + x * 2) / width && out32[p + x * 2] != param.colorARGB[0])
+                            && (out32[p + x] != param.colorARGB[0])
+                            && (out32[p + y * 2 * width] != param.colorARGB[0])
+                            && (out32[p + y * width] != param.colorARGB[0])) {
+                        out32[np] = c;
+                        stack.push(np);
+                    }
+                } catch (IndexOutOfBoundsException ex) {
+                    //edge
+                }
             }
 
             @Override

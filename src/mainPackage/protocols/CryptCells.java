@@ -6,7 +6,6 @@ import mainPackage.PanelCreator.ControlReference;
 import static mainPackage.PanelCreator.ControlType.COMBO;
 import static mainPackage.PanelCreator.ControlType.LAYER;
 import mainPackage.counters.SetCounters;
-import mainPackage.filters.ConnectEdges;
 import mainPackage.filters.ShapenEdges;
 import mainPackage.filters.FilterCrisps;
 import mainPackage.filters.Filters;
@@ -96,7 +95,7 @@ public class CryptCells extends Protocol {
                 layer = new ImageData(ecadVals, sourceWidth[0], sourceHeight[0]);
                 layer = Filters.box().runSingle(layer, 1.);
                 layer = Filters.niblack().runSingle(layer, 0, 20, 10);
-                layer = ConnectEdges.run().runSingle(layer);
+                layer = Filters.connectEdges().runSingle(layer);
                 layer = FiltersPass.filterObjectSize().runSingle(layer, COL.BLACK, 200, false, 0);
                 layer = Filters.invert().runSingle(layer);
                 layer = FiltersPass.filterObjectSize().runSingle(layer, COL.BLACK, 200, false, 0);

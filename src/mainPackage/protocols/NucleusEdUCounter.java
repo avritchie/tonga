@@ -8,7 +8,6 @@ import mainPackage.ImageData;
 import mainPackage.PanelCreator.ControlReference;
 import static mainPackage.PanelCreator.ControlType.*;
 import mainPackage.TongaLayer;
-import mainPackage.filters.ConnectEdges;
 import mainPackage.filters.FilterCrisps;
 import mainPackage.filters.Filters;
 import mainPackage.morphology.CellSet;
@@ -83,7 +82,7 @@ public class NucleusEdUCounter extends Protocol {
                     layerF = Filters.gaussApprox().runSingle(layerF, 4.0);
                     layerF = Filters.thresholdBright().runSingle(layerF, 1);
                     /// 
-                    layerF = ConnectEdges.run().runSingle(layerF);
+                    layerF = Filters.connectEdges().runSingle(layerF);
                     layerF = FilterCrisps.run().runSingle(layerF);
                     ROISet set = new ImageTracer(layerF, Color.BLACK).trace();
                     set.filterOutSmallObjects(limit);

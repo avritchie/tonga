@@ -4,7 +4,6 @@ import mainPackage.utils.COL;
 import mainPackage.ImageData;
 import mainPackage.PanelCreator.ControlReference;
 import static mainPackage.PanelCreator.ControlType.LAYER;
-import mainPackage.filters.ConnectEdges;
 import mainPackage.filters.Filters;
 import mainPackage.filters.FiltersPass;
 import mainPackage.morphology.CellSet;
@@ -38,7 +37,7 @@ public class NucleusEduCounterShitty extends Protocol {
                 dapiLayer = Filters.crapCleaner().runSingle(dapiLayer, 3);
                 dapiLayer = Filters.gamma().runSingle(dapiLayer, 0.5);
                 dapiLayer = Filters.thresholdBright().runSingle(dapiLayer, 10);
-                dapiLayer = ConnectEdges.run().runSingle(dapiLayer);
+                dapiLayer = Filters.connectEdges().runSingle(dapiLayer);
                 dapiLayer = FiltersPass.fillInnerAreas().runSingle(dapiLayer, false);
                 eduLayer = Filters.gamma().runSingle(inImage[1], 0.6);
                 eduLayer = Filters.thresholdBright().runSingle(eduLayer, 30);
