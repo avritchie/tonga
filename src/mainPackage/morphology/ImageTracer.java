@@ -17,6 +17,7 @@ public class ImageTracer {
 
     private ImageData image;
     private int bgColor;
+    private boolean bgReversed;
     private boolean[] assigned;
 
     interface checkPosition {
@@ -46,18 +47,23 @@ public class ImageTracer {
     }
 
     public ImageTracer(ImageData img, int bg) {
+        this(img, bg, false);
+    }
+
+    public ImageTracer(ImageData img, int bg, boolean reversed) {
         this.image = img;
         if (img.bits == 16) {
             img.set8BitPixels();
         }
         this.bgColor = bg;
+        this.bgReversed = reversed;
         this.assigned = new boolean[image.totalPixels()];
     }
 
     public ROI traceSingleObjectAtPoint(int x, int y) {
         int p = image.width * y + x;
-        if (image.pixels32[p] != bgColor) {
-            Area area = traceArea(image.pixels32, bgColor, image.width, image.height, p);
+        if (bgReversed ? image.pixels32[p] == bgColor : image.pixels32[p] != bgColor) {
+            Area area = traceArea(image.pixels32, bgColor, bgReversed, image.width, image.height, p);
             return new ROI(image, area);
         } else {
             Tonga.log.trace("Object not found at position {}.{}", x, y);
@@ -72,7 +78,7 @@ public class ImageTracer {
             roi.innEdge.list.forEach(pnt -> {
                 int i = findClosestNonAreaPixel(pnt, roi.area, outArea);
                 if (i != -1 && !assigned[i]) {
-                    Area area = traceArea(image.pixels32, bgColor, image.width, image.height, i);
+                    Area area = traceArea(image.pixels32, bgColor, bgReversed, image.width, image.height, i);
                     foundObjects.add(new ROI(image, area));
                     markAreaAsAssigned(area);
                 }
@@ -89,7 +95,7 @@ public class ImageTracer {
             roi.innEdge.list.forEach(pnt -> {
                 int i = findClosestNonAreaPixel(pnt, roi.area, outArea);
                 if (i != -1 && !assigned[i]) {
-                    Area area = traceArea(image.pixels32, bgColor, image.width, image.height, i);
+                    Area area = traceArea(image.pixels32, bgColor, bgReversed, image.width, image.height, i);
                     ROI found = new ROI(image, area);
                     double ratio = roi.getSize() / (double) found.getSize() / (roi.getSize() / (double) targetSize);
                     if (ratio > 2) {
@@ -107,8 +113,8 @@ public class ImageTracer {
         List<ROI> foundObjects = new ArrayList<>();
         roi.outEdge.list.forEach(pnt -> {
             int i = image.width * pnt.y + pnt.x;
-            if (image.pixels32[i] != (bgColor) && !assigned[i]) {
-                Area area = traceArea(image.pixels32, bgColor, image.width, image.height, i);
+            if ((bgReversed ? image.pixels32[i] == bgColor : image.pixels32[i] != bgColor) && !assigned[i]) {
+                Area area = traceArea(image.pixels32, bgColor, bgReversed, image.width, image.height, i);
                 foundObjects.add(new ROI(image, area));
                 markAreaAsAssigned(area);
             }
@@ -123,8 +129,8 @@ public class ImageTracer {
         Tonga.iteration();
         List<ROI> foundObjects = new ArrayList<>();
         for (int i = 0; i < image.totalPixels(); i++) {
-            if (image.pixels32[i] != (bgColor) && !assigned[i]) {
-                Area area = traceArea(image.pixels32, bgColor, image.width, image.height, i);
+            if ((bgReversed ? image.pixels32[i] == bgColor : image.pixels32[i] != bgColor) && !assigned[i]) {
+                Area area = traceArea(image.pixels32, bgColor, bgReversed, image.width, image.height, i);
                 foundObjects.add(new ROI(image, area));
                 markAreaAsAssigned(area);
             }
@@ -167,10 +173,17 @@ public class ImageTracer {
         return traceArea(evaluate, width, height, startPosition);
     }
 
-    protected static Area traceArea(int[] pixels, int color, int width, int height, int startPosition) {
-        evaluatePixel evaluate = (int p) -> {
-            return pixels[p] != color;
-        };
+    protected static Area traceArea(int[] pixels, int color, boolean reverse, int width, int height, int startPosition) {
+        evaluatePixel evaluate;
+        if (reverse) {
+            evaluate = (int p) -> {
+                return pixels[p] == color;
+            };
+        } else {
+            evaluate = (int p) -> {
+                return pixels[p] != color;
+            };
+        }
         return traceArea(evaluate, width, height, startPosition);
     }
 
