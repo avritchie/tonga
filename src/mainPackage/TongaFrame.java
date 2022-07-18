@@ -3775,7 +3775,7 @@ public class TongaFrame extends JFrame {
     }//GEN-LAST:event_menuShrinkEdgeActionPerformed
 
     private void menuSharpCornerActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_menuSharpCornerActionPerformed
-        launchFilter(ShapenEdges::run, evt);
+        launchFilter(Filters::sharpenEdges, evt);
     }//GEN-LAST:event_menuSharpCornerActionPerformed
 
     private void jMenuItem28ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem28ActionPerformed
@@ -3849,7 +3849,7 @@ public class TongaFrame extends JFrame {
     }//GEN-LAST:event_debugMemoryActionPerformed
 
     private void jMenuItem24ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem24ActionPerformed
-        launchFilter(FilterCrisps::run, evt);
+        launchFilter(Filters::evenEdges, evt);
     }//GEN-LAST:event_jMenuItem24ActionPerformed
 
     private void jMenuItem26ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem26ActionPerformed
@@ -3865,7 +3865,7 @@ public class TongaFrame extends JFrame {
     }//GEN-LAST:event_jMenuItem29ActionPerformed
 
     private void menuSmoothenActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_menuSmoothenActionPerformed
-        launchFilter(Smoother::run, evt);
+        launchFilter(Filters::smoothenCorners, evt);
     }//GEN-LAST:event_menuSmoothenActionPerformed
 
     private void menuProtocolCopyMaskActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_menuProtocolCopyMaskActionPerformed

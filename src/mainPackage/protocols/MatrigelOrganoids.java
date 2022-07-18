@@ -11,7 +11,6 @@ import static mainPackage.PanelCreator.ControlType.*;
 import mainPackage.counters.SetCounters;
 import mainPackage.filters.Filters;
 import mainPackage.filters.FiltersPass;
-import mainPackage.filters.Smoother;
 import mainPackage.morphology.ImageTracer;
 import mainPackage.morphology.ROISet;
 
@@ -81,7 +80,7 @@ public class MatrigelOrganoids extends Protocol {
                 layer = FiltersPass.fillInnerAreas().runSingle(layer, COL.BLACK, false);
                 layer = FiltersPass.edgeErode().runSingle(layer, COL.BLACK, 3, false, true);
                 layer = FiltersPass.edgeDilate().runSingle(layer, COL.BLACK, 1, false);
-                layer = Smoother.run().runSingle(layer);
+                layer = Filters.smoothenCorners().runSingle(layer);
             }
 
             @Override

@@ -994,84 +994,6 @@ public class Filters {
         };
     }
 
-    /*
-    public static FilterFast boxblur() {
-        return new FilterFast("Box blur", radius) {
-            @Override
-            protected void processor() {
-                Iterate.pixels(this,(int pos) -> {
-                    int rad = (int) param.spinner[0];
-                    double bright = 0;
-                    int hits = 0;
-                    int p, x = pos % width, y = pos / width;
-                    for (int xx = x - rad; xx <= x + rad; xx++) {
-                        for (int yy = y - rad; yy <= y + rad; yy++) {
-                            if (xx >= 0 && yy >= 0 && xx < width && yy < height) {
-                                p = xx + yy * width;
-                                bright += RGB.brightness(in32[p]);
-                                hits++;
-                            }
-                        }
-                    }
-                    out32[pos] = RGB.argb((int) (bright / hits));
-                });
-            }
-
-            @Override
-            protected void processor16() {
-                throw new UnsupportedOperationException("No 16-bit version available"); 
-            }
-        };
-    }
-    
-    public static FilterFast dob() {
-        return new FilterFast("DoB blur",
-                new ControlReference[]{
-                    new ControlReference(SPINNER, "First radius (px)", 5),
-                    new ControlReference(SPINNER, "Second radius (px)", 20),
-                    new ControlReference(TOGGLE, "Reversed")}) {
-            @Override
-            protected void processor() {
-                Iterate.pixels(this,(int pos) -> {
-                    int rad = (int) param.spinner[0], rad2 = (int) param.spinner[1];
-                    int p, x = pos % width, y = pos / width;
-                    double valueFirst, valueSecond;
-                    double bright = 0;
-                    int hits = 0;
-                    for (int xx = x - rad; xx < x + rad; xx++) {
-                        for (int yy = y - rad; yy < y + rad; yy++) {
-                            if (xx >= 0 && yy >= 0 && xx < width && yy < height) {
-                                p = xx + yy * width;
-                                bright += RGB.brightness(in32[p]);
-                                hits++;
-                            }
-                        }
-                    }
-                    valueFirst = (bright / hits);
-                    bright = 0;
-                    hits = 0;
-                    for (int xx = x - rad2; xx < x + rad2; xx++) {
-                        for (int yy = y - rad2; yy < y + rad2; yy++) {
-                            if (xx >= 0 && yy >= 0 && xx < width && yy < height) {
-                                p = xx + yy * width;
-                                bright += RGB.brightness(in32[p]);
-                                hits++;
-                            }
-                        }
-                    }
-                    valueSecond = (bright / hits);
-                    out32[pos] = RGB.argb(param.toggle[0]
-                            ? Math.min(255, Math.max(0, (int) (valueSecond - valueFirst)))
-                            : Math.min(255, Math.max(0, (int) (valueFirst - valueSecond))));
-                });
-            }
-
-            @Override
-            protected void processor16() {
-                throw new UnsupportedOperationException("No 16-bit version available"); 
-            }
-        };
-    }*/
     public static FilterFast box() {
         return new FilterFast("Box Blur",
                 new ControlReference[]{
@@ -1350,6 +1272,110 @@ public class Filters {
         };
     }
 
+    public static FilterFast evenEdges() {
+        return new FilterFast("Evened", bgcol) {
+
+            @Override
+            protected void processor() {
+                IMG.copyPixels(in32, out32);
+                Iterate.pixels(this, (int p) -> {
+                    if (in32[p] != param.colorARGB[0]) {
+                        int hit = 0;
+                        hit += isOfColor(in32, p, width, 0, 1, param.colorARGB[0]) ? 1 : 0;
+                        hit += isOfColor(in32, p, width, 0, -1, param.colorARGB[0]) ? 1 : 0;
+                        hit += isOfColor(in32, p, width, 1, 0, param.colorARGB[0]) ? 1 : 0;
+                        hit += isOfColor(in32, p, width, -1, 0, param.colorARGB[0]) ? 1 : 0;
+                        if (hit == 3) {
+                            out32[p] = param.colorARGB[0];
+                        }
+                    }
+                });
+            }
+
+            @Override
+            protected void processor16() {
+                throw new UnsupportedOperationException("No 16-bit version available");
+            }
+        };
+    }
+
+    public static FilterFast sharpenEdges() {
+        return new FilterFast("Sharpened", bgcol) {
+
+            @Override
+            protected void processor() {
+                Iterate.pixels(this, (int p) -> {
+                    boolean ch = false;
+                    if (in32[p] != param.colorARGB[0]) {
+                        int hit = 0;
+                        hit += isOfColor(in32, p, width, 0, 1, param.colorARGB[0]) ? 1 : 0;
+                        hit += isOfColor(in32, p, width, 0, -1, param.colorARGB[0]) ? 1 : 0;
+                        if (hit > 1) {
+                            ch = true;
+                        } else {
+                            hit += isOfColor(in32, p, width, 1, 0, param.colorARGB[0]) ? 1 : 0;
+                            if (hit > 1) {
+                                ch = true;
+                            } else {
+                                hit += isOfColor(in32, p, width, -1, 0, param.colorARGB[0]) ? 1 : 0;
+                                if (hit > 1) {
+                                    ch = true;
+                                }
+                            }
+                        }
+                    }
+                    out32[p] = ch ? param.colorARGB[0] : in32[p];
+                });
+            }
+
+            @Override
+            protected void processor16() {
+                throw new UnsupportedOperationException("No 16-bit version available");
+            }
+        };
+    }
+    
+    
+    public static FilterFast smoothenCorners() {
+        return new FilterFast("Smoothed", bgcol) {
+            @Override
+            protected void processor() {
+                System.arraycopy(in32, 0, out32, 0, inData.totalPixels());
+                Iterate.pixels(this, (int pos) -> {
+                    int c = in32[pos];
+                    if (c != param.colorARGB[0]) {
+                        smoothPixel(in32, out32, pos);
+                    }
+                });
+            }
+
+            private void smoothPixel(int[] in, int[] out, int pos) {
+                int[][] hits = new int[3][3];
+                for (int x = -1; x < 2; x++) {
+                    for (int y = -1; y < 2; y++) {
+                        try {
+                            hits[x + 1][y + 1] = in[pos - x - (y * width)] != param.colorARGB[0] ? 1 : 0;
+                        } catch (ArrayIndexOutOfBoundsException ex) {
+                            hits[x + 1][y + 1] = 0;
+                        }
+                    }
+                }
+                int[] ints = Arrays.stream(hits).map(v -> Arrays.stream(v).sum()).mapToInt(i -> i).toArray();
+                int hitnumb = Arrays.stream(ints).sum();
+                int emptys = (int) Arrays.stream(ints).filter(i -> i == 0).count();
+                int partials = (int) Arrays.stream(ints).filter(i -> i == 2).count();
+                if (hitnumb == 4 && emptys == 1 && partials == 2) {
+                    out[pos] = param.colorARGB[0];
+                }
+            }
+
+            @Override
+            protected void processor16() {
+                throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+            }
+        };
+    }
+
     public static FilterFast dotConnectRemove() {
         return new FilterFast("Dot Remover",
                 new ControlReference[]{
@@ -1400,29 +1426,25 @@ public class Filters {
     }
 
     public static FilterFast dotRemove() {
-        return new FilterFast("Dot Remover",
-                new ControlReference[]{
-                    new ControlReference(COLOUR, "Background colour", -2)}) {
+        return new FilterFast("Dot Remover", bgcol) {
 
             @Override
             protected void processor() {
-                Iterate.pixels(this, (int pos) -> {
-                    out32[pos] = in32[pos];
-                    if (in32[pos] != param.colorARGB[0]) {
-                        if (isIt(pos - 1) && isIt(pos + 1) && isIt(pos - width) && isIt(pos + width)
-                                && isIt(pos - 1 - width) && isIt(pos + 1 + width) && isIt(pos + 1 - width) && isIt(pos - 1 + width)) {
-                            out32[pos] = param.colorARGB[0];
+                Iterate.pixels(this, (int p) -> {
+                    out32[p] = in32[p];
+                    if (in32[p] != param.colorARGB[0]) {
+                        if (isOfColor(in32, p, width, -1, 0, param.colorARGB[0])
+                                && isOfColor(in32, p, width, 1, 0, param.colorARGB[0])
+                                && isOfColor(in32, p, width, 0, -1, param.colorARGB[0])
+                                && isOfColor(in32, p, width, 0, 1, param.colorARGB[0])
+                                && isOfColor(in32, p, width, -1, -1, param.colorARGB[0])
+                                && isOfColor(in32, p, width, 1, 1, param.colorARGB[0])
+                                && isOfColor(in32, p, width, 1, -1, param.colorARGB[0])
+                                && isOfColor(in32, p, width, -1, 1, param.colorARGB[0])) {
+                            out32[p] = param.colorARGB[0];
                         }
                     }
                 });
-            }
-
-            private boolean isIt(int pos) {
-                try {
-                    return in32[pos] == param.colorARGB[0];
-                } catch (IndexOutOfBoundsException ex) {
-                    return true;
-                }
             }
 
             @Override
@@ -1483,6 +1505,18 @@ public class Filters {
                 throw new UnsupportedOperationException("No 16-bit version available");
             }
         };
+    }
+
+    /* GENERAL SHARED FUNCTIONS */
+    private static boolean isOfColor(int[] in32, int p, int width, int x, int y, int c) {
+        int np = p + x + y * width;
+        int w = p / width;
+        try {
+            return (w == (p + x) / width) && np < in32.length && np >= 0
+                    && in32[np] == c;
+        } catch (IndexOutOfBoundsException ex) {
+            return false;
+        }
     }
 
     private static int[] edgeKernel(int[] in32, int pos, int width, int r) {

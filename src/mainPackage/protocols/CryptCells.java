@@ -6,8 +6,6 @@ import mainPackage.PanelCreator.ControlReference;
 import static mainPackage.PanelCreator.ControlType.COMBO;
 import static mainPackage.PanelCreator.ControlType.LAYER;
 import mainPackage.counters.SetCounters;
-import mainPackage.filters.ShapenEdges;
-import mainPackage.filters.FilterCrisps;
 import mainPackage.filters.Filters;
 import mainPackage.filters.FiltersPass;
 import mainPackage.morphology.ImageTracer;
@@ -111,8 +109,8 @@ public class CryptCells extends Protocol {
                 }
                 layer = Filters.distanceTransform().runSingle(outImage[0]);
                 layer = Filters.thresholdBright().runSingle(layer, 1);
-                layer = ShapenEdges.run().runSingle(layer);
-                layer = FilterCrisps.run().runSingle(layer);
+                layer = Filters.sharpenEdges().runSingle(layer);
+                layer = Filters.evenEdges().runSingle(layer);
                 ROISet set = new ImageTracer(layer, Color.BLACK).trace();
                 set.filterOutSmallObjects(100);
                 setOutputBy(set);
