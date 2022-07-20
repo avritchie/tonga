@@ -4,6 +4,7 @@ import java.awt.Component;
 import java.awt.Desktop;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
+import java.awt.event.ActionEvent;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -11,6 +12,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.nio.file.Files;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Date;
@@ -20,12 +22,15 @@ import javafx.application.Platform;
 import javax.imageio.ImageIO;
 import javax.swing.BoxLayout;
 import javax.swing.ButtonGroup;
+import javax.swing.JComboBox;
 import javax.swing.JFileChooser;
+import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.JTable;
 import javax.swing.JTextField;
+import javax.swing.event.CaretEvent;
 import javax.swing.table.TableModel;
 import loci.common.services.ServiceException;
 import loci.formats.FormatException;
@@ -49,7 +54,7 @@ public class IO {
     protected static File[] getFile(String text) {
         JFileChooser chooser = new JFileChooser();
         chooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
-        chooser.setDialogTitle("Choose a file");
+        chooser.setDialogTitle("Choose files");
         chooser.setMultiSelectionEnabled(true);
         chooser.setCurrentDirectory(new File(text));
         int val = chooser.showOpenDialog(Tonga.frame());
@@ -115,7 +120,7 @@ public class IO {
                 }
 
                 @Override
-                void read() throws IOException, FormatException, ServiceException, FileNotFoundException {
+                void read(MappedImage mi) throws IOException, FormatException, ServiceException, FileNotFoundException {
                     throw new FormatException("The file could not be imported as a stack image.");
                 }
 
@@ -216,8 +221,8 @@ public class IO {
             }
 
             @Override
-            void read() throws Exception {
-                Tonga.injectNewLayer(file, "Layer", imgId);
+            void read(MappedImage mi) throws Exception {
+                Tonga.injectNewLayer(mi, "Layer", imgId);
             }
 
             @Override
@@ -361,8 +366,8 @@ public class IO {
                 }
 
                 @Override
-                void read() throws Exception {
-                    image.layerList.add(new TongaLayer(getImageFromFile(file), "Channel #" + (image.layerList.size() + 1)));
+                void read(MappedImage mi) throws Exception {
+                    image.layerList.add(new TongaLayer(mi, "Channel #" + (image.layerList.size() + 1)));
                 }
 
                 @Override
@@ -404,8 +409,8 @@ public class IO {
             }
 
             @Override
-            void read() throws Exception {
-                picList.add(new TongaImage(file, "Original"));
+            void read(MappedImage mi) throws Exception {
+                picList.add(new TongaImage(mi, file.getName(), "Original"));
                 images++;
             }
 
@@ -510,8 +515,8 @@ public class IO {
                 }
 
                 @Override
-                void read() throws Exception {
-                    image.layerList.add(new TongaLayer(getImageFromFile(file), image.layerList.isEmpty() ? "Original" : "Layer"));
+                void read(MappedImage mi) throws Exception {
+                    image.layerList.add(new TongaLayer(mi, image.layerList.isEmpty() ? "Original" : "Layer"));
                 }
 
                 @Override
@@ -611,6 +616,94 @@ public class IO {
                 Tonga.bootThread(thread, "Importer", false, true);
             }*/
         }
+    }
+
+    public static Object[] askFormat(File file) {
+        long size = 0;
+        try {
+            size = (int) Files.size(file.toPath());
+        } catch (IOException ex) {
+        }
+        final int s = (int) size;
+        int sq = (int) Math.sqrt(s / 4);
+        String inputText = "<html><body><p style='width: 250px;'>" + "The format of the file " + file.getName() + " could not be identified. Please input the width and the format of this image manually.<br><br>";
+        JLabel labelw = new JLabel();
+        labelw.setText("Width: ");
+        JLabel labelh = new JLabel();
+        labelh.setText(" Height: ");
+        JLabel labelt = new JLabel();
+        labelt.setText("?");
+        JTextField inputw = new JTextField();
+        inputw.setAlignmentX(Component.LEFT_ALIGNMENT);
+        inputw.setPreferredSize(new Dimension(80, 26));
+        JPanel dimPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        dimPanel.add(labelw);
+        dimPanel.add(inputw);
+        dimPanel.add(labelh);
+        dimPanel.add(labelt);
+        JPanel formatPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        String[] formats = {"ARGB", "RGBA", "BGRA", "RGB", "16GRAY", "8GRAY"};
+        JComboBox format = new JComboBox(formats);
+        format.setSelectedIndex(2);
+        format.addActionListener((ActionEvent e) -> {
+            inputw.selectAll();
+        });
+        inputw.addCaretListener((CaretEvent e) -> {
+            try {
+                int w = Integer.parseInt(inputw.getText());
+                int t = 0;
+                switch (format.getSelectedIndex()) {
+                    case 0:
+                    case 1:
+                    case 2:
+                        t = s / 4;
+                        break;
+                    case 3:
+                        t = s / 3;
+                        break;
+                    case 4:
+                        t = s / 2;
+                        break;
+                    case 5:
+                        t = s;
+                        break;
+                }
+                int h = (t / w) + (t % w > 0 ? 1 : 0);
+                labelt.setText(Integer.toString(h));
+            } catch (NumberFormatException ex) {
+                labelt.setText("?");
+            }
+        });
+        inputw.setText(Integer.toString(sq));
+        inputw.selectAll();
+        JLabel formatl = new JLabel();
+        formatl.setText("Format: ");
+        formatPanel.add(formatl);
+        formatPanel.add(format);
+        Object[] p = {inputText, dimPanel, formatPanel};
+        Object[] butt = {"Import", "Cancel"};
+        int r = JOptionPane.showOptionDialog(mainFrame, p, "Raw importer", JOptionPane.OK_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE, null, butt, butt[0]);
+        boolean proceed = r == 0;
+        int w = 0;
+        int formatsel = format.getSelectedIndex();
+        if (proceed) {
+            if (inputw.getText().isBlank()) {
+                Tonga.setStatus("Please input the width.");
+                proceed = false;
+            } else {
+                try {
+                    w = Integer.parseInt(inputw.getText());
+                    if (w <= 0) {
+                        Tonga.setStatus("The dimensions must be greater than 0.");
+                        proceed = false;
+                    }
+                } catch (NumberFormatException ex) {
+                    Tonga.setStatus(inputw.getText() + " is not a valid number.");
+                    proceed = false;
+                }
+            }
+        }
+        return new Object[]{proceed, w, formatsel};
     }
 
     public static Object[] askMultichannel() {

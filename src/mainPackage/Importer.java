@@ -6,6 +6,7 @@
 package mainPackage;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.channels.ClosedChannelException;
 import java.util.List;
@@ -63,7 +64,7 @@ public abstract class Importer {
                 readBatch();
             } else {
                 if (!readStack()) {
-                    read();
+                    read(source());
                 }
             }
             Tonga.loader().appendProgress(1.0);
@@ -72,27 +73,53 @@ public abstract class Importer {
         } catch (Exception ex) {
             if (file.isDirectory()) {
                 Tonga.catchError(ex, "Folder importing is not supported.");
-            } else if (ex instanceof FormatException || ex instanceof IllegalStateException) {
-                formatissue = true;
-                Tonga.catchError(ex, "The file could not be imported because the format is unsupported.");
-            } else if (ex instanceof IOException) {
-                Tonga.catchError(ex, "The file could not be imported because of an IO error.");
             } else {
-                Tonga.catchError(ex, "The file could not be imported because of an unknown error.");
+                boolean success = rawImport();
+                if (!success) {
+                    failures++;
+                    if (ex instanceof FormatException || ex instanceof IllegalStateException) {
+                        formatissue = true;
+                        Tonga.catchError(ex, "The file could not be imported because the format is unsupported.");
+                    } else if (ex instanceof IOException) {
+                        Tonga.catchError(ex, "The file could not be imported because of an IO error.");
+                    } else {
+                        Tonga.catchError(ex, "The file could not be imported because of an unknown error.");
+                    }
+                }
+                Tonga.loader().appendToNext();
             }
-            failures++;
-            Tonga.loader().appendToNext();
         }
+    }
+
+    private MappedImage source() throws IOException, FileNotFoundException, ServiceException, FormatException {
+        return IO.getImageFromFile(file);
+    }
+
+    private boolean rawImport() {
+        Object[] params = IO.askFormat(file);
+        boolean ok = (boolean) params[0];
+        if (ok) {
+            int w = (int) params[1];
+            int f = (int) params[2];
+            MappedImage n = new MappedImage(file, w, f);
+            try {
+                read(n);
+            } catch (Exception ex) {
+                ok = false;
+            }
+        }
+        return ok;
     }
 
     //iterate must call "readFile", but never any abstract functions
     abstract void iterate();
 
-    abstract void read() throws Exception;
+    abstract void read(MappedImage mi) throws Exception;
 
     abstract void readBatch() throws Exception;
 
     abstract boolean readStack() throws IOException, FormatException, ServiceException;
 
     abstract String message();
+
 }

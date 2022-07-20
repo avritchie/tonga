@@ -13,6 +13,11 @@ public class TongaImage {
     public int[] activeLayers;
     public boolean stack;
 
+    public TongaImage(MappedImage file, String iname, String lname) throws Exception {
+        this(IO.fileName(iname), (Length) null);
+        layerList.add(new TongaLayer(file, lname));
+    }
+    
     public TongaImage(File file, String name) throws Exception {
         this(file);
         layerList.add(new TongaLayer(IO.getImageFromFile(file), name));

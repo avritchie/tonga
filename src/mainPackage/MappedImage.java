@@ -17,7 +17,10 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.IntBuffer;
 import java.nio.ShortBuffer;
+import java.nio.file.Files;
 import java.util.NoSuchElementException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javafx.scene.image.Image;
 import javafx.scene.image.PixelBuffer;
 import javafx.scene.image.PixelFormat;
@@ -27,6 +30,7 @@ import javax.imageio.ImageReadParam;
 import javax.imageio.ImageReader;
 import javax.imageio.ImageTypeSpecifier;
 import javax.imageio.stream.ImageInputStream;
+import mainPackage.utils.RGB;
 
 public class MappedImage extends BufferedImage {
 
@@ -88,7 +92,7 @@ public class MappedImage extends BufferedImage {
     }
 
     public MappedImage(BufferedImage bi) {
-        this(bi.getWidth(), bi.getHeight(), bi.getType() == BufferedImage.TYPE_USHORT_GRAY, true);
+        this(bi.getWidth(), bi.getHeight(), bi.getColorModel().getPixelSize() == 16, true);
         //source may vary - ensure compatilibty with the bands model
         if (!this.getColorModel().isCompatibleRaster(bi.getRaster())) {
             Tonga.log.debug("Incompatible colour model");
@@ -107,6 +111,10 @@ public class MappedImage extends BufferedImage {
         }
     }
 
+    public MappedImage(File f, int w, int format) {
+        this(getRawFile(f, w, format));
+    }
+
     private static ColorModel getColor(boolean bits) {
         ColorSpace colorSpace = ColorSpace.getInstance(bits ? ColorSpace.CS_GRAY : ColorSpace.CS_sRGB);
         return new ComponentColorModel(colorSpace, !bits, !bits, bits ? 1 : 3, bits ? 1 : 0);
@@ -114,6 +122,83 @@ public class MappedImage extends BufferedImage {
 
     private static SampleModel getSample(int width, int height, boolean bits) {
         return new BandedSampleModel(bits ? DataBuffer.TYPE_USHORT : DataBuffer.TYPE_BYTE, width, height, bits ? 1 : 4);
+    }
+
+    private static BufferedImage getRawFile(File f, int w, int format) {
+        BufferedImage bi;
+        int t;
+        int[] ints;
+        short[] shorts;
+        try {
+            byte[] data = Files.readAllBytes(f.toPath());
+            int s = data.length, h;
+            ByteBuffer bb = ByteBuffer.wrap(data);
+            bb.rewind();
+            switch (format) {
+                case 0:
+                    t = s / 4;
+                    h = (t / w) + (t % w > 0 ? 1 : 0);
+                    ints = new int[w * h];
+                    for (int i = 0; i < t; i++) {
+                        ints[i] = bb.getInt();
+                    }
+                    return new MappedImage(ints, w, h);
+                case 1:
+                    t = s / 4;
+                    h = (t / w) + (t % w > 0 ? 1 : 0);
+                    ints = new int[w * h];
+                    for (int i = 0; i < t; i++) {
+                        int r = bb.get() & 0xFF;
+                        int g = bb.get() & 0xFF;
+                        int b = bb.get() & 0xFF;
+                        int a = bb.get() & 0xFF;
+                        ints[i] = RGB.argb(r, g, b, a);
+                    }
+                    return new MappedImage(ints, w, h);
+                case 2:
+                    t = s / 4;
+                    h = (t / w) + (t % w > 0 ? 1 : 0);
+                    ints = new int[w * h];
+                    for (int i = 0; i < t; i++) {
+                        int b = bb.get() & 0xFF;
+                        int g = bb.get() & 0xFF;
+                        int r = bb.get() & 0xFF;
+                        int a = bb.get() & 0xFF;
+                        ints[i] = RGB.argb(r, g, b, a);
+                    }
+                    return new MappedImage(ints, w, h);
+                case 3:
+                    t = s / 3;
+                    h = (t / w) + (t % w > 0 ? 1 : 0);
+                    ints = new int[w * h];
+                    for (int i = 0; i < t; i++) {
+                        int r = bb.get() & 0xFF;
+                        int g = bb.get() & 0xFF;
+                        int b = bb.get() & 0xFF;
+                        ints[i] = RGB.argb(r, g, b);
+                    }
+                    return new MappedImage(ints, w, h);
+                case 4:
+                    t = s / 2;
+                    h = (t / w) + (t % w > 0 ? 1 : 0);
+                    shorts = new short[w * h];
+                    for (int i = 0; i < t; i++) {
+                        shorts[i] = bb.getShort();
+                    }
+                    return new MappedImage(shorts, w, h);
+                case 5:
+                    t = s;
+                    h = (t / w) + (t % w > 0 ? 1 : 0);
+                    ints = new int[w * h];
+                    for (int i = 0; i < t; i++) {
+                        ints[i] = RGB.argb(bb.get() & 0xFF, 0xFF);
+                    }
+                    return new MappedImage(ints, w, h);
+            }
+        } catch (IOException ex) {
+            Logger.getLogger(MappedImage.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return null;
     }
 
     private static BufferedImage getBufferedFile(File f) {
