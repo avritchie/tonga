@@ -184,7 +184,7 @@ public class Tonga {
             catchError(ex, "Logging setup failed.");
         }
     }
-    
+
     public static boolean debug() {
         return Tonga.log.isDebugEnabled();
     }
@@ -430,6 +430,36 @@ public class Tonga {
             return false;
         });
         Tonga.log.info("Listeners initialized successfully");
+    }
+
+    static void moveOrder(boolean images, boolean direction) {
+        // images true = imageList, false = layerList
+        // direction true = up, false = down
+        int[] is = images ? getImageIndexes() : getLayerIndexes();
+        List collection = images ? picList : getImage().layerList;
+        if ((direction && is[0] > 0) || (!direction && is[is.length - 1] < collection.size() - 1)) {
+            int[] nis = new int[is.length];
+            if (direction) {
+                for (int i = 0; i < is.length; i++) {
+                    Collections.swap(collection, is[i], is[i] - 1);
+                    nis[i] = is[i] - 1;
+                }
+            } else {
+                for (int i = is.length - 1; i >= 0; i--) {
+                    Collections.swap(collection, is[i], is[i] + 1);
+                    nis[i] = is[i] + 1;
+                }
+            }
+            if (images) {
+                selectImage(nis);
+                refreshImageList();
+            } else {
+                selectLayer(nis);
+                refreshLayerList();
+            }
+        } else {
+            setStatus("Can't move the " + (direction ? ("first one up") : ("last one down")));
+        }
     }
 
     public abstract static class fileDragAndDrop {

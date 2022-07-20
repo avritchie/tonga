@@ -37,40 +37,52 @@ public class Key {
         keyShift = ke.isShiftDown();
         keyCtrl = ke.isControlDown();
         keyAlt = ke.isAltDown();
+        int keyCode = ke.getKeyCode();
         if (ke.getID() == KeyEvent.KEY_PRESSED) {
-            if (!pressedKeys.contains(ke.getKeyCode())) {
-                pressedKeys.add(ke.getKeyCode());
+            if (!pressedKeys.contains(keyCode)) {
+                pressedKeys.add(keyCode);
                 if (!keyCtrl) {
-                    switch (ke.getKeyCode()) {
+                    switch (keyCode) {
                         case KeyEvent.VK_S:
                             Tonga.stackMode(keyShift);
                             break;
                     }
                     if (!keyShift) {
-                        switch (ke.getKeyCode()) {
-                            case KeyEvent.VK_ESCAPE:
-                                /*if (Tonga.query().isVisible()) {
+                        if (!keyAlt) {
+                            switch (keyCode) {
+                                case KeyEvent.VK_ESCAPE:
+                                    /*if (Tonga.query().isVisible()) {
                                     Tonga.frame().closeDialog(Tonga.query());
                                 }*/
-                                if (Tonga.loader().threadTask != null
-                                        && Tonga.loader().threadTask.isAlive()) {
-                                    Tonga.log.info("Thread {} abortion request.", Tonga.loader().threadTask.getName());
-                                    Tonga.loader().abort();
-                                }
-                                break;
-                            case KeyEvent.VK_TAB:
-                                Tonga.switchLayer();
-                                break;
-                            case KeyEvent.VK_G:
-                                Tonga.ghostLayer();
-                                break;
-                            case KeyEvent.VK_D:
-                                debug();
-                                break;
+                                    if (Tonga.loader().threadTask != null
+                                            && Tonga.loader().threadTask.isAlive()) {
+                                        Tonga.log.info("Thread {} abortion request.", Tonga.loader().threadTask.getName());
+                                        Tonga.loader().abort();
+                                    }
+                                    break;
+                                case KeyEvent.VK_TAB:
+                                    Tonga.switchLayer();
+                                    break;
+                                case KeyEvent.VK_G:
+                                    Tonga.ghostLayer();
+                                    break;
+                                case KeyEvent.VK_D:
+                                    debug();
+                                    break;
+                            }
+                        } else if (keyAlt) {
+                            switch (keyCode) {
+                                case KeyEvent.VK_UP:
+                                    moveEvent(true);
+                                    break;
+                                case KeyEvent.VK_DOWN:
+                                    moveEvent(false);
+                                    break;
+                            }
                         }
                     }
                 } else if (keyCtrl) {
-                    switch (ke.getKeyCode()) {
+                    switch (keyCode) {
                         case KeyEvent.VK_F:
                             Tonga.frame().executeFilter(keyShift);
                             break;
@@ -84,8 +96,8 @@ public class Key {
             }
         }
         if (ke.getID() == KeyEvent.KEY_RELEASED) {
-            pressedKeys.remove(ke.getKeyCode());
-            switch (ke.getKeyCode()) {
+            pressedKeys.remove(keyCode);
+            switch (keyCode) {
                 case KeyEvent.VK_DELETE:
                     deleteEvent();
                     break;
@@ -121,9 +133,19 @@ public class Key {
         }
     }
 
+    protected static void moveEvent(boolean direction) {
+        if (Tonga.frame().layersList.hasFocus()) {
+            Tonga.moveOrder(false, direction);
+        } else if (Tonga.frame().imagesList.hasFocus()) {
+            Tonga.moveOrder(true, direction);
+        }
+    }
+
     private static void debug() {
-        Tonga.log.debug("Debug function executed");
-        Tonga.refreshCanvases();
+        if (Tonga.debug()) {
+            Tonga.log.debug("Debug function executed");
+            Tonga.refreshCanvases();
+        }
     }
 
     private static class Cheats {
