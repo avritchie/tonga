@@ -67,6 +67,10 @@ public abstract class Processor {
         datas.add(new TableData(titles, descs));
     }
 
+    protected ImageData initTempData() {
+        return new ImageData(sourceWidth[0], sourceHeight[0]);
+    }
+
     protected ImageData[] internalProcessing() {
         processorInit();
         methodInit();

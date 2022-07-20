@@ -118,7 +118,8 @@ public class ImageData {
             return ref;
         } else {
             String caller = Threader.getCaller(3);
-            if (!caller.equals("injectAsLayers")) {
+            String deepcaller = Threader.getCaller(5);
+            if (!caller.equals("injectAsLayers") && !deepcaller.equals("publish")) {
                 Tonga.log.warn("Mapping of internal image data by {}", caller);
             }
             return new MappedImage(this, true);

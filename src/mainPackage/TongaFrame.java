@@ -254,7 +254,7 @@ public class TongaFrame extends JFrame {
         } else {
             String filterName = filterCombo.getSelectedItem().toString();
             updateHistory(filterName);
-            currentFilter.getParams();
+            currentFilter.loadParams();
             if (true) {
                 Thread thread = new Thread(() -> {
                     try {
@@ -1096,6 +1096,7 @@ public class TongaFrame extends JFrame {
         debugExecuteClass = new javax.swing.JMenuItem();
         jMenuItem38 = new javax.swing.JMenuItem();
         debugTestFilter = new javax.swing.JMenuItem();
+        debugTestProtocol = new javax.swing.JMenuItem();
         debugTestProtocols = new javax.swing.JMenu();
         jMenuItem3 = new javax.swing.JMenuItem();
         jMenuItem36 = new javax.swing.JMenuItem();
@@ -3520,7 +3521,15 @@ public class TongaFrame extends JFrame {
         });
         menuDebug.add(debugTestFilter);
 
-        debugTestProtocols.setText("Run test protocols");
+        debugTestProtocol.setText("Run a test protocol");
+        debugTestProtocol.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                debugTestProtocolActionPerformed(evt);
+            }
+        });
+        menuDebug.add(debugTestProtocol);
+
+        debugTestProtocols.setText("Run debug protocols");
 
         jMenuItem3.setText("Create nucleus mask");
         jMenuItem3.addActionListener(new java.awt.event.ActionListener() {
@@ -4124,7 +4133,7 @@ public class TongaFrame extends JFrame {
     }//GEN-LAST:event_menuFileUndoActionPerformed
 
     private void debugTestFilterActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_debugTestFilterActionPerformed
-        Test.run(Tonga.getLayer().layerImage);
+        instantFilter(TestFilter::test, false);
     }//GEN-LAST:event_debugTestFilterActionPerformed
 
     private void jMenuItem56ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem56ActionPerformed
@@ -4505,6 +4514,10 @@ public class TongaFrame extends JFrame {
         UndoRedo.end();
     }//GEN-LAST:event_contResClearActionPerformed
 
+    private void debugTestProtocolActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_debugTestProtocolActionPerformed
+        launchProtocol(TestProtocol::new, evt);
+    }//GEN-LAST:event_debugTestProtocolActionPerformed
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
     protected javax.swing.JComboBox<String> autoscaleCombo;
     protected javax.swing.JLabel autoscaleLabel;
@@ -4552,6 +4565,7 @@ public class TongaFrame extends JFrame {
     protected javax.swing.JMenuItem debugParameter;
     protected javax.swing.JMenuItem debugSysInfo;
     protected javax.swing.JMenuItem debugTestFilter;
+    protected javax.swing.JMenuItem debugTestProtocol;
     protected javax.swing.JMenu debugTestProtocols;
     protected javax.swing.JButton exportAsCSV;
     public javax.swing.JTextField filePathField;

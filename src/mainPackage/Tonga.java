@@ -184,9 +184,13 @@ public class Tonga {
             catchError(ex, "Logging setup failed.");
         }
     }
+    
+    public static boolean debug() {
+        return Tonga.log.isDebugEnabled();
+    }
 
     protected static void debugMode() {
-        if (Tonga.log.isDebugEnabled()) {
+        if (Tonga.debug()) {
             frame().menuDebug.setVisible(false);
             disableDebugging();
         } else {

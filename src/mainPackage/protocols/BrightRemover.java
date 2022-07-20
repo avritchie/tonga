@@ -4,9 +4,7 @@ import mainPackage.ImageData;
 import mainPackage.Iterate;
 import mainPackage.PanelCreator.ControlReference;
 import static mainPackage.PanelCreator.ControlType.*;
-import mainPackage.counters.Counters;
 import mainPackage.filters.Filters;
-import mainPackage.filters.FiltersPass;
 import mainPackage.morphology.ImageTracer;
 import mainPackage.morphology.ROI;
 import mainPackage.morphology.ROISet;
@@ -33,7 +31,7 @@ public class BrightRemover extends Protocol {
     @Override
     protected Processor getProcessor() {
 
-        return new ProcessorFast("Inner filler") {
+        return new ProcessorFast("Inner filler", 4) {
             ImageData mask;
 
             @Override

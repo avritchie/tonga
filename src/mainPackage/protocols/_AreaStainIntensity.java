@@ -39,7 +39,7 @@ public class _AreaStainIntensity extends Protocol {
         boolean rembg = param.toggle[3];
         double thresh = param.slider[0] / 100.;
 
-        return new ProcessorFast("Objects") {
+        return new ProcessorFast("Objects", 2) {
             ImageData bgid;
             double bgval;
 
