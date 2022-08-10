@@ -1269,35 +1269,43 @@ public class Tonga {
     }
 
     public static void catchError(Throwable ex, String msg) {
-        if (msg != null) {
-            Tonga.log.error(msg);
-        }
         if (!happyBoot) {
             sadBoot = true;
         }
         if (taskIsRunning) {
             loader().minorFail();
+            if (loader().hasAborted() && Thread.currentThread().isInterrupted()) {
+                Tonga.log.debug("Ignored " + ex.getClass().getSimpleName() + " during protocol shutdown");
+                return;
+            }
         }
-        //ex.printStackTrace(System.out);
+        if (msg != null) {
+            Tonga.log.error(msg);
+        }
         Tonga.log.error("Exception: " + ExceptionUtils.getStackTrace(ex));
         if (mainFrame == null || !mainFrame.isVisible()) {
-            Object[] butt = msg.contains("Logging") ? new String[]{"Exit"} : new String[]{"Exit", "Details"};
-            int r;
+            boolean fatal = false;
+            String message;
             if (ex instanceof NoClassDefFoundError) {
-                r = JOptionPane.showOptionDialog(null, "Tonga did not start correctly because an external class could not be found.\n"
-                        + "Please make sure you are not trying to launch the JAR file directly.", "Error",
-                        JOptionPane.YES_NO_OPTION, JOptionPane.ERROR_MESSAGE,
-                        null, butt, 0);
+                fatal = true;
+                message = "Tonga did not start correctly because an external class could not be found.\n"
+                        + "Please make sure you are not trying to launch the JAR file directly.";
             } else {
-                r = JOptionPane.showOptionDialog(null, "Tonga did not " + (happyBoot ? "exit" : "start") + " correctly because an unexpected "
-                        + ex.getClass().getSimpleName() + " occured." + (msg == null ? "" : " " + msg), "Error",
-                        JOptionPane.YES_NO_OPTION, JOptionPane.ERROR_MESSAGE,
-                        null, butt, 0);
+                message = "Tonga did not " + (happyBoot ? "exit" : "start") + " correctly because an unexpected "
+                        + ex.getClass().getSimpleName() + " occured." + (msg == null ? "" : "\n" + msg) + ".\nSome functions may not work correctly.";
             }
+            int r;
+            Object[] butt = msg.contains("Logging") ? new String[]{"Exit"} : fatal ? new String[]{"Exit", "Details"} : new String[]{"OK", "Details"};
+            frame().splashDialog.setVisible(false);
+            r = JOptionPane.showOptionDialog(null, message, "Error",
+                    JOptionPane.YES_NO_OPTION, JOptionPane.ERROR_MESSAGE,
+                    null, butt, 0);
             if (r == 1) {
                 IO.openLogs();
             }
-            System.exit(1);
+            if (fatal) {
+                System.exit(1);
+            }
         } else {
             setStatus("<font color=\"red\">Unexpected " + ex.getClass().getSimpleName() + " occured.</font> " + (msg != null ? msg + " " : "") + "See the log for details (Tonga -> Logs from the menu bar).");
             if (ex instanceof OutOfMemoryError && !Settings.settingMemoryMapping()) {
