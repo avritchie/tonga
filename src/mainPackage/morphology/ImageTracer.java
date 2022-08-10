@@ -140,7 +140,7 @@ public class ImageTracer {
         for (int xx = -1; xx <= 1; xx++) {
             for (int yy = -1; yy <= 1; yy++) {
                 try {
-                    if (!areaIn.area[pnt.x + xx][pnt.y + yy] && !areaOut.area[pnt.x + xx][pnt.y + yy]) {
+                    if (!areaIn.area[pnt.x + xx][pnt.y + yy] && !areaOut.area[pnt.x + 1 + xx][pnt.y + 1 + yy]) {
                         return image.width * (areaIn.ystart + pnt.y + yy) + (areaIn.xstart + pnt.x + xx);
                     }
                 } catch (ArrayIndexOutOfBoundsException ex) {
