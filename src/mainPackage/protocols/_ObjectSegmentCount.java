@@ -32,7 +32,7 @@ public class _ObjectSegmentCount extends Protocol {
         boolean image = param.toggle[0];
         int nucleusSize = (int) param.sliderScaled[0];
 
-        return new ProcessorFast("Objects", 4) {
+        return new ProcessorFast("Objects", 5) {
 
             ImageData temp;
 

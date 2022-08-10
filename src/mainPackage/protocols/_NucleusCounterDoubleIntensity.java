@@ -33,7 +33,7 @@ public class _NucleusCounterDoubleIntensity extends Protocol {
         boolean deadMode = param.toggle[3];
         boolean imgMode = param.toggle[4];
 
-        return new ProcessorFast(2, "Nucleus Stainings", bgMode ? 238 : 161) {
+        return new ProcessorFast(2, "Nucleus Stainings", bgMode ? 190 : 174) {
 
             ImageData[] mask;
 

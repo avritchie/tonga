@@ -35,7 +35,7 @@ public class MatrigelOrganoids extends Protocol {
         int limit = param.spinner[0];
         int thresh = param.slider[0];
 
-        return new ProcessorFast(3, "Organoids", 82) {
+        return new ProcessorFast(1, "Organoids", 59) {
 
             ImageData layer, work, l2, l3;
 
@@ -89,8 +89,8 @@ public class MatrigelOrganoids extends Protocol {
                 ROISet set = new ImageTracer(layer, Color.BLACK).trace();
                 set.filterOutSmallObjects(limit);
                 outImage[0].pixels32 = set.drawToArray();
-                outImage[1].pixels32 = l2.pixels32;
-                outImage[2].pixels32 = l3.pixels32;
+                //outImage[1].pixels32 = l2.pixels32;
+                //outImage[2].pixels32 = l3.pixels32;
                 addResultData(SetCounters.countObjectsSingle(set).runSingle(sourceImage));
             }
         };

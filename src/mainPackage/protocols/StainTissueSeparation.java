@@ -29,7 +29,7 @@ public class StainTissueSeparation extends Protocol {
     protected Processor getProcessor() {
         double threshTissue = param.slider[0];
 
-        return new ProcessorFast("Tissue separation", 13) {
+        return new ProcessorFast("Tissue separation", 19) {
 
             int[] collVals;
             ImageData layer, layer2, layer3;

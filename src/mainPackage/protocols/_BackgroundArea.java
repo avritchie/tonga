@@ -26,7 +26,7 @@ public class _BackgroundArea extends Protocol {
 
     @Override
     protected Processor getProcessor() {
-        return new ProcessorFast("Background", 11) {
+        return new ProcessorFast("Background", 14) {
 
             ImageData temp;
 

@@ -54,7 +54,7 @@ public class BreakImageRGB extends Protocol {
             i++;
         }
 
-        return new ProcessorFast(outPut, outNam) {
+        return new ProcessorFast(outPut, outNam, 1) {
 
             @Override
             protected void methodCore(int pos

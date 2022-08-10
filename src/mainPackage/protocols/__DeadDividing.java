@@ -28,7 +28,7 @@ public class __DeadDividing extends Protocol {
     protected Processor getProcessor() {
         int sourceCol = param.colorARGB[0];
 
-        return new ProcessorFast("Dead/dividing", 1) {
+        return new ProcessorFast("Dead/dividing", 3) {
 
             int preCount, postCount;
             int[] rem;

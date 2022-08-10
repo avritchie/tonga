@@ -33,7 +33,7 @@ public class _ObjectIntensity extends Protocol {
         boolean perimg = param.toggle[1];
         double thresh = param.slider[0] / 100.;
 
-        return new ProcessorFast("Objects") {
+        return new ProcessorFast("Objects", 3) {
             ImageData bgid;
             double bgval;
 

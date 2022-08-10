@@ -36,7 +36,7 @@ public class IFTissueStaining extends Protocol {
         double sthresh = param.slider[1] * (255. / 100); //threshold range 0-255;
         int tissueThrshld = param.slider[2]; //threshold range 0-20;
 
-        return new ProcessorFast("IF Stains", 7) {
+        return new ProcessorFast("IF Stains", 9) {
 
             ImageData layer;
             int[] holeGrid;

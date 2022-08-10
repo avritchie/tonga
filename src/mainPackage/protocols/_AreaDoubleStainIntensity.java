@@ -31,7 +31,7 @@ public class _AreaDoubleStainIntensity extends Protocol {
         boolean imgMode = param.toggle[0];
         boolean bgMode = param.toggle[1];
 
-        return new ProcessorFast(2, "Objects", bgMode ? 171 : 159) {
+        return new ProcessorFast(2, "Objects", bgMode ? 21 : 5) {
             ImageData[] mask;
             ImageData stOne, stTwo, stComb;
 

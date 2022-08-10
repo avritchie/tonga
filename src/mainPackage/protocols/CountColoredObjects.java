@@ -33,7 +33,7 @@ public class CountColoredObjects extends Protocol {
         int color = param.combo[0];
         boolean indv = param.toggle[0];
 
-        return new ProcessorFast("Areas", 1) {
+        return new ProcessorFast("Areas", 3) {
 
             @Override
             protected void methodCore(int p) {

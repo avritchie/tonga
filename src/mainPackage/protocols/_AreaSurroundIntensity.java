@@ -32,7 +32,7 @@ public class _AreaSurroundIntensity extends Protocol {
     protected Processor getProcessor() {
         boolean perimg = param.toggle[0];
 
-        return new ProcessorFast("Objects") {
+        return new ProcessorFast("Objects", 5) {
 
             ImageData tempMask;
             ROISet set;
