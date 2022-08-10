@@ -4,6 +4,7 @@ import mainPackage.utils.COL;
 import mainPackage.ImageData;
 import mainPackage.PanelCreator.ControlReference;
 import static mainPackage.PanelCreator.ControlType.*;
+import mainPackage.Tonga;
 import mainPackage.counters.TableData;
 
 public class __NucleusMask extends Protocol {
@@ -28,9 +29,10 @@ public class __NucleusMask extends Protocol {
         boolean deadMode = param.toggle[1];
         boolean segmMode = param.toggle[2];
 
-        return new ProcessorFast(3, "Nuclei", 200) {
+        return new ProcessorFast(Tonga.debug() ? 3 : 1, "Nuclei", 200) {
 
             ImageData[] separation;
+            ImageData adjusted;
             Protocol subprotocol;
 
             @Override
@@ -41,12 +43,13 @@ public class __NucleusMask extends Protocol {
                 double nuclSize = TableData.getType(subprotocol.results.getVal(0, 1));
                 subprotocol = Protocol.load(__NucleusPrimaryMask::new);
                 separation = subprotocol.runSilent(sourceImage, inImage[0], nuclSize);
-                setOutputBy(separation[0], 1);
+                adjusted = separation[1];
+                setSampleOutputBy(separation[0], 1);
                 subprotocol = Protocol.load(__ObjectSegment::new);
                 separation = subprotocol.runSilent(sourceImage, separation[0], COL.BLACK, nuclSize, segmMode ? 0 : 2, true);
-                setOutputBy(separation[0], 2);
+                setSampleOutputBy(separation[0], 2);
                 subprotocol = Protocol.load(__NucleusFinalMask::new);
-                separation = subprotocol.runSilent(sourceImage, new ImageData[]{separation[0], inImage[0]}, toucherMode, deadMode, nuclSize);
+                separation = subprotocol.runSilent(sourceImage, new ImageData[]{separation[0], inImage[0], adjusted}, toucherMode, deadMode, nuclSize, true);
                 setOutputBy(separation[0], 0);
             }
         };
