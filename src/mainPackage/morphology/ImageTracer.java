@@ -117,8 +117,11 @@ public class ImageTracer {
             }
             if (i % image.width == 0) {
                 Tonga.loader().appendProgress(1. / image.totalPixels() * image.width);
+                if (Tonga.loader().hasAborted()) {
+                    break;
                 }
             }
+        }
         return new ROISet(foundObjects, image.width, image.height);
     }
 
