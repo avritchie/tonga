@@ -1,7 +1,6 @@
 package mainPackage.protocols;
 
 import javafx.scene.paint.Color;
-import mainPackage.ImageData;
 import mainPackage.PanelCreator.ControlReference;
 import static mainPackage.PanelCreator.ControlType.*;
 import mainPackage.Settings;
@@ -33,17 +32,17 @@ public class __ObjectSegment extends Protocol {
         int nucleusSize = param.spinner[0];
         int mode = param.combo[0];
 
-        return new ProcessorFast(Tonga.log.isDebugEnabled() ? 2 : 1, "Objects", 5) {
+        return new ProcessorFast(Tonga.debug() ? 2 : 1, "Objects", 5) {
 
-            ImageData temp;
+            int nuclSize;
 
             @Override
-            protected void pixelProcessor() {
+            protected void methodInit() {
+                nuclSize = Settings.settingsOverrideSizeEstimate() ? (int) (sourceWidth[0] / 10.) : nucleusSize;
             }
 
             @Override
-            protected void methodFinal() {
-                int nuclSize = Settings.settingsOverrideSizeEstimate() ? (int) (sourceWidth[0] / 10.) : nucleusSize;
+            protected void pixelProcessor() {
                 ROISet set = new ImageTracer(inImage[0], bg).trace();
                 set.targetSize(nuclSize);
                 set.findOuterEdges();
@@ -52,9 +51,7 @@ public class __ObjectSegment extends Protocol {
                 set.analyzeCornerIntersections();
                 set.segment(mode);
                 //this image is optional and for debug use
-                if (Tonga.log.isDebugEnabled()) {
-                    outImage[1] = set.drawToImageData();
-                }
+                setSampleOutputBy(set.drawToImageData(), 1);
                 if (param.toggle[0]) {
                     set = new ImageTracer(set.drawToImageData(true), COL.BLACK).trace();
                     set.targetSize(nuclSize);
@@ -64,9 +61,7 @@ public class __ObjectSegment extends Protocol {
                     set.analyzeCornerIntersections();
                     set.segment(mode);
                 }
-                outImage[0] = set.drawToImageData(true);
-                //set = new ImageTracer(outImage[0], COL.BLACK).trace();
-                //datas.add(SetCounters.countObjectsSingle(set).runSingle(sourceImage, outImage[0]));
+                setOutputBy(set.drawToImageData(true));
             }
         };
     }
