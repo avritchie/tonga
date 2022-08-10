@@ -7,7 +7,7 @@ import mainPackage.ImageData;
 import mainPackage.PanelCreator.ControlReference;
 import static mainPackage.PanelCreator.ControlType.*;
 import mainPackage.filters.Filters;
-import mainPackage.filters.FiltersPass;
+import mainPackage.filters.FiltersSet;
 import mainPackage.utils.HISTO;
 import mainPackage.utils.RGB;
 
@@ -84,7 +84,7 @@ public class HETissueSeparation extends Protocol {
                 layer2 = Filters.thresholdBright().runSingle(layer2, threshEosin);
                 outImage[3].pixels32 = layer2.pixels32;
                 layer2 = Blender.renderBlend(layer, layer2, Blend.MULTIPLY);
-                layer = FiltersPass.filterObjectSize().runSingle(layer2, COL.BLACK, 60, true, 250 * magn);
+                layer = FiltersSet.filterObjectSize().runSingle(layer2, COL.BLACK, 60, true, 250 * magn);
                 outImage[4].pixels32 = layer.pixels32;
             }
         };

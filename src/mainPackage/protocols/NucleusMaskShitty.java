@@ -8,6 +8,7 @@ import mainPackage.PanelCreator.ControlReference;
 import static mainPackage.PanelCreator.ControlType.*;
 import mainPackage.filters.Filters;
 import mainPackage.filters.FiltersPass;
+import mainPackage.filters.FiltersSet;
 import mainPackage.morphology.CellSet;
 import mainPackage.morphology.ImageTracer;
 import mainPackage.morphology.ROISet;
@@ -78,7 +79,7 @@ public class NucleusMaskShitty extends Protocol {
                 layerTwo = Filters.invert().runSingle(layerTwo);
                 layerTwo = FiltersPass.edgeDilate().runSingle(layerTwo, COL.BLACK, 1, false);
                 layerTwo = Filters.connectEdges().runSingle(layerTwo);
-                layerTwo = FiltersPass.filterObjectDimension().runSingle(layerTwo, COL.BLACK, 20, false, 0);
+                layerTwo = FiltersSet.filterObjectDimension().runSingle(layerTwo, COL.BLACK, 20, false, 0);
                 // combine thresholdings into one
                 Iterate.pixels(inImage[0], (int p) -> {
                     layerInts[p] = layerOne.pixels32[p] == COL.BLACK || layerTwo.pixels32[p] == COL.WHITE ? COL.BLACK : COL.WHITE;

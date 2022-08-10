@@ -6,7 +6,7 @@ import mainPackage.PanelCreator.ControlReference;
 import static mainPackage.PanelCreator.ControlType.*;
 import mainPackage.counters.Counters;
 import mainPackage.filters.Filters;
-import mainPackage.filters.FiltersPass;
+import mainPackage.filters.FiltersSet;
 import mainPackage.utils.COL;
 import mainPackage.utils.RGB;
 
@@ -58,7 +58,7 @@ public class StainTissueSeparation extends Protocol {
                 layer = Filters.thresholdBright().runSingle(layer, (int) threshTissue);
                 layer = Filters.gaussApprox().runSingle(layer, 4.);
                 layer = Filters.thresholdBright().runSingle(layer, 67);
-                layer = FiltersPass.filterObjectSize().runSingle(layer, COL.BLACK, 0, false, 500);
+                layer = FiltersSet.filterObjectSize().runSingle(layer, COL.BLACK, 0, false, 500);
                 Iterate.pixels(inImage[0], (int p) -> {
                     int ishVal = 255 - collVals[p];
                     int ishARGB = (255 << 16 | (255 - ishVal) << 8 | (255 - ishVal) | 0xff << 24);

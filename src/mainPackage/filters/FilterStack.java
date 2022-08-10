@@ -1,8 +1,9 @@
 package mainPackage.filters;
 
-import javafx.scene.image.Image;
-import mainPackage.*;
+import mainPackage.ImageData;
+import mainPackage.MappedImage;
 import mainPackage.PanelCreator.ControlReference;
+import mainPackage.Settings;
 
 public abstract class FilterStack extends Filter {
 
@@ -10,9 +11,16 @@ public abstract class FilterStack extends Filter {
         super(name, params);
     }
 
+    protected abstract ImageData processor(ImageData[] layers);
+
     @Override
-    protected ImageData handleImage(Object layerr) {
-        return processor((ImageData[]) layerr);
+    protected ImageData[] getIDArray(Object o) {
+        return new ImageData[]{(ImageData) o};
+    }
+
+    @Override
+    protected int getIterations(int imageIndex, int[] selectedIndices) {
+        return iterations(false);
     }
 
     @Override
@@ -23,6 +31,11 @@ public abstract class FilterStack extends Filter {
     }
 
     @Override
+    protected Object handleImage(Object layerr) {
+        return processor((ImageData[]) layerr);
+    }
+
+    @Override
     public ImageData runSingle(MappedImage[] layers) {
         return ((ImageData) super.runSingle(layers));
     }
@@ -30,11 +43,6 @@ public abstract class FilterStack extends Filter {
     @Override
     public ImageData runSingle(ImageData layer) {
         return (ImageData) runSingle(new ImageData[]{layer});
-    }
-
-    @Override
-    public ImageData runSingle(Image layer) {
-        return (ImageData) runSingle(new ImageData[]{new ImageData(layer)});
     }
 
     @Override
@@ -49,29 +57,8 @@ public abstract class FilterStack extends Filter {
 
     @Override
     public ImageData runSingle(ImageData[] layers) {
-        ImageData finalImage = handle(layers);
+        ImageData finalImage = (ImageData) handle(layers);
         finalImage.name(Settings.settingBatchProcessing() ? layers[0].name + "-" + processName : processName);
         return finalImage;
-    }
-
-    @Override
-    protected int calculateIterations(boolean all) {
-        int firstImage = all ? 0 : Tonga.getImageIndex();
-        int lastImage = all ? Tonga.getImageList().size() : firstImage + 1;
-        int[] selectedIndexes = Tonga.getLayerIndexes();
-        int counter = 0;
-        for (int imageIndex = firstImage; imageIndex < lastImage; imageIndex++) {
-            if (Tonga.layerStructureMatches(Tonga.getImageIndex(), imageIndex, selectedIndexes)) {
-                counter += iterations(false);
-            }
-        }
-        return counter;
-    }
-
-    protected abstract ImageData processor(ImageData[] layers);
-
-    @Override
-    protected ImageData[] getIDArray(Object o) {
-        return new ImageData[]{(ImageData) o};
     }
 }

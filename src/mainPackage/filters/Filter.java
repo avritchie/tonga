@@ -2,8 +2,6 @@ package mainPackage.filters;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.List;
-import javafx.scene.image.Image;
 import mainPackage.TongaLayer;
 import javax.imageio.ImageIO;
 import mainPackage.MappedImage;
@@ -59,13 +57,30 @@ public abstract class Filter {
         this(name, params, iterations, iterations);
     }
 
-    public String getName() {
+    public final String getName() {
         return processName;
     }
 
-    public void loadComponents() {
+    public final void loadComponents() {
         panelCreator = new PanelCreator(parameterData);
     }
+
+    public final void loadParams() {
+        param.getFilterParameters(panelCreator);
+    }
+
+    protected int iterations(boolean bits) {
+        //override to alter
+        return bits ? iterations16 : iterations32;
+    }
+
+    abstract protected ImageData[] getIDArray(Object img);
+
+    abstract protected int getIterations(int imageIndex, int[] selectedIndices);
+
+    abstract protected void setDimensions(Object img);
+
+    abstract protected Object handleImage(Object img);
 
     public ImageData[][] runSingle() {
         int selectedImage = Tonga.getImageIndex();
@@ -131,13 +146,10 @@ public abstract class Filter {
         return data;
     }
 
-    abstract protected ImageData[] getIDArray(Object img
-    );
-
     protected Object runSingle(ImageData[] layers) {
         ImageData[] tongas = new ImageData[layers.length];
         for (int i = 0; i < layers.length; i++) {
-            ImageData finalImage = handle(layers[i]);
+            ImageData finalImage = (ImageData) handle(layers[i]);
             finalImage.name(Settings.settingBatchProcessing() ? layers[i].name + "-" + processName : processName);
             tongas[i] = finalImage;
         }
@@ -153,10 +165,6 @@ public abstract class Filter {
             Tonga.catchError(new NullPointerException(), "Filter was given an empty layer to work with.");
         }
         return ((ImageData[]) runSingle(new ImageData[]{layer}))[0];
-    }
-
-    public ImageData runSingle(Image layer) {
-        return ((ImageData[]) runSingle(new ImageData[]{new ImageData(layer)}))[0];
     }
 
     public ImageData runSingle(MappedImage layer) {
@@ -212,21 +220,17 @@ public abstract class Filter {
         return output;
     }
 
-    protected ImageData handle(Object img) {
+    protected final Object handle(Object img) {
         setDimensions(img);
         double cProg = Tonga.loader().getProgress();
-        ImageData rid = handleImage(img);
+        Object handled = handleImage(img);
         if (cProg == Tonga.loader().getProgress()) {
             Tonga.loader().appendProgress(1.);
         }
-        return rid;
+        return handled;
     }
 
-    abstract protected void setDimensions(Object img);
-
-    abstract protected ImageData handleImage(Object img);
-
-    public static void publish(ImageData[][] images, String name) {
+    public final static void publish(ImageData[][] images, String name) {
         Tonga.loader().maxProgress();
         if (Thread.currentThread().isInterrupted()) {
             return;
@@ -255,31 +259,16 @@ public abstract class Filter {
         Tonga.publishLayerList();
     }
 
-    protected int calculateIterations(boolean all) {
+    protected final int calculateIterations(boolean all) {
         int firstImage = all ? 0 : Tonga.getImageIndex();
         int lastImage = all ? Tonga.getImageList().size() : firstImage + 1;
-        int[] selectedIndexes = Tonga.getLayerIndexes();
+        int[] selectedIndices = Tonga.getLayerIndexes();
         int counter = 0;
         for (int imageIndex = firstImage; imageIndex < lastImage; imageIndex++) {
-            if (Tonga.layerStructureMatches(Tonga.getImageIndex(), imageIndex, selectedIndexes)) {
-                List<TongaLayer> ll = Tonga.getLayerList(imageIndex);
-                for (int i = 0; i < selectedIndexes.length; i++) {
-                    if (selectedIndexes[i] < ll.size()) {
-                        counter += iterations(ll.get(selectedIndexes[i]).layerImage == null ? false
-                                : ll.get(selectedIndexes[i]).layerImage.bits == 16);
-                    }
-                }
+            if (Tonga.layerStructureMatches(Tonga.getImageIndex(), imageIndex, selectedIndices)) {
+                counter += getIterations(imageIndex, selectedIndices);
             }
         }
         return counter;
-    }
-
-    protected int iterations(boolean bits) {
-        //override to alter
-        return bits ? iterations16 : iterations32;
-    }
-
-    public void getParams() {
-        param.getFilterParameters(panelCreator);
     }
 }

@@ -39,6 +39,41 @@ public class ROISet {
         this.targetsize = nucleusSize;
     }
 
+    public void append(ROISet secondset) {
+        list.addAll(secondset.list);
+        secondset.list.forEach(o -> {
+            o.set = this;
+        });
+    }
+
+    public ROISet copy() {
+        List<ROI> nList = new ArrayList<>();
+        nList.addAll(this.list);
+        ROISet nSet = new ROISet(nList, width, height);
+        nSet.targetsize = this.targetsize;
+        nSet.drawAngles = this.drawAngles;
+        nSet.edgeOrder = this.edgeOrder;
+        return nSet;
+    }
+
+    public void parentalMerge() {
+        //merges this set members to the parent ROIs of each ROI
+        //use for merging the inner areas back to the main objects
+        //you should do edge tracing again after doing this for the set containing the parents if done earlier
+        list.forEach(o -> {
+            int xdiff = o.area.xstart - o.parent.area.xstart;
+            int ydiff = o.area.ystart - o.parent.area.ystart;
+            for (int x = 0; x < o.area.width; x++) {
+                for (int y = 0; y < o.area.height; y++) {
+                    if (o.area.area[x][y]) {
+                        o.parent.area.area[x + xdiff][y + ydiff] = true;
+                    }
+                }
+            }
+
+        });
+    }
+
     abstract class setRenderer {
 
         int[] out;
@@ -50,10 +85,16 @@ public class ROISet {
         abstract void drawingMethod(ROI o);
 
         public int[] draw(int[] dest) {
+            return draw(dest, false);
+        }
+
+        public int[] draw(int[] dest, boolean append) {
             Tonga.iteration();
             //use destination array if supplied
             out = dest != null ? dest : new int[width * height];
-            IMG.fillArray(out, width, height, COL.BLACK);
+            if (!append || out != dest) {
+                IMG.fillArray(out, width, height, COL.BLACK);
+            }
             for (int i = 0; i < list.size(); i++) {
                 preDrawingMethod(list.get(i));
             }
@@ -95,7 +136,11 @@ public class ROISet {
     }
 
     public void drawTo(ImageData dest) {
-        drawTo(dest,false);
+        drawTo(dest, false);
+    }
+
+    public void drawAppend(ImageData dest, int color) {
+        drawAppend(color, dest.pixels32);
     }
 
     public void drawTo(ImageData dest, boolean noEffects) {
@@ -257,6 +302,17 @@ public class ROISet {
         }.draw(null);
     }
 
+    public void drawAppend(int color, int[] dest) {
+        new setRenderer() {
+            @Override
+            void drawingMethod(ROI o) {
+                Iterate.areaPixels(o, (int pos) -> {
+                    out[pos] = color;
+                });
+            }
+        }.draw(dest, true);
+    }
+
     public ImageData drawEdgeImage() {
         return new ImageData(new setRenderer() {
             @Override
@@ -333,14 +389,18 @@ public class ROISet {
 
     public final void findOuterEdges() {
         list.forEach(o -> {
-            o.findOuterEdges();
+            if (o.outEdge == null) {
+                o.findOuterEdges();
+            }
         });
     }
 
     public final void findInnerEdges() {
         // do outer edge analyzing first
         list.forEach(o -> {
-            o.findInnerEdges();
+            if (o.innEdge == null) {
+                o.findInnerEdges();
+            }
         });
     }
 
@@ -396,6 +456,24 @@ public class ROISet {
         // separate false = only fill the holes
         list.forEach(o -> {
             o.fixEdges(width, height, separate);
+        });
+    }
+
+    public void annotateCopy() {
+        // copy area to annotation
+        list.forEach(o -> {
+            for (int i = 0; i < o.area.area.length; i++) {
+                System.arraycopy(o.area.area[i], 0, o.area.annotations[i], 0, o.area.area[0].length);
+            }
+        });
+    }
+
+    public void copyAnnotate() {
+        // copy annotation to area
+        list.forEach(o -> {
+            for (int i = 0; i < o.area.annotations.length; i++) {
+                System.arraycopy(o.area.annotations[i], 0, o.area.area[i], 0, o.area.annotations[0].length);
+            }
         });
     }
 
@@ -565,6 +643,16 @@ public class ROISet {
         }
     }
 
+    public void filterOutLargeObjects(int limitPxls) {
+        Iterator<? extends ROI> it = list.iterator();
+        while (it.hasNext()) {
+            ROI roi = it.next();
+            if (roi.getSize() >= limitPxls) {
+                it.remove();
+            }
+        }
+    }
+
     public void filterOutSmallObjectsEdgeAdjusted(int limitPxls) {
         Iterator<? extends ROI> it = list.iterator();
         while (it.hasNext()) {
@@ -575,11 +663,21 @@ public class ROISet {
         }
     }
 
-    public void filterOutByDimension(int limitPxls) {
+    public void filterOutByMinDimension(int limitPxls) {
         Iterator<? extends ROI> it = list.iterator();
         while (it.hasNext()) {
             ROI roi = it.next();
             if (roi.getDimension() < limitPxls) {
+                it.remove();
+            }
+        }
+    }
+
+    public void filterOutByMaxDimension(int limitPxls) {
+        Iterator<? extends ROI> it = list.iterator();
+        while (it.hasNext()) {
+            ROI roi = it.next();
+            if (roi.getDimension() >= limitPxls) {
                 it.remove();
             }
         }

@@ -3833,7 +3833,7 @@ public class TongaFrame extends JFrame {
     }//GEN-LAST:event_jMenuItem28ActionPerformed
 
     private void menuFillAreaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_menuFillAreaActionPerformed
-        launchFilter(FiltersPass::fillInnerAreas, evt);
+        launchFilter(FiltersSet::fillInnerAreas, evt);
     }//GEN-LAST:event_menuFillAreaActionPerformed
 
     private void jMenuItem30ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem30ActionPerformed
@@ -3974,11 +3974,11 @@ public class TongaFrame extends JFrame {
     }//GEN-LAST:event_jMenuItem46ActionPerformed
 
     private void menuFilterSmallSizeActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_menuFilterSmallSizeActionPerformed
-        launchFilter(FiltersPass::filterObjectSize, evt);
+        launchFilter(FiltersSet::filterObjectSize, evt);
     }//GEN-LAST:event_menuFilterSmallSizeActionPerformed
 
     private void menuFilterSmallDimensionActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_menuFilterSmallDimensionActionPerformed
-        launchFilter(FiltersPass::filterObjectDimension, evt);
+        launchFilter(FiltersSet::filterObjectDimension, evt);
     }//GEN-LAST:event_menuFilterSmallDimensionActionPerformed
 
     private void jMenuItem47ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem47ActionPerformed
@@ -4310,19 +4310,19 @@ public class TongaFrame extends JFrame {
     }//GEN-LAST:event_jMenuItem38ActionPerformed
 
     private void jMenuItem43ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem43ActionPerformed
-        launchFilter(FiltersPass::fillInnerAreasSizeShape, evt);
+        launchFilter(FiltersSet::fillInnerAreasSizeShape, evt);
     }//GEN-LAST:event_jMenuItem43ActionPerformed
 
     private void jMenuItem58ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem58ActionPerformed
-        launchFilter(FiltersPass::innerAreas, evt);
+        launchFilter(FiltersSet::innerAreas, evt);
     }//GEN-LAST:event_jMenuItem58ActionPerformed
 
     private void jMenuItem67ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem67ActionPerformed
-        launchFilter(FiltersPass::filterObjectSizeShape, evt);
+        launchFilter(FiltersSet::filterObjectSizeShape, evt);
     }//GEN-LAST:event_jMenuItem67ActionPerformed
 
     private void jMenuItem69ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem69ActionPerformed
-        launchFilter(FiltersPass::getEdgeMask, evt);
+        launchFilter(FiltersSet::getEdgeMask, evt);
     }//GEN-LAST:event_jMenuItem69ActionPerformed
 
     private void debugSysInfoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_debugSysInfoActionPerformed
@@ -4354,7 +4354,7 @@ public class TongaFrame extends JFrame {
     }//GEN-LAST:event_jMenuItem4ActionPerformed
 
     private void jMenuItem5ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem5ActionPerformed
-        launchFilter(FiltersPass::filterObjectSizeDimension, evt);
+        launchFilter(FiltersSet::filterObjectSizeDimension, evt);
     }//GEN-LAST:event_jMenuItem5ActionPerformed
 
     private void jMenuItem6ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem6ActionPerformed
@@ -4382,11 +4382,11 @@ public class TongaFrame extends JFrame {
     }//GEN-LAST:event_jMenuItem53ActionPerformed
 
     private void jMenuItem73ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem73ActionPerformed
-        launchFilter(FiltersPass::getExtendedMask, evt);
+        launchFilter(FiltersSet::getExtendedMask, evt);
     }//GEN-LAST:event_jMenuItem73ActionPerformed
 
     private void jMenuItem75ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem75ActionPerformed
-        launchFilter(FiltersPass::getRadiusOverlap, evt);
+        launchFilter(FiltersSet::getRadiusOverlap, evt);
     }//GEN-LAST:event_jMenuItem75ActionPerformed
 
     private void jMenuItem76ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem76ActionPerformed
@@ -4394,7 +4394,7 @@ public class TongaFrame extends JFrame {
     }//GEN-LAST:event_jMenuItem76ActionPerformed
 
     private void jMenuItem77ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem77ActionPerformed
-        launchFilter(FiltersPass::filterEdgeTouchers, evt);
+        launchFilter(FiltersSet::filterEdgeTouchers, evt);
     }//GEN-LAST:event_jMenuItem77ActionPerformed
 
     private void jMenuItem78ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem78ActionPerformed

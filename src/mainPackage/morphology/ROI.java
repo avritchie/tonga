@@ -26,6 +26,7 @@ public class ROI {
     public int xcentroid, ycentroid;
     public ImageData originalImage;
     public ROI mask; //maski joka ulottuu arean ulkopuolelle
+    public ROI parent; //inner objektien yms parent
     // alla olevat arvot ylikirjoitetaan tarvittaessa/käytettäessä
     private Area outArea; //objektin ulkopuolinen alue
     private Area innArea; //objektin sisäinen alue

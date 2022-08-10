@@ -20,6 +20,7 @@ import mainPackage.PanelCreator.ControlReference;
 import static mainPackage.PanelCreator.ControlType.*;
 import mainPackage.filters.Filters;
 import mainPackage.filters.FiltersPass;
+import mainPackage.filters.FiltersSet;
 import mainPackage.morphology.ImageTracer;
 import mainPackage.morphology.ROI;
 import mainPackage.morphology.ROISet;
@@ -79,23 +80,23 @@ public class OligoDendroBranch extends Protocol {
                 bodyLayer = Filters.multiplyColBright().runSingle(bodyLayer, 280.);
                 bodyLayer = Filters.thresholdBright().runSingle(bodyLayer, 15);
                 bodyLayer = FiltersPass.edgeErode().runSingle(bodyLayer, COL.BLACK, 1, false, true);
-                bodyLayer = FiltersPass.filterObjectSize().runSingle(bodyLayer, COL.BLACK, 500, false, 0);
+                bodyLayer = FiltersSet.filterObjectSize().runSingle(bodyLayer, COL.BLACK, 500, false, 0);
                 bodyLayer = Filters.connectEdges().runSingle(bodyLayer);
                 bodyLayer = Filters.gaussApprox().runSingle(bodyLayer, 4.0);
                 bodyLayer = Filters.thresholdBright().runSingle(bodyLayer, 30);
                 bodyLayer = Filters.distanceTransform().runSingle(bodyLayer);
                 bodyLayer = Filters.thresholdBright().runSingle(bodyLayer, 4);
-                bodyLayer = FiltersPass.filterObjectSize().runSingle(bodyLayer, COL.BLACK, 500, false, 0);
+                bodyLayer = FiltersSet.filterObjectSize().runSingle(bodyLayer, COL.BLACK, 500, false, 0);
                 bodyLayer = Blender.renderBlend(nucleusSeparator, bodyLayer);
                 bodyLayer = FiltersPass.edgeDilate().runSingle(bodyLayer, COL.BLACK, 5, false);
                 bodyLayer = Filters.box().runSingle(bodyLayer, 2.);
                 bodyLayer = Filters.thresholdBright().runSingle(bodyLayer, 50);
-                bodyLayer = FiltersPass.fillInnerAreas().runSingle(bodyLayer, false);
+                bodyLayer = FiltersSet.fillInnerAreas().runSingle(bodyLayer, false);
                 IMG.copyImage(bodyLayer, outImage[1]);
                 // BRÄNTSES
                 areaLayer = Filters.multiplyColBright().runSingle(sourceLayer[3], 280.);
                 areaLayer = Filters.thresholdBright().runSingle(areaLayer, 15);
-                areaLayer = FiltersPass.filterObjectDimension().runSingle(areaLayer, COL.BLACK, 15, false, 0);
+                areaLayer = FiltersSet.filterObjectDimension().runSingle(areaLayer, COL.BLACK, 15, false, 0);
                 IMG.copyImage(areaLayer, outImage[2]);
                 //
                 Tonga.log.trace("There are {} centers", centers.size());

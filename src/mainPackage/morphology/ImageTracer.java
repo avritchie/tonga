@@ -79,28 +79,9 @@ public class ImageTracer {
                 int i = findClosestNonAreaPixel(pnt, roi.area, outArea);
                 if (i != -1 && !assigned[i]) {
                     Area area = traceArea(image.pixels32, bgColor, bgReversed, image.width, image.height, i);
-                    foundObjects.add(new ROI(image, area));
-                    markAreaAsAssigned(area);
-                }
-            });
-        });
-        return new ROISet(foundObjects, image.width, image.height);
-    }
-
-    //size filtering for areas which appear to not be actually inner objects, but rather enclosed by objects
-    public ROISet traceInnerObjectsFiltered(ROISet set, int targetSize) {
-        List<ROI> foundObjects = new ArrayList<>();
-        set.list.forEach(roi -> {
-            Area outArea = roi.getOutArea();
-            roi.innEdge.list.forEach(pnt -> {
-                int i = findClosestNonAreaPixel(pnt, roi.area, outArea);
-                if (i != -1 && !assigned[i]) {
-                    Area area = traceArea(image.pixels32, bgColor, bgReversed, image.width, image.height, i);
                     ROI found = new ROI(image, area);
-                    double ratio = roi.getSize() / (double) found.getSize() / (roi.getSize() / (double) targetSize);
-                    if (ratio > 2) {
-                        foundObjects.add(found);
-                    }
+                    found.parent = roi;
+                    foundObjects.add(found);
                     markAreaAsAssigned(area);
                 }
             });
@@ -136,8 +117,8 @@ public class ImageTracer {
             }
             if (i % image.width == 0) {
                 Tonga.loader().appendProgress(1. / image.totalPixels() * image.width);
+                }
             }
-        }
         return new ROISet(foundObjects, image.width, image.height);
     }
 

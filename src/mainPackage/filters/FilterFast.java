@@ -1,5 +1,6 @@
 package mainPackage.filters;
 
+import java.util.List;
 import mainPackage.utils.IMG;
 import mainPackage.*;
 import mainPackage.PanelCreator.ControlReference;
@@ -25,25 +26,42 @@ public abstract class FilterFast extends Filter {
         super(name, params, iter32, iter16);
     }
 
+    protected abstract void processor();
+
+    protected abstract void processor16();
+
     @Override
-    protected ImageData handleImage(Object imgg) {
-        inData = (ImageData) imgg;
-        inData.setPixels();
-        in32 = inData.pixels32;
-        in16 = inData.pixels16;
+    protected ImageData[] getIDArray(Object o) {
+        return ((ImageData[]) o);
+    }
+
+    @Override
+    protected int getIterations(int imageIndex, int[] selectedIndices) {
+        int counter = 0;
+        List<TongaLayer> ll = Tonga.getLayerList(imageIndex);
+        for (int i = 0; i < selectedIndices.length; i++) {
+            if (selectedIndices[i] < ll.size()) {
+                counter += iterations(ll.get(selectedIndices[i]).layerImage == null ? false
+                        : ll.get(selectedIndices[i]).layerImage.bits == 16);
+            }
+        }
+        return counter;
+    }
+
+    @Override
+    protected void setDimensions(Object imgs) {
+        ImageData imgg = (ImageData) imgs;
+        width = imgg.width;
+        height = imgg.height;
+    }
+
+    @Override
+    protected Object handleImage(Object imgg) {
+        setInput(imgg);
         boolean shortMode = inData.bits == 16;
         if (shortMode) {
             try {
-                //use the destination array if available and fits
-                if (destination != null && destination.bits == 16) {
-                    outData = destination;
-                } else {
-                    outData = new ImageData(new short[inData.totalPixels()], width, height);
-                    outData.setAttributes(inData);
-                }
-                out32 = outData.pixels32;
-                out16 = outData.pixels16;
-                //
+                setOutput(true);
                 processor16();
             } catch (UnsupportedOperationException uoe) {
                 Tonga.log.info("The method {} does not support 16-bit images.", this.getName());
@@ -53,14 +71,7 @@ public abstract class FilterFast extends Filter {
             }
         }
         if (!shortMode) {
-            //use the destination array if available and fits
-            if (destination != null && destination.bits == 8) {
-                outData = destination;
-            } else {
-                outData = new ImageData(new int[inData.totalPixels()], width, height);
-            }
-            out32 = outData.pixels32;
-            out16 = outData.pixels16;
+            setOutput(false);
             processor();
         }
         if (inData == outData) {
@@ -71,7 +82,30 @@ public abstract class FilterFast extends Filter {
         return out;
     }
 
-    private void clean() {
+    protected void setInput(Object imgg) {
+        inData = (ImageData) imgg;
+        inData.setPixels();
+        in32 = inData.pixels32;
+        in16 = inData.pixels16;
+    }
+
+    protected void setOutput(boolean bits) {
+        //use the destination array if available and fits
+        if (destination != null && destination.bits == (bits ? 16 : 8)) {
+            outData = destination;
+        } else {
+            if (bits) {
+                outData = new ImageData(new short[width * height], width, height);
+                outData.setAttributes(inData);
+            } else {
+                outData = new ImageData(new int[width * height], width, height);
+            }
+        }
+        out32 = outData.pixels32;
+        out16 = outData.pixels16;
+    }
+
+    protected void clean() {
         inData = null;
         outData = null;
         in32 = null;
@@ -81,27 +115,11 @@ public abstract class FilterFast extends Filter {
         destination = null;
     }
 
-    @Override
-    protected void setDimensions(Object imgs) {
-        ImageData imgg = (ImageData) imgs;
-        width = imgg.width;
-        height = imgg.height;
-    }
-
-    protected abstract void processor();
-
-    protected abstract void processor16();
-
     protected void set16BitScaleRange(int from, int to) {
         double r = (outData.max - outData.min) / 255.;
         outData.max = (int) (outData.min + from * r);
         outData.min = (int) (outData.min + to * r);
         IMG.copyPixels(in16, out16);
-    }
-
-    @Override
-    protected ImageData[] getIDArray(Object o) {
-        return ((ImageData[]) o);
     }
 
     protected void setOutputBy(ImageData id) {
