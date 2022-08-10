@@ -34,7 +34,7 @@ public class Iterate {
             for (int y = 0; y < f.height; y++) {
                 for (int x = 0; x < f.width; x++) {
                     int p = y * f.width + x;
-                    if (f.conditionalPixels[p] != COL.BLACK) {
+                    if (f.conditionalPixels[p] != f.conditionalColor) {
                         i.iterate(p);
                     }
                 }

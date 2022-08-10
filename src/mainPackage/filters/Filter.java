@@ -38,7 +38,8 @@ public abstract class Filter {
     public int iterations32, iterations16;
     public int width, height;
     public boolean conditional; //execute only on given pixels
-    public int[] conditionalPixels; //the given pixels, must be black/other
+    public int conditionalColor; //only execute pixels which are not of this color
+    public int[] conditionalPixels; //the given pixels, must be conditionalcolor/other
     public ImageData destination; //execute directly to the destination array
 
     public Filter(String name, ControlReference[] params) {
@@ -211,11 +212,13 @@ public abstract class Filter {
     }
 
     //run the filter only on pixels where condlayer is not black; both must be the same size (!)
-    public ImageData runConditional(ImageData layer, ImageData condlayer, Object... parameters) {
+    public ImageData runConditional(ImageData layer, ImageData condlayer, int condCol, Object... parameters) {
         conditional = true;
+        conditionalColor = condCol;
         conditionalPixels = condlayer.pixels32;
         ImageData output = runSingle(layer, parameters);
         conditional = false;
+        conditionalColor = -1;
         conditionalPixels = null;
         return output;
     }
