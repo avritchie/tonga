@@ -51,8 +51,8 @@ After detecting the nuclei areas, uses a radius parameter to measure a dye inten
 ### Downloading
 
 Please download and extract the latest compiled version:  
-* [For Windows](https://github.com/avritchie/tonga/releases/download/v0.1.7.3857/Tonga.Win.v0.1.7.3857.zip)  
-* [For MacOS](https://github.com/avritchie/tonga/releases/download/v0.1.7.3857/Tonga.Mac.v0.1.7.3857.zip)  
+* [For Windows](https://github.com/avritchie/tonga/releases/download/v0.1.8.4270/Tonga.Win.v0.1.8.4270.zip)  
+* [For MacOS](https://github.com/avritchie/tonga/releases/download/v0.1.8.4270/Tonga.Mac.v0.1.8.4270.zip)  
 
 ### Running
 
