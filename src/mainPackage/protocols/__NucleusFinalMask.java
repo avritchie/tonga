@@ -76,7 +76,7 @@ public class __NucleusFinalMask extends Protocol {
             @Override
             protected void pixelProcessor() {
                 if (!skipAdjust) {
-                    Filters.gamma().runTo(inImage[2], mask, 0.5);
+                    Filters.gamma().runTo(inImage[1], mask, 0.5);
                     Filters.autoscale().runTo(mask);
                 } else {
                     mask = inImage[2];
