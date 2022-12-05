@@ -1339,7 +1339,7 @@ public class Tonga {
             }
             int r;
             Object[] butt = msg.contains("Logging") ? new String[]{"Exit"} : fatal ? new String[]{"Exit", "Details"} : new String[]{"OK", "Details"};
-            frame().splashDialog.setVisible(false);
+            TongaFrame.splashDialog.setVisible(false);
             r = JOptionPane.showOptionDialog(null, message, "Error",
                     JOptionPane.YES_NO_OPTION, JOptionPane.ERROR_MESSAGE,
                     null, butt, 0);

@@ -77,11 +77,11 @@ public class TongaFrame extends JFrame {
     public Map<String, Filter> filterHistory;
     boolean accelDisabled, historyAdjusting;
     Integer resultHash;
-    Splash splashDialog;
-    InfoDialog infoDialog;
-    Wizard wizardDialog;
-    SendForm feedbackDialog;
-    TableViewer tableWindow;
+    static Splash splashDialog;
+    static InfoDialog infoDialog;
+    static Wizard wizardDialog;
+    static SendForm feedbackDialog;
+    static TableViewer tableWindow;
 
     public TongaFrame() {
         loadIconKit();
