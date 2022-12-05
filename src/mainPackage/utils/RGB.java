@@ -227,4 +227,18 @@ public class RGB {
     public static int argbc(int b, int c) {
         return argbColored(b, (int) (RGB.maxColour(c)), RGB.alpha(c));
     }
+
+    public static int argb(short intensity, int colour, int max, int min) {
+        int bf = colour & 255;
+        int gf = colour >> 8 & 255;
+        int rf = colour >> 16 & 255;
+        double l = max - min == 0 ? 1 : max - min;
+        int s = intensity & 65535;
+        double v = min > s ? 0 : (s - min) / l;
+        v = v > 1 ? 1 : v;
+        int b = (int) (v * bf);
+        int g = (int) (v * gf);
+        int r = (int) (v * rf);
+        return -16777216 | r << 16 | g << 8 | b;
+    }
 }

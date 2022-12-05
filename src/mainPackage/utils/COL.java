@@ -8,6 +8,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.scene.image.WritableImage;
+import mainPackage.ImageData;
 import mainPackage.MappedImage;
 
 public class COL {
@@ -52,11 +53,30 @@ public class COL {
         c[1] = lim.getRGB(0, lim.getHeight() - 1);
         c[2] = lim.getRGB(lim.getWidth() - 1, 0);
         c[3] = lim.getRGB(lim.getWidth() - 1, lim.getHeight() - 1);
-        Integer mc = Arrays.stream(c)
+        return new Color(selectMostCommonColour(c), true);
+    }
+
+    public static int dataCornerColour(ImageData id) {
+        Integer[] c = new Integer[4];
+        if (id.bits == 16) {
+            c[0] = RGB.argb(id.pixels16[0], id.colour, id.max, id.min);
+            c[1] = RGB.argb(id.pixels16[(id.height - 1) * id.width], id.colour, id.max, id.min);
+            c[2] = RGB.argb(id.pixels16[(id.width - 1)], id.colour, id.max, id.min);
+            c[3] = RGB.argb(id.pixels16[(id.height - 1) * id.width + id.width - 1], id.colour, id.max, id.min);
+        } else {
+            c[0] = id.pixels32[0];
+            c[1] = id.pixels32[(id.height - 1) * id.width];
+            c[2] = id.pixels32[(id.width - 1)];
+            c[3] = id.pixels32[(id.height - 1) * id.width + id.width - 1];
+        }
+        return selectMostCommonColour(c);
+    }
+
+    private static Integer selectMostCommonColour(Integer[] colours) {
+        return Arrays.stream(colours)
                 .collect(Collectors.groupingBy(Function.identity(), Collectors.counting()))
                 .entrySet().stream().max((o1, o2) -> o1.getValue().compareTo(o2.getValue()))
                 .map(Map.Entry::getKey).orElse(null);
-        return new Color(mc, true);
     }
 
     public static javafx.scene.paint.Color awt2FX(Color c) {
