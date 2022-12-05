@@ -41,9 +41,11 @@ import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.ListModel;
 import javax.swing.SwingUtilities;
+import javax.swing.UIDefaults;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 import javax.swing.event.ListSelectionEvent;
+import javax.swing.plaf.nimbus.NimbusLookAndFeel;
 import ome.units.UNITS;
 import ome.units.quantity.Length;
 import ome.units.unit.Unit;
@@ -72,6 +74,7 @@ public class Tonga {
     static int javaREVersion;
     static String tongaVersion;
     static OS currentOS;
+    static UIDefaults specialFeels;
 
     public static void main(String args[]) {
         boot(args);
@@ -132,15 +135,29 @@ public class Tonga {
 
     private static void initLooks() {
         try {
-            for (UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
-                if ("Nimbus".equals(info.getName())) {
-                    UIManager.setLookAndFeel(info.getClassName());
-                    UIManager.put("nimbusOrange", tongaBlue);
-                    break;
-                }
-            }
+            UIManager.setLookAndFeel(new NimbusLookAndFeel());
+            Object ogFocus = UIManager.get("nimbusFocus");
+            UIManager.put("nimbusFocus", Color.RED);
+            Object[] painters = new Object[6];
+            painters[0] = UIManager.get("Button[Focused+MouseOver].backgroundPainter");
+            painters[1] = UIManager.get("Button[Focused+Pressed].backgroundPainter");
+            painters[2] = UIManager.get("Button[Focused].backgroundPainter");
+            painters[3] = UIManager.get("Button[Default+Focused+MouseOver].backgroundPainter");
+            painters[4] = UIManager.get("Button[Default+Focused+Pressed].backgroundPainter");
+            painters[5] = UIManager.get("Button[Default+Focused].backgroundPainter");
+            UIManager.getLookAndFeel().uninitialize();
+            UIManager.put("nimbusFocus", ogFocus);
+            specialFeels = new UIDefaults();
+            specialFeels.put("Button[Focused+MouseOver].backgroundPainter", painters[0]);
+            specialFeels.put("Button[Focused+Pressed].backgroundPainter", painters[1]);
+            specialFeels.put("Button[Focused].backgroundPainter", painters[2]);
+            specialFeels.put("Button[Default+Focused+MouseOver].backgroundPainter", painters[3]);
+            specialFeels.put("Button[Default+Focused+Pressed].backgroundPainter", painters[4]);
+            specialFeels.put("Button[Default+Focused].backgroundPainter", painters[5]);
+            UIManager.setLookAndFeel(new NimbusLookAndFeel());
+            UIManager.put("nimbusOrange", tongaBlue);
             Tonga.log.info("Looks initialized successfully");
-        } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | UnsupportedLookAndFeelException ex) {
+        } catch (UnsupportedLookAndFeelException ex) {
             catchError(ex, "GUI initialization failed.");
         }
     }

@@ -8,7 +8,6 @@ import javax.swing.JSpinner;
 import javax.swing.JToggleButton;
 import mainPackage.PanelCreator.ControlReference;
 import static mainPackage.PanelCreator.ControlType.*;
-import mainPackage.PanelCreator.PanelControl;
 import mainPackage.utils.COL;
 
 public class PanelParams {
@@ -23,13 +22,14 @@ public class PanelParams {
     public int[] combo;
     public int[] select;
     public int[] layer;
+    public String[] folder;
     public javafx.scene.paint.Color[] color;
     public int[] colorARGB;
     public int[] spinner;
     public boolean[] toggle;
 
     public void getFilterParameters(PanelCreator panelCreator) {
-        int sliders = 0, colors = 0, spinners = 0, combos = 0, toggles = 0, ranges = 0, selects = 0, layers = 0;
+        int sliders = 0, colors = 0, spinners = 0, combos = 0, toggles = 0, ranges = 0, selects = 0, layers = 0, folders = 0;
         for (PanelControl pc : panelCreator.getControls()) {
             switch (pc.type) {
                 case SLIDER:
@@ -64,6 +64,10 @@ public class PanelParams {
                     layer[layers] = ((JComboBox) pc.comp).getSelectedIndex();
                     layers++;
                     break;
+                case FOLDER:
+                    folder[folders] = ((JButton) pc.comp).getText();
+                    folders++;
+                    break;
                 case TOGGLE:
                     toggle[toggles] = ((JToggleButton) pc.comp).isSelected();
                     toggles++;
@@ -73,7 +77,7 @@ public class PanelParams {
     }
 
     public void setFilterParameters(ControlReference[] parameterData, Object... parameters) {
-        int sliders = 0, colors = 0, spinners = 0, combos = 0, toggles = 0, ranges = 0, selects = 0;
+        int sliders = 0, colors = 0, spinners = 0, combos = 0, toggles = 0, ranges = 0, selects = 0, folders = 0;
         for (int i = 0, j = 0; i < parameters.length; i++, j++) {
             if (parameters[i] != null) {
                 try {
@@ -126,6 +130,10 @@ public class PanelParams {
                             // layers skipped
                             i--;
                             break;
+                        case FOLDER:
+                            folder[folders] = (String) parameters[i];
+                            folders++;
+                            break;
                         case TOGGLE:
                             toggle[toggles] = (boolean) parameters[i];
                             toggles++;
@@ -133,6 +141,8 @@ public class PanelParams {
                     }
                 } catch (ArrayIndexOutOfBoundsException ex) {
                     Tonga.log.warn("Ignored a supplied a method parameter which does not have a target");
+                } catch (ClassCastException ex) {
+                    Tonga.log.warn("Passed a parameter which is not compatible with the method parameters");
                 }
             }
         }
@@ -147,6 +157,9 @@ public class PanelParams {
                     i--;
                 } else if (parameters[i] != null) {
                     switch (pc.type) {
+                        case FOLDER:
+                            ((JButton) pc.comp).setText((String) parameters[i]);
+                            break;
                         case SLIDER:
                             if (parameters[i].getClass() == Double.class) {
                                 ((JSlider) pc.comp).setValue(PanelControl.scaledVal((double) parameters[i], sliderParams(pc.data)));
@@ -191,7 +204,7 @@ public class PanelParams {
     }
 
     private void initArrays(ControlReference[] parameterData) {
-        int sliders = 0, colors = 0, spinners = 0, combos = 0, toggles = 0, ranges = 0, selects = 0, layers = 0;
+        int sliders = 0, colors = 0, spinners = 0, combos = 0, toggles = 0, ranges = 0, selects = 0, layers = 0, folders = 0;
         for (ControlReference pc : parameterData) {
             switch (pc.type) {
                 case SLIDER:
@@ -212,6 +225,9 @@ public class PanelParams {
                 case LAYER:
                     layers++;
                     break;
+                case FOLDER:
+                    folders++;
+                    break;
                 case SELECT:
                     selects++;
                     break;
@@ -226,6 +242,7 @@ public class PanelParams {
         combo = new int[combos];
         select = new int[selects];
         layer = new int[layers];
+        folder = new String[folders];
         color = new javafx.scene.paint.Color[colors];
         colorARGB = new int[colors];
         spinner = new int[spinners];
@@ -241,7 +258,7 @@ public class PanelParams {
             ddata[i] = data[i].getClass() == Double.class ? (Double) data[i] : ((Integer) data[i]).doubleValue();
         }
         if (data.length == 3) {
-            return new Double[]{ddata[0], (ddata[1] - ddata[0]) / 2, ddata[1], ddata[2]};
+            return new Double[]{ddata[0], ddata[0] + (ddata[1] - ddata[0]) / 2, ddata[1], ddata[2]};
         }
         return ddata;
     }

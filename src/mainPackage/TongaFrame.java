@@ -199,7 +199,7 @@ public class TongaFrame extends JFrame {
             Tonga.setStatus("Select a protocol before running it");
         } else {
             currentProtocol.getParams();
-            if (currentProtocol.checkEqualSize()) {
+            if (validateProtocolExecution()) {
                 Thread thread = new Thread(() -> {
                     try {
                         currentProtocol.runProtocol(all);
@@ -209,10 +209,30 @@ public class TongaFrame extends JFrame {
                     }
                 });
                 Tonga.bootThread(thread, protocolName.getText(), false, false);
-            } else {
-                Tonga.setStatus("Please make sure all the selected layers are the same size.");
             }
         }
+    }
+
+    private boolean validateProtocolExecution() {
+        if (!currentProtocol.checkEqualSize()) {
+            Tonga.setStatus("Please make sure all the selected layers are the same size.");
+            return false;
+        }
+        if (currentProtocol.param.folder.length > 0) {
+            for (PanelControl pc : currentProtocol.panelCreator.getControls()) {
+                if (pc.type == ControlType.FOLDER) {
+                    JButton jb = (JButton) pc.comp;
+                    if (jb.getText().equals("Browse...")) {
+                        jb.putClientProperty("Nimbus.Overrides.InheritDefaults", true);
+                        jb.putClientProperty("Nimbus.Overrides", Tonga.specialFeels);
+                        jb.requestFocus();
+                        Tonga.setStatus("The protocol can not be executed without a folder target.");
+                        return false;
+                    }
+                }
+            }
+        }
+        return true;
     }
 
     private void instantFilter(Supplier<Filter> method, boolean all, Object... parameters) {
@@ -360,13 +380,6 @@ public class TongaFrame extends JFrame {
                 + Math.round(1000 * zoomFactor) / 10 + "%");
     }
 
-    public static void colourSelect(Object control) {
-        Color cc = JColorChooser.showDialog(null, "Choose a color", ((JButton) control).getBackground());
-        if (cc != null) {
-            ((JButton) control).setBackground(cc);
-        }
-    }
-
     public void enableDisableControls(ArrayList<TongaImage> picList) {
         boolean disabled = picList.isEmpty();
         boxSettingBatch.setEnabled(disabled);
@@ -392,85 +405,6 @@ public class TongaFrame extends JFrame {
                 });
         filterCombo.setSelectedIndex(0);
         historyAdjusting = false;
-    }
-
-    public static final void handleComponents(Container cont) {
-        Component[] components = cont.getComponents();
-        for (Component component : components) {
-            Class c = component.getClass();
-            if (c.equals(JToggleButton.class)) {
-                if (((JToggleButton) component).isSelected()) {
-                    ((JToggleButton) component).setBackground(Color.getHSBColor((float) 0.3, (float) 0.85, (float) 0.7));
-                    ((JToggleButton) component).setText("YES");
-                } else {
-                    ((JToggleButton) component).setBackground(Color.getHSBColor(0, (float) 0.95, (float) 0.675));
-                    ((JToggleButton) component).setText("NO");
-                }
-                ((JToggleButton) component).addActionListener((java.awt.event.ActionEvent evt) -> {
-                    JToggleButton source = (JToggleButton) evt.getSource();
-                    if (source.isSelected()) {
-                        source.setBackground(Color.getHSBColor((float) 0.3, (float) 0.85, (float) 0.7));
-                        source.setText("YES");
-                    } else {
-                        source.setBackground(Color.getHSBColor(0, (float) 0.95, (float) 0.675));
-                        source.setText("NO");
-                    }
-                });
-                ((JToggleButton) component).addItemListener((java.awt.event.ItemEvent evt) -> {
-                    JToggleButton source = (JToggleButton) evt.getSource();
-                    if (source.isSelected()) {
-                        source.setBackground(Color.getHSBColor((float) 0.3, (float) 0.85, (float) 0.7));
-                        source.setText("YES");
-                    } else {
-                        source.setBackground(Color.getHSBColor(0, (float) 0.95, (float) 0.675));
-                        source.setText("NO");
-                    }
-                });
-            }
-            if (c.equals(JButton.class)) {
-                if (((JButton) component).getText().isEmpty()) {
-                    ((JButton) component).addActionListener((ActionEvent evt) -> {
-                        JButton source = (JButton) evt.getSource();
-                        TongaFrame.colourSelect(source);
-                    });
-                }
-            }
-            if (c.equals(JSpinner.class)) {
-                ((JSpinner) component).addMouseWheelListener((MouseWheelEvent mwe) -> {
-                    JSpinner source = (JSpinner) mwe.getSource();
-                    if (source.isEnabled()) {
-                        source.setValue(Integer.parseInt((source.getValue().toString())) - mwe.getWheelRotation());
-                    }
-                });
-            }
-            if (c.equals(JSlider.class)) {
-                ((JSlider) component).addMouseWheelListener((MouseWheelEvent mwe) -> {
-                    JSlider source = (JSlider) mwe.getSource();
-                    if (source.isEnabled()) {
-                        source.setValue(source.getValue() - mwe.getWheelRotation());
-                    }
-                });
-            }
-            if (c.equals(JRangeSlider.class)) {
-                ((JRangeSlider) component).addMouseWheelListener((MouseWheelEvent mwe) -> {
-                    JRangeSlider source = (JRangeSlider) mwe.getSource();
-                    if (source.isEnabled()) {
-                        int x = mwe.getX();
-                        int lx = ((RangeSliderUI) source.getUI()).getLowerX() - x;
-                        int ux = ((RangeSliderUI) source.getUI()).getUpperX() - x;
-                        boolean upper = (Math.abs(lx) > Math.abs(ux));
-                        if (lx == ux) {
-                            upper = x > ux;
-                        }
-                        if (upper) {
-                            source.setUpperValue(source.getUpperValue() - mwe.getWheelRotation());
-                        } else {
-                            source.setValue(source.getValue() - mwe.getWheelRotation());
-                        }
-                    }
-                });
-            }
-        }
     }
 
     private void constructFilterPopupMenu() {
@@ -510,7 +444,7 @@ public class TongaFrame extends JFrame {
         histoRange.addChangeListener((ChangeEvent e) -> {
             Histogram.update();
         });
-        handleComponents(histoSliderPanel);
+        PanelUtils.initPanelListeners(histoSliderPanel);
         menuDebug.setVisible(false);
         Tonga.log.info("Graphical components initialized successfully");
     }
@@ -3735,7 +3669,7 @@ public class TongaFrame extends JFrame {
     }//GEN-LAST:event_openExcelActionPerformed
 
     private void layerBackColorActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_layerBackColorActionPerformed
-        TongaFrame.colourSelect(evt.getSource());
+        PanelUtils.colourSelect((Component) evt.getSource());
         refresh();
     }//GEN-LAST:event_layerBackColorActionPerformed
 
