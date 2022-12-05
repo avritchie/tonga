@@ -32,7 +32,7 @@ public class __ObjectSegment extends Protocol {
         int nucleusSize = param.spinner[0];
         int mode = param.combo[0];
 
-        return new ProcessorFast(Tonga.debug() ? 2 : 1, "Objects", 5) {
+        return new ProcessorFast(Tonga.debug() ? 2 : 1, "Objects", 3) {
 
             int nuclSize;
 

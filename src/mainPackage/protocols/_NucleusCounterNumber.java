@@ -29,7 +29,7 @@ public class _NucleusCounterNumber extends Protocol {
         boolean deadMode = param.toggle[2];
         boolean imageMode = param.toggle[3];
 
-        return new ProcessorFast("Nuclei", 170) {
+        return new ProcessorFast("Nuclei", 166) {
 
             @Override
             protected void pixelProcessor() {

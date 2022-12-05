@@ -29,7 +29,7 @@ public class __NucleusMask extends Protocol {
         boolean deadMode = param.toggle[1];
         boolean segmMode = param.toggle[2];
 
-        return new ProcessorFast(Tonga.debug() ? 3 : 1, "Nuclei", 200) {
+        return new ProcessorFast(Tonga.debug() ? 3 : 1, "Nuclei", 165) {
 
             ImageData[] separation;
             ImageData adjusted;

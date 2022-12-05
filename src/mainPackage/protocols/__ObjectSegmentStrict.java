@@ -29,7 +29,7 @@ public class __ObjectSegmentStrict extends Protocol {
         Color bg = param.color[0];
         int nucleusSize = param.spinner[0];
 
-        return new ProcessorFast(Tonga.debug() ? 2 : 1, "Objects", 5) {
+        return new ProcessorFast(Tonga.debug() ? 2 : 1, "Objects", 3) {
 
             int nuclSize;
 

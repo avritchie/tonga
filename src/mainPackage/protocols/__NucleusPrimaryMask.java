@@ -31,8 +31,9 @@ public class __NucleusPrimaryMask extends Protocol {
     @Override
     protected Processor getProcessor() {
         int nucleusSize = param.spinner[0];
+        int iter = nucleusSize < 34 ? 52 : 70;
 
-        return new ProcessorFast(Tonga.debug() ? 13 : 2, new String[]{"Nucleus Mask"}, 85) {
+        return new ProcessorFast(Tonga.debug() ? 13 : 2, new String[]{"Nucleus Mask"}, iter) {
 
             ImageData layerCorrect, layerBackground, layerNuclei, layerComb;
             ROISet quantSet, fillSet;
