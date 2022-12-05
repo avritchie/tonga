@@ -29,6 +29,7 @@ import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.effect.BlendMode;
 import javafx.scene.image.Image;
+import javafx.scene.image.PixelReader;
 import javafx.scene.image.PixelWriter;
 import javafx.scene.image.WritableImage;
 import javafx.scene.paint.Color;
@@ -39,6 +40,7 @@ import loci.formats.gui.AWTImageTools;
 import static mainPackage.Tonga.picList;
 import mainPackage.utils.COL;
 import mainPackage.utils.HISTO;
+import mainPackage.utils.RGB;
 
 public class TongaRender {
 
@@ -58,7 +60,10 @@ public class TongaRender {
     static int zoomx = 0, zoomy = 0;
     static double posx = 0, posy = 0;
     static int mousx = 0, mousy = 0;
+    public static int pointx = 0, pointy = 0;
     static int imgx = 0, imgy = 0;
+    static int imgint = 0;
+    static String imgval = "";
     static int[] imageDimensions;
     static double[] dragDimensions;
     static Thread bgRenderThread;
@@ -193,7 +198,7 @@ public class TongaRender {
         Canvas canvas2 = new Canvas(0, 0);
         mainDraw = canvas2.getGraphicsContext2D();
         initPanel(mainDraw, mainPanel);
-        Tonga.frame().updateZoomLabel(imgx, imgy, mainFactor, zoomFactor);
+        updateLabel();
         mainPanel.addMouseMotionListener(new MouseMotionListener() {
             @Override
             public void mouseDragged(MouseEvent me) {
@@ -210,8 +215,9 @@ public class TongaRender {
                     int mx = me.getX(), my = me.getY();
                     if (mx <= imageDimensions[0] * mainFactor && my <= imageDimensions[1] * mainFactor) {
                         calculatePixelPosition(mx, my);
+                        getPixelColourIntensity(imgx, imgy);
                     }
-                    Tonga.frame().updateZoomLabel(imgx, imgy, mainFactor, zoomFactor);
+                    updateLabel();
                     redraw();
                 }
             }
@@ -230,6 +236,8 @@ public class TongaRender {
             public void mousePressed(MouseEvent me) {
                 mousx = me.getX();
                 mousy = me.getY();
+                pointx = imgx;
+                pointy = imgy;
             }
 
             @Override
@@ -261,7 +269,7 @@ public class TongaRender {
                     zoomFactor = Math.min(Math.max(zoomFactor - (mwe.getWheelRotation() * (1 / (10 / zoomFactor))), 1), 16);
                 }
                 redraw();
-                Tonga.frame().updateZoomLabel(imgx, imgy, mainFactor, zoomFactor);
+                updateLabel();
             }
         });
     }
@@ -278,8 +286,15 @@ public class TongaRender {
     }
 
     private static void calculatePixelPosition(int mx, int my) {
-        imgx = (int) (posx + imageDimensions[0] * ((double) mx / (int) (imageDimensions[0] * mainFactor)));
-        imgy = (int) (posy + imageDimensions[1] * ((double) my / (int) (imageDimensions[1] * mainFactor)));
+        imgx = Math.min(imageDimensions[0] - 1, (int) (posx + imageDimensions[0] * ((double) mx / (int) (imageDimensions[0] * mainFactor))));
+        imgy = Math.min(imageDimensions[1] - 1, (int) (posy + imageDimensions[1] * ((double) my / (int) (imageDimensions[1] * mainFactor))));
+    }
+
+    private static void getPixelColourIntensity(int xx, int yy) {
+        PixelReader renderReader = getCurrentRender().getPixelReader();
+        int val = renderReader.getArgb(xx, yy);
+        imgint = RGB.brightness(val);
+        imgval = String.format("%08X", val);
     }
 
     private static void calculatePanelPosition(double x, double y) {
@@ -291,7 +306,7 @@ public class TongaRender {
         zoomFactor = 2;
         mainFactor = 1;
         redraw();
-        Tonga.frame().updateZoomLabel(imgx, imgy, mainFactor, zoomFactor);
+        updateLabel();
     }
 
     private static Image drawDiamonds() {
@@ -691,6 +706,10 @@ public class TongaRender {
 
     static void forceRenderRefresh() {
         renderHashes = null;
+    }
+
+    private static void updateLabel() {
+        Tonga.frame().updateZoomLabel(imgx, imgy, imgint, imgval, mainFactor, zoomFactor);
     }
 
     static double getDisplayScaling() {

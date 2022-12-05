@@ -352,9 +352,10 @@ public class TongaFrame extends JFrame {
         bleftLabel.setText("<html>" + str + "</html>");
     }
 
-    public void updateZoomLabel(int xx, int yy, double mainFactor, double zoomFactor) {
+    public void updateZoomLabel(int xx, int yy, int brightness, String hex, double mainFactor, double zoomFactor) {
         brightLabel.setText(
                 (!Tonga.thereIsImage() ? ("-.-") : (xx + "." + yy)) + " | "
+                + (!Tonga.thereIsImage() ? ("- (-") : (brightness + " (" + hex)) + ") | "
                 + Math.round(1000 * mainFactor) / 10 + "% | "
                 + Math.round(1000 * zoomFactor) / 10 + "%");
     }
