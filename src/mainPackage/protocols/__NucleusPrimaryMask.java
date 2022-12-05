@@ -114,7 +114,7 @@ public class __NucleusPrimaryMask extends Protocol {
                     FiltersPass.gaussSmoothing().runTo(layerComb, noise, 1);
                     FiltersSet.fillInnerAreasSizeShape().runTo(layerComb, layerBackground, COL.BLACK, inRem, 90, false, 0, true);
                 } else {
-
+                    layerBackground = fillSet.drawToImageData(true);
                 }
                 //fill inner shapes most likely NOT background
                 Protocol.load(BrightRemover::new).runSilentTo(sourceImage, new ImageData[]{layerBackground, inImage[0]}, layerBackground, COL.WHITE, dilate, 0.5);
