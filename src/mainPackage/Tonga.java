@@ -437,18 +437,35 @@ public class Tonga {
         // direction true = up, false = down
         int[] is = images ? getImageIndexes() : getLayerIndexes();
         List collection = images ? picList : getImage().layerList;
+        //if altering layer order when hw is enabled, the order of the render array must also be updated
+        //otherwise the image displayed to the used will be that of an incorrect order
+        boolean updateRenders = !images && Settings.settingHWAcceleration();
+        List renders = null;
+        if (updateRenders) {
+            renders = Arrays.asList(TongaRender.renderImages);
+        }
+        //perform the swapping
         if ((direction && is[0] > 0) || (!direction && is[is.length - 1] < collection.size() - 1)) {
             int[] nis = new int[is.length];
             if (direction) {
                 for (int i = 0; i < is.length; i++) {
                     Collections.swap(collection, is[i], is[i] - 1);
                     nis[i] = is[i] - 1;
+                    if (updateRenders) {
+                        Collections.swap(renders, is[i], is[i] - 1);
+                    }
                 }
             } else {
                 for (int i = is.length - 1; i >= 0; i--) {
                     Collections.swap(collection, is[i], is[i] + 1);
                     nis[i] = is[i] + 1;
+                    if (updateRenders) {
+                        Collections.swap(renders, is[i], is[i] + 1);
+                    }
                 }
+            }
+            if (updateRenders) {
+                TongaRender.renderImages = ((List<Image>) renders).toArray(new Image[renders.size()]);
             }
             if (images) {
                 selectImage(nis);
