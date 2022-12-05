@@ -31,6 +31,7 @@ import java.util.List;
 import java.util.ResourceBundle;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
+import javafx.scene.image.Image;
 import javax.swing.DefaultListCellRenderer;
 import javax.swing.DefaultListModel;
 import javax.swing.JCheckBox;
@@ -458,18 +459,35 @@ public class Tonga {
         // direction true = up, false = down
         int[] is = images ? getImageIndexes() : getLayerIndexes();
         List collection = images ? picList : getImage().layerList;
+        //if altering layer order when hw is enabled, the order of the render array must also be updated
+        //otherwise the image displayed to the used will be that of an incorrect order
+        boolean updateRenders = !images && Settings.settingHWAcceleration();
+        List renders = null;
+        if (updateRenders) {
+            renders = Arrays.asList(TongaRender.renderImages);
+        }
+        //perform the swapping
         if ((direction && is[0] > 0) || (!direction && is[is.length - 1] < collection.size() - 1)) {
             int[] nis = new int[is.length];
             if (direction) {
                 for (int i = 0; i < is.length; i++) {
                     Collections.swap(collection, is[i], is[i] - 1);
                     nis[i] = is[i] - 1;
+                    if (updateRenders) {
+                        Collections.swap(renders, is[i], is[i] - 1);
+                    }
                 }
             } else {
                 for (int i = is.length - 1; i >= 0; i--) {
                     Collections.swap(collection, is[i], is[i] + 1);
                     nis[i] = is[i] + 1;
+                    if (updateRenders) {
+                        Collections.swap(renders, is[i], is[i] + 1);
+                    }
                 }
+            }
+            if (updateRenders) {
+                TongaRender.renderImages = ((List<Image>) renders).toArray(new Image[renders.size()]);
             }
             if (images) {
                 selectImage(nis);
@@ -732,26 +750,30 @@ public class Tonga {
     public static void removeLayers() {
         UndoRedo.start();
         int[] i = getLayerIndexes();
+        TongaImage ci = Tonga.getImage();
         int c = 0;
         int m = picList.size();
         Iterator<TongaImage> picIter = picList.iterator();
         while (picIter.hasNext()) {
             TongaImage t = picIter.next();
-            if (i[i.length - 1] < t.layerList.size()) {
-                if (layerStructureMatches(getImageIndex(), picList.indexOf(t), i)) {
-                    c++;
-                    for (int j = i.length - 1; j >= 0; j--) {
-                        t.layerList.remove(i[j]);
-                    }
-                    if (t.layerList.isEmpty()) {
-                        picIter.remove();
-                    } else {
-                        t.activeLayers = new int[]{t.layerList.size() - 1};
+            if (t != ci) {
+                if (i[i.length - 1] < t.layerList.size()) {
+                    if (layerStructureMatches(getImageIndex(), picList.indexOf(t), i)) {
+                        c++;
+                        for (int j = i.length - 1; j >= 0; j--) {
+                            t.layerList.remove(i[j]);
+                        }
+                        if (t.layerList.isEmpty()) {
+                            picIter.remove();
+                        } else {
+                            t.activeLayers = new int[]{t.layerList.size() - 1};
+                        }
                     }
                 }
             }
         }
-        refreshChanges("Removed the layer(s) from " + c + "/" + m + " images");
+        removeLayer();
+        refreshChanges("Removed the layer(s) from " + (++c) + "/" + m + " images");
         UndoRedo.end();
     }
 
