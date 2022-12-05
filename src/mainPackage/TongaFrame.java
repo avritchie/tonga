@@ -574,15 +574,20 @@ public class TongaFrame extends JFrame {
                 nm.add(new JSeparator());
             } else {
                 JMenuItem i = new JMenuItem();
-                i.setText(((JMenuItem) sc).getText());
-                // MAKE SURE ALL ENTRIES HAVE ACTION LISTENERS
-                i.addActionListener(((JMenuItem) sc).getActionListeners()[0]);
-                tt = ((JMenuItem) sc).getToolTipText();
-                if (tt != null && !tt.isEmpty()) {
-                    i.setToolTipText(tt);
-                    addToolTipListener(i);
+                try {
+                    i.setText(((JMenuItem) sc).getText());
+                    // MAKE SURE ALL ENTRIES HAVE ACTION LISTENERS
+                    i.addActionListener(((JMenuItem) sc).getActionListeners()[0]);
+                    tt = ((JMenuItem) sc).getToolTipText();
+                    if (tt != null && !tt.isEmpty()) {
+                        i.setToolTipText(tt);
+                        addToolTipListener(i);
+                    }
+                    nm.add(i);
+                } catch (ArrayIndexOutOfBoundsException ex) {
+                    Tonga.catchError(ex, "Failed to load menu actions for \"" + i.getText() + "\" because the action list was empty.\n"
+                            + "Make sure that a listener has been assigned for this entry");
                 }
-                nm.add(i);
             }
         }
         return nm;
