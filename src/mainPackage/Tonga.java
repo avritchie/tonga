@@ -164,11 +164,15 @@ public class Tonga {
 
     private static void initErrors() {
         Thread.setDefaultUncaughtExceptionHandler((Thread t, Throwable e) -> {
+            String msg = "Uncaught exception.";
+            if (e instanceof VerifyError) {
+                msg = "Build broken. Please recompile from source.";
+            }
             if (taskIsRunning) {
                 loader().majorFail();
-                catchError(e);
+                catchError(e, msg);
             } else {
-                catchError(e, "Uncaught exception.");
+                catchError(e, msg);
             }
         });
     }
