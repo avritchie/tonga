@@ -2,6 +2,8 @@ package mainPackage.utils;
 
 import static java.lang.Double.NaN;
 import java.util.Arrays;
+import java.util.function.DoublePredicate;
+import java.util.function.IntPredicate;
 
 public class STAT {
 
@@ -68,6 +70,19 @@ public class STAT {
                 mean = Arrays.stream(dataInt).sum() / (double) size;
             } else {
                 mean = Arrays.stream(dataDouble).sum() / (double) size;
+            }
+        }
+        return mean;
+    }
+
+    public double getFilteredMean(Object filter) {
+        if (mean == null) {
+            if (dataDouble == null) {
+                long fs = Arrays.stream(dataInt).filter((IntPredicate) filter).count();
+                mean = Arrays.stream(dataInt).filter((IntPredicate) filter).sum() / ((double) fs);
+            } else {
+                long fs = Arrays.stream(dataDouble).filter((DoublePredicate) filter).count();
+                mean = Arrays.stream(dataDouble).filter((DoublePredicate) filter).sum() / ((double) fs);
             }
         }
         return mean;
