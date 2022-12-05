@@ -31,6 +31,7 @@ import java.util.List;
 import java.util.ResourceBundle;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
+import javafx.scene.image.Image;
 import javax.swing.DefaultListCellRenderer;
 import javax.swing.DefaultListModel;
 import javax.swing.JCheckBox;
@@ -728,26 +729,30 @@ public class Tonga {
     public static void removeLayers() {
         UndoRedo.start();
         int[] i = getLayerIndexes();
+        TongaImage ci = Tonga.getImage();
         int c = 0;
         int m = picList.size();
         Iterator<TongaImage> picIter = picList.iterator();
         while (picIter.hasNext()) {
             TongaImage t = picIter.next();
-            if (i[i.length - 1] < t.layerList.size()) {
-                if (layerStructureMatches(getImageIndex(), picList.indexOf(t), i)) {
-                    c++;
-                    for (int j = i.length - 1; j >= 0; j--) {
-                        t.layerList.remove(i[j]);
-                    }
-                    if (t.layerList.isEmpty()) {
-                        picIter.remove();
-                    } else {
-                        t.activeLayers = new int[]{t.layerList.size() - 1};
+            if (t != ci) {
+                if (i[i.length - 1] < t.layerList.size()) {
+                    if (layerStructureMatches(getImageIndex(), picList.indexOf(t), i)) {
+                        c++;
+                        for (int j = i.length - 1; j >= 0; j--) {
+                            t.layerList.remove(i[j]);
+                        }
+                        if (t.layerList.isEmpty()) {
+                            picIter.remove();
+                        } else {
+                            t.activeLayers = new int[]{t.layerList.size() - 1};
+                        }
                     }
                 }
             }
         }
-        refreshChanges("Removed the layer(s) from " + c + "/" + m + " images");
+        removeLayer();
+        refreshChanges("Removed the layer(s) from " + (++c) + "/" + m + " images");
         UndoRedo.end();
     }
 
