@@ -8,8 +8,8 @@ import mainPackage.Tonga;
 public class TableData {
 
     public TableData(String[] titles, String[] descs) {
-        columns = titles;
-        descriptions = descs;
+        columns = Arrays.copyOf(titles, titles.length);
+        descriptions = Arrays.copyOf(descs, descs.length);
         rows = new ArrayList<>();
     }
 
