@@ -3,9 +3,6 @@ package mainPackage;
 import java.awt.Color;
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferByte;
-import java.lang.reflect.InvocationTargetException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javafx.scene.image.Image;
 import javax.swing.ImageIcon;
 import javax.swing.JLabel;
@@ -57,12 +54,8 @@ public class Histogram {
     private static void updateHistogram() {
         panelWidth = histoPanel.getWidth();
         panelHeight = histoPanel.getHeight();
-        boolean hw = Settings.settingHWAcceleration();
         long stamp = System.currentTimeMillis();
-        Image imgSource = Tonga.thereIsImage()
-                ? hw && TongaRender.renderImages != null && TongaRender.renderImages.length > Tonga.selectedLayerIndex()
-                ? TongaRender.renderImages[Tonga.selectedLayerIndex()]
-                : !hw ? TongaRender.renderImage : null : null;
+        Image imgSource = TongaRender.getCurrentRender();
         if (imgSource != null) {
             Thread thread = new Thread(() -> {
                 try {

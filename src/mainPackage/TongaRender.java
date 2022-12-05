@@ -12,8 +12,6 @@ import java.awt.image.DataBuffer;
 import java.awt.image.DataBufferByte;
 import java.awt.image.DataBufferUShort;
 import java.awt.image.IndexColorModel;
-import java.awt.image.Raster;
-import java.awt.image.SampleModel;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -38,7 +36,6 @@ import javafx.scene.paint.ImagePattern;
 import javafx.scene.paint.Paint;
 import javax.swing.JPanel;
 import loci.formats.gui.AWTImageTools;
-import loci.formats.gui.Index16ColorModel;
 import static mainPackage.Tonga.picList;
 import mainPackage.utils.COL;
 import mainPackage.utils.HISTO;
@@ -698,5 +695,20 @@ public class TongaRender {
 
     static double getDisplayScaling() {
         return GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice().getDefaultConfiguration().getDefaultTransform().getScaleX();
+    }
+
+    static Image getCurrentRender() {
+        boolean hw = Settings.settingHWAcceleration();
+        if (Tonga.thereIsImage()) {
+            if (hw && TongaRender.renderImages != null && TongaRender.renderImages.length > Tonga.selectedLayerIndex()) {
+                return TongaRender.renderImages[Tonga.selectedLayerIndex()];
+            } else if (!hw) {
+                return TongaRender.renderImage;
+            } else {
+                return null;
+            }
+        } else {
+            return null;
+        }
     }
 }
