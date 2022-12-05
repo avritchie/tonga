@@ -595,6 +595,11 @@ public class TongaFrame extends JFrame {
 
     private static void updateLabel(JLabel label, JSlider slider) {
         label.setText("(" + slider.getValue() + ")");
+    private void getFilepath() {
+        String fp = IO.getFolder(filePathField.getText());
+        if (fp != null) {
+            filePathField.setText(fp);
+        }
     }
 
     private void refresh() {
@@ -3886,7 +3891,7 @@ public class TongaFrame extends JFrame {
     }//GEN-LAST:event_jMenuItem44ActionPerformed
 
     private void browseButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_browseButtonActionPerformed
-        filePathField.setText(IO.getFolder(filePathField.getText()));
+        getFilepath();
     }//GEN-LAST:event_browseButtonActionPerformed
 
     private void menuAlphaBrightActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_menuAlphaBrightActionPerformed

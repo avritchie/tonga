@@ -48,7 +48,7 @@ public class IO {
         if (val == JFileChooser.APPROVE_OPTION) {
             return chooser.getSelectedFile().getAbsolutePath();
         }
-        return text;
+        return null;
     }
 
     protected static File[] getFile(String text) {
