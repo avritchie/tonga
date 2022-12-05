@@ -96,6 +96,7 @@ public class HISTO {
                 index = i;
             }
         }
+        Tonga.log.debug("Histo peak: {}HIGHEST index is {} ", ignoreFirst ? "SECOND " : "", index);
         return index;
     }
 
@@ -147,6 +148,19 @@ public class HISTO {
 
     public static int[] getMinMax(int[] histoData) {
         return getMinMaxAdaptValue(histoData, 0);
+    }
+
+    public static int getSecondMin(int[] histoData) {
+        // gives the lowest point that is not zero
+        int limit = histoData.length;
+        for (int i = 1; i < limit; i++) {
+            if (histoData[i] > 0) {
+                Tonga.log.debug("Lowest non-zero value at {}", i);
+                return i;
+            }
+        }
+        Tonga.log.debug("No non-zero values in the histogram");
+        return 0;
     }
 
     public static int[] getMinMaxAdapt(int[] histoData, double percentage) {
