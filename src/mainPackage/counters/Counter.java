@@ -16,6 +16,8 @@ public abstract class Counter {
     TableData data;
     String imageName;
     Length imageScaling;
+    int imageWidth;
+    int imageHeight;
     public String counterName;
     public String[] columnNames;
     public String[] columnDescriptions;
@@ -59,11 +61,12 @@ public abstract class Counter {
 
     private void handle(String name, Length scale, ImageData layer) {
         imageName = name;
-        if (imageScaling == null || imageScaling.unit().getSymbol().equals(scale.unit().getSymbol())) {
-            imageScaling = scale;
-        } else {
-            imageScaling = null;
+        //layer value is not necessarily passed from protocols
+        if (layer != null) {
+            imageWidth = layer.width;
+            imageHeight = layer.height;
         }
+        imageScaling = scale;
         Object[] newRow = data.newRow(imageName);
         handle(newRow, layer);
     }
