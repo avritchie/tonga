@@ -195,7 +195,7 @@ public class __NucleusFinalMask extends Protocol {
                 }
                 setSampleOutputBy(mask, 25);
                 if (smoothErode > 0) {
-                    FiltersPass.edgeDilate().runTo(mask, COL.BLACK, smoothErode + 1, true);
+                    FiltersPass.edgeDilate().runTo(mask, COL.BLACK, smoothErode + (nuclSize > 35 ? 1 : 0), true);
                 }
                 //apply the overlap mask in case dilation and smoothing merged something
                 Iterate.pixels(inImage[0], (int p) -> {
