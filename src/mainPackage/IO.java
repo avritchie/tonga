@@ -55,15 +55,19 @@ public class IO {
         return null;
     }
 
-    protected static File[] getFile(String text) {
+    protected static File[] getFile(String text, boolean allowmany) {
         JFileChooser chooser = new JFileChooser();
         chooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
         chooser.setDialogTitle("Choose files");
-        chooser.setMultiSelectionEnabled(true);
+        chooser.setMultiSelectionEnabled(allowmany);
         chooser.setCurrentDirectory(new File(text));
         int val = chooser.showOpenDialog(Tonga.frame());
         if (val == JFileChooser.APPROVE_OPTION) {
-            return chooser.getSelectedFiles();
+            if (allowmany) {
+                return chooser.getSelectedFiles();
+            } else {
+                return new File[]{chooser.getSelectedFile()};
+            }
         }
         return null;
     }

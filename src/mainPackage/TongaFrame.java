@@ -3625,14 +3625,14 @@ public class TongaFrame extends JFrame {
     }//GEN-LAST:event_btnRunAllActionPerformed
 
     private void menuFileImportImagesActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_menuFileImportImagesActionPerformed
-        File[] files = IO.getFile(System.getProperty("user.dir"));
+        File[] files = IO.getFile(System.getProperty("user.dir"), true);
         if (files != null) {
             IO.importImages(Arrays.asList(files));
         }
     }//GEN-LAST:event_menuFileImportImagesActionPerformed
 
     private void menuFileImportLayersActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_menuFileImportLayersActionPerformed
-        File[] files = IO.getFile(System.getProperty("user.dir"));
+        File[] files = IO.getFile(System.getProperty("user.dir"), true);
         if (files != null) {
             IO.importLayers(Arrays.asList(files), true);
         }
@@ -4080,7 +4080,7 @@ public class TongaFrame extends JFrame {
     }//GEN-LAST:event_jMenuItem64ActionPerformed
 
     private void menuFileImportImageActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_menuFileImportImageActionPerformed
-        File[] files = IO.getFile(System.getProperty("user.dir"));
+        File[] files = IO.getFile(System.getProperty("user.dir"), true);
         if (files != null) {
             IO.importImage(Arrays.asList(files));
         }
@@ -4107,7 +4107,7 @@ public class TongaFrame extends JFrame {
     }//GEN-LAST:event_jMenuItem2ActionPerformed
 
     private void menuFileImportLayersThisActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_menuFileImportLayersThisActionPerformed
-        File[] files = IO.getFile(System.getProperty("user.dir"));
+        File[] files = IO.getFile(System.getProperty("user.dir"), true);
         if (files != null) {
             IO.importLayers(Arrays.asList(files), false);
         }
@@ -4167,7 +4167,7 @@ public class TongaFrame extends JFrame {
     }//GEN-LAST:event_jMenuItem13ActionPerformed
 
     private void menuFileImportStacksActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_menuFileImportStacksActionPerformed
-        File[] files = IO.getFile(System.getProperty("user.dir"));
+        File[] files = IO.getFile(System.getProperty("user.dir"), true);
         if (files != null) {
             IO.importStacks(Arrays.asList(files));
         }
@@ -4416,7 +4416,7 @@ public class TongaFrame extends JFrame {
     }//GEN-LAST:event_jMenuItem86ActionPerformed
 
     private void menuFileImportMultichannelActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_menuFileImportMultichannelActionPerformed
-        File[] files = IO.getFile(System.getProperty("user.dir"));
+        File[] files = IO.getFile(System.getProperty("user.dir"), true);
         if (files != null) {
             IO.importMultichannel(Arrays.asList(files));
         }
