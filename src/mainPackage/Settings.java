@@ -4,8 +4,6 @@ import java.awt.Color;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -137,42 +135,34 @@ public class Settings {
         File sconf = new File(file + "/settings.conf");
         boolean fail = false;
         neverShow = new HashMap<>();
-        if (dconf.exists()) {
-            try {
-                try ( DataInputStream in = new DataInputStream(new FileInputStream(dconf))) {
-                    while (in.available() >= 5) {
-                        int key = in.readInt();
-                        boolean value = in.readByte() != 0;
-                        neverShow.put(key, value);
-                    }
+        fail = fail || new IO.binaryReader() {
+            @Override
+            public void read(DataInputStream in) throws IOException {
+                while (in.available() >= 5) {
+                    int key = in.readInt();
+                    boolean value = in.readByte() != 0;
+                    neverShow.put(key, value);
                 }
-            } catch (IOException ex) {
-                fail = true;
-                Tonga.catchError(ex, "The dialog config file could not be read");
             }
-        }
-        if (sconf.exists()) {
-            try {
-                try ( DataInputStream in = new DataInputStream(new FileInputStream(sconf))) {
-                    byte gs = in.readByte();
-                    host.boxSettingAutoscale1.setSelected(((gs) & 1) == 1);
-                    host.boxSettingResultsAppend.setSelected(((gs >> 1) & 1) == 1);
-                    host.boxSettingMMapping.setSelected(((gs >> 2) & 1) == 1);
-                    host.boxSettingOpenAfter.setSelected(((gs >> 3) & 1) == 1);
-                    host.boxSettingSubfolder.setSelected(((gs >> 4) & 1) == 1);
-                    host.boxSettingAlphaBG.setSelected(((gs >> 5) & 1) == 1);
-                    host.boxSettingMultiThreading.setSelected(((gs >> 6) & 1) == 1);
-                    host.boxSettingHWRendering.setSelected(((gs >> 7) & 1) == 1);
-                    host.layerBackColor.setBackground(new Color(in.readInt()));
-                    byte cs = in.readByte();
-                    host.autoscaleCombo.setSelectedIndex(((cs) & 3));
-                    host.stackCombo.setSelectedIndex(((cs >> 2) & 7));
-                }
-            } catch (IOException ex) {
-                fail = true;
-                Tonga.catchError(ex, "The setting file could not be read");
+        }.load(dconf, "dialog config file");
+        fail = fail || new IO.binaryReader() {
+            @Override
+            public void read(DataInputStream in) throws IOException {
+                byte gs = in.readByte();
+                host.boxSettingAutoscale1.setSelected(((gs) & 1) == 1);
+                host.boxSettingResultsAppend.setSelected(((gs >> 1) & 1) == 1);
+                host.boxSettingMMapping.setSelected(((gs >> 2) & 1) == 1);
+                host.boxSettingOpenAfter.setSelected(((gs >> 3) & 1) == 1);
+                host.boxSettingSubfolder.setSelected(((gs >> 4) & 1) == 1);
+                host.boxSettingAlphaBG.setSelected(((gs >> 5) & 1) == 1);
+                host.boxSettingMultiThreading.setSelected(((gs >> 6) & 1) == 1);
+                host.boxSettingHWRendering.setSelected(((gs >> 7) & 1) == 1);
+                host.layerBackColor.setBackground(new Color(in.readInt()));
+                byte cs = in.readByte();
+                host.autoscaleCombo.setSelectedIndex(((cs) & 3));
+                host.stackCombo.setSelectedIndex(((cs >> 2) & 7));
             }
-        }
+        }.load(sconf, "setting file");
         if (!fail) {
             Tonga.log.info("Configuration files loaded successfully");
         }
@@ -184,8 +174,9 @@ public class Settings {
         File dconf = new File(file + "/dialog.conf");
         File sconf = new File(file + "/settings.conf");
         boolean fail = false;
-        try {
-            try ( DataOutputStream out = new DataOutputStream(new FileOutputStream(dconf))) {
+        fail = fail || new IO.binaryWriter() {
+            @Override
+            public void write(DataOutputStream out) throws IOException {
                 Iterator<Entry<Integer, Boolean>> esi = neverShow.entrySet().iterator();
                 while (esi.hasNext()) {
                     Entry es = esi.next();
@@ -194,15 +185,11 @@ public class Settings {
                     out.writeInt(key);
                     out.writeByte(value ? 1 : 0);
                 }
-                out.flush();
             }
-        } catch (IOException ex) {
-            fail = true;
-            Tonga.catchError(ex, "The dialog config file could not be saved");
-            throw ex;
-        }
-        try {
-            try ( DataOutputStream out = new DataOutputStream(new FileOutputStream(sconf))) {
+        }.save(dconf, "dialog config file");
+        fail = fail || new IO.binaryWriter() {
+            @Override
+            public void write(DataOutputStream out) throws IOException {
                 byte gs = (byte) ((host.boxSettingAutoscale1.isSelected() ? 1 : 0)
                         | (host.boxSettingResultsAppend.isSelected() ? 1 : 0) << 1
                         | (host.boxSettingMMapping.isSelected() ? 1 : 0) << 2
@@ -216,13 +203,8 @@ public class Settings {
                 byte cs = (byte) (host.autoscaleCombo.getSelectedIndex()
                         | host.stackCombo.getSelectedIndex() << 2);
                 out.writeByte(cs);
-                out.flush();
             }
-        } catch (IOException ex) {
-            fail = true;
-            Tonga.catchError(ex, "The setting file could not be saved");
-            throw ex;
-        }
+        }.save(sconf, "setting file");
         if (!fail) {
             Tonga.log.info("Configuration files saved successfully");
         }

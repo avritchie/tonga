@@ -6,8 +6,12 @@ import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.image.BufferedImage;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.net.URI;
@@ -935,6 +939,45 @@ public class IO {
             }
         } catch (IOException ex) {
             Tonga.catchError(ex, "Excel can not be started.");
+        }
+    }
+
+    public abstract static class binaryWriter {
+
+        protected abstract void write(DataOutputStream out) throws IOException;
+
+        public boolean save(File f, String desc) {
+            try {
+                try (DataOutputStream out = new DataOutputStream(new FileOutputStream(f))) {
+                    write(out);
+                    out.flush();
+                }
+            } catch (IOException ex) {
+                Tonga.catchError(ex, "The " + desc + " could not be saved");
+                return false;
+            }
+            return true;
+        }
+    }
+
+    public abstract static class binaryReader {
+
+        protected abstract void read(DataInputStream in) throws IOException;
+
+        public boolean load(File f, String desc) {
+            if (f.exists()) {
+                try {
+                    try (DataInputStream in = new DataInputStream(new FileInputStream(f))) {
+                        read(in);
+                    }
+                } catch (IOException ex) {
+                    Tonga.catchError(ex, "The dialog config file could not be read");
+                    return false;
+                }
+            } else {
+                Tonga.log.info("The {} does not exist", desc);
+            }
+            return true;
         }
     }
 
