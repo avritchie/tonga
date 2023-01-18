@@ -188,4 +188,79 @@ public class COL {
         int bf = (int) (b1 * m1 + b2 * m2);
         return RGB.argb(rf, gf, bf, af);
     }
+
+    public static String colorName(int color) {
+        switch (color) {
+            case 0xFFFF0000:
+            case 0xFFFF3333: {
+                return "Red";
+            }
+            case 0xFFFF8080: {
+                return "Light red";
+            }
+            case 0xFF00FF00:
+            case 0xFF00CC00: {
+                return "Green";
+            }
+            case 0xFF80FF80: {
+                return "Light green";
+            }
+            case 0xFF0000FF:
+            case 0xFF0033FF: {
+                return "Blue";
+            }
+            case 0xFF8080FF: {
+                return "Light blue";
+            }
+            case 0xFFFFFF00:
+            case 0xFFFFFF33: {
+                return "Yellow";
+            }
+            case 0xFFFFFFC0: {
+                return "Light yellow";
+            }
+            case 0xFFFF9933: {
+                return "Orange";
+            }
+            case 0xFFCCFF00: {
+                return "Lime";
+            }
+            case 0xFF00FFFF:
+            case 0xFF33FFFF: {
+                return "Cyan";
+            }
+            case 0xFFC0FFFF: {
+                return "Light cyan";
+            }
+            case 0xFFFF00FF:
+            case 0xFFFF33FF: {
+                return "Fuchsia";
+            }
+            case 0xFFFFCCFF: {
+                return "Pink";
+            }
+            case 0xFF9933FF: {
+                return "Purple";
+            }
+            case 0xFFFFC0FF: {
+                return "Light fuchsia";
+            }
+            case 0xFF000000: {
+                return "Black";
+            }
+            case 0xFFFFFFFF: {
+                return "White";
+            }
+            case 0xFF808080: {
+                return "Gray";
+            }
+            case 0xFFC0C0C0: {
+                return "Light gray";
+            }
+            case 0xFF404040: {
+                return "Dark gray";
+            }
+        }
+        return String.format("%08X", color);
+    }
 }
