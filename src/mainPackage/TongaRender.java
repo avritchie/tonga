@@ -97,7 +97,11 @@ public class TongaRender {
                         setDragBounds();
                         setZoomPosition();
                     }
-                    fillAndDraw();
+                    try {
+                        fillAndDraw();
+                    } catch (Exception ex) {
+                        Tonga.catchError(ex, "Unable to render the canvas.");
+                    }
                 }
                 redrawSem.release();
             });
