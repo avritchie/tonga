@@ -4,6 +4,7 @@ import java.awt.Point;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
+import mainPackage.morphology.DoublePoint;
 import mainPackage.morphology.EdgePoint;
 import mainPackage.morphology.Line;
 
@@ -84,11 +85,11 @@ public class GEO {
         }
     }
 
-    public static Point getPointInDirection(Point startPoint, int angle, int distance) {
+    public static Point getPointInDirection(Point startPoint, double angle, double distance) {
         double rad = Math.toRadians(angle);
-        int fx = (int) (Math.cos(rad) * distance);
-        int fy = (int) (-Math.sin(rad) * distance);
-        return new Point(startPoint.x + fx, startPoint.y + fy);
+        double fx = (Math.cos(rad) * distance);
+        double fy = (-Math.sin(rad) * distance);
+        return new DoublePoint(startPoint.x + fx, startPoint.y + fy);
     }
 
     public static Point getDirectionSigns(int angle) {
@@ -98,7 +99,7 @@ public class GEO {
         return new Point(fx, fy);
     }
 
-    public static double hypotenuse(int a, int b) {
+    public static double hypotenuse(double a, double b) {
         return Math.sqrt(a * a + b * b);
     }
 
