@@ -5,6 +5,9 @@ import mainPackage.MappedImage;
 import mainPackage.IO;
 import mainPackage.ImageData;
 import mainPackage.Iterate;
+import mainPackage.PanelCreator;
+import mainPackage.PanelCreator.ControlReference;
+import mainPackage.PanelParams;
 import mainPackage.Tonga;
 import mainPackage.TongaImage;
 import mainPackage.TongaLayer;
@@ -18,15 +21,34 @@ public abstract class Counter {
     Length imageScaling;
     int imageWidth;
     int imageHeight;
+    public Object[] row;
     public String counterName;
     public String[] columnNames;
     public String[] columnDescriptions;
 
+    public ControlReference[] parameterData;
+    public PanelCreator panelCreator;
+    public PanelParams param;
+
     public Counter(String counter, String[] columns, String[] descs) {
+        this(counter, columns, descs, null);
+    }
+
+    public Counter(String counter, String[] columns, String[] descs, ControlReference[] params) {
         counterName = counter;
         columnNames = columns;
         columnDescriptions = descs;
         resetData();
+        parameterData = params != null ? params : new ControlReference[0];
+        param = new PanelParams(parameterData);
+    }
+
+    public final void loadComponents() {
+        panelCreator = new PanelCreator(parameterData);
+    }
+
+    public final void loadParams() {
+        param.getFilterParameters(panelCreator);
     }
 
     public TableData runAll() {
@@ -39,7 +61,7 @@ public abstract class Counter {
             TongaImage image = Tonga.getImageList().get(i);
             TongaLayer layer = image.layerList.get(index);
             if (image.layerList.size() - 1 >= index && layer.layerName.equals(commonName)) {
-                handle(image.imageName, image.imageScaling, retrieveImage(layer));
+                handle(image, retrieveImage(layer));
             }
         }
         return pack();
@@ -50,63 +72,67 @@ public abstract class Counter {
         Tonga.loader().setIterations(1);
         TongaImage image = Tonga.getImage();
         TongaLayer layer = Tonga.getLayerList().get(Tonga.getLayerIndex());
-        handle(image.imageName, image.imageScaling, retrieveImage(layer));
+        handle(image, retrieveImage(layer));
         return pack();
     }
 
     public TableData runSingle(TongaImage image, ImageData source) {
-        handle(image.imageName, image.imageScaling, source);
+        handle(image, source);
         return data;
     }
 
-    private void handle(String name, Length scale, ImageData layer) {
-        imageName = name;
+    protected void handle(TongaImage image, ImageData layer) {
+        imageName = image.imageName;
         //layer value is not necessarily passed from protocols
         if (layer != null) {
             imageWidth = layer.width;
             imageHeight = layer.height;
         }
-        imageScaling = scale;
-        Object[] newRow = data.newRow(imageName);
-        handle(newRow, layer);
+        imageScaling = image.imageScaling;
+        handle(layer);
     }
 
-    protected void handle(Object[] newRow, ImageData img) {
-        preProcessor(img, newRow);
-        pixelProcessor(img, newRow);
-        postProcessor(img, newRow);
+    protected void handle(ImageData img) {
+        initRows();
+        preProcessor(img);
+        pixelProcessor(img);
+        postProcessor(img);
     }
 
-    protected void pixelProcessor(ImageData targetImage, Object[] rowToEdit) {
+    protected void pixelProcessor(ImageData targetImage) {
         if (targetImage.bits == 8) {
             Iterate.pixels(targetImage, (int p) -> {
-                pixelIterator32(targetImage.pixels32, p, rowToEdit);
+                pixelIterator32(targetImage.pixels32, p);
             });
         } else {
             try {
                 Iterate.pixels(targetImage, (int p) -> {
-                    pixelIterator16(targetImage.pixels16, p, rowToEdit);
+                    pixelIterator16(targetImage.pixels16, p);
                 });
             } catch (UnsupportedOperationException ex) {
                 Tonga.log.info("The method {} does not support 16-bit images.", counterName);
                 targetImage.set8BitPixels();
                 Iterate.pixels(targetImage, (int p) -> {
-                    pixelIterator32(targetImage.pixels32, p, rowToEdit);
+                    pixelIterator32(targetImage.pixels32, p);
                 });
             }
         }
     }
 
-    protected void preProcessor(ImageData targetImage, Object[] rowToEdit) {
+    protected void initRows() {
+        row = data.newRow(imageName);
     }
 
-    protected void postProcessor(ImageData targetImage, Object[] rowToEdit) {
+    protected void preProcessor(ImageData targetImage) {
     }
 
-    protected void pixelIterator32(int[] pixels, int p, Object[] rowToEdit) {
+    protected void postProcessor(ImageData targetImage) {
     }
 
-    protected void pixelIterator16(short[] pixels, int p, Object[] rowToEdit) {
+    protected void pixelIterator32(int[] pixels, int p) {
+    }
+
+    protected void pixelIterator16(short[] pixels, int p) {
         throw new UnsupportedOperationException("No 16-bit version available");
     }
 

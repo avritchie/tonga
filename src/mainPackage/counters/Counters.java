@@ -21,7 +21,7 @@ public class Counters {
                     "Total number of black pixels",
                     "Total number of white pixels"}) {
             @Override
-            protected void pixelIterator32(int[] pixels, int p, Object[] row) {
+            protected void pixelIterator32(int[] pixels, int p) {
                 int col = pixels[p];
                 row[1] = ((Integer) row[1]) + 1;
                 if (col == COL.RED) {
@@ -64,14 +64,14 @@ public class Counters {
             double redvalue;
 
             @Override
-            protected void preProcessor(ImageData targetImage, Object[] rowToEdit) {
+            protected void preProcessor(ImageData targetImageToEdit) {
                 totalpixels = 0;
                 blackpixels = 0;
                 redvalue = 0;
             }
 
             @Override
-            protected void pixelIterator32(int[] pixels, int p, Object[] row) {
+            protected void pixelIterator32(int[] pixels, int p) {
                 int col = pixels[p];
                 totalpixels++;
                 if (col == COL.BLACK) {
@@ -82,7 +82,7 @@ public class Counters {
             }
 
             @Override
-            protected void postProcessor(ImageData targetImage, Object[] row) {
+            protected void postProcessor(ImageData targetImage) {
                 row[1] = STAT.decToPerc(1 - (double) blackpixels / totalpixels);
                 row[2] = STAT.decToProm(redvalue / (totalpixels - blackpixels));
                 row[3] = scaleUnit(totalpixels - blackpixels, 2);
@@ -104,14 +104,14 @@ public class Counters {
             double decval;
 
             @Override
-            protected void preProcessor(ImageData targetImage, Object[] rowToEdit) {
+            protected void preProcessor(ImageData targetImageToEdit) {
                 white = 0;
                 intval = 0;
                 decval = 0;
             }
 
             @Override
-            protected void pixelIterator16(short[] pixels, int p, Object[] row) {
+            protected void pixelIterator16(short[] pixels, int p) {
                 if (pixels[p] == COL.UWHITE) {
                     white++;
                 } else {
@@ -121,7 +121,7 @@ public class Counters {
             }
 
             @Override
-            protected void pixelIterator32(int[] pixels, int p, Object[] row) {
+            protected void pixelIterator32(int[] pixels, int p) {
                 if (pixels[p] == COL.WHITE) {
                     white++;
                 } else {
@@ -131,7 +131,7 @@ public class Counters {
             }
 
             @Override
-            protected void postProcessor(ImageData targetImage, Object[] row) {
+            protected void postProcessor(ImageData targetImage) {
                 bgpixels = targetImage.totalPixels() - white;
                 row[1] = scaleUnit(bgpixels, 2);
                 row[2] = STAT.decToPerc(((double) bgpixels) / targetImage.totalPixels());
@@ -154,7 +154,7 @@ public class Counters {
             TableData histo;
 
             @Override
-            protected void preProcessor(ImageData targetImage, Object[] row) {
+            protected void preProcessor(ImageData targetImage) {
                 histo = TableData.createTable(data.columns, data.descriptions, 256, imageName);
                 histo.rows.forEach(i -> {
                     for (int j = 2; j < i.length; j++) {
@@ -164,7 +164,7 @@ public class Counters {
             }
 
             @Override
-            protected void pixelIterator32(int[] pixels, int p, Object[] row) {
+            protected void pixelIterator32(int[] pixels, int p) {
                 int col = pixels[p];
                 int bright = RGB.brightness(col);
                 int saturation = (int) (RGB.saturation(col) * 255);
@@ -179,7 +179,7 @@ public class Counters {
             }
 
             @Override
-            protected void postProcessor(ImageData targetImage, Object[] row) {
+            protected void postProcessor(ImageData targetImage) {
                 data = histo;
             }
         };

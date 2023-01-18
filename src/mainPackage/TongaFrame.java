@@ -318,6 +318,7 @@ public class TongaFrame extends JFrame {
         } else if (currentCounter == null) {
             Tonga.setStatus("Select a counter before running it");
         } else {
+            currentCounter.loadParams();
             Thread thread = new Thread(() -> {
                 try {
                     Counter.publish(all ? currentCounter.runAll() : currentCounter.runSingle());
@@ -336,8 +337,9 @@ public class TongaFrame extends JFrame {
         } else {
             currentProtocol = null;
             currentCounter = method.get();
+            currentCounter.loadComponents();
             tabbedPane.setSelectedIndex(0);
-            updatePanel(new PanelCreator().getPanel(), protocolSettingsPanel);
+            updatePanel(currentCounter.panelCreator.getPanel(), protocolSettingsPanel);
             protocolName.setText(currentCounter.counterName);
         }
     }

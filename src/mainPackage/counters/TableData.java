@@ -39,10 +39,15 @@ public class TableData {
         return row;
     }
 
-    public void newRow(String... param) {
+    public Object[] newRow(String... param) {
         Object[] row = new Object[columnCount()];
         System.arraycopy(param, 0, row, 0, columnCount());
         rows.add(row);
+        return row;
+    }
+
+    public void delLastRow() {
+        rows.remove(rows.size() - 1);
     }
 
     public void delRow(int i) {

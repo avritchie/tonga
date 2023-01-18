@@ -157,7 +157,7 @@ public class _EstimateNucleusSize extends Protocol {
                             "The estimated average area size of a nucleus in the image in %unit2"}) {
 
                     @Override
-                    protected void pixelProcessor(ImageData targetImage, Object[] row) {
+                    protected void pixelProcessor(ImageData targetImage) {
                         row[1] = Counter.scaleUnit(nucleusSize, 1, sourceImage.imageScaling);
                         row[2] = Counter.scaleUnit(GEO.circleArea(nucleusSize), 2, sourceImage.imageScaling);
                     }

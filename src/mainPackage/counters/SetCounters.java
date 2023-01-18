@@ -18,7 +18,7 @@ public class SetCounters {
                     "The estimated number of cells in the image"}) {
 
             @Override
-            protected void processor(Object[] row) {
+            protected void processor() {
                 //CellSet set = getCellSet(traced, targetImage);
                 row[1] = set.objectsCount();
                 row[2] = set.avgCornerlessSize();
@@ -38,7 +38,7 @@ public class SetCounters {
                     "The estimated number of cells in the object"}) {
 
             @Override
-            protected void processor(Object[] row) {
+            protected void processor() {
                 //CellSet set = getCellSet(traced, targetImage);
                 String name = row[0].toString();
                 for (int f = 0; f < set.objectsCount(); f++) {
@@ -69,7 +69,7 @@ public class SetCounters {
                     "An estimation of the roundness of the mask of this nucleus"}) {
 
             @Override
-            protected void processor(Object[] row) {
+            protected void processor() {
                 //ROISet set = getROISet(traced, targetImage);
                 String name = row[0].toString();
                 for (int f = 0; f < set.objectsCount(); f++) {
@@ -102,7 +102,7 @@ public class SetCounters {
                     "The median nuclear size of the nuclei in the image in %unit2"}) {
 
             @Override
-            protected void processor(Object[] row) {
+            protected void processor() {
                 //ROISet set = getROISet(traced, targetImage);
                 row[1] = set.objectsCount();
                 row[2] = scaleUnit(set.statsForTotalSize().getMean(), 2);
@@ -125,7 +125,7 @@ public class SetCounters {
                     "The total relative intensity of this nucleus"}) {
 
             @Override
-            protected void processor(Object[] row) {
+            protected void processor() {
                 //ROISet set = getROISet(traced, targetImage);
                 String name = row[0].toString();
                 for (int f = 0; f < set.objectsCount(); f++) {
@@ -160,7 +160,7 @@ public class SetCounters {
                     "The total relative intensity of this nucleus with the average background intensity subtracted for each pixel"}) {
 
             @Override
-            protected void processor(Object[] row) {
+            protected void processor() {
                 //int dup = (int) (set.list.get(0).getRawStain() / set.list.get(0).getStain());
                 //ROISet set = getROISet(traced, targetImage);
                 String name = row[0].toString();
@@ -200,7 +200,7 @@ public class SetCounters {
                     "The median relative intensity sum from all the nuclei in the image"}) {
 
             @Override
-            protected void processor(Object[] row) {
+            protected void processor() {
                 STAT stain = set.statsForStainAvg();
                 row[1] = set.objectsCount();
                 row[2] = STAT.decToPerc(stain.getMean());
@@ -229,7 +229,7 @@ public class SetCounters {
                     "The median relative intensity sum from all the nuclei in the image with the average background intensity subtracted"}) {
 
             @Override
-            protected void processor(Object[] row) {
+            protected void processor() {
                 STAT stain = set.statsForStainAvg(bg);
                 row[1] = set.objectsCount();
                 row[2] = STAT.decToPerc(bg);
@@ -252,7 +252,7 @@ public class SetCounters {
                     "The ratio of positive nuclei out of all detected nuclei"}) {
 
             @Override
-            protected void processor(Object[] row) {
+            protected void processor() {
                 row[1] = set.objectsCount();
                 row[2] = set.objectsCountStainPositive(d);
                 row[3] = STAT.decToPerc(((Integer) row[2]) / (double) ((Integer) row[1]));
@@ -268,7 +268,7 @@ public class SetCounters {
                     "The ratio of positive nuclei out of all detected nuclei"}) {
 
             @Override
-            protected void processor(Object[] row) {
+            protected void processor() {
                 row[1] = set.objectsCount();
                 //row[2] = set.objectsCountStainPositive((d - bg) * (1 / (1 - bg)));
                 //the threshold re-calculated to adjust for the range when bg removed

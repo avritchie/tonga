@@ -62,7 +62,7 @@ public class __DeadDividing extends Protocol {
                             "The total number of detected nuclei"}) {
 
                     @Override
-                    protected void pixelProcessor(ImageData targetImage, Object[] row) {
+                    protected void pixelProcessor(ImageData targetImage) {
                         row[1] = postCount;
                         row[2] = preCount - postCount;
                         row[3] = preCount;

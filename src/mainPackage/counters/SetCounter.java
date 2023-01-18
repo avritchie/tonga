@@ -14,12 +14,12 @@ public abstract class SetCounter extends Counter {
     }
 
     @Override
-    protected void handle(Object[] newRow, ImageData img) {
-        processor(newRow);
+    protected void handle(ImageData img) {
+        initRows();
+        processor();
     }
 
-    protected void processor(Object[] newRow) {
-    }
+    abstract void processor();
 
     public TableData runSingle(TongaImage image) {
         return runSingle(image, null);
