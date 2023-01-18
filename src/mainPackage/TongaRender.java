@@ -63,6 +63,8 @@ public class TongaRender {
     public static int pointx = 0, pointy = 0;
     static int imgx = 0, imgy = 0;
     static int imgint = 0;
+    static int[] zoomC = new int[8];
+    static int[] mainC = new int[8];
     static String imgval = "";
     static int[] imageDimensions;
     static double[] dragDimensions;
@@ -145,48 +147,50 @@ public class TongaRender {
         }
     }
 
-    private static void fillAndDraw() {
-        double zoomLocalFactor = picList.isEmpty() ? 1 : zoomFactor;
+    private static void updateMainCoordinates() {
         double mainLocalFactor = picList.isEmpty() ? 1 : mainFactor;
-        int zoomWidth = (int) zoomDraw.getCanvas().getWidth();
-        int zoomHeight = (int) zoomDraw.getCanvas().getHeight();
         int mainWidth = Math.min((int) mainDraw.getCanvas().getWidth(), (int) (imageDimensions[0] * mainLocalFactor));
         int mainHeight = Math.min((int) mainDraw.getCanvas().getHeight(), (int) (imageDimensions[1] * mainLocalFactor));
+        int miw = (int) Math.round(mainWidth / mainLocalFactor);
+        int mih = (int) Math.round(mainHeight / mainLocalFactor);
+        //image x start, image y start, image x end, image y end, canvas x start, canvas y start, canvas x end, canvas y end
+        mainC = new int[]{(int) posx, (int) posy, miw, mih, 0, 0, mainWidth, mainHeight};
+    }
+
+    private static void updateZoomCoordinates() {
+        double zoomLocalFactor = picList.isEmpty() ? 1 : zoomFactor;
+        int zoomWidth = (int) zoomDraw.getCanvas().getWidth();
+        int zoomHeight = (int) zoomDraw.getCanvas().getHeight();
+        int izw = (int) (imageDimensions[0] * zoomLocalFactor), izh = (int) (imageDimensions[1] * zoomLocalFactor);
+        boolean he = izw < zoomWidth, ve = izh < zoomHeight;
+        int zbx = he ? (zoomWidth - izw) / 2 : 0, zby = ve ? (zoomHeight - izh) / 2 : 0;
+        int zwx = he ? izw : zoomWidth, zwy = ve ? izh : zoomHeight;
+        int zrx = he ? 0 : zoomx, zry = ve ? 0 : zoomy;
+        int zux = he ? imageDimensions[0] : (int) (zoomWidth / zoomLocalFactor);
+        int zuy = ve ? imageDimensions[1] : (int) (zoomHeight / zoomLocalFactor);
+        //image x start, image y start, image x end, image y end, canvas x start, canvas y start, canvas x end, canvas y end
+        zoomC = new int[]{zrx, zry, zux, zuy, zbx, zby, zwx, zwy};
+    }
+
+    private static void fillAndDraw() {
+        updateMainCoordinates();
+        updateZoomCoordinates();
         fill = Settings.settingBatchProcessing() ? stripes : Settings.settingsAlphaBackground() ? COL.awt2FX(Settings.settingAlphaBackgroundColor()) : diamonds;
-        int newMainPHash = (int) (posx * mainWidth - posy * mainHeight - mainLocalFactor * 100);
+        int newMainPHash = (int) (posx * mainC[6] - posy * mainC[7] - mainFactor * 100);
+        int newZoomPHash = (int) (zoomx * zoomC[6] - zoomy * zoomC[7] - zoomFactor * 100);
         if (mainPHash != newMainPHash) {
             mainPHash = newMainPHash;
-            clearGraphics(mainDraw, mainWidth, mainHeight);
-            if (Settings.settingHWAcceleration()) {
-                renderGraphics(mainDraw, (int) posx, (int) posy,
-                        (int) Math.ceil(mainWidth / mainLocalFactor), (int) Math.ceil(mainHeight / mainLocalFactor),
-                        0, 0, mainWidth, mainHeight);
-            } else {
-                mainDraw.drawImage(renderImage, (int) posx, (int) posy,
-                        (int) Math.ceil(mainWidth / mainLocalFactor), (int) Math.ceil(mainHeight / mainLocalFactor),
-                        0, 0, mainWidth, mainHeight);
-            }
+            fillGraphics(mainDraw, mainC[6], mainC[7]);
+            renderGraphics(mainDraw, mainC[0], mainC[1], mainC[2], mainC[3], mainC[4], mainC[5], mainC[6], mainC[7]);
         }
-        int newZoomPHash = (int) (zoomx * zoomWidth - zoomy * zoomHeight - zoomLocalFactor * 100);
         if (zoomPHash != newZoomPHash) {
             zoomPHash = newZoomPHash;
-            clearGraphics(zoomDraw, zoomWidth, zoomHeight);
-            int izw = (int) (imageDimensions[0] * zoomLocalFactor), izh = (int) (imageDimensions[1] * zoomLocalFactor);
-            boolean he = izw < zoomWidth, ve = izh < zoomHeight;
-            int zbx = he ? (zoomWidth - izw) / 2 : 0, zby = ve ? (zoomHeight - izh) / 2 : 0;
-            int zwx = he ? izw : zoomWidth, zwy = ve ? izh : zoomHeight;
-            int zrx = he ? 0 : zoomx, zry = ve ? 0 : zoomy;
-            int zux = he ? imageDimensions[0] : (int) (zoomWidth / zoomLocalFactor);
-            int zuy = ve ? imageDimensions[1] : (int) (zoomHeight / zoomLocalFactor);
-            if (Settings.settingHWAcceleration()) {
-                renderGraphics(zoomDraw, zrx, zry, zux, zuy, zbx, zby, zwx, zwy);
-            } else {
-                zoomDraw.drawImage(renderImage, zrx, zry, zux, zuy, zbx, zby, zwx, zwy);
-            }
+            fillGraphics(zoomDraw, (int) zoomDraw.getCanvas().getWidth(), (int) zoomDraw.getCanvas().getHeight());
+            renderGraphics(zoomDraw, zoomC[0], zoomC[1], zoomC[2], zoomC[3], zoomC[4], zoomC[5], zoomC[6], zoomC[7]);
         }
     }
 
-    private static void clearGraphics(GraphicsContext cont, int w, int h) {
+    private static void fillGraphics(GraphicsContext cont, int w, int h) {
         cont.setGlobalBlendMode(BlendMode.SRC_OVER);
         cont.setFill(fill);
         cont.fillRect(0, 0, w, h);
@@ -290,8 +294,10 @@ public class TongaRender {
     }
 
     private static void calculatePixelPosition(int mx, int my) {
-        imgx = Math.min(imageDimensions[0] - 1, (int) (posx + imageDimensions[0] * ((double) mx / (int) (imageDimensions[0] * mainFactor))));
-        imgy = Math.min(imageDimensions[1] - 1, (int) (posy + imageDimensions[1] * ((double) my / (int) (imageDimensions[1] * mainFactor))));
+        //imgx = Math.min(imageDimensions[0] - 1, (int) (posx + imageDimensions[0] * ((double) mx / (int) (imageDimensions[0] * mainFactor))));
+        //imgy = Math.min(imageDimensions[1] - 1, (int) (posy + imageDimensions[1] * ((double) my / (int) (imageDimensions[1] * mainFactor))));
+        imgx = Math.min(imageDimensions[0] - 1, (int) (mx / (mainC[6] / (double) mainC[2]) + mainC[0]));
+        imgy = Math.min(imageDimensions[1] - 1, (int) (my / (mainC[7] / (double) mainC[3]) + mainC[1]));
     }
 
     private static void getPixelColourIntensity(int xx, int yy) {
@@ -665,26 +671,36 @@ public class TongaRender {
     }
 
     private static void renderGraphics(GraphicsContext cont, TongaImage image, int[] indices, int sx, int sy, int sw, int sh, int dx, int dy, int dw, int dh) {
-        if (image != null && TongaRender.renderImages != null) {
-            cont.setGlobalBlendMode(BlendMode.SRC_OVER);
-            boolean stack = image.stack;
-            int[] iter = stack ? IntStream.range(0, image.layerList.size()).toArray() : indices;
-            Arrays.stream(iter).forEach(i -> {
-                TongaLayer layer = image.layerList.get(i);
-                if (!stack || !layer.isGhost) {
-                    if (TongaRender.renderImages[i] == null) {
-                        TongaRender.renderImages[i] = layer.layerImage.getFXImage();
-                        Tonga.log.warn("Render concurrency violation. This should not happen.");
-                    }
-                    double alpha = layer.isGhost ? 1.0 / indices.length : 1.0;
-                    cont.setGlobalAlpha(alpha);
-                    cont.drawImage(TongaRender.renderImages[i], sx, sy, sw, sh, dx, dy, dw, dh);
-                    cont.setGlobalAlpha(1.0);
+        if (image != null) {
+            if (Settings.settingHWAcceleration()) {
+                if (TongaRender.renderImages != null) {
+                    cont.setGlobalBlendMode(BlendMode.SRC_OVER);
+                    boolean stack = image.stack;
+                    int[] iter = stack ? IntStream.range(0, image.layerList.size()).toArray() : indices;
+                    Arrays.stream(iter).forEach(i -> {
+                        TongaLayer layer = image.layerList.get(i);
+                        if (!stack || !layer.isGhost) {
+                            if (TongaRender.renderImages[i] == null) {
+                                TongaRender.renderImages[i] = layer.layerImage.getFXImage();
+                                Tonga.log.warn("Render concurrency violation. This should not happen.");
+                            }
+                            double alpha = layer.isGhost ? 1.0 / indices.length : 1.0;
+                            cont.setGlobalAlpha(alpha);
+                            cont.drawImage(TongaRender.renderImages[i], sx, sy, sw, sh, dx, dy, dw, dh);
+                            cont.setGlobalAlpha(1.0);
+                        }
+                        if (stack && !layer.isGhost) {
+                            cont.setGlobalBlendMode(Settings.settingBlendMode());
+                        }
+                    });
+                } else {
+                    Tonga.log.warn("Requested a render for an image but the render images were null");
                 }
-                if (stack && !layer.isGhost) {
-                    cont.setGlobalBlendMode(Settings.settingBlendMode());
-                }
-            });
+            } else {
+                cont.drawImage(renderImage, sx, sy, sw, sh, dx, dy, dw, dh);
+            }
+        } else {
+            Tonga.log.warn("Requested a render for an image which was null");
         }
     }
 
@@ -700,8 +716,12 @@ public class TongaRender {
             cont.drawImage(layer, 0, 0, width, height, 0, 0, width, height);
             cont.setGlobalBlendMode(mode);
         });
+        return snapshot(canvas, Color.TRANSPARENT);
+    }
+
+    public static WritableImage snapshot(Canvas canvas, Color bg) {
         SnapshotParameters params = new SnapshotParameters();
-        params.setFill(Color.TRANSPARENT);
+        params.setFill(bg);
         WritableImage[] wi = new WritableImage[1];
         Platform.runLater(() -> wi[0] = canvas.snapshot(params, null));
         IO.waitForJFXRunLater();
