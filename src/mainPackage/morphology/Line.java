@@ -9,16 +9,83 @@ public class Line {
     // y = xk + b;
     public double k;
     public double b;
+    public double length;
+    public double direction;
     public Point start = null;
     public Point end = null;
+    public Point mid = null;
 
-    Line(int x, int y, double dir) {
+    public Line(int x, int y, double dir) {
         k = GEO.getSlope(dir);
         b = GEO.getLineConstant(x, y, k);
+        direction = dir;
     }
 
-    public static Point intersection(Line line1, Line line2) {
-        // if Line-instances have start/end data it is considered
+    public Line(double k, double b) {
+        this.k = k;
+        this.b = b;
+    }
+
+    public Line(Point s, Point e) {
+        start = s;
+        end = e;
+        mid = GEO.getMidPoint(s, e);
+        length = GEO.getDist(s, e);
+        direction = GEO.getDirection(s, e);
+        k = GEO.getSlope(direction);
+        b = GEO.getLineConstant(start.x, start.y, k);
+    }
+
+    public void setStartEndPoints(Point midpoint, double distance) {
+        double x = midpoint.getX();
+        double y = midpoint.getY();
+        if (Double.isInfinite(k)) {
+            start = new DoublePoint(Math.round(x), Math.round(y + distance));
+            end = new DoublePoint(Math.round(x), Math.round(y - distance));
+        } else {
+            double c = GEO.hypotenuse(1, k);
+            double r = distance / c;
+            start = new DoublePoint(Math.round(x - r), Math.round(y + (k * r)));
+            end = new DoublePoint(Math.round(x + r), Math.round(y - (k * r)));
+        }
+        mid = midpoint;
+        Point pp = GEO.getPointInDirection(midpoint, direction, distance);
+        if (GEO.getDist(pp, start) < GEO.getDist(pp, end)) {
+            Point t = start;
+            start = end;
+            end = t;
+        }
+        length = GEO.getDist(start, end);
+        direction = GEO.getDirection(start, end);
+    }
+
+    public Line getParallelAlong(double distance) {
+        Point p = GEO.getPointInDirection(start, direction, distance);
+        return getParallel(p);
+    }
+
+    public Line getParallel(Point p) {
+        double x = p.getX();
+        double y = p.getY();
+        Line l;
+        if (k == 0) {
+            l = new Line(new Point((int) x, Integer.MAX_VALUE), new Point((int) x, Integer.MIN_VALUE));
+        } else {
+            double kn = -1 / k;
+            double bn = -(x * kn + y);
+            l = new Line(kn, bn);
+        }
+        l.mid = p;
+        return l;
+    }
+
+    public Point getParallelIntersection(Point p) {
+        Line sl = getParallel(p);
+        return Line.intersectionFree(sl, this);
+    }
+
+    public static Point intersectionFree(Line line1, Line line2) {
+        // not restricted by start/end data
         double x, y;
         if ((vertical(line1) || horizontal(line1)) && (vertical(line2) || horizontal(line2))) {
             x = Double.NaN;
@@ -35,11 +102,17 @@ public class Line {
             x = (line2.b - line1.b) / (line1.k - line2.k);
             y = line1.k * x + line1.b;
         }
-        if (nonMatching(x, y)) {
+        return new DoublePoint(x, -y);
+    }
+
+    public static Point intersection(Line line1, Line line2) {
+        // if Line-instances have start/end data it is considered
+        Point p = intersectionFree(line1, line2);
+        if (nonMatching(p.x, -p.y)) {
             return null;
         } else {
-            if (intersectionInsideLineRange(x, y, line1, line2)) {
-                return new Point((int) Math.round(x), (int) Math.round(-y));
+            if (intersectionInsideLineRange(p.x, -p.y, line1, line2)) {
+                return p;
             } else {
                 return null;
             }
@@ -107,8 +180,8 @@ public class Line {
 
     private static boolean intersectionInsideLineRange(double x, double y, Line line1, Line line2) {
         Tonga.log.trace("Intersection:\n{}\n{}\nFound at {}.{}", line1, line2, x, y);
-        return (line1.start != null && line1.end != null && line2.start != null && line2.end != null)
-                && pointIsOnLineBox(x, -y, line1) && pointIsOnLineBox(x, -y, line2);
+        return ((line1.start == null || line1.end == null || pointIsOnLineBox(x, -y, line1))
+                && (line2.start == null || line2.end == null || pointIsOnLineBox(x, -y, line2)));
     }
 
     @Override
