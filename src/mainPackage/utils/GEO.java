@@ -122,6 +122,10 @@ public class GEO {
         return Math.toDegrees(rad);
     }
 
+    public static double getParallelAngle(double angle) {
+        return angle + 180 - (Math.floor((angle + 180) / 360) * 360);
+    }
+
     public static double getDist(Point p1, Point p2) {
         return getDist(p1.x, p1.y, p2.x, p2.y);
     }
@@ -130,12 +134,12 @@ public class GEO {
         return Math.sqrt(Math.pow(x1 - x2, 2) + (Math.pow(y1 - y2, 2)));
     }
 
-    public static double getDirDifference(double smaller, double larger) {
-        return getListDifference(smaller, larger, 360);
+    public static double getDirDifference(double angl1, double angl2) {
+        return getListDifference(angl1, angl2, 360);
     }
 
-    public static double getListDifference(double smaller, double larger, int max) {
-        double diff = Math.abs(larger - smaller) % max;
+    public static double getListDifference(double angl1, double angl2, int max) {
+        double diff = Math.abs(angl2 - angl1) % max;
         return diff > (max / 2) ? max - diff : diff;
     }
 
