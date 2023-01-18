@@ -343,7 +343,7 @@ public class ROISet {
         }.draw(null), width, height);
     }
 
-    public int[] drawStainArray(double binThreshold, boolean remove) {
+    public int[] drawStainArray(double binThreshold, boolean remove, boolean usesum) {
         // render the set by giving each shape either gray or white based on staining intensity and threshold
         return new setRenderer() {
             @Override
@@ -357,7 +357,7 @@ public class ROISet {
                     }
                 } else {
                     Iterate.areaPixels(o, (int pos) -> {
-                        boolean positive = o.getStainAvg() > binThreshold;
+                        boolean positive = usesum ? o.getStainSum() > binThreshold : o.getStainAvg() > binThreshold;
                         int color = positive ? COL.WHITE : COL.GRAY;
                         out[pos] = color;
                     });
@@ -367,7 +367,7 @@ public class ROISet {
     }
 
     public ImageData drawStainImage(double binThreshold, boolean remove) {
-        return new ImageData(drawStainArray(binThreshold, remove), width, height);
+        return new ImageData(drawStainArray(binThreshold, remove, false), width, height);
     }
 
     public final void getExtendedMasks(int radius) {
@@ -891,6 +891,10 @@ public class ROISet {
 
     public int objectsCountStainPositive(double binThreshold) {
         return (int) list.stream().filter((o) -> (o.getStainAvg() > binThreshold)).count();
+    }
+
+    public int objectsCountStainSumPositive(double binThreshold) {
+        return (int) list.stream().filter((o) -> (o.getStainSum() > binThreshold)).count();
     }
 
     public double avgCornerlessSize() {

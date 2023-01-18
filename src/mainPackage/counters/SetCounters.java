@@ -260,6 +260,22 @@ public class SetCounters {
         };
     }
 
+    public static SetCounter countObjectPositiveSum(ROISet set, double d) {
+        return new SetCounter("Count positivity", new String[]{"Image", "Objects", "Positive", "<html><b>Ratio %</b></html>"},
+                new String[]{"The name of the image",
+                    "The total number of recognized nuclei in the image",
+                    "The number of nuclei classified as positive",
+                    "The ratio of positive nuclei out of all detected nuclei"}) {
+
+            @Override
+            protected void processor() {
+                row[1] = set.objectsCount();
+                row[2] = set.objectsCountStainSumPositive(d);
+                row[3] = STAT.decToPerc(((Integer) row[2]) / (double) ((Integer) row[1]));
+            }
+        };
+    }
+
     public static SetCounter countObjectPositiveBG(ROISet set, double bg, double d) {
         return new SetCounter("Count positivity", new String[]{"Image", "Objects", "Positive", "<html><b>Ratio %</b></html>"},
                 new String[]{"The name of the image",
