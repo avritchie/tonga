@@ -75,7 +75,7 @@ public class IO {
     protected static void toTSVfile(JTable table, File file) {
         try {
             TableModel model = table.getModel();
-            try ( FileWriter excel = new FileWriter(file)) {
+            try (FileWriter excel = new FileWriter(file)) {
                 for (int i = 0; i < model.getColumnCount(); i++) {
                     excel.write(model.getColumnName(i).replaceAll("<[^>]*>", "") + "\t");
                 }
@@ -893,37 +893,31 @@ public class IO {
                     ImageIO.write(i, "png", file);
                 }
             }
-        }.exportFile(name, "png");
+        }.exportFile(name, "png", null, false);
         return ok;
     }
 
-    public static File exportTable(boolean temp) {
+    public static String generateFilename(String name) {
+        return name + new SimpleDateFormat("ddMMyyyHHmmss").format(new Date());
+    }
+
+    public static void exportTable(boolean temp) {
         Tonga.frame().resultHash();
-        String fname = "results" + new SimpleDateFormat("ddMMyyyHHmmss").format(new Date());
-        File nfile = new File(temp
-                ? (Tonga.getTempPath() + fname + ".tsv")
-                : Tonga.formatPath(Tonga.frame().filePathField.getText() + "\\" + fname + ".tsv"));
+        String fname = generateFilename("results");
         Thread thread = new Thread(() -> {
-            if (!temp) {
-                boolean ok = new Exporter() {
-                    @Override
-                    void write() throws IOException {
-                        IO.toTSVfile(Tonga.frame().resultTable, file);
-                    }
-                }.exportFile(fname, "tsv");
-                if (ok) {
-                    Tonga.setStatus("Table exported into TSV format");
-                    Tonga.log.info("Table exported into TSV format.");
+            Exporter ex = new Exporter() {
+                @Override
+                void write() throws IOException {
+                    IO.toTSVfile(Tonga.frame().resultTable, file);
                 }
-            } else {
-                IO.toTSVfile(Tonga.frame().resultTable, nfile);
-                launchExcel(nfile);
-                Tonga.setStatus("Table exported and fired into Excel");
-                Tonga.log.info("Table exported and fired into Excel.");
+            };
+            ex.exportFile(fname, "tsv", temp ? "Table exported and fired into Excel."
+                    : "Result table exported into TSV format.", temp);
+            if (temp) {
+                launchExcel(ex.file);
             }
         });
         Tonga.bootThread(thread, "Exporter", true, true);
-        return nfile;
     }
 
     public static void launchExcel(File file) {
