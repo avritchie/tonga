@@ -1026,6 +1026,7 @@ public class TongaFrame extends JFrame {
         jMenuItem68 = new javax.swing.JMenuItem();
         jMenuItem9 = new javax.swing.JMenuItem();
         jMenuItem22 = new javax.swing.JMenuItem();
+        jMenuItem111 = new javax.swing.JMenuItem();
         menuProtocolNucleusSep = new javax.swing.JMenuItem();
         jMenu18 = new javax.swing.JMenu();
         jMenuItem44 = new javax.swing.JMenuItem();
@@ -3357,6 +3358,14 @@ public class TongaFrame extends JFrame {
         });
         jMenu4.add(jMenuItem22);
 
+        jMenuItem111.setText("Organoids");
+        jMenuItem111.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jMenuItem111ActionPerformed(evt);
+            }
+        });
+        jMenu4.add(jMenuItem111);
+
         menuProtocolNucleusSep.setText("Nucleus (+EdU) recognition");
         menuProtocolNucleusSep.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -4521,6 +4530,10 @@ public class TongaFrame extends JFrame {
         Tonga.moveOrder(true, false);
     }//GEN-LAST:event_contImgMoveDownActionPerformed
 
+    private void jMenuItem111ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem111ActionPerformed
+        launchProtocol(Spheroids::new, evt);
+    }//GEN-LAST:event_jMenuItem111ActionPerformed
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
     protected javax.swing.JComboBox<String> autoscaleCombo;
     protected javax.swing.JLabel autoscaleLabel;
@@ -4626,6 +4639,7 @@ public class TongaFrame extends JFrame {
     protected javax.swing.JMenuItem jMenuItem1;
     protected javax.swing.JMenuItem jMenuItem10;
     protected javax.swing.JMenuItem jMenuItem11;
+    protected javax.swing.JMenuItem jMenuItem111;
     protected javax.swing.JMenuItem jMenuItem12;
     protected javax.swing.JMenuItem jMenuItem13;
     protected javax.swing.JMenuItem jMenuItem14;
