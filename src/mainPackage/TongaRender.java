@@ -264,15 +264,15 @@ public class TongaRender {
             if (Tonga.getImageIndex() >= 0) {
                 if (Key.keyCtrl) {
                     mainFactor = Math.min(Math.max(mainFactor - (mwe.getWheelRotation() * (1 / (10 / mainFactor))), 0.1), 8);
-                    int oldImgX = imgx, oldImgY = imgy;
-                    double oldPosX = posx, oldPosY = posy;
+                    int deltaX = imgx, deltaY = imgy;
                     int mx = mwe.getX(), my = mwe.getY();
+                    updateMainCoordinates();
                     calculatePixelPosition(mx, my);
-                    posx += oldImgX - imgx;
-                    posy += oldImgY - imgy;
+                    posx += deltaX - imgx;
+                    posy += deltaY - imgy;
                     setDragBounds();
-                    imgx += posx - oldPosX;
-                    imgy += posy - oldPosY;
+                    updateMainCoordinates();
+                    calculatePixelPosition(mx, my);
                 } else if (!zoomFreeze) {
                     zoomFactor = Math.min(Math.max(zoomFactor - (mwe.getWheelRotation() * (1 / (10 / zoomFactor))), 1), 16);
                 }
