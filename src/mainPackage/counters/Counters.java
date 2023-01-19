@@ -101,6 +101,95 @@ public class Counters {
         };
     }
 
+    public static Counter countUnity() {
+        return new Counter("Count RGB channel unity",
+                new String[]{"Image", "Area %unit2", "Red area %", "Red unity %", "Green area %", "Green unity %", "Blue area %", "Blue unity %"},
+                new String[]{"The name of the image",
+                    "Total size of the detected tissue area in %unit2",
+                    "Total percentage of red staining area of the total area in %",
+                    "The unity measure of the red channel",
+                    "Total percentage of green staining area of the total area in %",
+                    "The unity measure of the green channel",
+                    "Total percentage of blue staining area of the total area in %",
+                    "The unity measure of the blue channel"}) {
+
+            int areapixels;
+            int redpixels;
+            int greenpixels;
+            int bluepixels;
+            double redvalue;
+            double greenvalue;
+            double bluevalue;
+
+            @Override
+            protected void preProcessor(ImageData targetImageToEdit) {
+                areapixels = 0;
+                redpixels = 0;
+                greenpixels = 0;
+                bluepixels = 0;
+                redvalue = 0;
+                greenvalue = 0;
+                bluevalue = 0;
+            }
+
+            @Override
+            protected void pixelIterator32(int[] pixels, int p) {
+                int col = pixels[p];
+                if (col != COL.BLACK) {
+                    areapixels++;
+                    int r = (col >> 16) & 0xFF;
+                    int g = (col >> 8) & 0xFF;
+                    int b = col & 0xFF;
+                    if (r == 0xFF) {
+                        redpixels++;
+                        redvalue += unity(pixels, p, 16);
+                    }
+                    if (g == 0xFF) {
+                        greenpixels++;
+                        greenvalue += unity(pixels, p, 8);
+                    }
+                    if (b == 0xFF) {
+                        bluepixels++;
+                        bluevalue += unity(pixels, p, 0);
+                    }
+                }
+            }
+
+            private double unity(int[] pixels, int p, int bitshift) {
+                int uv = 0;
+                int uc = 0;
+                if (p - 1 > 0 && p / imageWidth == (p - 1) / imageWidth) {
+                    uc++;
+                    uv += ((pixels[p - 1] >> bitshift) & 0xFF) == 255 ? 1 : 0;
+                }
+                if (p + 1 < pixels.length && p / imageWidth == (p + 1) / imageWidth) {
+                    uc++;
+                    uv += ((pixels[p + 1] >> bitshift) & 0xFF) == 255 ? 1 : 0;
+                }
+                if (p + imageWidth < pixels.length) {
+                    uc++;
+                    uv += ((pixels[p + imageWidth] >> bitshift) & 0xFF) == 255 ? 1 : 0;
+                }
+                if (p - imageWidth > 0) {
+                    uc++;
+                    uv += ((pixels[p - imageWidth] >> bitshift) & 0xFF) == 255 ? 1 : 0;
+                }
+                return uv / (double) uc;
+            }
+
+            @Override
+            protected void postProcessor(ImageData targetImage) {
+                row[1] = scaleUnit(areapixels, 2);
+                row[2] = STAT.decToPerc(redpixels / (double) areapixels);
+                row[3] = STAT.decToPerc(redvalue / redpixels);
+                row[4] = STAT.decToPerc(greenpixels / (double) areapixels);
+                row[5] = STAT.decToPerc(greenvalue / greenpixels);
+                row[6] = STAT.decToPerc(bluepixels / (double) areapixels);
+                row[7] = STAT.decToPerc(bluevalue / bluepixels);
+            }
+        };
+    }
+
     public static Counter countRBStain() {
         return new Counter("Count red values",
                 new String[]{"Image", "Tissue %", "<html><b>Stain ‰</b></html>", "Tissue %unit2", "Stain raw"},
