@@ -634,6 +634,28 @@ public class Filters {
     public static FilterFast localThreshold() {
         return new FilterFast("Local Threshold", new ControlReference[]{
             new ControlReference(SLIDER, "Threshold"),
+            new ControlReference(SPINNER, "Radius (px)", 10)}, 2) {
+            @Override
+            protected void processor() {
+                int[] integral = Filters.integral().runSingle(inData).pixels32;
+                int r = param.spinner[0];
+                Iterate.pixels(this, (int pos) -> {
+                    double localMean = Integral.integralMean(integral, r, pos, width, height);
+                    out32[pos] = RGB.brightness(in32[pos]) > localMean - param.sliderScaled[0] ? COL.WHITE : COL.BLACK;
+                });
+            }
+
+            @Override
+            protected void processor16() {
+                throw new UnsupportedOperationException("No 16-bit version available");
+            }
+        };
+    }
+
+    @Deprecated
+    public static FilterFast localSlowThreshold() {
+        return new FilterFast("Local Threshold", new ControlReference[]{
+            new ControlReference(SLIDER, "Threshold"),
             new ControlReference(SPINNER, "Radius (px)", 10)}, 6) {
             @Override
             protected void processor() {
@@ -653,6 +675,60 @@ public class Filters {
     }
 
     public static FilterFast niblack() {
+        return new FilterFast("Niblack Threshold", new ControlReference[]{
+            new ControlReference(SLIDER, "Threshold"),
+            new ControlReference(SLIDER, "Adaptation level (k)"),
+            new ControlReference(SPINNER, "Radius (px)", 10)}, 2) {
+            @Override
+            protected void processor() {
+                double adapt = param.slider[1] / 100.;
+                int r = param.spinner[0];
+                int[] integral = new int[width * height];
+                long[] powIntegral = new long[width * height];
+                //quick integral image version w both single and squared
+                int cnt = 0;
+                int cnts = 0;
+                Tonga.iteration();
+                for (int y = 0; y < height; y++) {
+                    for (int x = 0; x < width; x++) {
+                        int pos = y * width + x;
+                        int apos = (y - 1) * width + x;
+                        int bb = RGB.brightness(in32[pos]);
+                        int bs = bb * bb;
+                        cnt += bb;
+                        cnts += bs;
+                        if (apos > 0) {
+                            integral[pos] = integral[apos] - cnt;
+                            powIntegral[pos] = powIntegral[apos] - cnts;
+                        } else {
+                            integral[pos] = 0xFFFFFFFF - cnt;
+                            powIntegral[pos] = 0xFFFFFFFFFFFFFFFFL - cnts;
+                        }
+                    }
+                    cnt = 0;
+                    cnts = 0;
+                    Tonga.loader().appendProgress(height);
+                    if (Tonga.loader().getTask().isInterrupted()) {
+                        return;
+                    }
+                }
+                Iterate.pixels(this, (int pos) -> {
+                    double localMean = Integral.integralMean(integral, r, pos, width, height);
+                    double powMean = Integral.integralMean(powIntegral, r, pos, width, height);
+                    double localStd = Math.sqrt(powMean - localMean * localMean);
+                    out32[pos] = RGB.brightness(in32[pos]) > localMean + adapt * localStd - param.sliderScaled[0] ? COL.WHITE : COL.BLACK;
+                });
+            }
+
+            @Override
+            protected void processor16() {
+                throw new UnsupportedOperationException("No 16-bit version available");
+            }
+        };
+    }
+
+    @Deprecated
+    public static FilterFast niblackSlow() {
         return new FilterFast("Niblack Threshold", new ControlReference[]{
             new ControlReference(SLIDER, "Threshold"),
             new ControlReference(SLIDER, "Adaptation level (k)"),
@@ -710,6 +786,8 @@ public class Filters {
         return new Object[]{brgharr, meanarr, stdarr};
     }
 
+    @Deprecated
+    //this code has an issue on horizontal edges
     private static Object[] meanStds(FilterFast f, double radd) {
         int rad = (int) radd;
         int length = f.inData.totalPixels();
