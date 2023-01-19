@@ -700,7 +700,7 @@ public class Filters {
 
     public static FilterFast swapColour() {
         return new FilterFast("Colour Swap", new ControlReference[]{
-            new ControlReference(COLOUR, "Replace which colour"),
+            new ControlReference(COLOUR, "Replace which colour", -2),
             new ControlReference(COLOUR, "Replace with which colour")}) {
 
             @Override
