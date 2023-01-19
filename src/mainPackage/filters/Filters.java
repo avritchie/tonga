@@ -264,6 +264,41 @@ public class Filters {
         };
     }
 
+    public static FilterFast condSum() {
+        return new FilterFast("Sum",
+                new ControlReference[]{new ControlReference(COLOUR, "Target colour")}) {
+
+            @Override
+            protected void processor() {
+                int cnt = 0;
+                int c = param.colorARGB[0];
+                Tonga.iteration();
+                for (int y = 0; y < height; y++) {
+                    for (int x = 0; x < width; x++) {
+                        int pos = y * width + x;
+                        int apos = (y - 1) * width + x;
+                        int bb = in32[pos] != c ? 1 : 0;
+                        cnt += bb;
+                        if (apos > 0) {
+                            out32[pos] = out32[apos] - cnt;
+                        } else {
+                            out32[pos] = 0xFFFFFFFF - cnt;
+                        }
+                    }
+                    cnt = 0;
+                    Tonga.loader().appendProgress(height);
+                    if (Tonga.loader().getTask().isInterrupted()) {
+                        return;
+                    }
+                }
+            }
+
+            @Override
+            protected void processor16() {
+            }
+        };
+    }
+
     public static FilterFast popColour() {
         return new FilterFast("Separated Colour", new ControlReference[]{
             new ControlReference(COLOUR, "Colour to separate")}) {
