@@ -1323,6 +1323,81 @@ public class Filters {
         };
     }
 
+    public static FilterFast blurConditional() {
+        return new FilterFast("Conditional blur", new ControlReference[]{
+            new ControlReference(COLOUR, "Background colour", -2),
+            new ControlReference(SPINNER, "Blur radius (px)", 10),
+            new ControlReference(TOGGLE, "Keep the background area")}, 10) {
+            int j, i;
+            int r, c;
+
+            @Override
+            protected void processor() {
+                r = param.spinner[0];
+                c = param.colorARGB[0];
+                Iterate.pixels(this, 10, (int pos) -> {
+                    j = pos % width;
+                    i = pos / width;
+                    if (!param.toggle[0] || in32[i * width + j] != c) {
+                        out32[pos] = RGB.argb(blurIteration(in32, in32));
+                    } else {
+                        out32[pos] = c;
+                    }
+                });
+            }
+
+            protected int blurIteration(int[] in, int[] cond) {
+                double val = 0;
+                int cc = 0;
+                for (int iy = i - r; iy <= i + r; iy++) {
+                    for (int ix = j - r; ix <= j + r; ix++) {
+                        if (ix >= 0 && ix < width && iy >= 0 && iy < height) {
+                            if (GEO.getDist(j, i, ix, iy) <= r) {
+                                if (cond[iy * width + ix] != c) {
+                                    val += RGB.brightness(in[iy * width + ix]);
+                                    cc++;
+                                }
+                            }
+                        }
+                    }
+                }
+                return (int) Math.round(val / cc);
+            }
+
+            @Override
+            protected void processor16() {
+                throw new UnsupportedOperationException("No 16-bit version available");
+            }
+        };
+    }
+
+    public static FilterFast blurConditionalFast() {
+        return new FilterFast("Conditional blur", new ControlReference[]{
+            new ControlReference(COLOUR, "Background colour", -2),
+            new ControlReference(SPINNER, "Blur radius (px)", 10),
+            new ControlReference(TOGGLE, "Keep the background area")}, 10) {
+            int j, i;
+            int r, c;
+
+            @Override
+            protected void processor() {
+                int[] integral = Filters.integral().runSingle(inData).pixels32;
+                int[] sum = Filters.condSum().runSingle(inData, param.colorARGB[0]).pixels32;
+                int r = param.spinner[0];
+                Iterate.pixels(this, (int pos) -> {
+                    double localMean = Integral.integralSum(integral, r, pos, width, height);
+                    double localSum = Integral.integralSum(sum, r, pos, width, height);
+                    out32[pos] = RGB.argb((int) (localMean / localSum));
+                });
+            }
+
+            @Override
+            protected void processor16() {
+                throw new UnsupportedOperationException("No 16-bit version available");
+            }
+        };
+    }
+
     public static FilterFast illuminationCorrection() {
         return new FilterFast("Lighting correction", noParams, 3) {
             @Override
