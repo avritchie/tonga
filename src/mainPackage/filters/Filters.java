@@ -1175,6 +1175,76 @@ public class Filters {
         };
     }
 
+    public static FilterFast average() {
+        return new FilterFast("Average", new ControlReference[]{
+            new ControlReference(TOGGLE, "Only on non-background areas", new int[]{1, 1}),
+            new ControlReference(COLOUR, "Background area colour", -2),
+            new ControlReference(TOGGLE, "Average brightness only")}, 2) {
+
+            long[] val;
+            int cnt;
+            int[] avg;
+
+            @Override
+            protected void processor() {
+                val = new long[4];
+                cnt = 0;
+                avg = new int[4];
+                if (param.toggle[1]) {
+                    Iterate.pixels(this, (int pos) -> {
+                        int c = in32[pos];
+                        if (!param.toggle[0] || c != param.colorARGB[0]) {
+                            val[0] += RGB.brightness(in32[pos]);
+                            cnt++;
+                        }
+                    });
+                    avg[0] = (int) (val[0] / cnt);
+                } else {
+                    Iterate.pixels(this, (int pos) -> {
+                        int c = in32[pos];
+                        if (!param.toggle[0] || c != param.colorARGB[0]) {
+                            int r = (c >> 16) & 0xFF;
+                            int g = (c >> 8) & 0xFF;
+                            int b = c & 0xFF;
+                            int a = (c >> 24) & 0xFF;
+                            val[0] += r;
+                            val[1] += g;
+                            val[2] += b;
+                            val[3] += a;
+                            cnt++;
+                        }
+                    });
+                    avg[0] = (int) (val[0] / cnt);
+                    avg[1] = (int) (val[1] / cnt);
+                    avg[2] = (int) (val[2] / cnt);
+                    avg[3] = (int) (val[3] / cnt);
+                }
+                if (param.toggle[0]) {
+                    Iterate.pixels(this, (int pos) -> {
+                        out32[pos] = in32[pos] == param.colorARGB[0] ? param.colorARGB[0] : average();
+                    });
+                } else {
+                    Iterate.pixels(this, (int pos) -> {
+                        out32[pos] = average();
+                    });
+                }
+            }
+
+            @Override
+            protected void processor16() {
+                throw new UnsupportedOperationException("No 16-bit version available");
+            }
+
+            private int average() {
+                if (param.toggle[1]) {
+                    return RGB.argb(avg[0]);
+                } else {
+                    return RGB.argb(avg[0], avg[1], avg[2], avg[3]);
+                }
+            }
+        };
+    }
+
     public static FilterFast massonsDeconvolution() {
         return new FilterFast("Massons Collagen", noParams) {
             @Override
