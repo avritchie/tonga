@@ -1101,6 +1101,26 @@ public class Filters {
         };
     }
 
+    public static FilterFast scaleDark() {
+        return new FilterFast("Autoscale Darkness", noParams) {
+            @Override
+            protected void processor() {
+                int[] histo = HISTO.getHistogram(in32);
+                int low = HISTO.getSecondMin(histo);
+                Iterate.pixels(this, (int pos) -> {
+                    out32[pos] = RGB.levels(in32[pos], histo.length - 1, low);
+                });
+            }
+
+            @Override
+            protected void processor16() {
+                int[] histo = HISTO.getHistogram(in16);
+                int low = HISTO.getSecondMin(histo);
+                set16BitScaleRange(low, histo.length - 1);
+            }
+        };
+    }
+
     public static FilterFast invert() {
         return new FilterFast("Invert", noParams) {
             @Override
