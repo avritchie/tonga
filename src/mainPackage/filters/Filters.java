@@ -2,6 +2,7 @@ package mainPackage.filters;
 
 import java.util.Arrays;
 import java.util.Stack;
+import mainPackage.ImageData;
 import mainPackage.utils.COL;
 import mainPackage.utils.IMG;
 import mainPackage.utils.GEO;
@@ -1795,8 +1796,7 @@ public class Filters {
             }
         };
     }
-    
-    
+
     public static FilterFast smoothenCorners() {
         return new FilterFast("Smoothed", bgcol) {
             @Override
@@ -1969,7 +1969,7 @@ public class Filters {
     }
 
     /* GENERAL SHARED FUNCTIONS */
-    private static boolean isOfColor(int[] in32, int p, int width, int x, int y, int c) {
+    protected static boolean isOfColor(int[] in32, int p, int width, int x, int y, int c) {
         int np = p + x + y * width;
         int w = p / width;
         try {
@@ -1980,7 +1980,7 @@ public class Filters {
         }
     }
 
-    private static int[] edgeKernel(int[] in32, int pos, int width, int r) {
+    protected static int[] edgeKernel(int[] in32, int pos, int width, int r) {
         /*
         collect the neighbouring values
         omitting the 4 furthest edges:
@@ -2015,4 +2015,20 @@ public class Filters {
         }
         return bs;
     }
+
+    protected static double averageIntensity(ImageData id, int[] in32, int bgcol) {
+        int[] val = new int[1];
+        int[] cnt = new int[1];
+        double[] avg = new double[1];
+        Iterate.pixels(id, (int pos) -> {
+            int c = in32[pos];
+            if (c != bgcol) {
+                val[0] += RGB.brightness(in32[pos]);
+                cnt[0]++;
+            }
+        });
+        avg[0] = val[0] / (double) cnt[0];
+        return avg[0];
+    }
+
 }

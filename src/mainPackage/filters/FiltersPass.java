@@ -24,6 +24,7 @@ import mainPackage.morphology.EdgeAnalyzer;
 import mainPackage.protocols.NucleusEdUCounter;
 import mainPackage.protocols.Protocol;
 import mainPackage.utils.DRAW;
+import mainPackage.utils.RGB;
 
 /**
  *
@@ -220,6 +221,54 @@ public class FiltersPass {
                 tempData = Filters.dog().runSingle(inData, param.spinner[0] / 25, param.spinner[0] / 2, true);
                 ImageData id = Blender.renderBlend(inData, tempData, Blend.SUBTRACT);
                 setOutputBy(id);
+            }
+
+            @Override
+            protected void processor16() {
+                throw new UnsupportedOperationException("No 16-bit version available");
+            }
+        };
+    }
+
+    public static FilterFast adaptiveThreshold() {
+        return new FilterFast("Adaptive Threshold", new ControlReference[]{
+            new ControlReference(COLOUR, "Background colour", -2),
+            new ControlReference(SLIDER, new Object[]{0, 10, 50}, "Sensitivity", 10),
+            new ControlReference(SPINNER, "Radius", 40),
+            new ControlReference(TOGGLE, "Apply average mask", 0),}, 10) {
+
+            ImageData temp, temp2;
+
+            @Override
+            protected void processor() {
+                temp = Filters.gamma().runSingle(inData, 0.1);
+                //prevent corrected bg-coloured areas from jamming the dilation
+                double avg = Filters.averageIntensity(inData, temp.pixels32, param.colorARGB[0]);
+                temp2 = Filters.gaussApprox().runSingle(temp, 5, true);
+                temp2 = Filters.thresholdBright().runSingle(temp2, 1);
+                Iterate.pixels(this, (int pos) -> {
+                    temp.pixels32[pos] = temp2.pixels32[pos] == COL.WHITE && temp.pixels32[pos] == param.colorARGB[0] ? RGB.argb((int) avg) : temp.pixels32[pos];
+                });
+                //then dilate the edge
+                temp2 = FiltersPass.edgeDilate().runSingle(temp, param.colorARGB[0], param.spinner[0] * 2);
+                temp2 = Filters.localThreshold().runSingle(temp2, 1 + param.sliderScaled[0], param.spinner[0]);
+                if (param.toggle[0]) {
+                    Iterate.pixels(this, (int pos) -> {
+                        temp2.pixels32[pos] = inData.pixels32[pos] == param.colorARGB[0] ? COL.WHITE : temp2.pixels32[pos];
+                    });
+                    Protocol.load(AverageMaskThreshold::new).runSilentTo(null, new ImageData[]{inData, temp2}, temp);
+                    Iterate.pixels(this, (int pos) -> {
+                        outData.pixels32[pos] = inData.pixels32[pos] == param.colorARGB[0]
+                                ? param.colorARGB[0]
+                                : temp.pixels32[pos] == COL.BLACK || temp2.pixels32[pos] == COL.BLACK
+                                        ? COL.BLACK
+                                        : COL.WHITE;
+                    });
+                } else {
+                    Iterate.pixels(this, (int pos) -> {
+                        outData.pixels32[pos] = inData.pixels32[pos] == param.colorARGB[0] ? param.colorARGB[0] : temp2.pixels32[pos];
+                    });
+                }
             }
 
             @Override
