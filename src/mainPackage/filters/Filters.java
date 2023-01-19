@@ -1481,6 +1481,52 @@ public class Filters {
         };
     }
 
+    public static FilterFast tissueOverlapCorrection() {
+        return new FilterFast("Overlap", new ControlReference[]{
+            new ControlReference(TOGGLE, "Red channel", 1),
+            new ControlReference(TOGGLE, "Green channel", 1),
+            new ControlReference(TOGGLE, "Blue channel", 1)}, 2) {
+
+            @Override
+            protected void processor() {
+                //int[] bw = Filters.bwSaturation().runSingle(inData).pixels32;
+                Iterate.pixels(this, (int pos) -> {
+                    int c = in32[pos];
+                    int a = (c >> 24) & 0xFF;
+                    int r = (c >> 16) & 0xFF;
+                    int g = (c >> 8) & 0xFF;
+                    int b = c & 0xFF;
+                    int val = 255;
+                    //int val = 255 - ((bw[pos] >> 8) & 0xFF);
+                    if (param.toggle[0]) {
+                        val = Math.min(val, r);
+                    }
+                    if (param.toggle[1]) {
+                        val = Math.min(val, g);
+                    }
+                    if (param.toggle[2]) {
+                        val = Math.min(val, b);
+                    }
+                    if (param.toggle[0]) {
+                        r = Math.max(0, r - val);
+                    }
+                    if (param.toggle[1]) {
+                        g = Math.max(0, g - val);
+                    }
+                    if (param.toggle[2]) {
+                        b = Math.max(0, b - val);
+                    }
+                    out32[pos] = RGB.argb(r, g, b, a);
+                });
+            }
+
+            @Override
+            protected void processor16() {
+                throw new UnsupportedOperationException("No 16-bit version available");
+            }
+        };
+    }
+
     public static FilterFast connectEdges() {
         return new FilterFast("Connected",
                 new ControlReference[]{
