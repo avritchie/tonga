@@ -1121,6 +1121,39 @@ public class Filters {
         };
     }
 
+    public static FilterFast scaleRGB() {
+        return new FilterFast("Scale RGB", new ControlReference[]{
+            new ControlReference(SLIDER, "Desired intensity level"),
+            new ControlReference(COMBO, new String[]{"Red", "Green", "Blue"}, "Based on which channel", 2),}) {
+
+            double basevalue;
+            int areapixels;
+
+            @Override
+            protected void processor() {
+                basevalue = 0;
+                areapixels = 0;
+                int bshift = (2 - param.combo[0]) * 16;
+                Iterate.pixels(this, (int pos) -> {
+                    int col = in32[pos];
+                    if (col != COL.BLACK) {
+                        areapixels++;
+                        basevalue += ((col >> bshift) & 0xFF) / 255.;
+                    }
+                });
+                double intlev = basevalue / (double) areapixels;
+                double target = param.slider[0] / 100.;
+                int mperc = (int) ((target / intlev) * 100);
+                setOutputBy(Filters.multiply().runSingle(inData, mperc));
+            }
+
+            @Override
+            protected void processor16() {
+                throw new UnsupportedOperationException("No 16-bit version available");
+            }
+        };
+    }
+
     public static FilterFast invert() {
         return new FilterFast("Invert", noParams) {
             @Override
