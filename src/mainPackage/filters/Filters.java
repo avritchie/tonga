@@ -157,7 +157,7 @@ public class Filters {
                 double v = 255 - param.sliderScaled[0] * 2.55;
                 int c = RGB.argb((int) v);
                 Iterate.pixels(this, (int pos) -> {
-                    out32[pos] = (RGB.relativeLuminance(in32[pos])) > v ? c : in32[pos];
+                    out32[pos] = (RGB.brightness(in32[pos])) > v ? c : in32[pos];
                 });
             }
 
