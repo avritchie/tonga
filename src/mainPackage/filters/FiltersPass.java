@@ -21,6 +21,8 @@ import static mainPackage.PanelCreator.ControlType.*;
 import static mainPackage.filters.Filter.noParams;
 import mainPackage.filters.FilterSet.OutputType;
 import mainPackage.morphology.EdgeAnalyzer;
+import mainPackage.protocols.AverageMaskThreshold;
+import mainPackage.protocols.DimRemover;
 import mainPackage.protocols.NucleusEdUCounter;
 import mainPackage.protocols.Protocol;
 import mainPackage.utils.DRAW;
@@ -286,6 +288,136 @@ public class FiltersPass {
                 } else {
                     Iterate.pixels(this, (int pos) -> {
                         outData.pixels32[pos] = inData.pixels32[pos] == param.colorARGB[0] ? param.colorARGB[0] : temp2.pixels32[pos];
+                    });
+                }
+            }
+
+            @Override
+            protected void processor16() {
+                throw new UnsupportedOperationException("No 16-bit version available");
+            }
+        };
+    }
+
+    public static FilterFast dogSementing() {
+        return new FilterFast("Segmenting", new ControlReference[]{
+            new ControlReference(SLIDER, "Sensitivity", 50),
+            new ControlReference(SPINNER, "Radius", 50),
+            new ControlReference(COMBO, new String[]{"Darkfield/IF", "Brightfield"}, "Type", 0),
+            new ControlReference(TOGGLE, "Detect in-between areas", 1)}, 33) {
+
+            ImageData temp, temp2, temp3, temp4;
+
+            @Override
+            protected void processor() {
+                temp = Filters.gamma().runSingle(inData, 0.35);
+                Filters.autoscale().runTo(temp);
+                //scaled reverse dog for primary segmentation
+                temp2 = Filters.dog().runSingle(temp, Math.min(1, param.spinner[0] / 50), param.spinner[0], param.combo[0] == 0);
+                temp3 = Filters.dog().runSingle(temp, Math.min(1, param.spinner[0] / 50), param.spinner[0] * 2, param.combo[0] == 0);
+                temp3 = Blender.renderBlend(temp2, temp3, Blend.MAXIMUM);
+                //get two thresholdings from the primary segmentation
+                Filters.thresholdBright().runTo(temp3, temp2, 1); // 30 + (100 - param.slider[0]) * 0.3
+                Filters.thresholdBright().runTo(temp3, 10);
+                //intensity gradient for secondary segmentation
+                temp4 = Filters.maximumDiffEdge().runSingle(temp, 0, 1, true, 6 + (param.slider[0] / 5));
+                Filters.connectEdges().runTo(temp4, COL.BLACK, false);
+                //merge and smoothen the results to get an acceptable combined result
+                Iterate.pixels(this, (int pos) -> {
+                    temp2.pixels32[pos] = temp2.pixels32[pos] == COL.WHITE || temp3.pixels32[pos] == COL.WHITE && temp4.pixels32[pos] == COL.BLACK ? COL.WHITE : COL.BLACK;
+                });
+                FiltersPass.gaussSmoothing().runTo(temp2, 1, 5);
+                //remove/classify areas to be in-between based on scaled intensity
+                Filters.scaleDark().runTo(temp);
+                Protocol.load(DimRemover::new).runSilentTo(null, new ImageData[]{temp2, temp}, temp, COL.BLACK, 0, true, 67.0);
+                if (param.toggle[0]) {
+                    Iterate.pixels(this, (int pos) -> {
+                        outData.pixels32[pos] = temp2.pixels32[pos] == COL.WHITE ? temp.pixels32[pos] == COL.BLACK ? COL.BLACK : COL.GRAY : COL.WHITE;
+                    });
+                } else {
+                    Iterate.pixels(this, (int pos) -> {
+                        outData.pixels32[pos] = temp2.pixels32[pos] == COL.WHITE && temp.pixels32[pos] == COL.BLACK ? COL.BLACK : COL.WHITE;
+                    });
+                }
+            }
+
+            @Override
+            protected void processor16() {
+                throw new UnsupportedOperationException("No 16-bit version available");
+            }
+        };
+    }
+
+    public static FilterFast multiLocalThreshold() {
+        return new FilterFast("Segmenting", new ControlReference[]{
+            new ControlReference(SLIDER, "Tissue scale factor", 40),
+            new ControlReference(SPINNER, "Radius", 40),
+            new ControlReference(TOGGLE, "Smooth", 1)}, 33) {
+
+            ImageData binar, temp, temp2, temp3;
+
+            @Override
+            protected void processor() {
+                int tissueScale = param.slider[0];
+                int rad = param.spinner[0];
+                //get the binary mask
+                binar = FiltersPass.adaptiveThreshold().runSingle(inData, COL.dataCornerColour(inData), 10.0, tissueScale);
+                //perform dapi
+                temp = Blender.renderBlend(binar, inData, Blend.MULTIPLY);
+                temp = Filters.blurConditional().runSingle(temp, COL.BLACK, tissueScale / 4, false);
+                Filters.autoscale().runTo(temp);
+                temp2 = Filters.localThreshold().runSingle(temp, 15, rad);
+                temp3 = Blender.renderBlend(binar, temp2, Blend.MINIMUM);
+                for (int i = 2; i < 5; i++) {
+                    temp2 = Filters.localThreshold().runSingle(temp, 15, rad * i);
+                    temp3 = Blender.renderBlend(temp3, temp2, Blend.MINIMUM);
+                }
+                if (param.toggle[0]) {
+                    temp = Filters.connectEdges().runSingle(temp3, COL.BLACK, true);
+                    setOutputBy(temp);
+                } else {
+                    setOutputBy(temp3);
+                }
+            }
+
+            @Override
+            protected void processor16() {
+                throw new UnsupportedOperationException("No 16-bit version available");
+            }
+        };
+    }
+
+    public static FilterFast avgSementing() {
+        return new FilterFast("Segmenting", new ControlReference[]{
+            new ControlReference(SLIDER, "Sensitivity", 50),
+            new ControlReference(SPINNER, "Radius", 40)}, 33) {
+
+            ImageData temp, temp2, temp3, temp4;
+
+            @Override
+            protected void processor() {
+                temp = FiltersPass.adaptiveThreshold().runSingle(inData, COL.dataCornerColour(inData), 5.0, param.spinner[0]);
+                //get two thresholdings from the primary segmentation
+                Filters.thresholdBright().runTo(temp3, temp2, 30 + (100 - param.slider[0]) * 0.3);
+                Filters.thresholdBright().runTo(temp3, 10);
+                //intensity gradient for secondary segmentation
+                temp4 = Filters.maximumDiffEdge().runSingle(temp, 0, 1, true, 6);
+                Filters.connectEdges().runTo(temp4, COL.BLACK, false);
+                //merge and smoothen the results to get an acceptable combined result
+                Iterate.pixels(this, (int pos) -> {
+                    temp2.pixels32[pos] = temp2.pixels32[pos] == COL.WHITE || temp3.pixels32[pos] == COL.WHITE && temp4.pixels32[pos] == COL.BLACK ? COL.WHITE : COL.BLACK;
+                });
+                FiltersPass.gaussSmoothing().runTo(temp2, 1, 5);
+                //remove/classify areas to be in-between based on scaled intensity
+                Filters.scaleDark().runTo(temp);
+                Protocol.load(DimRemover::new).runSilentTo(null, new ImageData[]{temp2, temp}, temp, COL.BLACK, 0, true, 67.0);
+                if (param.toggle[0]) {
+                    Iterate.pixels(this, (int pos) -> {
+                        outData.pixels32[pos] = temp2.pixels32[pos] == COL.WHITE ? temp.pixels32[pos] == COL.BLACK ? COL.BLACK : COL.GRAY : COL.WHITE;
+                    });
+                } else {
+                    Iterate.pixels(this, (int pos) -> {
+                        outData.pixels32[pos] = temp2.pixels32[pos] == COL.WHITE && temp.pixels32[pos] == COL.BLACK ? COL.BLACK : COL.WHITE;
                     });
                 }
             }
