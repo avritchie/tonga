@@ -21,11 +21,13 @@ import static mainPackage.PanelCreator.ControlType.*;
 import static mainPackage.filters.Filter.noParams;
 import mainPackage.filters.FilterSet.OutputType;
 import mainPackage.morphology.EdgeAnalyzer;
+import mainPackage.protocols.ApplyIllumination;
 import mainPackage.protocols.AverageMaskThreshold;
 import mainPackage.protocols.DimRemover;
 import mainPackage.protocols.NucleusEdUCounter;
 import mainPackage.protocols.Protocol;
 import mainPackage.utils.DRAW;
+import mainPackage.utils.HISTO;
 import mainPackage.utils.RGB;
 
 /**
@@ -429,6 +431,177 @@ public class FiltersPass {
         };
     }
 
+    public static FilterFast maxDiffCorrect() {
+        return new FilterFast("Background removal", new ControlReference[]{
+            new ControlReference(SPINNER, "Radius", 40)}, 14) {
+
+            ImageData temp;
+            int rad;
+
+            @Override
+            protected void processor() {
+                rad = Math.max(1, 5 - (param.spinner[0] / 10));
+                //average
+                temp = Filters.maximumDiffEdge().runSingle(inData, 0, rad, true, 20);
+                Iterate.pixels(this, (int pos) -> {
+                    temp.pixels32[pos] = temp.pixels32[pos] == COL.WHITE ? COL.BLACK : inData.pixels32[pos];
+                });
+                temp = Filters.blurConditional().runSingle(temp, COL.BLACK, param.spinner[0] / 4, false);
+                Protocol.load(ApplyIllumination::new).runSilentTo(null, new ImageData[]{inData, temp}, temp, true, false, true, COL.BLACK, false, null);
+                setOutputBy(temp);
+            }
+
+            @Override
+            protected void processor16() {
+                throw new UnsupportedOperationException("No 16-bit version available");
+            }
+        };
+    }
+
+    public static FilterFast backgroundStainingAvgSubtraction() {
+        return new FilterFast("Background removal", new ControlReference[]{
+            new ControlReference(TOGGLE, "Red channel", 1),
+            new ControlReference(TOGGLE, "Green channel", 1),
+            new ControlReference(TOGGLE, "Blue channel", 1),
+            new ControlReference(COLOUR, "Background colour", -2),
+            new ControlReference(SPINNER, "Radius", 40),
+            new ControlReference(SLIDER, new Object[]{0.5, 2, 150}, "Filter", 50),
+            new ControlReference(TOGGLE, "Extract the background", 0)}, 3) {
+
+            ImageData ifthree, ifone, iftwo;
+            int rad;
+
+            @Override
+            protected void processor() {
+                rad = Math.max(1, 5 - (param.spinner[0] / 10));
+                //average
+                ifone = Filters.separateChannel().runSingle(inData, 0);
+                iftwo = Filters.separateChannel().runSingle(inData, 1);
+                ifthree = Filters.separateChannel().runSingle(inData, 2);
+                if (param.toggle[0]) {
+                    correct(ifone);
+                }
+                if (param.toggle[1]) {
+                    correct(iftwo);
+                }
+                if (param.toggle[2]) {
+                    correct(ifthree);
+                }
+                setOutputBy(Blender.renderBlend(new ImageData[]{ifone, iftwo, ifthree}, Blend.ADD));
+            }
+
+            @Override
+            protected void processor16() {
+                throw new UnsupportedOperationException("No 16-bit version available");
+            }
+
+            private void correct(ImageData channel) {
+                double avg = averageGradientIntensity(channel, channel.pixels32, rad, 25, param.colorARGB[0]) * param.sliderScaled[0];
+                /*
+                ImageData temp = Filters.maximumDiffEdge().runSingle(channel, 0, rad, false, 25);
+                Iterate.pixels(this, (int pos) -> {
+                    temp.pixels32[pos] = inData.pixels32[pos] == param.colorARGB[0] || (temp.pixels32[pos] & 0xFF) > 25 ? COL.WHITE : channel.pixels32[pos];
+                });
+                double avg = Filters.averageIntensity(inData, temp.pixels32, COL.WHITE) * param.sliderScaled[0]; */
+                if (!param.toggle[3]) {
+                    Iterate.pixels(this, (int pos) -> {
+                        channel.pixels32[pos] = RGB.argb(
+                                (int) Math.max(0x00, (channel.pixels32[pos] >> 16 & 0xFF) - (int) avg),
+                                (int) Math.max(0x00, (channel.pixels32[pos] >> 8 & 0xFF) - (int) avg),
+                                (int) Math.max(0x00, (channel.pixels32[pos] & 0xFF) - (int) avg), 255);
+                    });
+                } else {
+                    Iterate.pixels(this, (int pos) -> {
+                        channel.pixels32[pos] = RGB.argb(
+                                (channel.pixels32[pos] >> 16 & 0xFF) - (int) Math.max(0x00, (channel.pixels32[pos] >> 16 & 0xFF) - (int) avg),
+                                (channel.pixels32[pos] >> 8 & 0xFF) - (int) Math.max(0x00, (channel.pixels32[pos] >> 8 & 0xFF) - (int) avg),
+                                (channel.pixels32[pos] & 0xFF) - (int) Math.max(0x00, (channel.pixels32[pos] & 0xFF) - (int) avg), 255);
+                    });
+                }
+            }
+        };
+    }
+
+    public static FilterFast backgroundStainingAvgSubtractionShit() {
+        return new FilterFast("Background removal", new ControlReference[]{
+            new ControlReference(TOGGLE, "Red channel", 1),
+            new ControlReference(TOGGLE, "Green channel", 1),
+            new ControlReference(TOGGLE, "Blue channel", 1),
+            new ControlReference(COLOUR, "Background colour", -2),
+            new ControlReference(SLIDER, new Object[]{1, 2, 100}, "Filter", 50)}, 2) {
+
+            ImageData ifthree, ifone, iftwo;
+
+            @Override
+            protected void processor() {
+                //average
+                ifone = Filters.separateChannel().runSingle(inData, 0);
+                iftwo = Filters.separateChannel().runSingle(inData, 1);
+                ifthree = Filters.separateChannel().runSingle(inData, 2);
+                if (param.toggle[0]) {
+                    correct(ifone);
+                }
+                if (param.toggle[1]) {
+                    correct(iftwo);
+                }
+                if (param.toggle[2]) {
+                    correct(ifthree);
+                }
+                setOutputBy(Blender.renderBlend(new ImageData[]{ifone, iftwo, ifthree}, Blend.ADD));
+            }
+
+            @Override
+            protected void processor16() {
+                throw new UnsupportedOperationException("No 16-bit version available");
+            }
+
+            private void correct(ImageData channel) {
+                double avg = Filters.averageIntensity(inData, channel.pixels32, param.colorARGB[0]) * param.sliderScaled[0];
+                Iterate.pixels(this, (int pos) -> {
+                    channel.pixels32[pos] = RGB.argb(
+                            (int) Math.max(0x00, (channel.pixels32[pos] >> 16 & 0xFF) - (int) avg),
+                            (int) Math.max(0x00, (channel.pixels32[pos] >> 8 & 0xFF) - (int) avg),
+                            (int) Math.max(0x00, (channel.pixels32[pos] & 0xFF) - (int) avg), 255);
+                });
+            }
+        };
+    }
+
+    public static FilterFast backgroundStainingScaling() {
+        return new FilterFast("Background removal", new ControlReference[]{
+            new ControlReference(TOGGLE, "Red channel", 1),
+            new ControlReference(TOGGLE, "Green channel", 1),
+            new ControlReference(TOGGLE, "Blue channel", 1)}, 2) {
+
+            ImageData ifchanRed, ifchanGreen, ifchanBlue;
+
+            @Override
+            protected void processor() {
+                ifchanRed = Filters.separateChannel().runSingle(inData, 0);
+                ifchanGreen = Filters.separateChannel().runSingle(inData, 1);
+                ifchanBlue = Filters.separateChannel().runSingle(inData, 2);
+                if (param.toggle[0]) {
+                    int dapipeak = HISTO.getHighestPointIndex(HISTO.getHistogram(ifchanRed.pixels32), true);
+                    Filters.cutFilter().runTo(ifchanRed, dapipeak, 255);
+                }
+                if (param.toggle[1]) {
+                    int chan1peak = HISTO.getHighestPointIndex(HISTO.getHistogram(ifchanGreen.pixels32), true);
+                    Filters.cutFilter().runTo(ifchanGreen, chan1peak, 255);
+                }
+                if (param.toggle[2]) {
+                    int chan2peak = HISTO.getHighestPointIndex(HISTO.getHistogram(ifchanBlue.pixels32), true);
+                    Filters.cutFilter().runTo(ifchanBlue, chan2peak, 255);
+                }
+                setOutputBy(Blender.renderBlend(new ImageData[]{ifchanRed, ifchanGreen, ifchanBlue}, Blend.ADD));
+            }
+
+            @Override
+            protected void processor16() {
+                throw new UnsupportedOperationException("No 16-bit version available");
+            }
+        };
+    }
+
     public static FilterFast getNucleiMask() {
         return new FilterFast("Nuclei", noParams) {
 
@@ -443,5 +616,14 @@ public class FiltersPass {
                 throw new UnsupportedOperationException("No 16-bit version available");
             }
         };
+    }
+
+    /* GENERAL SHARED FUNCTIONS */
+    public static double averageGradientIntensity(ImageData id, int[] in32, int radius, int threshold, int bgcol) {
+        ImageData temp = Filters.maximumDiffEdge().runSingle(id, 0, radius, false, threshold);
+        Iterate.pixels(id, (int pos) -> {
+            temp.pixels32[pos] = id.pixels32[pos] == bgcol || (temp.pixels32[pos] & 0xFF) > threshold ? COL.WHITE : id.pixels32[pos];
+        });
+        return Filters.averageIntensity(id, temp.pixels32, COL.WHITE);
     }
 }
