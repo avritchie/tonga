@@ -214,6 +214,7 @@ public class FiltersPass {
     public static FilterFast fuzzyCorrection() {
         return new FilterFast("Fuzzy", new ControlReference[]{
             new ControlReference(SPINNER, "Average object size (px)", 50)}, 6) {
+
             ImageData tempData;
 
             @Override
@@ -226,6 +227,24 @@ public class FiltersPass {
             @Override
             protected void processor16() {
                 throw new UnsupportedOperationException("No 16-bit version available");
+            }
+        };
+    }
+
+    public static FilterFast balancedScaling() {
+        return new FilterFast("Balanced", new ControlReference[]{
+            new ControlReference(SLIDER, new Object[]{0, 1, 100}, "Balancing strength")}, 12) {
+
+            @Override
+            protected void processor() {
+                Filters.gamma().runTo(inData, outData, 1 - param.sliderScaled[0] * 0.95);
+                Filters.scaleDark().runTo(outData);
+            }
+
+            @Override
+            protected void processor16() {
+                Filters.gamma().runTo(inData, outData, 1 - param.sliderScaled[0] * 0.95);
+                Filters.scaleDark().runTo(outData);
             }
         };
     }
