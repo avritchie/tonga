@@ -899,10 +899,6 @@ public class TongaFrame extends JFrame {
         menuWizard = new javax.swing.JMenu();
         menuFilters = new javax.swing.JMenu();
         jMenu12 = new javax.swing.JMenu();
-        jMenu6 = new javax.swing.JMenu();
-        menuGamma = new javax.swing.JMenuItem();
-        jMenuItem56 = new javax.swing.JMenuItem();
-        jMenuItem70 = new javax.swing.JMenuItem();
         jMenu24 = new javax.swing.JMenu();
         menuMultiplyPxls = new javax.swing.JMenuItem();
         jMenuItem66 = new javax.swing.JMenuItem();
@@ -923,6 +919,9 @@ public class TongaFrame extends JFrame {
         menuMapHue = new javax.swing.JMenuItem();
         jMenuItem23 = new javax.swing.JMenuItem();
         menuInterpolate = new javax.swing.JMenuItem();
+        jMenuItem100 = new javax.swing.JMenuItem();
+        jMenuItem110 = new javax.swing.JMenuItem();
+        jMenuItem96 = new javax.swing.JMenuItem();
         jMenuItem20 = new javax.swing.JMenuItem();
         jSeparator7 = new javax.swing.JPopupMenu.Separator();
         jMenuItem62 = new javax.swing.JMenuItem();
@@ -943,21 +942,42 @@ public class TongaFrame extends JFrame {
         jMenuItem41 = new javax.swing.JMenuItem();
         jMenuItem60 = new javax.swing.JMenuItem();
         jMenuItem61 = new javax.swing.JMenuItem();
+        jMenuItem92 = new javax.swing.JMenuItem();
+        jMenuItem94 = new javax.swing.JMenuItem();
         jMenuItem16 = new javax.swing.JMenuItem();
         jMenu14 = new javax.swing.JMenu();
         jMenuItem64 = new javax.swing.JMenuItem();
         jMenuItem59 = new javax.swing.JMenuItem();
         jSeparator6 = new javax.swing.JPopupMenu.Separator();
         menuBoxBlur = new javax.swing.JMenuItem();
+        jMenuItem91 = new javax.swing.JMenuItem();
         jMenuItem49 = new javax.swing.JMenuItem();
         jMenu15 = new javax.swing.JMenu();
         jMenuItem29 = new javax.swing.JMenuItem();
         jMenuItem27 = new javax.swing.JMenuItem();
         jMenuItem26 = new javax.swing.JMenuItem();
         jMenuItem13 = new javax.swing.JMenuItem();
+        jMenuItem99 = new javax.swing.JMenuItem();
+        jMenuItem105 = new javax.swing.JMenuItem();
         jSeparator13 = new javax.swing.JPopupMenu.Separator();
+        jMenuItem89 = new javax.swing.JMenuItem();
         jMenuItem51 = new javax.swing.JMenuItem();
         jMenuItem52 = new javax.swing.JMenuItem();
+        jMenu6 = new javax.swing.JMenu();
+        menuGamma = new javax.swing.JMenuItem();
+        jMenuItem56 = new javax.swing.JMenuItem();
+        jMenuItem87 = new javax.swing.JMenuItem();
+        jMenuItem102 = new javax.swing.JMenuItem();
+        jMenuItem108 = new javax.swing.JMenuItem();
+        jMenuItem90 = new javax.swing.JMenuItem();
+        jMenuItem97 = new javax.swing.JMenuItem();
+        jMenuItem101 = new javax.swing.JMenuItem();
+        jMenuItem70 = new javax.swing.JMenuItem();
+        jSeparator19 = new javax.swing.JPopupMenu.Separator();
+        jMenuItem93 = new javax.swing.JMenuItem();
+        jMenu1 = new javax.swing.JMenu();
+        jMenuItem106 = new javax.swing.JMenuItem();
+        jMenuItem95 = new javax.swing.JMenuItem();
         jMenu11 = new javax.swing.JMenu();
         jMenuItem10 = new javax.swing.JMenuItem();
         jMenuItem50 = new javax.swing.JMenuItem();
@@ -1003,7 +1023,8 @@ public class TongaFrame extends JFrame {
         jMenuItem54 = new javax.swing.JMenuItem();
         menuProtocols = new javax.swing.JMenu();
         jMenu3 = new javax.swing.JMenu();
-        jMenuItem87 = new javax.swing.JMenuItem();
+        jMenuItem98 = new javax.swing.JMenuItem();
+        jMenuItem107 = new javax.swing.JMenuItem();
         jMenu7 = new javax.swing.JMenu();
         jMenuItem18 = new javax.swing.JMenuItem();
         jMenuItem14 = new javax.swing.JMenuItem();
@@ -1039,10 +1060,14 @@ public class TongaFrame extends JFrame {
         jMenuItem44 = new javax.swing.JMenuItem();
         jMenuItem37 = new javax.swing.JMenuItem();
         menuCounting = new javax.swing.JMenu();
+        jMenu22 = new javax.swing.JMenu();
         menuCountRGB = new javax.swing.JMenuItem();
+        jMenuItem104 = new javax.swing.JMenuItem();
+        jMenuItem103 = new javax.swing.JMenuItem();
         jMenuItem65 = new javax.swing.JMenuItem();
         jMenuItem55 = new javax.swing.JMenuItem();
         jMenuItem28 = new javax.swing.JMenuItem();
+        jMenuItem112 = new javax.swing.JMenuItem();
         menuDebug = new javax.swing.JMenu();
         debugMemory = new javax.swing.JMenuItem();
         debugSysInfo = new javax.swing.JMenuItem();
@@ -2403,37 +2428,6 @@ public class TongaFrame extends JFrame {
         jMenu12.setText("Basic");
         jMenu12.setToolTipText("Perform basic operations");
 
-        jMenu6.setText("Correction");
-
-        menuGamma.setText("Gamma correction");
-        menuGamma.setToolTipText("Gamma correction for the image");
-        menuGamma.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                menuGammaActionPerformed(evt);
-            }
-        });
-        jMenu6.add(menuGamma);
-
-        jMenuItem56.setText("Illumination correction");
-        jMenuItem56.setToolTipText("Correct uneven background lighting");
-        jMenuItem56.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jMenuItem56ActionPerformed(evt);
-            }
-        });
-        jMenu6.add(jMenuItem56);
-
-        jMenuItem70.setText("Bleeding correction");
-        jMenuItem70.setToolTipText("");
-        jMenuItem70.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jMenuItem70ActionPerformed(evt);
-            }
-        });
-        jMenu6.add(jMenuItem70);
-
-        jMenu12.add(jMenu6);
-
         jMenu24.setText("Multiply");
 
         menuMultiplyPxls.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_M, java.awt.event.InputEvent.SHIFT_DOWN_MASK));
@@ -2599,6 +2593,31 @@ public class TongaFrame extends JFrame {
         });
         jMenu12.add(menuInterpolate);
 
+        jMenuItem100.setText("Average");
+        jMenuItem100.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jMenuItem100ActionPerformed(evt);
+            }
+        });
+        jMenu12.add(jMenuItem100);
+
+        jMenuItem110.setText("Colour sum");
+        jMenuItem110.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jMenuItem110ActionPerformed(evt);
+            }
+        });
+        jMenu12.add(jMenuItem110);
+
+        jMenuItem96.setText("Integral");
+        jMenuItem96.setToolTipText("Create an integral image (sum-area table)");
+        jMenuItem96.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jMenuItem96ActionPerformed(evt);
+            }
+        });
+        jMenu12.add(jMenuItem96);
+
         jMenuItem20.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_I, java.awt.event.InputEvent.SHIFT_DOWN_MASK));
         jMenuItem20.setText("Invert");
         jMenuItem20.setToolTipText("Invert the image values");
@@ -2749,6 +2768,22 @@ public class TongaFrame extends JFrame {
         });
         jMenu27.add(jMenuItem61);
 
+        jMenuItem92.setText("Scale to darkest values");
+        jMenuItem92.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jMenuItem92ActionPerformed(evt);
+            }
+        });
+        jMenu27.add(jMenuItem92);
+
+        jMenuItem94.setText("Balanced brightness scaling");
+        jMenuItem94.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jMenuItem94ActionPerformed(evt);
+            }
+        });
+        jMenu27.add(jMenuItem94);
+
         jMenuItem16.setText("Scale colors to maximum");
         jMenuItem16.setToolTipText("Scale the colour values to maximize the saturation in the image");
         jMenuItem16.addActionListener(new java.awt.event.ActionListener() {
@@ -2792,7 +2827,16 @@ public class TongaFrame extends JFrame {
         });
         jMenu14.add(menuBoxBlur);
 
-        jMenuItem49.setText("Blur brightness");
+        jMenuItem91.setText("Conditional blur");
+        jMenuItem91.setToolTipText("Radial blurring using only pixels other than the defined background colour");
+        jMenuItem91.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jMenuItem91ActionPerformed(evt);
+            }
+        });
+        jMenu14.add(jMenuItem91);
+
+        jMenuItem49.setText("Brightness blur");
         jMenuItem49.setToolTipText("Mean value of the brightness on neighbouring pixels");
         jMenuItem49.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -2842,7 +2886,32 @@ public class TongaFrame extends JFrame {
             }
         });
         jMenu15.add(jMenuItem13);
+
+        jMenuItem99.setText("Global Masked Threshold");
+        jMenuItem99.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jMenuItem99ActionPerformed(evt);
+            }
+        });
+        jMenu15.add(jMenuItem99);
+
+        jMenuItem105.setText("Global RGB Threshold");
+        jMenuItem105.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jMenuItem105ActionPerformed(evt);
+            }
+        });
+        jMenu15.add(jMenuItem105);
         jMenu15.add(jSeparator13);
+
+        jMenuItem89.setText("Local Area Threshold");
+        jMenuItem89.setToolTipText("Local illumination-sensitive thresholding for a specific area");
+        jMenuItem89.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jMenuItem89ActionPerformed(evt);
+            }
+        });
+        jMenu15.add(jMenuItem89);
 
         jMenuItem51.setText("Local Threshold");
         jMenuItem51.setToolTipText("Local thresholding for the image brightness with mean");
@@ -2863,6 +2932,118 @@ public class TongaFrame extends JFrame {
         jMenu15.add(jMenuItem52);
 
         menuFilters.add(jMenu15);
+
+        jMenu6.setText("Correcting");
+
+        menuGamma.setText("Gamma correction");
+        menuGamma.setToolTipText("Gamma correction for the image");
+        menuGamma.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                menuGammaActionPerformed(evt);
+            }
+        });
+        jMenu6.add(menuGamma);
+
+        jMenuItem56.setText("Illumination correction");
+        jMenuItem56.setToolTipText("Correct uneven background lighting");
+        jMenuItem56.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jMenuItem56ActionPerformed(evt);
+            }
+        });
+        jMenu6.add(jMenuItem56);
+
+        jMenuItem87.setText("Background correction subtract");
+        jMenuItem87.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jMenuItem87ActionPerformed(evt);
+            }
+        });
+        jMenu6.add(jMenuItem87);
+
+        jMenuItem102.setText("Background correction scale");
+        jMenuItem102.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jMenuItem102ActionPerformed(evt);
+            }
+        });
+        jMenu6.add(jMenuItem102);
+
+        jMenuItem108.setText("Background correction gradient");
+        jMenuItem108.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jMenuItem108ActionPerformed(evt);
+            }
+        });
+        jMenu6.add(jMenuItem108);
+
+        jMenuItem90.setText("Fixation correction nonlinear");
+        jMenuItem90.setToolTipText("Correct uneven staining for multichannel images due to uneven fixation/deparaffinization etc. using a nonlinear DAPI normalization");
+        jMenuItem90.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jMenuItem90ActionPerformed(evt);
+            }
+        });
+        jMenu6.add(jMenuItem90);
+
+        jMenuItem97.setText("Fixation correction linear");
+        jMenuItem97.setToolTipText("Correct uneven staining for multichannel images due to uneven fixation/deparaffinization etc. using linear normalization");
+        jMenuItem97.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jMenuItem97ActionPerformed(evt);
+            }
+        });
+        jMenu6.add(jMenuItem97);
+
+        jMenuItem101.setText("Overlap correction");
+        jMenuItem101.setToolTipText("Correct bright staining artefacts due to tissue overlap on a multichannel fluorescent image <font color=\"red\">after correcting for background staining and uneven staining</font>");
+        jMenuItem101.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jMenuItem101ActionPerformed(evt);
+            }
+        });
+        jMenu6.add(jMenuItem101);
+
+        jMenuItem70.setText("Halo correction");
+        jMenuItem70.setToolTipText("Correct undesired halo effects in fluorescent cell images");
+        jMenuItem70.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jMenuItem70ActionPerformed(evt);
+            }
+        });
+        jMenu6.add(jMenuItem70);
+        jMenu6.add(jSeparator19);
+
+        jMenuItem93.setText("Manual correction");
+        jMenuItem93.setToolTipText("Correct image by applying a custom correction map");
+        jMenuItem93.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jMenuItem93ActionPerformed(evt);
+            }
+        });
+        jMenu6.add(jMenuItem93);
+
+        menuFilters.add(jMenu6);
+
+        jMenu1.setText("Segmenting");
+
+        jMenuItem106.setText("Serial segmentation");
+        jMenuItem106.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jMenuItem106ActionPerformed(evt);
+            }
+        });
+        jMenu1.add(jMenuItem106);
+
+        jMenuItem95.setText("Two-step segmentation");
+        jMenuItem95.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jMenuItem95ActionPerformed(evt);
+            }
+        });
+        jMenu1.add(jMenuItem95);
+
+        menuFilters.add(jMenu1);
 
         jMenu11.setText("Edge detection");
         jMenu11.setToolTipText("Methods for edge detection");
@@ -3205,10 +3386,15 @@ public class TongaFrame extends JFrame {
 
         jMenu3.setText("For tissues");
 
-        jMenuItem87.setText("Coming in the future!");
-        jMenuItem87.setToolTipText("Stay tuned!");
-        jMenuItem87.setEnabled(false);
-        jMenu3.add(jMenuItem87);
+        jMenuItem98.setText("IF tissue intensities");
+        jMenuItem98.setToolTipText("Perform a multichannel normalization for background staining, uneven illumination, and staining artefacts all at once, on fluorescent tissue images");
+        jMenuItem98.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jMenuItem98ActionPerformed(evt);
+            }
+        });
+        jMenu3.add(jMenuItem98);
+
 
         menuProtocols.add(jMenu3);
 
@@ -3454,6 +3640,8 @@ public class TongaFrame extends JFrame {
 
         menuCounting.setText("Counting");
 
+        jMenu22.setText("Pixel counters");
+
         menuCountRGB.setText("Count the pixels of basic colours");
         menuCountRGB.setToolTipText("Count the number of pixels for each basic colour (Red, Green, Blue, Cyan, Magenta, Yellow, Black, White)");
         menuCountRGB.addActionListener(new java.awt.event.ActionListener() {
@@ -3461,7 +3649,23 @@ public class TongaFrame extends JFrame {
                 menuCountRGBActionPerformed(evt);
             }
         });
-        menuCounting.add(menuCountRGB);
+        jMenu22.add(menuCountRGB);
+
+        jMenuItem104.setText("Count RGB channel intensities on area");
+        jMenuItem104.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jMenuItem104ActionPerformed(evt);
+            }
+        });
+        jMenu22.add(jMenuItem104);
+
+        jMenuItem103.setText("Count RGB binarized channel unity on area");
+        jMenuItem103.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jMenuItem103ActionPerformed(evt);
+            }
+        });
+        jMenu22.add(jMenuItem103);
 
         jMenuItem65.setText("Count red channel intensity on area");
         jMenuItem65.setToolTipText("Count the non-black area and the intensity of the red channel in it");
@@ -3470,7 +3674,7 @@ public class TongaFrame extends JFrame {
                 jMenuItem65ActionPerformed(evt);
             }
         });
-        menuCounting.add(jMenuItem65);
+        jMenu22.add(jMenuItem65);
 
         jMenuItem55.setText("Count background intensity on area");
         jMenuItem55.setToolTipText("Count the background (non-white) area and the intensity in it");
@@ -3479,7 +3683,7 @@ public class TongaFrame extends JFrame {
                 jMenuItem55ActionPerformed(evt);
             }
         });
-        menuCounting.add(jMenuItem55);
+        jMenu22.add(jMenuItem55);
 
         jMenuItem28.setText("Histogram distributions");
         jMenuItem28.setToolTipText("Count the number of pixels for each channel for a histogram");
@@ -3488,7 +3692,10 @@ public class TongaFrame extends JFrame {
                 jMenuItem28ActionPerformed(evt);
             }
         });
-        menuCounting.add(jMenuItem28);
+        jMenu22.add(jMenuItem28);
+
+        menuCounting.add(jMenu22);
+
 
         menuBar.add(menuCounting);
 
@@ -4582,6 +4789,26 @@ public class TongaFrame extends JFrame {
         Tonga.moveOrder(true, false);
     }//GEN-LAST:event_contImgMoveDownActionPerformed
 
+    private void jMenuItem89ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem89ActionPerformed
+        launchFilter(FiltersPass::adaptiveThreshold, evt);
+    }//GEN-LAST:event_jMenuItem89ActionPerformed
+
+    private void jMenuItem90ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem90ActionPerformed
+        launchProtocol(DAPICorrect::new, evt);
+    }//GEN-LAST:event_jMenuItem90ActionPerformed
+
+    private void jMenuItem91ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem91ActionPerformed
+        launchFilter(Filters::blurConditional, evt);
+    }//GEN-LAST:event_jMenuItem91ActionPerformed
+
+    private void jMenuItem92ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem92ActionPerformed
+        launchFilter(Filters::scaleDark, evt);
+    }//GEN-LAST:event_jMenuItem92ActionPerformed
+
+    private void jMenuItem93ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem93ActionPerformed
+        launchProtocol(ApplyIllumination::new, evt);
+    }//GEN-LAST:event_jMenuItem93ActionPerformed
+
     private void contLayExtractRedActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_contLayExtractRedActionPerformed
         instantFilter(Filters::separateChannel, false, 0);
     }//GEN-LAST:event_contLayExtractRedActionPerformed
@@ -4597,6 +4824,58 @@ public class TongaFrame extends JFrame {
     private void contLayExtractAlphaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_contLayExtractAlphaActionPerformed
         instantFilter(Filters::separateChannel, false, 3);
     }//GEN-LAST:event_contLayExtractAlphaActionPerformed
+
+    private void jMenuItem94ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem94ActionPerformed
+        launchFilter(FiltersPass::balancedScaling, evt);
+    }//GEN-LAST:event_jMenuItem94ActionPerformed
+
+    private void jMenuItem95ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem95ActionPerformed
+        launchFilter(FiltersPass::dogSementing, evt);
+    }//GEN-LAST:event_jMenuItem95ActionPerformed
+
+    private void jMenuItem96ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem96ActionPerformed
+        launchFilter(Filters::integral, evt);
+    }//GEN-LAST:event_jMenuItem96ActionPerformed
+
+    private void jMenuItem97ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem97ActionPerformed
+        launchProtocol(IFNormalize::new, evt);
+    }//GEN-LAST:event_jMenuItem97ActionPerformed
+
+    private void jMenuItem98ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem98ActionPerformed
+        launchProtocol(IFCorrectAll::new, evt);
+    }//GEN-LAST:event_jMenuItem98ActionPerformed
+
+    private void jMenuItem99ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem99ActionPerformed
+        launchProtocol(AverageMaskThreshold::new, evt);
+    }//GEN-LAST:event_jMenuItem99ActionPerformed
+
+    private void jMenuItem100ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem100ActionPerformed
+        launchFilter(Filters::average, evt);
+    }//GEN-LAST:event_jMenuItem100ActionPerformed
+
+    private void jMenuItem101ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem101ActionPerformed
+        launchFilter(Filters::tissueOverlapCorrection, evt);
+    }//GEN-LAST:event_jMenuItem101ActionPerformed
+
+    private void jMenuItem102ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem102ActionPerformed
+        launchFilter(FiltersPass::backgroundStainingScaling, evt);
+    }//GEN-LAST:event_jMenuItem102ActionPerformed
+
+    private void jMenuItem104ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem104ActionPerformed
+        launchCounter(Counters::countIFChannels, evt);
+    }//GEN-LAST:event_jMenuItem104ActionPerformed
+
+    private void jMenuItem103ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem103ActionPerformed
+        launchCounter(Counters::countUnity, evt);
+    }//GEN-LAST:event_jMenuItem103ActionPerformed
+
+    private void jMenuItem105ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem105ActionPerformed
+        launchFilter(Filters::thresholdRGB, evt);
+    }//GEN-LAST:event_jMenuItem105ActionPerformed
+
+    private void jMenuItem106ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem106ActionPerformed
+        launchFilter(FiltersPass::multiLocalThreshold, evt);
+    }//GEN-LAST:event_jMenuItem106ActionPerformed
 
     private void contLayExtractAllActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_contLayExtractAllActionPerformed
         int lind = Tonga.getLayerIndex();
@@ -4618,6 +4897,26 @@ public class TongaFrame extends JFrame {
             }
         }
     }//GEN-LAST:event_contLayExtractAllActionPerformed
+
+    private void jMenuItem107ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem107ActionPerformed
+        launchProtocol(IFMirax::new, evt);
+    }//GEN-LAST:event_jMenuItem107ActionPerformed
+
+    private void jMenuItem87ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem87ActionPerformed
+        launchFilter(FiltersPass::backgroundStainingAvgSubtraction, evt);
+    }//GEN-LAST:event_jMenuItem87ActionPerformed
+
+    private void jMenuItem108ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem108ActionPerformed
+        launchFilter(FiltersPass::maxDiffCorrect, evt);
+    }//GEN-LAST:event_jMenuItem108ActionPerformed
+
+    private void jMenuItem109ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem109ActionPerformed
+        launchProtocol(RadialArea::new, evt);
+    }//GEN-LAST:event_jMenuItem109ActionPerformed
+
+    private void jMenuItem110ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem110ActionPerformed
+        launchFilter(Filters::condSum, evt);
+    }//GEN-LAST:event_jMenuItem110ActionPerformed
 
     private void jMenuItem111ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem111ActionPerformed
         launchProtocol(Spheroids::new, evt);
@@ -4708,6 +5007,7 @@ public class TongaFrame extends JFrame {
     protected javax.swing.JCheckBoxMenuItem jCheckBoxMenuItem1;
     protected javax.swing.JLabel jLabel2;
     protected javax.swing.JList<String> jList4;
+    protected javax.swing.JMenu jMenu1;
     protected javax.swing.JMenu jMenu10;
     protected javax.swing.JMenu jMenu11;
     protected javax.swing.JMenu jMenu12;
@@ -4721,6 +5021,7 @@ public class TongaFrame extends JFrame {
     protected javax.swing.JMenu jMenu2;
     protected javax.swing.JMenu jMenu20;
     protected javax.swing.JMenu jMenu21;
+    protected javax.swing.JMenu jMenu22;
     protected javax.swing.JMenu jMenu23;
     protected javax.swing.JMenu jMenu24;
     protected javax.swing.JMenu jMenu26;
@@ -4734,8 +5035,19 @@ public class TongaFrame extends JFrame {
     protected javax.swing.JMenu jMenu9;
     protected javax.swing.JMenuItem jMenuItem1;
     protected javax.swing.JMenuItem jMenuItem10;
+    protected javax.swing.JMenuItem jMenuItem100;
+    protected javax.swing.JMenuItem jMenuItem101;
+    protected javax.swing.JMenuItem jMenuItem102;
+    protected javax.swing.JMenuItem jMenuItem103;
+    protected javax.swing.JMenuItem jMenuItem104;
+    protected javax.swing.JMenuItem jMenuItem105;
+    protected javax.swing.JMenuItem jMenuItem106;
+    protected javax.swing.JMenuItem jMenuItem107;
+    protected javax.swing.JMenuItem jMenuItem108;
     protected javax.swing.JMenuItem jMenuItem11;
+    protected javax.swing.JMenuItem jMenuItem110;
     protected javax.swing.JMenuItem jMenuItem111;
+    protected javax.swing.JMenuItem jMenuItem112;
     protected javax.swing.JMenuItem jMenuItem12;
     protected javax.swing.JMenuItem jMenuItem13;
     protected javax.swing.JMenuItem jMenuItem14;
@@ -4820,7 +5132,18 @@ public class TongaFrame extends JFrame {
     protected javax.swing.JMenuItem jMenuItem86;
     protected javax.swing.JMenuItem jMenuItem87;
     protected javax.swing.JMenuItem jMenuItem88;
+    protected javax.swing.JMenuItem jMenuItem89;
     protected javax.swing.JMenuItem jMenuItem9;
+    protected javax.swing.JMenuItem jMenuItem90;
+    protected javax.swing.JMenuItem jMenuItem91;
+    protected javax.swing.JMenuItem jMenuItem92;
+    protected javax.swing.JMenuItem jMenuItem93;
+    protected javax.swing.JMenuItem jMenuItem94;
+    protected javax.swing.JMenuItem jMenuItem95;
+    protected javax.swing.JMenuItem jMenuItem96;
+    protected javax.swing.JMenuItem jMenuItem97;
+    protected javax.swing.JMenuItem jMenuItem98;
+    protected javax.swing.JMenuItem jMenuItem99;
     protected javax.swing.JPanel jPanel1;
     protected javax.swing.JPanel jPanel2;
     protected javax.swing.JScrollPane jScrollPane1;

@@ -550,40 +550,6 @@
                 <Property name="toolTipText" type="java.lang.String" value="Perform basic operations"/>
               </Properties>
               <SubComponents>
-                <Menu class="javax.swing.JMenu" name="jMenu6">
-                  <Properties>
-                    <Property name="text" type="java.lang.String" value="Correction"/>
-                  </Properties>
-                  <SubComponents>
-                    <MenuItem class="javax.swing.JMenuItem" name="menuGamma">
-                      <Properties>
-                        <Property name="text" type="java.lang.String" value="Gamma correction"/>
-                        <Property name="toolTipText" type="java.lang.String" value="Gamma correction for the image"/>
-                      </Properties>
-                      <Events>
-                        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="menuGammaActionPerformed"/>
-                      </Events>
-                    </MenuItem>
-                    <MenuItem class="javax.swing.JMenuItem" name="jMenuItem56">
-                      <Properties>
-                        <Property name="text" type="java.lang.String" value="Illumination correction"/>
-                        <Property name="toolTipText" type="java.lang.String" value="Correct uneven background lighting"/>
-                      </Properties>
-                      <Events>
-                        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jMenuItem56ActionPerformed"/>
-                      </Events>
-                    </MenuItem>
-                    <MenuItem class="javax.swing.JMenuItem" name="jMenuItem70">
-                      <Properties>
-                        <Property name="text" type="java.lang.String" value="Bleeding correction"/>
-                        <Property name="toolTipText" type="java.lang.String" value=""/>
-                      </Properties>
-                      <Events>
-                        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jMenuItem70ActionPerformed"/>
-                      </Events>
-                    </MenuItem>
-                  </SubComponents>
-                </Menu>
                 <Menu class="javax.swing.JMenu" name="jMenu24">
                   <Properties>
                     <Property name="text" type="java.lang.String" value="Multiply"/>
@@ -767,6 +733,31 @@
                     <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="menuInterpolateActionPerformed"/>
                   </Events>
                 </MenuItem>
+                <MenuItem class="javax.swing.JMenuItem" name="jMenuItem100">
+                  <Properties>
+                    <Property name="text" type="java.lang.String" value="Average"/>
+                  </Properties>
+                  <Events>
+                    <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jMenuItem100ActionPerformed"/>
+                  </Events>
+                </MenuItem>
+                <MenuItem class="javax.swing.JMenuItem" name="jMenuItem110">
+                  <Properties>
+                    <Property name="text" type="java.lang.String" value="Colour sum"/>
+                  </Properties>
+                  <Events>
+                    <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jMenuItem110ActionPerformed"/>
+                  </Events>
+                </MenuItem>
+                <MenuItem class="javax.swing.JMenuItem" name="jMenuItem96">
+                  <Properties>
+                    <Property name="text" type="java.lang.String" value="Integral"/>
+                    <Property name="toolTipText" type="java.lang.String" value="Create an integral image (sum-area table)"/>
+                  </Properties>
+                  <Events>
+                    <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jMenuItem96ActionPerformed"/>
+                  </Events>
+                </MenuItem>
                 <MenuItem class="javax.swing.JMenuItem" name="jMenuItem20">
                   <Properties>
                     <Property name="accelerator" type="javax.swing.KeyStroke" editor="org.netbeans.modules.form.editors.KeyStrokeEditor">
@@ -930,6 +921,22 @@
                     <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jMenuItem61ActionPerformed"/>
                   </Events>
                 </MenuItem>
+                <MenuItem class="javax.swing.JMenuItem" name="jMenuItem92">
+                  <Properties>
+                    <Property name="text" type="java.lang.String" value="Scale to darkest values"/>
+                  </Properties>
+                  <Events>
+                    <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jMenuItem92ActionPerformed"/>
+                  </Events>
+                </MenuItem>
+                <MenuItem class="javax.swing.JMenuItem" name="jMenuItem94">
+                  <Properties>
+                    <Property name="text" type="java.lang.String" value="Balanced brightness scaling"/>
+                  </Properties>
+                  <Events>
+                    <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jMenuItem94ActionPerformed"/>
+                  </Events>
+                </MenuItem>
                 <MenuItem class="javax.swing.JMenuItem" name="jMenuItem16">
                   <Properties>
                     <Property name="text" type="java.lang.String" value="Scale colors to maximum"/>
@@ -979,9 +986,18 @@
                     <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="menuBoxBlurActionPerformed"/>
                   </Events>
                 </MenuItem>
+                <MenuItem class="javax.swing.JMenuItem" name="jMenuItem91">
+                  <Properties>
+                    <Property name="text" type="java.lang.String" value="Conditional blur"/>
+                    <Property name="toolTipText" type="java.lang.String" value="Radial blurring using only pixels other than the defined background colour"/>
+                  </Properties>
+                  <Events>
+                    <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jMenuItem91ActionPerformed"/>
+                  </Events>
+                </MenuItem>
                 <MenuItem class="javax.swing.JMenuItem" name="jMenuItem49">
                   <Properties>
-                    <Property name="text" type="java.lang.String" value="Blur brightness"/>
+                    <Property name="text" type="java.lang.String" value="Brightness blur"/>
                     <Property name="toolTipText" type="java.lang.String" value="Mean value of the brightness on neighbouring pixels"/>
                   </Properties>
                   <Events>
@@ -1035,7 +1051,32 @@
                     <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jMenuItem13ActionPerformed"/>
                   </Events>
                 </MenuItem>
+                <MenuItem class="javax.swing.JMenuItem" name="jMenuItem99">
+                  <Properties>
+                    <Property name="text" type="java.lang.String" value="Global Masked Threshold"/>
+                  </Properties>
+                  <Events>
+                    <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jMenuItem99ActionPerformed"/>
+                  </Events>
+                </MenuItem>
+                <MenuItem class="javax.swing.JMenuItem" name="jMenuItem105">
+                  <Properties>
+                    <Property name="text" type="java.lang.String" value="Global RGB Threshold"/>
+                  </Properties>
+                  <Events>
+                    <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jMenuItem105ActionPerformed"/>
+                  </Events>
+                </MenuItem>
                 <MenuItem class="javax.swing.JPopupMenu$Separator" name="jSeparator13">
+                </MenuItem>
+                <MenuItem class="javax.swing.JMenuItem" name="jMenuItem89">
+                  <Properties>
+                    <Property name="text" type="java.lang.String" value="Local Area Threshold"/>
+                    <Property name="toolTipText" type="java.lang.String" value="Local illumination-sensitive thresholding for a specific area"/>
+                  </Properties>
+                  <Events>
+                    <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jMenuItem89ActionPerformed"/>
+                  </Events>
                 </MenuItem>
                 <MenuItem class="javax.swing.JMenuItem" name="jMenuItem51">
                   <Properties>
@@ -1053,6 +1094,125 @@
                   </Properties>
                   <Events>
                     <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jMenuItem52ActionPerformed"/>
+                  </Events>
+                </MenuItem>
+              </SubComponents>
+            </Menu>
+            <Menu class="javax.swing.JMenu" name="jMenu6">
+              <Properties>
+                <Property name="text" type="java.lang.String" value="Correcting"/>
+              </Properties>
+              <SubComponents>
+                <MenuItem class="javax.swing.JMenuItem" name="menuGamma">
+                  <Properties>
+                    <Property name="text" type="java.lang.String" value="Gamma correction"/>
+                    <Property name="toolTipText" type="java.lang.String" value="Gamma correction for the image"/>
+                  </Properties>
+                  <Events>
+                    <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="menuGammaActionPerformed"/>
+                  </Events>
+                </MenuItem>
+                <MenuItem class="javax.swing.JMenuItem" name="jMenuItem56">
+                  <Properties>
+                    <Property name="text" type="java.lang.String" value="Illumination correction"/>
+                    <Property name="toolTipText" type="java.lang.String" value="Correct uneven background lighting"/>
+                  </Properties>
+                  <Events>
+                    <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jMenuItem56ActionPerformed"/>
+                  </Events>
+                </MenuItem>
+                <MenuItem class="javax.swing.JMenuItem" name="jMenuItem87">
+                  <Properties>
+                    <Property name="text" type="java.lang.String" value="Background correction subtract"/>
+                  </Properties>
+                  <Events>
+                    <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jMenuItem87ActionPerformed"/>
+                  </Events>
+                </MenuItem>
+                <MenuItem class="javax.swing.JMenuItem" name="jMenuItem102">
+                  <Properties>
+                    <Property name="text" type="java.lang.String" value="Background correction scale"/>
+                  </Properties>
+                  <Events>
+                    <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jMenuItem102ActionPerformed"/>
+                  </Events>
+                </MenuItem>
+                <MenuItem class="javax.swing.JMenuItem" name="jMenuItem108">
+                  <Properties>
+                    <Property name="text" type="java.lang.String" value="Background correction gradient"/>
+                  </Properties>
+                  <Events>
+                    <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jMenuItem108ActionPerformed"/>
+                  </Events>
+                </MenuItem>
+                <MenuItem class="javax.swing.JMenuItem" name="jMenuItem90">
+                  <Properties>
+                    <Property name="text" type="java.lang.String" value="Fixation correction nonlinear"/>
+                    <Property name="toolTipText" type="java.lang.String" value="Correct uneven staining for multichannel images due to uneven fixation/deparaffinization etc. using a nonlinear DAPI normalization"/>
+                  </Properties>
+                  <Events>
+                    <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jMenuItem90ActionPerformed"/>
+                  </Events>
+                </MenuItem>
+                <MenuItem class="javax.swing.JMenuItem" name="jMenuItem97">
+                  <Properties>
+                    <Property name="text" type="java.lang.String" value="Fixation correction linear"/>
+                    <Property name="toolTipText" type="java.lang.String" value="Correct uneven staining for multichannel images due to uneven fixation/deparaffinization etc. using linear normalization"/>
+                  </Properties>
+                  <Events>
+                    <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jMenuItem97ActionPerformed"/>
+                  </Events>
+                </MenuItem>
+                <MenuItem class="javax.swing.JMenuItem" name="jMenuItem101">
+                  <Properties>
+                    <Property name="text" type="java.lang.String" value="Overlap correction"/>
+                    <Property name="toolTipText" type="java.lang.String" value="Correct bright staining artefacts due to tissue overlap on a multichannel fluorescent image &lt;font color=&quot;red&quot;&gt;after correcting for background staining and uneven staining&lt;/font&gt;"/>
+                  </Properties>
+                  <Events>
+                    <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jMenuItem101ActionPerformed"/>
+                  </Events>
+                </MenuItem>
+                <MenuItem class="javax.swing.JMenuItem" name="jMenuItem70">
+                  <Properties>
+                    <Property name="text" type="java.lang.String" value="Halo correction"/>
+                    <Property name="toolTipText" type="java.lang.String" value="Correct undesired halo effects in fluorescent cell images"/>
+                  </Properties>
+                  <Events>
+                    <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jMenuItem70ActionPerformed"/>
+                  </Events>
+                </MenuItem>
+                <MenuItem class="javax.swing.JPopupMenu$Separator" name="jSeparator19">
+                </MenuItem>
+                <MenuItem class="javax.swing.JMenuItem" name="jMenuItem93">
+                  <Properties>
+                    <Property name="text" type="java.lang.String" value="Manual correction"/>
+                    <Property name="toolTipText" type="java.lang.String" value="Correct image by applying a custom correction map"/>
+                  </Properties>
+                  <Events>
+                    <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jMenuItem93ActionPerformed"/>
+                  </Events>
+                </MenuItem>
+              </SubComponents>
+            </Menu>
+            <Menu class="javax.swing.JMenu" name="jMenu1">
+              <Properties>
+                <Property name="text" type="java.lang.String" value="Segmenting"/>
+              </Properties>
+              <SubComponents>
+                <MenuItem class="javax.swing.JMenuItem" name="jMenuItem106">
+                  <Properties>
+                    <Property name="text" type="java.lang.String" value="Serial segmentation"/>
+                  </Properties>
+                  <Events>
+                    <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jMenuItem106ActionPerformed"/>
+                  </Events>
+                </MenuItem>
+                <MenuItem class="javax.swing.JMenuItem" name="jMenuItem95">
+                  <Properties>
+                    <Property name="text" type="java.lang.String" value="Two-step segmentation"/>
+                  </Properties>
+                  <Events>
+                    <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jMenuItem95ActionPerformed"/>
                   </Events>
                 </MenuItem>
               </SubComponents>
@@ -1427,12 +1587,23 @@
                 <Property name="text" type="java.lang.String" value="For tissues"/>
               </Properties>
               <SubComponents>
-                <MenuItem class="javax.swing.JMenuItem" name="jMenuItem87">
+                <MenuItem class="javax.swing.JMenuItem" name="jMenuItem98">
                   <Properties>
-                    <Property name="text" type="java.lang.String" value="Coming in the future!"/>
-                    <Property name="toolTipText" type="java.lang.String" value="Stay tuned!"/>
-                    <Property name="enabled" type="boolean" value="false"/>
+                    <Property name="text" type="java.lang.String" value="IF tissue intensities"/>
+                    <Property name="toolTipText" type="java.lang.String" value="Perform a multichannel normalization for background staining, uneven illumination, and staining artefacts all at once, on fluorescent tissue images"/>
                   </Properties>
+                  <Events>
+                    <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jMenuItem98ActionPerformed"/>
+                  </Events>
+                </MenuItem>
+                <MenuItem class="javax.swing.JMenuItem" name="jMenuItem107">
+                  <Properties>
+                    <Property name="text" type="java.lang.String" value="IF tissue intensitites for Mirax files"/>
+                    <Property name="toolTipText" type="java.lang.String" value="Perform a multichannel normalization for background staining, uneven illumination, and staining artefacts all at once, on fluorescent tissue images"/>
+                  </Properties>
+                  <Events>
+                    <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jMenuItem107ActionPerformed"/>
+                  </Events>
                 </MenuItem>
               </SubComponents>
             </Menu>
@@ -1654,6 +1825,14 @@
                         <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jMenuItem22ActionPerformed"/>
                       </Events>
                     </MenuItem>
+                    <MenuItem class="javax.swing.JMenuItem" name="jMenuItem111">
+                      <Properties>
+                        <Property name="text" type="java.lang.String" value="Organoids"/>
+                      </Properties>
+                      <Events>
+                        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jMenuItem111ActionPerformed"/>
+                      </Events>
+                    </MenuItem>
                     <MenuItem class="javax.swing.JMenuItem" name="menuProtocolNucleusSep">
                       <Properties>
                         <Property name="text" type="java.lang.String" value="Nucleus (+EdU) recognition"/>
@@ -1696,42 +1875,67 @@
             <Property name="text" type="java.lang.String" value="Counting"/>
           </Properties>
           <SubComponents>
-            <MenuItem class="javax.swing.JMenuItem" name="menuCountRGB">
+            <Menu class="javax.swing.JMenu" name="jMenu22">
               <Properties>
-                <Property name="text" type="java.lang.String" value="Count the pixels of basic colours"/>
-                <Property name="toolTipText" type="java.lang.String" value="Count the number of pixels for each basic colour (Red, Green, Blue, Cyan, Magenta, Yellow, Black, White)"/>
+                <Property name="text" type="java.lang.String" value="Pixel counters"/>
               </Properties>
-              <Events>
-                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="menuCountRGBActionPerformed"/>
-              </Events>
-            </MenuItem>
-            <MenuItem class="javax.swing.JMenuItem" name="jMenuItem65">
+              <SubComponents>
+                <MenuItem class="javax.swing.JMenuItem" name="menuCountRGB">
+                  <Properties>
+                    <Property name="text" type="java.lang.String" value="Count the pixels of basic colours"/>
+                    <Property name="toolTipText" type="java.lang.String" value="Count the number of pixels for each basic colour (Red, Green, Blue, Cyan, Magenta, Yellow, Black, White)"/>
+                  </Properties>
+                  <Events>
+                    <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="menuCountRGBActionPerformed"/>
+                  </Events>
+                </MenuItem>
+                <MenuItem class="javax.swing.JMenuItem" name="jMenuItem104">
+                  <Properties>
+                    <Property name="text" type="java.lang.String" value="Count RGB channel intensities on area"/>
+                  </Properties>
+                  <Events>
+                    <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jMenuItem104ActionPerformed"/>
+                  </Events>
+                </MenuItem>
+                <MenuItem class="javax.swing.JMenuItem" name="jMenuItem103">
+                  <Properties>
+                    <Property name="text" type="java.lang.String" value="Count RGB binarized channel unity on area"/>
+                  </Properties>
+                  <Events>
+                    <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jMenuItem103ActionPerformed"/>
+                  </Events>
+                </MenuItem>
+                <MenuItem class="javax.swing.JMenuItem" name="jMenuItem65">
+                  <Properties>
+                    <Property name="text" type="java.lang.String" value="Count red channel intensity on area"/>
+                    <Property name="toolTipText" type="java.lang.String" value="Count the non-black area and the intensity of the red channel in it"/>
+                  </Properties>
+                  <Events>
+                    <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jMenuItem65ActionPerformed"/>
+                  </Events>
+                </MenuItem>
+                <MenuItem class="javax.swing.JMenuItem" name="jMenuItem55">
+                  <Properties>
+                    <Property name="text" type="java.lang.String" value="Count background intensity on area"/>
+                    <Property name="toolTipText" type="java.lang.String" value="Count the background (non-white) area and the intensity in it"/>
+                  </Properties>
+                  <Events>
+                    <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jMenuItem55ActionPerformed"/>
+                  </Events>
+                </MenuItem>
+                <MenuItem class="javax.swing.JMenuItem" name="jMenuItem28">
+                  <Properties>
+                    <Property name="text" type="java.lang.String" value="Histogram distributions"/>
+                    <Property name="toolTipText" type="java.lang.String" value="Count the number of pixels for each channel for a histogram"/>
+                  </Properties>
+                  <Events>
+                    <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jMenuItem28ActionPerformed"/>
+                  </Events>
+                </MenuItem>
+              </SubComponents>
+            </Menu>
               <Properties>
-                <Property name="text" type="java.lang.String" value="Count red channel intensity on area"/>
-                <Property name="toolTipText" type="java.lang.String" value="Count the non-black area and the intensity of the red channel in it"/>
               </Properties>
-              <Events>
-                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jMenuItem65ActionPerformed"/>
-              </Events>
-            </MenuItem>
-            <MenuItem class="javax.swing.JMenuItem" name="jMenuItem55">
-              <Properties>
-                <Property name="text" type="java.lang.String" value="Count background intensity on area"/>
-                <Property name="toolTipText" type="java.lang.String" value="Count the background (non-white) area and the intensity in it"/>
-              </Properties>
-              <Events>
-                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jMenuItem55ActionPerformed"/>
-              </Events>
-            </MenuItem>
-            <MenuItem class="javax.swing.JMenuItem" name="jMenuItem28">
-              <Properties>
-                <Property name="text" type="java.lang.String" value="Histogram distributions"/>
-                <Property name="toolTipText" type="java.lang.String" value="Count the number of pixels for each channel for a histogram"/>
-              </Properties>
-              <Events>
-                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jMenuItem28ActionPerformed"/>
-              </Events>
-            </MenuItem>
           </SubComponents>
         </Menu>
         <Menu class="javax.swing.JMenu" name="menuDebug">
