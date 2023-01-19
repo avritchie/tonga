@@ -52,6 +52,55 @@ public class Counters {
         };
     }
 
+    public static Counter countIFChannels() {
+        return new Counter("Count RGB channels intensities while the background is black",
+                new String[]{"Image", "Area %unit2", "Red sum", "Red ‰", "Green Sum", "Green ‰", "Blue sum", "Blue ‰"},
+                new String[]{"The name of the image",
+                    "Total size of the detected tissue area in %unit2",
+                    "Total sum of the red channel intensity",
+                    "The average red channel intensity in promilles",
+                    "Total sum of the green channel intensity",
+                    "The average green channel intensity in promilles",
+                    "Total sum of the blue channel intensity",
+                    "The average blue channel intensity in promilles",}) {
+
+            int areapixels;
+            double redvalue;
+            double greenvalue;
+            double bluevalue;
+
+            @Override
+            protected void preProcessor(ImageData targetImageToEdit) {
+                areapixels = 0;
+                redvalue = 0;
+                greenvalue = 0;
+                bluevalue = 0;
+            }
+
+            @Override
+            protected void pixelIterator32(int[] pixels, int p) {
+                int col = pixels[p];
+                if (col != COL.BLACK) {
+                    areapixels++;
+                    redvalue += ((col >> 16) & 0xFF) / 255.;
+                    greenvalue += ((col >> 8) & 0xFF) / 255.;
+                    bluevalue += (col & 0xFF) / 255.;
+                }
+            }
+
+            @Override
+            protected void postProcessor(ImageData targetImage) {
+                row[1] = scaleUnit(areapixels, 2);
+                row[2] = redvalue;
+                row[3] = STAT.decToProm(redvalue / areapixels);
+                row[4] = greenvalue;
+                row[5] = STAT.decToProm(greenvalue / areapixels);
+                row[6] = bluevalue;
+                row[7] = STAT.decToProm(bluevalue / areapixels);
+            }
+        };
+    }
+
     public static Counter countRBStain() {
         return new Counter("Count red values",
                 new String[]{"Image", "Tissue %", "<html><b>Stain ‰</b></html>", "Tissue %unit2", "Stain raw"},
