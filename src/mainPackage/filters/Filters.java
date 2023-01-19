@@ -69,6 +69,30 @@ public class Filters {
         };
     }
 
+    public static FilterFast thresholdRGB() {
+        return new FilterFast("Threshold RGB", threshold) {
+            @Override
+            protected void processor() {
+                double v = param.slider[0] * 2.55;
+                Iterate.pixels(this, (int pos) -> {
+                    int color = in32[pos];
+                    int r = (color >> 16) & 0xFF;
+                    int g = (color >> 8) & 0xFF;
+                    int b = color & 0xFF;
+                    r = r >= v ? 255 : 0;
+                    g = g >= v ? 255 : 0;
+                    b = b >= v ? 255 : 0;
+                    out32[pos] = RGB.argb(r, g, b, 255);
+                });
+            }
+
+            @Override
+            protected void processor16() {
+                throw new UnsupportedOperationException("No 16-bit version available");
+            }
+        };
+    }
+
     public static FilterFast lcFilter() {
         return new FilterFast("Low-scaled", new ControlReference[]{
             new ControlReference(RANGE, new Integer[]{0, 255}, "Darkest allowed%Brightest allowed")}) {
