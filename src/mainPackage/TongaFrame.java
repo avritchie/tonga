@@ -595,8 +595,6 @@ public class TongaFrame extends JFrame {
         return nm;
     }
 
-    private static void updateLabel(JLabel label, JSlider slider) {
-        label.setText("(" + slider.getValue() + ")");
     private void getFilepath() {
         String fp = IO.getFolder(filePathField.getText());
         if (fp != null) {

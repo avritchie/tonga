@@ -19,10 +19,6 @@ public class TongaLayer {
         this(image, null);
     }
 
-    public TongaLayer(Image image) {
-        this(SwingFXUtils.fromFXImage(image, null), null);
-    }
-
     public TongaLayer(Image image, String name) {
         this(SwingFXUtils.fromFXImage(image, null), name);
     }
