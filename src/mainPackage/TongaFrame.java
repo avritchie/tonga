@@ -764,8 +764,11 @@ public class TongaFrame extends JFrame {
         contLayRename = new javax.swing.JMenuItem();
         contLaySelect = new javax.swing.JMenuItem();
         contLaySelectAll = new javax.swing.JMenuItem();
+        contLayDeleteThis = new javax.swing.JMenuItem();
+        contLayDeleteAll = new javax.swing.JMenuItem();
         contLayMoveUp = new javax.swing.JMenuItem();
         contLayMoveDown = new javax.swing.JMenuItem();
+        contLaySep = new javax.swing.JPopupMenu.Separator();
         contLayMerge = new javax.swing.JMenuItem();
         contLayColor = new javax.swing.JMenu();
         contLayColorRed = new javax.swing.JMenuItem();
@@ -773,8 +776,12 @@ public class TongaFrame extends JFrame {
         contLayColorBlue = new javax.swing.JMenuItem();
         contLayColorGray = new javax.swing.JMenuItem();
         contLayColorCustom = new javax.swing.JMenuItem();
-        contLayDeleteThis = new javax.swing.JMenuItem();
-        contLayDeleteAll = new javax.swing.JMenuItem();
+        contLayExtract = new javax.swing.JMenu();
+        contLayExtractRed = new javax.swing.JMenuItem();
+        contLayExtractGreen = new javax.swing.JMenuItem();
+        contLayExtractBlue = new javax.swing.JMenuItem();
+        contLayExtractAlpha = new javax.swing.JMenuItem();
+        contLayExtractAll = new javax.swing.JMenuItem();
         contextImageMenu = new javax.swing.JPopupMenu();
         contImgRename = new javax.swing.JMenuItem();
         contImgScale = new javax.swing.JMenuItem();
@@ -1083,6 +1090,24 @@ public class TongaFrame extends JFrame {
         });
         contextLayerMenu.add(contLaySelectAll);
 
+        contLayDeleteThis.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_DELETE, 0));
+        contLayDeleteThis.setText("Delete the layer(s) in this image");
+        contLayDeleteThis.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                contLayDeleteThisActionPerformed(evt);
+            }
+        });
+        contextLayerMenu.add(contLayDeleteThis);
+
+        contLayDeleteAll.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_DELETE, java.awt.event.InputEvent.SHIFT_DOWN_MASK));
+        contLayDeleteAll.setText("Delete the layer(s) in all images");
+        contLayDeleteAll.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                contLayDeleteAllActionPerformed(evt);
+            }
+        });
+        contextLayerMenu.add(contLayDeleteAll);
+
         contLayMoveUp.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_UP, java.awt.event.InputEvent.ALT_DOWN_MASK));
         contLayMoveUp.setText("Move up");
         contLayMoveUp.addActionListener(new java.awt.event.ActionListener() {
@@ -1100,6 +1125,7 @@ public class TongaFrame extends JFrame {
             }
         });
         contextLayerMenu.add(contLayMoveDown);
+        contextLayerMenu.add(contLaySep);
 
         contLayMerge.setText("Merge into one");
         contLayMerge.addActionListener(new java.awt.event.ActionListener() {
@@ -1153,23 +1179,49 @@ public class TongaFrame extends JFrame {
 
         contextLayerMenu.add(contLayColor);
 
-        contLayDeleteThis.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_DELETE, 0));
-        contLayDeleteThis.setText("Delete the layer(s) in this image");
-        contLayDeleteThis.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                contLayDeleteThisActionPerformed(evt);
-            }
-        });
-        contextLayerMenu.add(contLayDeleteThis);
+        contLayExtract.setText("Extract colour");
 
-        contLayDeleteAll.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_DELETE, java.awt.event.InputEvent.SHIFT_DOWN_MASK));
-        contLayDeleteAll.setText("Delete the layer(s) in all images");
-        contLayDeleteAll.addActionListener(new java.awt.event.ActionListener() {
+        contLayExtractRed.setText("Red");
+        contLayExtractRed.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                contLayDeleteAllActionPerformed(evt);
+                contLayExtractRedActionPerformed(evt);
             }
         });
-        contextLayerMenu.add(contLayDeleteAll);
+        contLayExtract.add(contLayExtractRed);
+
+        contLayExtractGreen.setText("Green");
+        contLayExtractGreen.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                contLayExtractGreenActionPerformed(evt);
+            }
+        });
+        contLayExtract.add(contLayExtractGreen);
+
+        contLayExtractBlue.setText("Blue");
+        contLayExtractBlue.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                contLayExtractBlueActionPerformed(evt);
+            }
+        });
+        contLayExtract.add(contLayExtractBlue);
+
+        contLayExtractAlpha.setText("Alpha");
+        contLayExtractAlpha.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                contLayExtractAlphaActionPerformed(evt);
+            }
+        });
+        contLayExtract.add(contLayExtractAlpha);
+
+        contLayExtractAll.setText("RGB");
+        contLayExtractAll.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                contLayExtractAllActionPerformed(evt);
+            }
+        });
+        contLayExtract.add(contLayExtractAll);
+
+        contextLayerMenu.add(contLayExtract);
 
         contImgRename.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_F2, 0));
         contImgRename.setText("Rename");
@@ -4530,6 +4582,43 @@ public class TongaFrame extends JFrame {
         Tonga.moveOrder(true, false);
     }//GEN-LAST:event_contImgMoveDownActionPerformed
 
+    private void contLayExtractRedActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_contLayExtractRedActionPerformed
+        instantFilter(Filters::separateChannel, false, 0);
+    }//GEN-LAST:event_contLayExtractRedActionPerformed
+
+    private void contLayExtractGreenActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_contLayExtractGreenActionPerformed
+        instantFilter(Filters::separateChannel, false, 1);
+    }//GEN-LAST:event_contLayExtractGreenActionPerformed
+
+    private void contLayExtractBlueActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_contLayExtractBlueActionPerformed
+        instantFilter(Filters::separateChannel, false, 2);
+    }//GEN-LAST:event_contLayExtractBlueActionPerformed
+
+    private void contLayExtractAlphaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_contLayExtractAlphaActionPerformed
+        instantFilter(Filters::separateChannel, false, 3);
+    }//GEN-LAST:event_contLayExtractAlphaActionPerformed
+
+    private void contLayExtractAllActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_contLayExtractAllActionPerformed
+        int lind = Tonga.getLayerIndex();
+        instantFilter(Filters::separateChannel, false, 0);
+        try {
+            Tonga.loader.threadTask.join();
+        } catch (InterruptedException ex) {
+            Tonga.catchError(ex);
+        } finally {
+            Tonga.selectLayer(lind);
+            instantFilter(Filters::separateChannel, false, 1);
+            try {
+                Tonga.loader.threadTask.join();
+            } catch (InterruptedException ex) {
+                Tonga.catchError(ex);
+            } finally {
+                Tonga.selectLayer(lind);
+                instantFilter(Filters::separateChannel, false, 2);
+            }
+        }
+    }//GEN-LAST:event_contLayExtractAllActionPerformed
+
     private void jMenuItem111ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem111ActionPerformed
         launchProtocol(Spheroids::new, evt);
     }//GEN-LAST:event_jMenuItem111ActionPerformed
@@ -4569,12 +4658,19 @@ public class TongaFrame extends JFrame {
     protected javax.swing.JMenuItem contLayColorRed;
     protected javax.swing.JMenuItem contLayDeleteAll;
     protected javax.swing.JMenuItem contLayDeleteThis;
+    protected javax.swing.JMenu contLayExtract;
+    protected javax.swing.JMenuItem contLayExtractAll;
+    protected javax.swing.JMenuItem contLayExtractAlpha;
+    protected javax.swing.JMenuItem contLayExtractBlue;
+    protected javax.swing.JMenuItem contLayExtractGreen;
+    protected javax.swing.JMenuItem contLayExtractRed;
     protected javax.swing.JMenuItem contLayMerge;
     protected javax.swing.JMenuItem contLayMoveDown;
     protected javax.swing.JMenuItem contLayMoveUp;
     protected javax.swing.JMenuItem contLayRename;
     protected javax.swing.JMenuItem contLaySelect;
     protected javax.swing.JMenuItem contLaySelectAll;
+    protected javax.swing.JPopupMenu.Separator contLaySep;
     protected javax.swing.JMenuItem contResClear;
     protected javax.swing.JMenuItem contResDelRow;
     protected javax.swing.JPopupMenu contextImageMenu;

@@ -38,6 +38,28 @@
             <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="contLaySelectAllActionPerformed"/>
           </Events>
         </MenuItem>
+        <MenuItem class="javax.swing.JMenuItem" name="contLayDeleteThis">
+          <Properties>
+            <Property name="accelerator" type="javax.swing.KeyStroke" editor="org.netbeans.modules.form.editors.KeyStrokeEditor">
+              <KeyStroke key="DELETE"/>
+            </Property>
+            <Property name="text" type="java.lang.String" value="Delete the layer(s) in this image"/>
+          </Properties>
+          <Events>
+            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="contLayDeleteThisActionPerformed"/>
+          </Events>
+        </MenuItem>
+        <MenuItem class="javax.swing.JMenuItem" name="contLayDeleteAll">
+          <Properties>
+            <Property name="accelerator" type="javax.swing.KeyStroke" editor="org.netbeans.modules.form.editors.KeyStrokeEditor">
+              <KeyStroke key="Shift+DELETE"/>
+            </Property>
+            <Property name="text" type="java.lang.String" value="Delete the layer(s) in all images"/>
+          </Properties>
+          <Events>
+            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="contLayDeleteAllActionPerformed"/>
+          </Events>
+        </MenuItem>
         <MenuItem class="javax.swing.JMenuItem" name="contLayMoveUp">
           <Properties>
             <Property name="accelerator" type="javax.swing.KeyStroke" editor="org.netbeans.modules.form.editors.KeyStrokeEditor">
@@ -60,6 +82,8 @@
             <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="contLayMoveDownActionPerformed"/>
           </Events>
         </MenuItem>
+        <Component class="javax.swing.JPopupMenu$Separator" name="contLaySep">
+        </Component>
         <MenuItem class="javax.swing.JMenuItem" name="contLayMerge">
           <Properties>
             <Property name="text" type="java.lang.String" value="Merge into one"/>
@@ -115,28 +139,53 @@
             </MenuItem>
           </SubComponents>
         </Menu>
-        <MenuItem class="javax.swing.JMenuItem" name="contLayDeleteThis">
+        <Menu class="javax.swing.JMenu" name="contLayExtract">
           <Properties>
-            <Property name="accelerator" type="javax.swing.KeyStroke" editor="org.netbeans.modules.form.editors.KeyStrokeEditor">
-              <KeyStroke key="DELETE"/>
-            </Property>
-            <Property name="text" type="java.lang.String" value="Delete the layer(s) in this image"/>
+            <Property name="text" type="java.lang.String" value="Extract colour"/>
           </Properties>
-          <Events>
-            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="contLayDeleteThisActionPerformed"/>
-          </Events>
-        </MenuItem>
-        <MenuItem class="javax.swing.JMenuItem" name="contLayDeleteAll">
-          <Properties>
-            <Property name="accelerator" type="javax.swing.KeyStroke" editor="org.netbeans.modules.form.editors.KeyStrokeEditor">
-              <KeyStroke key="Shift+DELETE"/>
-            </Property>
-            <Property name="text" type="java.lang.String" value="Delete the layer(s) in all images"/>
-          </Properties>
-          <Events>
-            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="contLayDeleteAllActionPerformed"/>
-          </Events>
-        </MenuItem>
+          <SubComponents>
+            <MenuItem class="javax.swing.JMenuItem" name="contLayExtractRed">
+              <Properties>
+                <Property name="text" type="java.lang.String" value="Red"/>
+              </Properties>
+              <Events>
+                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="contLayExtractRedActionPerformed"/>
+              </Events>
+            </MenuItem>
+            <MenuItem class="javax.swing.JMenuItem" name="contLayExtractGreen">
+              <Properties>
+                <Property name="text" type="java.lang.String" value="Green"/>
+              </Properties>
+              <Events>
+                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="contLayExtractGreenActionPerformed"/>
+              </Events>
+            </MenuItem>
+            <MenuItem class="javax.swing.JMenuItem" name="contLayExtractBlue">
+              <Properties>
+                <Property name="text" type="java.lang.String" value="Blue"/>
+              </Properties>
+              <Events>
+                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="contLayExtractBlueActionPerformed"/>
+              </Events>
+            </MenuItem>
+            <MenuItem class="javax.swing.JMenuItem" name="contLayExtractAlpha">
+              <Properties>
+                <Property name="text" type="java.lang.String" value="Alpha"/>
+              </Properties>
+              <Events>
+                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="contLayExtractAlphaActionPerformed"/>
+              </Events>
+            </MenuItem>
+            <MenuItem class="javax.swing.JMenuItem" name="contLayExtractAll">
+              <Properties>
+                <Property name="text" type="java.lang.String" value="RGB"/>
+              </Properties>
+              <Events>
+                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="contLayExtractAllActionPerformed"/>
+              </Events>
+            </MenuItem>
+          </SubComponents>
+        </Menu>
       </SubComponents>
     </Container>
     <Container class="javax.swing.JPopupMenu" name="contextImageMenu">

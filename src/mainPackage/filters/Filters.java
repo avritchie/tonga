@@ -231,6 +231,53 @@ public class Filters {
         };
     }
 
+    public static FilterFast separateChannel() {
+        return new FilterFast("Extracted", new ControlReference[]{
+            new ControlReference(COMBO, new String[]{"Red", "Green", "Blue", "Alpha"}, "Channel to extract", 0),
+            new ControlReference(TOGGLE, "Ouput as grayscale")}) {
+
+            @Override
+            protected void processor() {
+                int mask;
+                switch (param.combo[0]) {
+                    case 0: {
+                        mask = 0x00FF0000;
+                        break;
+                    }
+                    case 1: {
+                        mask = 0x0000FF00;
+                        break;
+                    }
+                    case 2: {
+                        mask = 0x000000FF;
+                        break;
+                    }
+                    case 3: {
+                        mask = 0xFF000000;
+                        break;
+                    }
+                    default:
+                        mask = 0x0;
+                        break;
+                }
+                if (param.toggle[0]) {
+                    Iterate.pixels(this, (int pos) -> {
+                        out32[pos] = RGB.argb(RGB.brightness(in32[pos] & mask));
+                    });
+                } else {
+                    Iterate.pixels(this, (int pos) -> {
+                        out32[pos] = in32[pos] & mask | 0xFF000000;
+                    });
+                }
+            }
+
+            @Override
+            protected void processor16() {
+                throw new UnsupportedOperationException("16-bit images only have one channel");
+            }
+        };
+    }
+
     public static FilterFast integral() {
         return new FilterFast("Integral", noParams) {
 
