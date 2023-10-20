@@ -18,7 +18,7 @@ public class Settings {
     private static HashMap<Integer, Boolean> neverShow;
 
     public enum Autoscale {
-        NONE, CHANNEL, IMAGE;
+        NONE, CHANNEL, IMAGE, FILE;
     }
 
     protected static void boot() {
@@ -98,9 +98,12 @@ public class Settings {
                 autoscale = Autoscale.NONE;
                 break;
             case 1:
-                autoscale = Autoscale.CHANNEL;
+                autoscale = Autoscale.FILE;
                 break;
             case 2:
+                autoscale = Autoscale.CHANNEL;
+                break;
+            case 3:
                 autoscale = Autoscale.IMAGE;
                 break;
         }

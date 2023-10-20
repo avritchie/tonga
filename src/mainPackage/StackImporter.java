@@ -163,7 +163,7 @@ public class StackImporter {
             }
         }
         TongaImage[] finalImages = returnableImages.toArray(new TongaImage[returnableImages.size()]);
-        if (Settings.settingAutoscaleType() == Settings.Autoscale.CHANNEL) {
+        if (Settings.settingAutoscaleType() == Settings.Autoscale.FILE) {
             TongaRender.setDisplayRange(maxChannels, finalImages);
         }
         input.close(true);
@@ -218,7 +218,7 @@ public class StackImporter {
         if (Settings.settingAutoscaleType() == Settings.Autoscale.IMAGE) {
             maxPixelRange = (int) Math.pow(2, bitNumber) * slices;
             int[] histo = HISTO.getHistogramBWXbit(rawChannel, maxPixelRange);
-            int[] posLowHigh = HISTO.getMinMaxAdapt(histo, Settings.settingAutoscaleAggressive() ? 0.1 : 0);
+            int[] posLowHigh = HISTO.getImportScaled(histo);
             Tonga.log.debug("{} is the lowest point, index is {}; {} is the highest point, index is {}", posLowHigh[0], histo[posLowHigh[1]], posLowHigh[1], histo[posLowHigh[0]]);
             Tonga.log.debug("To scale to 0-255 it should be substracted {} and scaled with {}", posLowHigh[0], (maxPixelRange / 2. / posLowHigh[1]));
             rawChannel = scaleBits(rawChannel, posLowHigh[0], maxPixelRange / 2. / posLowHigh[1]);

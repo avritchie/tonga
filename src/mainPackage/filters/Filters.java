@@ -2,6 +2,8 @@ package mainPackage.filters;
 
 import java.util.Arrays;
 import java.util.Stack;
+import mainPackage.Blender;
+import mainPackage.Blender.Blend;
 import mainPackage.ImageData;
 import mainPackage.utils.COL;
 import mainPackage.utils.IMG;
@@ -185,7 +187,24 @@ public class Filters {
 
             @Override
             protected void processor16() {
-                set16BitScaleRange(param.range[1], param.range[0]);
+                set16BitScaleRange(param.range[1], param.range[0], true);
+            }
+        };
+    }
+
+    public static FilterFast scaleReset() {
+        //the one used by the Histogram buttons
+        return new FilterFast("Levels", limits) {
+            @Override
+            protected void processor() {
+                throw new UnsupportedOperationException("8-bit images don't need scaling");
+            }
+
+            @Override
+            protected void processor16() {
+                outData.max = 65535;
+                outData.min = 0;
+                IMG.copyPixels(in16, out16);
             }
         };
     }
@@ -206,7 +225,7 @@ public class Filters {
             protected void processor16() {
                 int[] histo = HISTO.getHistogram(in16);
                 int limit = HISTO.getHighestPointIndex(histo, false) / 256;
-                set16BitScaleRange(255, limit);
+                set16BitScaleRange(255, limit, true);
             }
         };
     }
@@ -227,7 +246,7 @@ public class Filters {
             protected void processor16() {
                 int[] histo = HISTO.getHistogram(in16);
                 int limit = HISTO.getHighestPointIndex(histo, false) / 256;
-                set16BitScaleRange(limit, 0);
+                set16BitScaleRange(limit, 0, true);
             }
         };
     }
@@ -308,6 +327,7 @@ public class Filters {
 
             @Override
             protected void processor16() {
+                throw new UnsupportedOperationException("No 16-bit version available");
             }
         };
     }
@@ -343,6 +363,7 @@ public class Filters {
 
             @Override
             protected void processor16() {
+                throw new UnsupportedOperationException("No 16-bit version available");
             }
         };
     }
@@ -1104,13 +1125,16 @@ public class Filters {
     public static FilterFast autoscaleWithAdapt() {
         return new FilterFast("Adapted Autoscale",
                 new ControlReference[]{
-                    new ControlReference(SLIDER, new Object[]{0, 1, 100}, "Ignore values below % of the median")}) {
+                    new ControlReference(SLIDER, new Object[]{0, 2, 200}, "Ignore values below % of the median"),
+                    new ControlReference(TOGGLE, "Low", 1),
+                    new ControlReference(TOGGLE, "High", 1)}) {
+
             @Override
             protected void processor() {
                 int[] histo = HISTO.getHistogram(in32);
                 int[] begEnd = HISTO.getMinMaxAdapt(histo, param.sliderScaled[0]);
-                int low = begEnd[0];
-                int hi = begEnd[1];
+                int low = param.toggle[0] ? begEnd[0] : 0;
+                int hi = param.toggle[1] ? begEnd[1] : 255;
                 Iterate.pixels(this, (int pos) -> {
                     out32[pos] = RGB.levels(in32[pos], hi, low);
                 });
@@ -1120,7 +1144,9 @@ public class Filters {
             protected void processor16() {
                 int[] histo = HISTO.getHistogram(in16);
                 int[] begEnd = HISTO.getMinMaxAdapt(histo, param.sliderScaled[0]);
-                set16BitScaleRange(begEnd[0], begEnd[1]);
+                int low = param.toggle[0] ? begEnd[0] : 0;
+                int hi = param.toggle[1] ? begEnd[1] : outData.max - outData.min;
+                set16BitScaleRange(hi, low, false);
             }
         };
     }
@@ -1128,13 +1154,16 @@ public class Filters {
     public static FilterFast autoscaleWithPixelAdapt() {
         return new FilterFast("Adapted Autoscale",
                 new ControlReference[]{
-                    new ControlReference(SLIDER, new Object[]{0, 100, 500, 200}, "Ignore values with less than x pixels", 1)}) {
+                    new ControlReference(SLIDER, new Object[]{0, 200, 2000, 200}, "Ignore values with less than x pixels", 1),
+                    new ControlReference(TOGGLE, "Low", 1),
+                    new ControlReference(TOGGLE, "High", 1)}) {
+
             @Override
             protected void processor() {
                 int[] histo = HISTO.getHistogram(in32);
                 int[] begEnd = HISTO.getMinMaxAdaptValue(histo, (int) param.sliderScaled[0]);
-                int low = begEnd[0];
-                int hi = begEnd[1];
+                int low = param.toggle[0] ? begEnd[0] : 0;
+                int hi = param.toggle[1] ? begEnd[1] : 255;
                 Iterate.pixels(this, (int pos) -> {
                     out32[pos] = RGB.levels(in32[pos], hi, low);
                 });
@@ -1144,7 +1173,42 @@ public class Filters {
             protected void processor16() {
                 int[] histo = HISTO.getHistogram(in16);
                 int[] begEnd = HISTO.getMinMaxAdaptValue(histo, (int) param.sliderScaled[0]);
-                set16BitScaleRange(begEnd[0], begEnd[1]);
+                int low = param.toggle[0] ? begEnd[0] : 0;
+                int hi = param.toggle[1] ? begEnd[1] : outData.max - outData.min;
+                set16BitScaleRange(hi, low, false);
+            }
+        };
+    }
+
+    public static FilterFast autoscaleWithFractionAdapt() {
+        return new FilterFast("Adapted Autoscale",
+                new ControlReference[]{
+                    new ControlReference(SLIDER, new Object[]{0, 200}, "Ignore values with smaller fraction than x ppm", 1),
+                    new ControlReference(TOGGLE, "Low", 1),
+                    new ControlReference(TOGGLE, "High", 1)}) {
+
+            @Override
+            protected void processor() {
+                int[] histo = HISTO.getHistogram(in32);
+                int[] begEnd = HISTO.getMinMaxAdaptFraction(histo, (int) param.sliderScaled[0]);
+                int low = param.toggle[0] ? begEnd[0] : 0;
+                int hi = param.toggle[1] ? begEnd[1] : 255;
+                Iterate.pixels(this, (int pos) -> {
+                    out32[pos] = RGB.levels(in32[pos], hi, low);
+                });
+            }
+
+            @Override
+            protected void processor16() {
+                int[] histo = HISTO.getHistogram(in16);
+                int[] begEnd = HISTO.getMinMaxAdaptFraction(histo, (int) param.sliderScaled[0]);
+                int low = param.toggle[0] ? begEnd[0] : 0;
+                int hi = param.toggle[1] ? begEnd[1] : outData.max - outData.min;
+                set16BitScaleRange(hi, low, false);
+            }
+        };
+    }
+
     public static FilterFast whitebalance() {
         return new FilterFast("White balance", noParams, 6) {
 
@@ -1205,7 +1269,7 @@ public class Filters {
             protected void processor16() {
                 int[] histo = HISTO.getHistogram(in16);
                 int low = HISTO.getSecondMin(histo);
-                set16BitScaleRange(low, histo.length - 1);
+                set16BitScaleRange(low, histo.length - 1, false);
             }
         };
     }
@@ -1213,7 +1277,7 @@ public class Filters {
     public static FilterFast scaleRGB() {
         return new FilterFast("Scale RGB", new ControlReference[]{
             new ControlReference(SLIDER, "Desired intensity level"),
-            new ControlReference(COMBO, new String[]{"Red", "Green", "Blue"}, "Based on which channel", 2),}) {
+            new ControlReference(COMBO, new String[]{"Red", "Green", "Blue"}, "Based on which channel", 2)}, 2) {
 
             double basevalue;
             int areapixels;

@@ -115,10 +115,14 @@ public abstract class FilterFast extends Filter {
         destination = null;
     }
 
-    protected void set16BitScaleRange(int from, int to) {
-        double r = (outData.max - outData.min) / 255.;
-        outData.max = (int) (outData.min + from * r);
-        outData.min = (int) (outData.min + to * r);
+    protected void set16BitScaleRange(int from, int to, boolean bit8) {
+        if (bit8) {
+            double r = (outData.max - outData.min) / 255.;
+            from *= r;
+            to *= r;
+        }
+        outData.max = (int) (outData.min + from);
+        outData.min = (int) (outData.min + to);
         IMG.copyPixels(in16, out16);
     }
 

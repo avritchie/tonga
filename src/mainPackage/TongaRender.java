@@ -619,7 +619,7 @@ public class TongaRender {
 
     static void setDisplayRange(short[] channel, MappedImage image) {
         int[] hist = HISTO.getHistogram(channel);
-        int[] p = HISTO.getMinMaxAdapt(hist, Settings.settingAutoscaleAggressive() ? 0.1 : 0);
+        int[] p = HISTO.getImportScaled(hist);
         image.min = p[0];
         image.max = p[1];
     }
@@ -636,7 +636,7 @@ public class TongaRender {
                 MappedImage ci = ti.layerList.get(j).layerImage;
                 if (ci.bits == 16) {
                     int[] hist = HISTO.getHistogram(ci.getShorts());
-                    int[] b = HISTO.getMinMaxAdapt(hist, Settings.settingAutoscaleAggressive() ? 0.1 : 0);
+                    int[] b = HISTO.getImportScaled(hist);
                     min[j] = Math.min(min[j], b[0]);
                     max[j] = Math.max(max[j], b[1]);
                 }

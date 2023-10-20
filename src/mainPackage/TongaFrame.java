@@ -1867,9 +1867,9 @@ public class TongaFrame extends JFrame {
         autoscaleLabel.setText("Autoscaling");
         autoscaleLabel.setToolTipText("Autoscale >8-bit images automatically based on the histogram. Please note that this is only a visual change.");
 
-        autoscaleCombo.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "None", "Image sets", "Every image" }));
-        autoscaleCombo.setSelectedIndex(1);
-        autoscaleCombo.setToolTipText("Autoscaling can be done for every image separately, or for a set of images (=channels) jointly to maintain visual comparability");
+        autoscaleCombo.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "None", "File channel", "Every channel", "Every image" }));
+        autoscaleCombo.setSelectedIndex(2);
+        autoscaleCombo.setToolTipText("Autoscaling can be done for every image separately, or channelwise (either per file or per a set of imported images) to maintain visual comparability");
         autoscaleCombo.setPreferredSize(new java.awt.Dimension(100, 20));
         autoscaleCombo.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -1877,7 +1877,7 @@ public class TongaFrame extends JFrame {
             }
         });
 
-        boxSettingAutoscale1.setText("aggressive");
+        boxSettingAutoscale1.setText("adaptive");
         boxSettingAutoscale1.setToolTipText("The autoscaling has adaptation to ignore single bright dots etc.");
 
         javax.swing.GroupLayout settingPanelScaleLayout = new javax.swing.GroupLayout(settingPanelScale);
@@ -1900,7 +1900,7 @@ public class TongaFrame extends JFrame {
                     .addComponent(autoscaleLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 20, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(autoscaleCombo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(boxSettingAutoscale1))
-                .addGap(0, 20, Short.MAX_VALUE))
+                .addGap(0, 22, Short.MAX_VALUE))
         );
 
         settingPanelFile.setBorder(javax.swing.BorderFactory.createTitledBorder("File output"));
@@ -1946,7 +1946,7 @@ public class TongaFrame extends JFrame {
                 .addGroup(settingPanelFileLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(boxSettingOpenAfter)
                     .addComponent(boxSettingSubfolder))
-                .addContainerGap(20, Short.MAX_VALUE))
+                .addContainerGap(22, Short.MAX_VALUE))
         );
 
         javax.swing.GroupLayout generalPanelLayout = new javax.swing.GroupLayout(generalPanel);
@@ -1966,8 +1966,8 @@ public class TongaFrame extends JFrame {
             generalPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(generalPanelLayout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(settingPanelLayer, javax.swing.GroupLayout.PREFERRED_SIZE, 92, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(5, 5, 5)
+                .addComponent(settingPanelLayer, javax.swing.GroupLayout.PREFERRED_SIZE, 65, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(settingPanelGeneral, javax.swing.GroupLayout.PREFERRED_SIZE, 120, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(settingPanelScale, javax.swing.GroupLayout.PREFERRED_SIZE, 65, javax.swing.GroupLayout.PREFERRED_SIZE)

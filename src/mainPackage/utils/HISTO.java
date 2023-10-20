@@ -2,8 +2,10 @@ package mainPackage.utils;
 
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferByte;
+import java.util.Arrays;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.scene.image.Image;
+import mainPackage.Settings;
 import mainPackage.Tonga;
 import mainPackage.TongaLayer;
 
@@ -199,6 +201,91 @@ public class HISTO {
         if (up == -1 || low == -1) {
             Tonga.log.warn("Autoscale index is negative");
         }
+        Tonga.log.debug("Adaped autoscaling for {}-sized histogram: lower limit is {} and higher {}", histoData.length, low, up);
         return new int[]{low, up};
+    }
+
+    public static int[] getMinMaxAdaptFraction(int[] histoData, int fract) {
+        //seeks for a position where value is smaller than fract
+        //then continues seeking until value exceeds fract again
+        int limit = histoData.length;
+        int pxlsize = Arrays.stream(histoData).sum();
+        int up = -1, low = -1;
+        int upa = 0, lowa = 0;
+        mloop:
+        for (int i = 0; i < limit; i++) {
+            double cfrac = histoData[i] * 1000000 / pxlsize;
+            switch (lowa) {
+                case 0:
+                    if (cfrac <= fract * 2) {
+                        lowa = 1;
+                    }
+                    break;
+                case 1:
+                    if (cfrac <= fract) {
+                        lowa = 2;
+                    } else if (cfrac > fract * 2) {
+                        lowa = 0;
+                    }
+                    break;
+                case 2:
+                    if (cfrac >= fract) {
+                        lowa = 3;
+                    }
+                    break;
+                case 3:
+                    if (cfrac >= fract * 2) {
+                        low = i;
+                        break mloop;
+                    } else if (cfrac < fract) {
+                        lowa = 2;
+                    }
+                    break;
+            }
+        }
+        sloop:
+        for (int i = limit - 1; i >= 0; i--) {
+            double cfrac = histoData[i] * 1000000 / pxlsize;
+            switch (upa) {
+                case 0:
+                    if (cfrac <= fract * 2) {
+                        upa = 1;
+                    }
+                    break;
+                case 1:
+                    if (cfrac <= fract) {
+                        upa = 2;
+                    } else if (cfrac > fract * 2) {
+                        upa = 0;
+                    }
+                    break;
+                case 2:
+                    if (cfrac >= fract) {
+                        upa = 3;
+                    }
+                    break;
+                case 3:
+                    if (cfrac >= fract * 2) {
+                        up = i;
+                        break sloop;
+                    } else if (cfrac < fract) {
+                        upa = 2;
+                    }
+                    break;
+            }
+        }
+        if (up == -1 || low == -1) {
+            Tonga.log.warn("Autoscale index is negative");
+        }
+        Tonga.log.debug("Adaped autoscaling for {}-sized histogram: lower limit is {} and higher {}", histoData.length, low, up);
+        return new int[]{low, up};
+    }
+
+    public static int[] getImportScaled(int[] histo) {
+        int[] vv = HISTO.getMinMaxAdapt(histo, 0);
+        if (Settings.settingAutoscaleAggressive()) {
+            return new int[]{vv[0], HISTO.getMinMaxAdaptFraction(histo, 5)[1]};
+        }
+        return vv;
     }
 }

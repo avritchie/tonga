@@ -30,7 +30,9 @@ public abstract class Importer {
         files = fileList;
         Thread thread = new Thread(() -> {
             Tonga.loader().setIterations(files.size());
+            int imagesNow = Tonga.picList.size();
             iterate();
+            scale(imagesNow, Tonga.picList.size());
             if (!cancelled) {
                 if (Settings.settingBatchProcessing()) {
                     if (failures == files.size()) {
@@ -93,6 +95,30 @@ public abstract class Importer {
 
     private MappedImage source() throws IOException, FileNotFoundException, ServiceException, FormatException {
         return IO.getImageFromFile(file);
+    private void scale(int imagesBeginning, int imagesNow) {
+        if (Settings.settingAutoscaleType() == Settings.Autoscale.CHANNEL) {
+            int newImgs = imagesNow - imagesBeginning;
+            if (newImgs == 0) {
+                Tonga.log.info("No images were imported. No scaling will be performed.");
+                return;
+            }
+            int expLayerCount = Tonga.getImage(imagesBeginning).layerList.size();
+            if (newImgs > 1) {
+                int[] indexes = new int[expLayerCount];
+                for (int i = 0; i < expLayerCount; i++) {
+                    indexes[i] = i;
+                }
+                if (!Tonga.layerStructureMatches(imagesBeginning, imagesNow-1, indexes)) {
+                    Tonga.log.info("The new images don't share a layer structure. No scaling will be performed.");
+                    return;
+                }
+            }
+            TongaImage[] newImages = new TongaImage[newImgs];
+            for (int i = 0; i < newImgs; i++) {
+                newImages[i] = Tonga.getImage(imagesBeginning + i);
+            }
+            TongaRender.setDisplayRange(expLayerCount, newImages);
+        }
     }
 
     private boolean rawImport() {
