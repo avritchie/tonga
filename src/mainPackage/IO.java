@@ -1,5 +1,7 @@
 package mainPackage;
 
+import MRXS.MRXSLevel;
+import MRXS.MRXSSlide;
 import java.awt.Component;
 import java.awt.Desktop;
 import java.awt.Dimension;
@@ -40,6 +42,9 @@ import loci.common.services.ServiceException;
 import loci.formats.FormatException;
 import static mainPackage.Tonga.mainFrame;
 import static mainPackage.Tonga.picList;
+import mainPackage.filters.FiltersPass;
+import mainPackage.morphology.ImageTracer;
+import mainPackage.utils.COL;
 
 public class IO {
 
@@ -101,14 +106,22 @@ public class IO {
     }
 
     protected static boolean importStack(File file) throws IOException, FormatException, ServiceException {
+        TongaImage[] tis = importStackImages(file);
+        if (tis == null) {
+            return false;
+        } else {
+            picList.addAll(Arrays.asList(tis));
+            return true;
+        }
+    }
+
+    protected static TongaImage[] importStackImages(File file) throws IOException, FormatException, ServiceException {
         if (Settings.settingBatchProcessing()) {
             Tonga.setStatus("Stacked images cannot be opened in the batch-mode since the contents may vary.");
         } else {
-            TongaImage[] images = StackImporter.openFile(file);
-            picList.addAll(Arrays.asList(images));
-            return true;
+            return StackImporter.openFile(file);
         }
-        return false;
+        return null;
     }
 
     public static void importStacks(List<File> files) {
@@ -138,7 +151,7 @@ public class IO {
                 }
 
                 @Override
-                boolean readStack() throws IOException, FormatException, ServiceException {
+                boolean readStack(boolean force) throws IOException, FormatException, ServiceException {
                     return importStack(file);
                 }
 
@@ -239,7 +252,7 @@ public class IO {
             }
 
             @Override
-            boolean readStack() throws IOException, FormatException, ServiceException {
+            boolean readStack(boolean force) throws IOException, FormatException, ServiceException {
                 if (StackImporter.isStackImage(file)) {
                     stackissue = true;
                 }
@@ -384,7 +397,7 @@ public class IO {
                 }
 
                 @Override
-                boolean readStack() throws IOException, FormatException, ServiceException {
+                boolean readStack(boolean force) throws IOException, FormatException, ServiceException {
                     if (StackImporter.isStackImage(file)) {
                         stackissue = true;
                     }
@@ -405,7 +418,7 @@ public class IO {
                         + "Do you want to switch to the batch processing mode?<br><br>"
                         + "In the batch mode you can execute protocols to the files directly without a need to import them first. "
                         + "This can be useful if you already know what protocol and settings you want to use.", true, false)) {
-            Tonga.frame().boxSettingBatch.setSelected(true);
+            Tonga.frame().batchToggle.setSelected(true);
         }
         new Importer() {
             @Override
@@ -429,8 +442,8 @@ public class IO {
             }
 
             @Override
-            boolean readStack() throws IOException, FormatException, ServiceException {
-                if (StackImporter.isStackImage(file)) {
+            boolean readStack(boolean force) throws IOException, FormatException, ServiceException {
+                if (StackImporter.isStackImage(file) || force) {
                     importStack(file);
                     stacks++;
                     return true;
@@ -533,8 +546,8 @@ public class IO {
                 }
 
                 @Override
-                boolean readStack() throws IOException, FormatException, ServiceException {
-                    if (StackImporter.isStackImage(file)) {
+                boolean readStack(boolean force) throws IOException, FormatException, ServiceException {
+                    if (StackImporter.isStackImage(file) || force) {
                         importStack(file);
                         stacks++;
                         return true;
@@ -678,7 +691,7 @@ public class IO {
                 }
                 int h = (t / w) + (t % w > 0 ? 1 : 0);
                 labelt.setText(Integer.toString(h));
-            } catch (NumberFormatException ex) {
+            } catch (NumberFormatException | ArithmeticException ex) {
                 labelt.setText("?");
             }
         });
@@ -764,28 +777,42 @@ public class IO {
         return new Object[]{proceed, number, channel.isSelected()};
     }
 
+    public static ImageData getImageDataFromFile(String file) throws FileNotFoundException, ServiceException, FormatException, IOException {
+        return getImageDataFromFile(new File(file));
+    }
+
     public static MappedImage getImageFromFile(String file) throws FileNotFoundException, ServiceException, FormatException, IOException {
         return getImageFromFile(new File(file));
     }
 
-    public static ImageData getImageDataFromFile(String file) throws FileNotFoundException, ServiceException, FormatException, IOException {
-        return new ImageData(getImageFromFile(new File(file)));
+    public static ImageData getImageDataFromFile(File file) throws FileNotFoundException, ServiceException, FormatException, IOException {
+        if (file.exists()) {
+            try {
+                return new ImageData(new MappedImage(file, false));
+            } catch (Exception ex) {
+                Tonga.log.debug("Unable to directly import {} as ImageData", file.toString());
+                return null;
+            }
+        } else {
+            throw new FileNotFoundException();
+        }
     }
 
     public static MappedImage getImageFromFile(File file) throws FileNotFoundException, ServiceException, FormatException, IOException {
         if (file.exists()) {
             try {
-                try {
-                    MappedImage n;
-                    n = new MappedImage(file);
-                    return n;
-                } catch (Exception ex) {
-                    Tonga.log.debug("Unable to directly import {}", file.toString());
-                    Tonga.log.debug("Will try the Bio-Formats importer instead");
-                    return StackImporter.openFile(file)[0].layerList.get(0).layerImage;
-                }
-            } catch (IOException | ServiceException | FormatException ex) {
-                throw ex;
+                MappedImage n;
+                n = new MappedImage(file, true);
+                return n;
+            } catch (Exception ex) {
+                Tonga.log.debug("Unable to directly import {}", file.toString());
+                return null;
+            }
+        } else {
+            throw new FileNotFoundException();
+        }
+    }
+
             }
         } else {
             throw new FileNotFoundException();

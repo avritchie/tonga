@@ -147,9 +147,10 @@ public class StackImporter {
                         }
                         LOADER.appendProgress(1. / 4 / channelNumber / timeNumber / imageNumber);
                         // iterate any separated channels and add all as layers
-                        for (short[] sub : subchannel) {
+                        for (int s = 0; s < subchannel.length; s++) {
+                            short[] sub = subchannel[s];
                             image = new MappedImage(sub, channel.getWidth(), channel.getHeight());
-                            image.colour = getColour(channelColor);
+                            image.colour = getColour(channelColor, s, subchannel.length);
                             if (Settings.settingAutoscaleType() == Settings.Autoscale.IMAGE) {
                                 TongaRender.setDisplayRange(sub, image);
                             }
@@ -262,8 +263,18 @@ public class StackImporter {
         return isStack;
     }
 
-    private static int getColour(Color channelColor) {
+    private static int getColour(Color channelColor, int channelNumber, int channelTotal) {
         if (channelColor == null) {
+            if (channelTotal == 3) {
+                switch (channelNumber) {
+                    case 0:
+                        return 0xFFFF0000;
+                    case 1:
+                        return 0xFF00FF00;
+                    case 2:
+                        return 0xFF0000FF;
+                }
+            }
             return 0xFFFFFFFF;
         } else {
             return channelColor.getRed() << 16 | channelColor.getGreen() << 8 | channelColor.getBlue() | 0xFF << 24;

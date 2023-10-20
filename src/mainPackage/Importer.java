@@ -9,6 +9,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.channels.ClosedChannelException;
+import java.nio.file.Files;
 import java.util.List;
 import loci.common.services.ServiceException;
 import loci.formats.FormatException;
@@ -65,30 +66,50 @@ public abstract class Importer {
             if (Settings.settingBatchProcessing()) {
                 readBatch();
             } else {
-                if (!readStack()) {
-                    read(source());
+                if (!readStack(false)) {
+                    MappedImage mi = source();
+                    //failed to read
+                    if (mi == null) {
+                        Tonga.log.debug("Will try the Bio-Formats importer instead");
+                        if (readStack(true)) {
+                            Tonga.log.debug("Imported as a stack using a Bio-Formats importer");
+                        } else {
+                            Tonga.log.debug("Can not import using Bio-Formats importer");
+                        }
+                    } else {
+                        read(mi);
+                    }
                 }
             }
             Tonga.loader().appendProgress(1.0);
         } catch (ClosedChannelException ex) {
             Tonga.catchError(ex, "The Bio-Formats importer was interrupted while importing.");
         } catch (Exception ex) {
-            if (file.isDirectory()) {
-                Tonga.catchError(ex, "Folder importing is not supported.");
-            } else {
-                boolean success = rawImport();
-                if (!success) {
-                    failures++;
-                    if (ex instanceof FormatException || ex instanceof IllegalStateException) {
-                        formatissue = true;
-                        Tonga.catchError(ex, "The file could not be imported because the format is unsupported.");
-                    } else if (ex instanceof IOException) {
-                        Tonga.catchError(ex, "The file could not be imported because of an IO error.");
+            try {
+                failures++;
+                int fs = (int) Files.size(file.toPath());
+                if (file.isDirectory()) {
+                    Tonga.catchError(ex, "Folder importing is not supported.");
+                } else if (fs == 0) {
+                    Tonga.catchError(ex, "The file is empty.");
+                } else {
+                    boolean success = rawImport();
+                    if (!success) {
+                        if (ex instanceof FormatException || ex instanceof IllegalStateException) {
+                            formatissue = true;
+                            Tonga.catchError(ex, "The file could not be imported because the format is unsupported.");
+                        } else if (ex instanceof IOException) {
+                            Tonga.catchError(ex, "The file could not be imported because of an IO error.");
+                        } else {
+                            Tonga.catchError(ex, "The file could not be imported because of an unknown error.");
+                        }
                     } else {
-                        Tonga.catchError(ex, "The file could not be imported because of an unknown error.");
+                        failures--;
+                        Tonga.loader().appendToNext();
                     }
                 }
-                Tonga.loader().appendToNext();
+            } catch (IOException ex1) {
+                Tonga.catchError(ex, "IO error occurred.");
             }
         }
     }
@@ -144,7 +165,7 @@ public abstract class Importer {
 
     abstract void readBatch() throws Exception;
 
-    abstract boolean readStack() throws IOException, FormatException, ServiceException;
+    abstract boolean readStack(boolean force) throws IOException, FormatException, ServiceException;
 
     abstract String message();
 
