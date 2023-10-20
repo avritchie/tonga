@@ -226,8 +226,12 @@ public abstract class Filter {
     protected final Object handle(Object img) {
         setDimensions(img);
         double cProg = Tonga.loader().getProgress();
+        double iProg = Tonga.iterations();
         Object handled = handleImage(img);
         if (cProg == Tonga.loader().getProgress()) {
+            if (iProg == Tonga.iterations()) {
+                Tonga.iteration();
+            }
             Tonga.loader().appendProgress(1.);
         }
         return handled;

@@ -42,6 +42,12 @@ public class Loader {
         Splash.append("Loader", 2);
     }
 
+    public void addIterations(int i) {
+        Tonga.log.debug("Iterations set to " + (int) (stepsTotal + i));
+        // note: only use this function inside a thread(!)
+        stepsTotal += i;
+    }
+
     public void setIterations(int i) {
         Tonga.log.debug("Iterations set to " + i);
         // note: only use this function inside a thread(!)
@@ -93,23 +99,28 @@ public class Loader {
     }
 
     private void updateProgress(double max, double done) {
-        long sysc = System.nanoTime();
-        if (sysc > syst + 1000000 || done + 0.01 > max) {
-            int stage = (int) (1000.0 / max * done);
-            if (stage > 7) {
-                fbar.setIndeterminate(false);
+        if (Tonga.taskIsRunning) {
+            long sysc = System.nanoTime();
+            if (sysc > syst + 10000000 || done + 0.01 > max) {
+                int stage = (int) (1000.0 / max * done);
+                if (stage > 7) {
+                    if (fbar.isIndeterminate()) {
+                        fbar.setIndeterminate(false);
+                        if (taskbarSupport) {
+                            ((Taskbar) tbar).setWindowProgressState(Tonga.frame(), State.NORMAL);
+                        }
+                    }
+                    fbar.setValue(stage);
+                    if (taskbarSupport) {
+                        ((Taskbar) tbar).setWindowProgressValue(Tonga.frame(), (int) (done / max * 100));
+                    }
+                }
+                syst = sysc;
             }
-            //fbar.setString((stage / 10) + "%");
-            fbar.setValue(stage);
-            //pbar.setValue(stage);
-            if (taskbarSupport) {
-                ((Taskbar) tbar).setWindowProgressValue(Tonga.frame(), (int) (done / max * 100));
-            }
-            syst = sysc;
         }
     }
 
-    public void loaderProgress(int progress, int max) {
+    public void loaderProgress(double progress, int max) {
         updateProgress(max, progress);
     }
 
@@ -119,6 +130,10 @@ public class Loader {
 
     public void continueAppending() {
         dontAppend = false;
+    }
+
+    public boolean canAppend() {
+        return !dontAppend;
     }
 
     public void appendToNext() {
@@ -167,8 +182,8 @@ public class Loader {
         fbar.setValue(0);
         fbar.setIndeterminate(true);
         if (taskbarSupport) {
-            ((Taskbar) tbar).setWindowProgressState(Tonga.frame(), intermediate ? State.INDETERMINATE : State.NORMAL);
             ((Taskbar) tbar).setWindowProgressValue(Tonga.frame(), 0);
+            ((Taskbar) tbar).setWindowProgressState(Tonga.frame(), State.INDETERMINATE);
         }
     }
 

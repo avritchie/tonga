@@ -116,7 +116,13 @@ public class Tonga {
     }
 
     public static void iteration(int i) {
-        iterationCounter += i;
+        if (loader().canAppend()) {
+            iterationCounter += i;
+        }
+    }
+
+    public static int iterations() {
+        return iterationCounter;
     }
 
     private static void initValues() {
