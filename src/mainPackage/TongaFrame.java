@@ -1065,7 +1065,10 @@ public class TongaFrame extends JFrame {
         jMenuItem65 = new javax.swing.JMenuItem();
         jMenuItem55 = new javax.swing.JMenuItem();
         jMenuItem28 = new javax.swing.JMenuItem();
+        jMenuItem139 = new javax.swing.JMenuItem();
+        jMenuItem137 = new javax.swing.JMenuItem();
         jMenuItem112 = new javax.swing.JMenuItem();
+        jMenuItem138 = new javax.swing.JMenuItem();
         menuDebug = new javax.swing.JMenu();
         debugMemory = new javax.swing.JMenuItem();
         debugSysInfo = new javax.swing.JMenuItem();
@@ -3682,6 +3685,7 @@ public class TongaFrame extends JFrame {
             }
         });
         jMenu22.add(jMenuItem55);
+        jMenu22.add(jSeparator25);
 
         jMenuItem28.setText("Histogram distributions");
         jMenuItem28.setToolTipText("Count the number of pixels for each channel for a histogram");
@@ -3691,6 +3695,22 @@ public class TongaFrame extends JFrame {
             }
         });
         jMenu22.add(jMenuItem28);
+
+        jMenuItem139.setText("RGBYCM distributions");
+        jMenuItem139.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jMenuItem139ActionPerformed(evt);
+            }
+        });
+        jMenu22.add(jMenuItem139);
+
+        jMenuItem137.setText("Intensity distributions");
+        jMenuItem137.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jMenuItem137ActionPerformed(evt);
+            }
+        });
+        jMenu22.add(jMenuItem137);
 
         menuCounting.add(jMenu22);
 
@@ -4927,9 +4947,17 @@ public class TongaFrame extends JFrame {
         launchProtocol(Spheroids::new, evt);
     }//GEN-LAST:event_jMenuItem111ActionPerformed
 
+    private void jMenuItem137ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem137ActionPerformed
+        launchCounter(Counters::intHisto, evt);
+    }//GEN-LAST:event_jMenuItem137ActionPerformed
+
     private void jMenuItem138ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem138ActionPerformed
         TongaTable.transposeByImage();
     }//GEN-LAST:event_jMenuItem138ActionPerformed
+
+    private void jMenuItem139ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem139ActionPerformed
+        launchCounter(Counters::analIFHisto, evt);
+    }//GEN-LAST:event_jMenuItem139ActionPerformed
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     protected javax.swing.JComboBox<String> autoscaleCombo;
@@ -5059,6 +5087,9 @@ public class TongaFrame extends JFrame {
     protected javax.swing.JMenuItem jMenuItem112;
     protected javax.swing.JMenuItem jMenuItem12;
     protected javax.swing.JMenuItem jMenuItem13;
+    protected javax.swing.JMenuItem jMenuItem137;
+    protected javax.swing.JMenuItem jMenuItem138;
+    protected javax.swing.JMenuItem jMenuItem139;
     protected javax.swing.JMenuItem jMenuItem14;
     protected javax.swing.JMenuItem jMenuItem15;
     protected javax.swing.JMenuItem jMenuItem16;

@@ -2,6 +2,9 @@ package mainPackage.counters;
 
 import mainPackage.utils.COL;
 import mainPackage.ImageData;
+import mainPackage.PanelCreator;
+import static mainPackage.PanelCreator.ControlType.SLIDER;
+import static mainPackage.PanelCreator.ControlType.TOGGLE;
 import mainPackage.utils.RGB;
 import mainPackage.utils.STAT;
 
@@ -323,6 +326,111 @@ public class Counters {
             }
         };
     }
+
+    public static Counter intHisto() {
+        return new Counter("Histogram values",
+                new String[]{"Image", "Point", "Bright"},
+                new String[]{"The name of the image",
+                    "The brightness level, between 0 (black) and 255 (fully bright)",
+                    "The number of pixels in the image with the total brightness in this level"},
+                new PanelCreator.ControlReference[]{
+                    new PanelCreator.ControlReference(TOGGLE, "As fractions", 0)}) {
+
+            TableData histo;
+
+            @Override
+            protected void preProcessor(ImageData targetImage) {
+                if (targetImage.bits == 16) {
+                    data.descriptions[1] = data.descriptions[1].replace("255", "65536");
+                }
+                histo = TableData.createTable(data.columns, data.descriptions, targetImage.bits == 16 ? 65536 : 256, imageName);
+                histo.rows.forEach(i -> {
+                    i[2] = TableData.box(0);
+                });
+            }
+
+            @Override
+            protected void pixelIterator16(short[] pixels, int p) {
+                histo.rowIntInc(pixels[p] & 0xFFFF, 2);
+            }
+
+            @Override
+            protected void pixelIterator32(int[] pixels, int p) {
+                int col = pixels[p];
+                if (RGB.alpha(col) == 0xFF) {
+                    int bright = RGB.brightness(col);
+                    histo.rowIntInc(bright, 2);
+                }
+            }
+
+            @Override
+            protected void postProcessor(ImageData targetImage) {
+                if (param.toggle[0]) {
+                    double sum = 0;
+                    for (int r = 0; r < histo.rowCount(); r++) {
+                        sum += (Integer) histo.rows.get(r)[2];
+                    }
+                    for (int r = 0; r < histo.rowCount(); r++) {
+                        histo.rows.get(r)[2] = ((Integer) histo.rows.get(r)[2]) / sum;
+                    }
+                }
+                data.delLastRow();
+                data.append(histo);
+            }
+        };
+    }
+
+    public static Counter analIFHisto() {
+        return new Counter("Histogram values",
+                new String[]{"Image", "Point", "Brightness", "Red", "Green", "Blue", "Yellow", "Cyan", "Fuchsia"},
+                new String[]{"The name of the image",
+                    "The brightness level, between 0 (black) and 255 (fully bright)",
+                    "The number of pixels in the image with the total brightness in this level",
+                    "The number of pixels in the image with the red channel brightness in this level",
+                    "The number of pixels in the image with the green channel brightness in this level",
+                    "The number of pixels in the image with the blue channel brightness in this level",
+                    "The number of pixels in the image with the yellow channel brightness in this level",
+                    "The number of pixels in the image with the cyan channel brightness in this level",
+                    "The number of pixels in the image with the fuchsia channel brightness in this level"},
+                new PanelCreator.ControlReference[]{
+                    new PanelCreator.ControlReference(SLIDER, new Object[]{0, 256}, "Number of bins", 256)}) {
+            TableData histo;
+            double fact;
+
+            @Override
+            protected void preProcessor(ImageData targetImage) {
+                histo = TableData.createTable(data.columns, data.descriptions, param.slider[0], imageName);
+                histo.rows.forEach(i -> {
+                    for (int j = 2; j < i.length; j++) {
+                        i[j] = TableData.box(0);
+                    }
+                });
+                fact = (param.slider[0] - 1) / 255.;
+            }
+
+            @Override
+            protected void pixelIterator32(int[] pixels, int p) {
+                int col = pixels[p];
+                int bright = RGB.brightness(col);
+                int red = (col >> 16) & 0xFF;
+                int green = (col >> 8) & 0xFF;
+                int blue = (col) & 0xFF;
+                int yellow = Math.min(red, green);
+                int cyan = Math.min(blue, green);
+                int fuchsia = Math.min(red, blue);
+                histo.rowIntInc((int) (bright * fact), 2);
+                histo.rowIntInc((int) (red * fact), 3);
+                histo.rowIntInc((int) (green * fact), 4);
+                histo.rowIntInc((int) (blue * fact), 5);
+                histo.rowIntInc((int) (yellow * fact), 6);
+                histo.rowIntInc((int) (cyan * fact), 7);
+                histo.rowIntInc((int) (fuchsia * fact), 8);
+            }
+
+            @Override
+            protected void postProcessor(ImageData targetImage) {
+                data.delLastRow();
+                data.append(histo);
             }
         };
     }
