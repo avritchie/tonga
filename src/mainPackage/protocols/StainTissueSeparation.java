@@ -21,7 +21,7 @@ public class StainTissueSeparation extends Protocol {
     protected ControlReference[] getParameters() {
         return new ControlReference[]{
             new ControlReference(LAYER, "Original layer is which one"),
-            new ControlReference(LAYER, "Collagen layer is which one"),
+            new ControlReference(LAYER, "Separated stain layer is which one"),
             new ControlReference(SLIDER, "Threshold for the tissue detection")};
     }
 
