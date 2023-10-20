@@ -929,6 +929,15 @@ public class IO {
         return name + new SimpleDateFormat("ddMMyyyHHmmss").format(new Date());
     }
 
+    public static void exportBytes(byte[] bytes, String path) {
+        new binaryWriter() {
+            @Override
+            protected void write(DataOutputStream out) throws IOException {
+                out.write(bytes);
+            }
+        }.save(new File(path), "file");
+    }
+
     public static void exportTable(boolean temp) {
         Tonga.frame().resultHash();
         String fname = generateFilename("results");
