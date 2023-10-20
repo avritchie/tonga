@@ -39,6 +39,15 @@ public class IMG {
         }
     }
 
+    public static void fillArray(short[] array, int width, int height, short value) {
+        for (int i = 0; i < width; i++) {
+            array[i] = value;
+        }
+        for (int i = 1; i < height; i++) {
+            System.arraycopy(array, 0, array, width * i, width);
+        }
+    }
+
     public static WritableImage copyImage(Image original) {
         return new WritableImage(original.getPixelReader(), (int) original.getWidth(), (int) original.getHeight());
     }
