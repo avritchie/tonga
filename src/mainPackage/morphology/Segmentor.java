@@ -94,9 +94,11 @@ public class Segmentor {
                                 && cc1.rawDistance * 3 < cc2.rawDistance
                                 && cc1.rawDistance < partOfAvg(10)) {
                             justPair(point, ep1, "primary raw closest item");
-                        } else if (cc1.parallelity < 0.05
-                                && cc1.edgeDistance + ep1.pairings.pairingMap.get(point).edgeDistance < partOfAvg(10)) {
-                            justPair(point, ep1, "primary parallel edge closest item");
+                        } else {
+                            if (ep1.pairings.pairingMap.containsKey(point) && cc1.parallelity < 0.05
+                                    && cc1.edgeDistance + ep1.pairings.pairingMap.get(point).edgeDistance < partOfAvg(10)) {
+                                justPair(point, ep1, "primary parallel edge closest item");
+                            }
                         }
                         // if only one other point and that is very close/parallel
                     } else {
@@ -361,13 +363,22 @@ public class Segmentor {
                     else if (p.pairingMap.isEmpty() && ROI.getSize() > SET.avgCornerlessSize()
                             && !point.isUnsure && p.ownEndDistance < partOfEdge(5)) {
                         pairWithEnd(point, "solitary strong end pairing");
-                    } // points with very short lines
-                    else if (p.ownEndDistance < partOfAvg(15)) {
-                        pairWithEnd(point, "solitary short end pairing");
-                    } // ultra concave point with short lines
-                    else if (p.ownEndDistance < partOfAvg(5) && point.angle < 45) {
-                        pairWithEnd(point, "solitary very sharp end pairing");
                     }
+                }
+            }
+        };
+    }
+
+    private formPairs closeSolitary() {
+        return new formPairs() {
+            @Override
+            void logic(EdgePoint point) {
+                // points with very short lines
+                if (p.ownEndDistance < partOfAvg(15)) {
+                    pairWithEnd(point, "solitary short end pairing");
+                } // ultra concave point with short lines
+                else if (p.ownEndDistance < partOfAvg(5) && point.angle < 45) {
+                    pairWithEnd(point, "solitary very sharp end pairing");
                 }
             }
         };
@@ -387,7 +398,23 @@ public class Segmentor {
         goodRemaining().pair(ROI);
         finalUnpaired().pair(ROI);
         solitaryOpposite().pair(ROI);
+        closeSolitary().pair(ROI);
         solitaryOpposite().pairBuddies(ROI);
+        closeSolitary().pairBuddies(ROI);
+    }
+
+    protected void segmentStrong() {
+        ultraCloseParallel().pair(ROI);
+        primaryCloseParallel().pair(ROI);
+        commonMidpoint().pair(ROI);
+        closePairs().pair(ROI);
+        closeEdgePairs().pair(ROI);
+        secondaryCloseParallel().pair(ROI);
+        closeOpposite().pair(ROI);
+        closeFreeOpposite().pair(ROI);
+        goodRemaining().pair(ROI);
+        finalUnpaired().pair(ROI);
+        closeSolitary().pair(ROI);
     }
 
     protected void segmentSure() {
