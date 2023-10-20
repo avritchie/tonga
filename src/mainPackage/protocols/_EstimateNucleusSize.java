@@ -50,7 +50,7 @@ public class _EstimateNucleusSize extends Protocol {
                     set = set.getPositionFilteredSet(layer, COL.BLACK, false);
                     set.fillInnerHoles();
                     trs++;
-                    if (mp < 0.3 || mp > 4 || trs > 5) {
+                    if (/*mp < 0.3 || mp > 4 || */trs > 5) {
                         Tonga.log.trace("We could not find the size. Stuck in the loop.");
                         finished = true;
                     } else if ((set.statsForTotalSize().getStdDev() / set.statsForTotalSize().getMedian())
@@ -129,6 +129,17 @@ public class _EstimateNucleusSize extends Protocol {
                                     nucleusSize = (r.getWidth() + r.getHeight()) / 2;
                                     Tonga.log.trace("Small amount");
                                     finished = true;
+                                }
+                                /* if a small nucleus size resulted from large blending radius
+                                there is a risk that overblending results in size overestimation
+                                and therefore the blending should be repeated with smaller radius
+                                to get more accurate results for small (<20px) nuclei */
+                                if (mp * 30 > nucleusSize * 2) {
+                                    Tonga.log.trace("Estimated small nuclei with large blending parameter - re-estimating");
+                                    mp = nucleusSize / 60.;
+                                    Tonga.loader().stopAppending();
+                                    finished = false;
+                                    continue;
                                 }
                             }
                             if (!finished) {
