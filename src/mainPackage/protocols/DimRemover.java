@@ -3,6 +3,7 @@ package mainPackage.protocols;
 import mainPackage.ImageData;
 import mainPackage.PanelCreator.ControlReference;
 import static mainPackage.PanelCreator.ControlType.*;
+import mainPackage.Tonga;
 import mainPackage.morphology.ImageTracer;
 import mainPackage.morphology.ROISet;
 import mainPackage.utils.COL;
@@ -45,12 +46,14 @@ public class DimRemover extends Protocol {
                 setOutputBy(set.getPositionFilteredSet(temp, COL.BLACK, true).drawToImageData(true));*/
 
                 ROISet set = new ImageTracer(inImage[0], param.colorARGB[0]).trace();
+                int allnucl = set.objectsCount();
                 set.quantifyStainAgainstChannel(inImage[1]);
                 if (param.toggle[0]) {
                     set.filterOutDimObjects(set.avgStain() * thresh2);
                 } else {
                     set.filterOutDimObjects(thresh);
                 }
+                Tonga.log.info("Removed {} nuclei out of {}", allnucl - set.objectsCount(), allnucl);
                 setOutputBy(set.drawToImageData(true));
             }
         };
