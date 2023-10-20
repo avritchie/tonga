@@ -292,7 +292,7 @@ public class Tonga {
         mainFrame.imagesList.setCellRenderer(listRenderer);
         layerListModel = (DefaultListModel) mainFrame.layersList.getModel();
         mainFrame.layersList.setCellRenderer(layerListRenderer);
-        Tonga.log.info("Selectors initialized successfully");
+        Splash.append("Selectors");
     }
 
     private static void initListeners() {
@@ -479,7 +479,7 @@ public class Tonga {
             Key.event(ke);
             return false;
         });
-        Tonga.log.info("Listeners initialized successfully");
+        Splash.append("Listeners", 2);
     }
 
     static void moveOrder(boolean images, boolean direction) {

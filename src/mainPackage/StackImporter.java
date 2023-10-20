@@ -51,7 +51,7 @@ public class StackImporter {
             cols.put("0xff8080ff", "Light Red");
             cols.put("0x80ff80ff", "Light Green");
             cols.put("0x8080ffff", "Violet");
-            Tonga.log.info("Stack importer initialized successfully");
+            Splash.append("Stack importer", 10);
         } catch (DependencyException ex) {
             Tonga.catchError(ex);
         }

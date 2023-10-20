@@ -1,9 +1,73 @@
 package mainPackage;
 
+import javax.swing.SwingUtilities;
+
 public class Splash extends javax.swing.JFrame {
 
+    static long t;
+    static int index;
+    static Splash splash;
+    static String[] stages;
+
     public Splash() {
+        splash = this;
+        index = 0;
         initComponents();
+        t = System.nanoTime();
+        stages = new String[]{
+            "Menu control",
+            "Panel control",
+            "Panel layout",
+            "Interactive control",
+            "Context layout",
+            "Popup layout",
+            "Control layout",
+            "Tonga menu",
+            "Filters menu",
+            "Protocol menu",
+            "Counter menu",
+            "Debug menu",
+            "Main frame",
+            "Frame packing",
+            "Extra component",
+            "Icon",
+            "Dialog components",
+            "Dialog layout",
+            "Info dialog",
+            "Wizard",
+            "Wizard dialog",
+            "Form components",
+            "Form dialog",
+            "Image panel",
+            "Popup",
+            "Window handler",
+            "Window",
+            "Loader",
+            "Stack importer",
+            "Configuration",
+            "Histogram",
+            "Pattern",
+            "Zoom panel",
+            "Main panel",
+            "Selectors"
+        };
+    }
+
+    public static void append(String message, int val) {
+        Tonga.log.info("{} initialization completed in {} ms ({}%)", message, (System.nanoTime() - t) / 1000000, val);
+        t = System.nanoTime();
+        splash.pbar.setIndeterminate(false);
+        splash.pbar.setMaximum(2000);
+        splash.pbar.setValue(splash.pbar.getValue() + 10 * val);
+        String newmessage = (index + 1 < stages.length) ? ("Initializing " + stages[++index].toLowerCase()) : "Finalizing";
+        splash.pbar.setString(newmessage + "...");
+        if (SwingUtilities.isEventDispatchThread()) {
+            splash.jPanel1.paintImmediately(0, 0, splash.jPanel1.getWidth(), splash.jPanel1.getHeight());
+        }
+    }
+
+    public static void append(String message) {
+        append(message, 1);
     }
 
     @SuppressWarnings("unchecked")
@@ -22,10 +86,10 @@ public class Splash extends javax.swing.JFrame {
 
         jPanel1.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)));
 
-        pbar.setFont(new java.awt.Font("Tahoma", 1, 18)); // NOI18N
+        pbar.setFont(new java.awt.Font("Tahoma", 1, 14)); // NOI18N
         pbar.setMaximum(1000);
         pbar.setIndeterminate(true);
-        pbar.setString("LOADING");
+        pbar.setString("Loading Tonga...");
         pbar.setStringPainted(true);
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);

@@ -268,6 +268,9 @@
       </SubComponents>
     </Container>
     <Container class="javax.swing.JPopupMenu" name="contextResultMenu">
+      <AuxValues>
+        <AuxValue name="JavaCodeGenerator_LayoutCodePost" type="java.lang.String" value="Splash.append(&quot;Context layout&quot;,5);"/>
+      </AuxValues>
 
       <Layout class="org.netbeans.modules.form.compat2.layouts.DesignAbsoluteLayout">
         <Property name="useNullLayout" type="boolean" value="true"/>
@@ -305,12 +308,21 @@
         <Property name="useNullLayout" type="boolean" value="true"/>
       </Layout>
     </Container>
+      <AuxValues>
+        <AuxValue name="JavaCodeGenerator_allCodePost" type="java.lang.String" value="Splash.append(&quot;Popup layout&quot;,2);"/>
+      </AuxValues>
+          <AuxValues>
+            <AuxValue name="JavaCodeGenerator_CreateCodePost" type="java.lang.String" value="Splash.append(&quot;Menu control&quot;,10);"/>
+          </AuxValues>
     <Menu class="javax.swing.JMenuBar" name="menuBar">
       <SubComponents>
         <Menu class="javax.swing.JMenu" name="menuFile">
           <Properties>
             <Property name="text" type="java.lang.String" value="Tonga"/>
           </Properties>
+          <AuxValues>
+            <AuxValue name="JavaCodeGenerator_allCodePost" type="java.lang.String" value="Splash.append(&quot;Tonga menu&quot;,8);"/>
+          </AuxValues>
           <SubComponents>
             <MenuItem class="javax.swing.JMenuItem" name="menuFileUndo">
               <Properties>
@@ -543,6 +555,9 @@
           <Properties>
             <Property name="text" type="java.lang.String" value="Filters"/>
           </Properties>
+          <AuxValues>
+            <AuxValue name="JavaCodeGenerator_allCodePost" type="java.lang.String" value="Splash.append(&quot;Filters menu&quot;,8);"/>
+          </AuxValues>
           <SubComponents>
             <Menu class="javax.swing.JMenu" name="jMenu12">
               <Properties>
@@ -1581,6 +1596,9 @@
           <Properties>
             <Property name="text" type="java.lang.String" value="Protocols"/>
           </Properties>
+          <AuxValues>
+            <AuxValue name="JavaCodeGenerator_allCodePost" type="java.lang.String" value="Splash.append(&quot;Protocol menu&quot;,3);"/>
+          </AuxValues>
           <SubComponents>
             <Menu class="javax.swing.JMenu" name="jMenu3">
               <Properties>
@@ -1874,6 +1892,9 @@
           <Properties>
             <Property name="text" type="java.lang.String" value="Counting"/>
           </Properties>
+          <AuxValues>
+            <AuxValue name="JavaCodeGenerator_allCodePost" type="java.lang.String" value="Splash.append(&quot;Counter menu&quot;);"/>
+          </AuxValues>
           <SubComponents>
             <Menu class="javax.swing.JMenu" name="jMenu22">
               <Properties>
@@ -1968,6 +1989,9 @@
           <Properties>
             <Property name="text" type="java.lang.String" value="Debug"/>
           </Properties>
+          <AuxValues>
+            <AuxValue name="JavaCodeGenerator_allCodePost" type="java.lang.String" value="Splash.append(&quot;Debug menu&quot;);"/>
+          </AuxValues>
           <SubComponents>
             <MenuItem class="javax.swing.JMenuItem" name="debugMemory">
               <Properties>
@@ -2184,6 +2208,7 @@
         </Property>
       </Properties>
       <AuxValues>
+        <AuxValue name="JavaCodeGenerator_CreateCodePost" type="java.lang.String" value="Splash.append(&quot;Panel control&quot;);"/>
         <AuxValue name="JavaCodeGenerator_VariableModifier" type="java.lang.Integer" value="4"/>
       </AuxValues>
 
@@ -2447,6 +2472,9 @@
               <Dimension value="[600, 400]"/>
             </Property>
           </Properties>
+          <AuxValues>
+            <AuxValue name="JavaCodeGenerator_allCodePost" type="java.lang.String" value="Splash.append(&quot;Control layout&quot;,10);"/>
+          </AuxValues>
 
           <Layout class="org.netbeans.modules.form.compat2.layouts.support.JSplitPaneSupportLayout"/>
           <SubComponents>
@@ -2588,6 +2616,9 @@
                       <Properties>
                         <Property name="opaque" type="boolean" value="false"/>
                       </Properties>
+                      <AuxValues>
+                        <AuxValue name="JavaCodeGenerator_CreateCodePost" type="java.lang.String" value="Splash.append(&quot;Panel layout&quot;,5);"/>
+                      </AuxValues>
 
                       <Layout>
                         <DimensionLayout dim="0">
@@ -3753,6 +3784,10 @@
           <Dimension value="[966, 16]"/>
         </Property>
       </Properties>
+      <AuxValues>
+        <AuxValue name="JavaCodeGenerator_CreateCodePost" type="java.lang.String" value="Splash.append(&quot;Interactive control&quot;,10);"/>
+        <AuxValue name="JavaCodeGenerator_allCodePost" type="java.lang.String" value="Splash.append(&quot;Main frame&quot;);"/>
+      </AuxValues>
     </Component>
   </SubComponents>
 </Form>

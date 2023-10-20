@@ -77,8 +77,11 @@ public class TongaRender {
         redrawSem = new Semaphore(2);
         diamonds = new ImagePattern(drawDiamonds(), 0, 0, 20, 20, false);
         stripes = new ImagePattern(drawStripes(), 0, 0, 20, 20, false);
+        Splash.append("Pattern", 3);
         initZoomPanel();
+        Splash.append("Zoom panel", 18);
         initMainPanel();
+        Splash.append("Main panel", 9);
         redraw();
         Tonga.log.info("Renderer initialized successfully");
     }

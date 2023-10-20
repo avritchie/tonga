@@ -29,7 +29,7 @@ public class Histogram {
         histoCol = histoImg.getBackground();
         diffWidth = histoPanel.getWidth() - histoLabel.getWidth();
         diffHeight = histoPanel.getHeight() - histoLabel.getHeight();
-        Tonga.log.info("Histograms initialized successfully");
+        Splash.append("Histogram");
     }
 
     public static void update() {

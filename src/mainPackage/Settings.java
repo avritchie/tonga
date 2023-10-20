@@ -169,6 +169,7 @@ public class Settings {
         if (!fail) {
             Tonga.log.info("Configuration files loaded successfully");
         }
+        Splash.append("Configuration");
     }
 
     public static void saveConfigFiles() throws IOException {

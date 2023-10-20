@@ -39,7 +39,7 @@ public class Loader {
             Tonga.log.info("The current JRE does not support the taskbar.");
             taskbarSupport = false;
         }
-        Tonga.log.info("Loader initialized successfully");
+        Splash.append("Loader", 2);
     }
 
     public void setIterations(int i) {

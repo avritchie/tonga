@@ -11,6 +11,7 @@ public class InfoDialog extends javax.swing.JFrame {
 
     InfoDialog() {
         initComponents();
+        Splash.append("Dialog layout", 12);
         versionLabel.setText("v" + Tonga.tongaVersion);
         addHyperlink();
     }
@@ -56,6 +57,7 @@ public class InfoDialog extends javax.swing.JFrame {
 
         jLabel1.setIcon(new javax.swing.ImageIcon(getClass().getResource("/resourcePackage/icon6.png"))); // NOI18N
 
+        Splash.append("Icon",3);
         jLabel2.setFont(new java.awt.Font("Tahoma", 0, 60)); // NOI18N
         jLabel2.setText("Tonga");
 
@@ -158,6 +160,8 @@ public class InfoDialog extends javax.swing.JFrame {
                     .addComponent(jLabel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addGap(18, 18, 18))
         );
+
+        Splash.append("Dialog components",5);
 
         pack();
     }// </editor-fold>//GEN-END:initComponents

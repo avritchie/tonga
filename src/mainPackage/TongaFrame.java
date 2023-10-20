@@ -113,6 +113,7 @@ public class TongaFrame extends JFrame {
         int[] winSize = getWindowSizeRecommendation();
         lSplitPane.setDividerLocation((int) ((winSize[0] - 600) * 0.7) + 200);
         setSize(winSize[0], winSize[1]);
+        Splash.append("Window");
     }
 
     void display() {
@@ -130,11 +131,15 @@ public class TongaFrame extends JFrame {
     private void createDialogs() {
         infoDialog = new InfoDialog();
         initializeDialog(infoDialog);
+        Splash.append("Info dialog");
         wizardDialog = new Wizard();
+        Splash.append("Wizard", 10);
         initializeDialog(wizardDialog);
+        Splash.append("Wizard dialog");
         feedbackDialog = new SendForm();
+        Splash.append("Form components", 5);
         initializeDialog(feedbackDialog);
-        Tonga.log.info("Dialogs initialized successfully");
+        Splash.append("Form dialog");
     }
 
     private void initializeDialog(JFrame d) {
@@ -417,6 +422,7 @@ public class TongaFrame extends JFrame {
                 filterMenu.add(deepCloneMenu((JMenu) c));
             }
         }
+        Splash.append("Popup", 2);
     }
 
     private void constructToolTipSystem() {
@@ -432,6 +438,7 @@ public class TongaFrame extends JFrame {
     }
 
     private void initExtraComponents() {
+        Splash.append("Frame packing", 15);
         histoRange = new JRangeSlider();
         histoRange.setMinimum(0);
         histoRange.setMaximum(255);
@@ -448,7 +455,7 @@ public class TongaFrame extends JFrame {
         });
         PanelUtils.initPanelListeners(histoSliderPanel);
         menuDebug.setVisible(false);
-        Tonga.log.info("Graphical components initialized successfully");
+        Splash.append("Extra component", 3);
     }
 
     private void initMacSupport() {
@@ -720,6 +727,7 @@ public class TongaFrame extends JFrame {
                 Tonga.cleanAndShutDown();
             }
         });
+        Splash.append("Window handler");
     }
 
     private void createPanels() {
@@ -742,7 +750,7 @@ public class TongaFrame extends JFrame {
         imageZoom.setLayout(new BorderLayout());
         imageZoom.add(panelSmall, BorderLayout.CENTER);
         panelSmall.setSize(imageZoom.getSize());
-        Tonga.log.info("Panels initialized successfully");
+        Splash.append("Image panel", 28);
     }
 
     protected void resultHash() {
@@ -792,7 +800,9 @@ public class TongaFrame extends JFrame {
         contResClear = new javax.swing.JMenuItem();
         contResDelRow = new javax.swing.JMenuItem();
         filterMenu = new javax.swing.JPopupMenu();
+        Splash.append("Menu control",10);
         frame = new javax.swing.JPanel();
+        Splash.append("Panel control");
         rSplitPane = new javax.swing.JSplitPane();
         jScrollPane4 = new javax.swing.JScrollPane();
         jList4 = new javax.swing.JList<>();
@@ -810,6 +820,7 @@ public class TongaFrame extends JFrame {
         imageZoom = new javax.swing.JPanel();
         layerPane = new javax.swing.JLayeredPane();
         floatingPane = new javax.swing.JPanel();
+        Splash.append("Panel layout",5);
         maxTabButton = new javax.swing.JButton();
         tabbedPane = new javax.swing.JTabbedPane();
         protocolPanel = new javax.swing.JPanel();
@@ -867,6 +878,7 @@ public class TongaFrame extends JFrame {
         jSeparator1 = new javax.swing.JSeparator();
         brightLabel = new javax.swing.JLabel();
         bleftLabel = new javax.swing.JLabel();
+        Splash.append("Interactive control",10);
         menuBar = new javax.swing.JMenuBar();
         menuFile = new javax.swing.JMenu();
         menuFileUndo = new javax.swing.JMenuItem();
@@ -1329,6 +1341,8 @@ public class TongaFrame extends JFrame {
         });
         contextResultMenu.add(contResDelRow);
 
+        Splash.append("Context layout",5);
+
         filterMenu.addPopupMenuListener(new javax.swing.event.PopupMenuListener() {
             public void popupMenuCanceled(javax.swing.event.PopupMenuEvent evt) {
                 filterMenuPopupMenuCanceled(evt);
@@ -1338,6 +1352,8 @@ public class TongaFrame extends JFrame {
             public void popupMenuWillBecomeVisible(javax.swing.event.PopupMenuEvent evt) {
             }
         });
+
+        Splash.append("Popup layout",2);
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DO_NOTHING_ON_CLOSE);
         setTitle("Tonga");
@@ -2213,6 +2229,8 @@ public class TongaFrame extends JFrame {
                 .addGap(2, 2, 2))
         );
 
+        Splash.append("Control layout",10);
+
         progressBar.setMaximum(1000);
 
         brightLabel.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
@@ -2414,6 +2432,7 @@ public class TongaFrame extends JFrame {
         menuFile.add(menuTongaExit);
 
         menuBar.add(menuFile);
+        Splash.append("Tonga menu",8);
 
         menuWizard.setForeground(Tonga.tongaBlue);
         menuWizard.setText("Wizard");
@@ -3382,6 +3401,7 @@ public class TongaFrame extends JFrame {
         menuFilters.add(jMenu17);
 
         menuBar.add(menuFilters);
+        Splash.append("Filters menu",8);
 
         menuProtocols.setText("Protocols");
 
@@ -3638,6 +3658,7 @@ public class TongaFrame extends JFrame {
         menuProtocols.add(jMenu2);
 
         menuBar.add(menuProtocols);
+        Splash.append("Protocol menu",3);
 
         menuCounting.setText("Counting");
 
@@ -3723,6 +3744,7 @@ public class TongaFrame extends JFrame {
         menuCounting.add(jMenuItem138);
 
         menuBar.add(menuCounting);
+        Splash.append("Counter menu");
 
         menuDebug.setText("Debug");
 
@@ -3857,6 +3879,7 @@ public class TongaFrame extends JFrame {
         menuDebug.add(debugTestProtocols);
 
         menuBar.add(menuDebug);
+        Splash.append("Debug menu");
 
         setJMenuBar(menuBar);
 
@@ -3891,6 +3914,8 @@ public class TongaFrame extends JFrame {
                     .addComponent(bleftLabel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(6, 6, 6))
         );
+
+        Splash.append("Main frame");
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
