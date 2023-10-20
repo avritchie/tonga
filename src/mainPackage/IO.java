@@ -882,14 +882,15 @@ public class IO {
     public static void exportStack(boolean all) {
         Thread thread = new Thread(() -> {
             Tonga.loader().loaderProgress(0, picList.size());
+            int it = 0;
             for (int i = all ? 0 : Tonga.getImageIndex(); i <= (all ? picList.size() - 1 : Tonga.getImageIndex()); i++) {
                 TongaImage m = Tonga.picList.get(i);
                 boolean stackmem = m.stack;
                 m.stack = true;
                 TongaLayer[] layersToRender = Tonga.imageLayersFromIndexList(i);
                 ImageData renderedImage = TongaRender.renderImage(Tonga.layersAs8BitImageDataArray(layersToRender));
-                exportImage(m, renderedImage);
-                Tonga.loader().loaderProgress(i + 1, picList.size());
+                exportImage(m, renderedImage, "Stack");
+                Tonga.loader().loaderProgress(++it, picList.size());
                 m.stack = stackmem;
             }
             Tonga.loader().loaderProgress(picList.size(), picList.size());
@@ -898,9 +899,9 @@ public class IO {
         Tonga.bootThread(thread, "Exporter", false, true);
     }
 
-    private static boolean exportImage(TongaImage p, ImageData i) {
-        String name = p.imageName + "_[Stack]";
-        return exportImage(i.toStreamedImage(), name);
+    private static boolean exportImage(TongaImage p, ImageData i, String name) {
+        String iname = p.imageName + "_[" + name + "]";
+        return exportImage(i.toStreamedImage(), iname);
     }
 
     private static boolean exportImage(TongaImage p, int layer) {
@@ -1061,7 +1062,7 @@ public class IO {
     }
 
     static String legalName(String n) {
-        n = n.replaceAll("[^a-zA-Z0-9]", "");
+        n = n.replaceAll("[\\\\/:*?\"<>|]", "");
         if (n.isEmpty()) {
             n = "null";
         }
