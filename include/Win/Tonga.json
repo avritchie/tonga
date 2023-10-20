@@ -6,5 +6,6 @@
   "mainClass": "mainPackage.Tonga",
   "useZgcIfSupportedOs": true,
   "vmArgs": [
+    "-Dsun.java2d.dpiaware=true"
   ]
 }
