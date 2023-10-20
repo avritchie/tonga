@@ -138,7 +138,7 @@ public class Settings {
         File sconf = new File(file + "/settings.conf");
         boolean fail = false;
         neverShow = new HashMap<>();
-        fail = fail || new IO.binaryReader() {
+        fail = fail || !new IO.binaryReader() {
             @Override
             public void read(DataInputStream in) throws IOException {
                 while (in.available() >= 5) {
@@ -148,7 +148,7 @@ public class Settings {
                 }
             }
         }.load(dconf, "dialog config file");
-        fail = fail || new IO.binaryReader() {
+        fail = fail || !new IO.binaryReader() {
             @Override
             public void read(DataInputStream in) throws IOException {
                 byte gs = in.readByte();
@@ -166,8 +166,8 @@ public class Settings {
                 host.stackCombo.setSelectedIndex(((cs >> 2) & 7));
             }
         }.load(sconf, "setting file");
-        if (!fail) {
-            Tonga.log.info("Configuration files loaded successfully");
+        if (fail) {
+            Tonga.log.info("Loading of configuration files failed");
         }
         Splash.append("Configuration");
     }
@@ -178,7 +178,7 @@ public class Settings {
         File dconf = new File(file + "/dialog.conf");
         File sconf = new File(file + "/settings.conf");
         boolean fail = false;
-        fail = fail || new IO.binaryWriter() {
+        fail = fail || !new IO.binaryWriter() {
             @Override
             public void write(DataOutputStream out) throws IOException {
                 Iterator<Entry<Integer, Boolean>> esi = neverShow.entrySet().iterator();
@@ -191,7 +191,7 @@ public class Settings {
                 }
             }
         }.save(dconf, "dialog config file");
-        fail = fail || new IO.binaryWriter() {
+        fail = fail || !new IO.binaryWriter() {
             @Override
             public void write(DataOutputStream out) throws IOException {
                 byte gs = (byte) ((host.boxSettingAutoscale1.isSelected() ? 1 : 0)
