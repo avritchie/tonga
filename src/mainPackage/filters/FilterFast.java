@@ -75,7 +75,7 @@ public abstract class FilterFast extends Filter {
             processor();
         }
         if (inData == outData) {
-            Tonga.log.debug("Filter destination is the same as its source for {}", this.processName);
+            //Tonga.log.debug("Filter destination is the same as its source for {}", this.processName);
         }
         ImageData out = outData;
         clean();
@@ -90,10 +90,19 @@ public abstract class FilterFast extends Filter {
     }
 
     protected void setOutput(boolean bits) {
-        //use the destination array if available and fits
-        if (destination != null && destination.bits == (bits ? 16 : 8)) {
+        //use the destination array if available
+        if (destination != null) {
             outData = destination;
+            //if doesnt fit, make it fit
+            if (destination.bits != (bits ? 16 : 8)) {
+                if (bits) {
+                    destination.make16(inData);
+                } else {
+                    destination.make8();
+                }
+            }
         } else {
+            //if not, allocate a destination array
             if (bits) {
                 outData = new ImageData(new short[width * height], width, height);
                 outData.setAttributes(inData);

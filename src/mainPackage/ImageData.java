@@ -49,7 +49,7 @@ public class ImageData {
         this.colour = 0xFFFFFFFF;
         this.min = 0;
         this.max = 0xFFFF;
-        this.name = null;
+        this.name = name;
         this.ref = null;
         Tonga.log.trace("Allocated a new short ImageData of {} bytes by {}", bytes.length * 2, Threader.getCaller(5));
     }
@@ -114,7 +114,7 @@ public class ImageData {
     }
 
     public MappedImage toCachedImage() {
-        if (ref != null) {
+        if (ref != null && ref.isMapped()) {
             return ref;
         } else {
             String caller = Threader.getCaller(3);
@@ -127,7 +127,7 @@ public class ImageData {
     }
 
     public MappedImage toStreamedImage() {
-        if (ref != null) {
+        if (ref != null && !ref.isMapped()) {
             return ref;
         } else {
             return new MappedImage(this, false);
@@ -177,6 +177,26 @@ public class ImageData {
         }
     }
 
+    public void make16(ImageData attributesFrom) {
+        if (pixels16 == null) {
+            pixels16 = new short[width * height];
+        }
+        pixels32 = null;
+        this.bits = 16;
+        setAttributes(attributesFrom);
+    }
+
+    public void make8() {
+        if (pixels32 == null) {
+            pixels32 = new int[width * height];
+        }
+        pixels16 = null;
+        this.bits = 8;
+        this.colour = 0;
+        this.min = 0;
+        this.max = 0;
+    }
+
     public void set8BitPixels() {
         if (pixels32 == null) {
             pixels32 = TongaRender.shortToARGB(pixels16, colour, max, min);
@@ -202,5 +222,9 @@ public class ImageData {
 
     public ImageData copy() {
         return new ImageData(this);
+    }
+
+    public ImageData copy8bit() {
+        return new ImageData(TongaRender.shortToARGB(pixels16, colour, max, min), width, height, name);
     }
 }

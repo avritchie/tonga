@@ -11,6 +11,7 @@ import java.awt.image.DataBufferByte;
 import java.awt.image.IndexColorModel;
 import java.awt.image.SampleModel;
 import java.awt.image.WritableRaster;
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -40,6 +41,7 @@ public class MappedImage extends BufferedImage {
     int min;
     int max;
     private boolean mapped;
+    public String source;
 
     private MappedImage(int width, int height, boolean bits, DataBuffer db) {
         super(getColor(bits), new WrappedRaster(getSample(width, height, bits), db), !bits, null);
@@ -78,6 +80,14 @@ public class MappedImage extends BufferedImage {
         this.setARGB(bytes);
     }
 
+    public MappedImage(byte[] bytes) throws IOException {
+        this(bytes, false);
+    }
+
+    public MappedImage(byte[] bytes, boolean mapping) throws IOException {
+        this(ImageIO.read(new ByteArrayInputStream(bytes)), mapping);
+    }
+
     public MappedImage(ImageData id, boolean mapping) {
         this(id.width, id.height, id.bits == 16, mapping);
         if (id.pixels32 == null && id.pixels16 == null) {
@@ -92,7 +102,11 @@ public class MappedImage extends BufferedImage {
     }
 
     public MappedImage(BufferedImage bi) {
-        this(bi.getWidth(), bi.getHeight(), bi.getColorModel().getPixelSize() == 16, true);
+        this(bi, true);
+    }
+
+    public MappedImage(BufferedImage bi, boolean mapping) {
+        this(bi.getWidth(), bi.getHeight(), bi.getColorModel().getPixelSize() == 16, mapping);
         //source may vary - ensure compatilibty with the bands model
         if (!this.getColorModel().isCompatibleRaster(bi.getRaster())) {
             Tonga.log.debug("Incompatible colour model");
@@ -105,14 +119,20 @@ public class MappedImage extends BufferedImage {
     }
 
     public MappedImage(File f) {
-        this(getBufferedFile(f));
+        this(f, true);
+    }
+
+    public MappedImage(File f, boolean mapping) {
+        this(getBufferedFile(f), mapping);
         if (this.bits == 16 && Settings.settingAutoscaleType() != Settings.Autoscale.NONE) {
             TongaRender.setDisplayRange(getShorts(), this);
         }
+        this.source = f.getAbsolutePath();
     }
 
     public MappedImage(File f, int w, int format) {
         this(getRawFile(f, w, format));
+        this.source = f.getAbsolutePath();
     }
 
     private static ColorModel getColor(boolean bits) {
