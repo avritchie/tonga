@@ -58,6 +58,24 @@ public class TableData {
         return rows.get(row)[column];
     }
 
+    public int getInteger(int row, int column) {
+        Object container = getVal(row, column);
+        if (container instanceof Object[]) {
+            return ((Integer) ((Object[]) container)[0]);
+        } else {
+            return (Integer) container;
+        }
+    }
+
+    public double getDouble(int row, int column) {
+        Object container = getVal(row, column);
+        if (container instanceof Object[]) {
+            return ((Double) ((Object[]) container)[0]);
+        } else {
+            return (Double) container;
+        }
+    }
+
     public Object[][] getAsArray() {
         Object[][] data = new Object[rows.size()][columns.length];
         for (int i = 0; i < rows.size(); i++) {

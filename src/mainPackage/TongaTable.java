@@ -31,6 +31,10 @@ public class TongaTable {
         }
     }
 
+    public static TableData getData() {
+        return td;
+    }
+
     private static boolean dataMatches(TableData tableData) {
         DefaultTableModel model = (DefaultTableModel) Tonga.frame().resultTable.getModel();
         if (model.getRowCount() == 0 && model.getColumnCount() == 0) {
