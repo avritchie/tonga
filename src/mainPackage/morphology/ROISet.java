@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.stream.Collectors;
 import javafx.scene.image.WritableImage;
 import mainPackage.utils.COL;
 import mainPackage.utils.IMG;
@@ -13,6 +14,7 @@ import mainPackage.ImageData;
 import mainPackage.Iterate;
 import mainPackage.utils.STAT;
 import mainPackage.Tonga;
+import mainPackage.morphology.Segmentor.SegmentFilter;
 import mainPackage.utils.RGB;
 
 public class ROISet {
@@ -95,12 +97,16 @@ public class ROISet {
             if (!append || out != dest) {
                 IMG.fillArray(out, width, height, COL.BLACK);
             }
-            for (int i = 0; i < list.size(); i++) {
-                preDrawingMethod(list.get(i));
-            }
-            for (int i = 0; i < list.size(); i++) {
-                drawingMethod(list.get(i));
-                Tonga.loader().appendProgress(list.size());
+            if (list.isEmpty()) {
+                Tonga.loader().appendToNext();
+            } else {
+                for (int i = 0; i < list.size(); i++) {
+                    preDrawingMethod(list.get(i));
+                }
+                for (int i = 0; i < list.size(); i++) {
+                    drawingMethod(list.get(i));
+                    Tonga.loader().appendProgress(list.size());
+                }
             }
             return out;
         }
@@ -281,9 +287,14 @@ public class ROISet {
     }
 
     public int[] drawStainArray(boolean useAverage) {
+        return drawStainArray(useAverage, -1);
+    }
+
+    public int[] drawStainArray(boolean useAverage, int maxstain) {
         // render the set by giving each shape colour based on the staining intensity
+        // maxstain denotes the value considered as max if average is not used
         return new setRenderer() {
-            double max = getMaxStain();
+            double max = maxstain == -1 ? getMaxStain() : maxstain;
             double fact = 255 / max;
 
             @Override
@@ -300,6 +311,20 @@ public class ROISet {
                 });
             }
         }.draw(null);
+    }
+
+    public void drawAppendClasses(int[] colors, int[] dest) {
+        new setRenderer() {
+            @Override
+            void drawingMethod(ROI o) {
+                if (o.outEdge != null) {
+                    o.outEdge.list.forEach(p -> {
+                        int color = colors[o.getClassID() - 1];
+                        out[pos(p, o)] = color;
+                    });
+                }
+            }
+        }.draw(dest, true);
     }
 
     public void drawAppend(int color, int[] dest) {
@@ -442,11 +467,17 @@ public class ROISet {
         });
     }
 
+    public final boolean segmentFiltered(int mode, SegmentFilter sf) {
+        Segmentor.segmentFilter = sf;
+        return segment(mode);
+    }
+
     public final boolean segment(int mode) {
         Segmentor.segmentedSomething = false;
         list.forEach(o -> {
             o.sectionBasedOnIntersections(this, mode);
         });
+        Segmentor.segmentFilter = null;
         return Segmentor.segmentedSomething;
     }
 
@@ -653,6 +684,20 @@ public class ROISet {
         }
     }
 
+    public void filterOutRatioAngled(double ratio, boolean direction, Point target) {
+        Iterator<? extends ROI> it = list.iterator();
+        while (it.hasNext()) {
+            ROI roi = it.next();
+            int[] ct = roi.getCentroid();
+            Point mp = new Point(ct[0], ct[1]);
+            double a = GEO.getDirection(mp, target);
+            double[] dims = roi.getDimensionsInAngle(a);
+            if ((direction && dims[0] / dims[1] > ratio) || (!direction && dims[0] / dims[1] < ratio)) {
+                it.remove();
+            }
+        }
+    }
+
     public void filterOutSmallObjectsEdgeAdjusted(int limitPxls) {
         Iterator<? extends ROI> it = list.iterator();
         while (it.hasNext()) {
@@ -683,6 +728,16 @@ public class ROISet {
         }
     }
 
+    public final void filterOutBrightSmallObjects(int size, double limit) {
+        Iterator<? extends ROI> it = list.iterator();
+        while (it.hasNext()) {
+            ROI roi = it.next();
+            if (roi.getStainAvg() > limit && roi.getSize() < size) {
+                it.remove();
+            }
+        }
+    }
+
     public final void filterOutDimSmallObjects(int size, double limit) {
         Iterator<? extends ROI> it = list.iterator();
         while (it.hasNext()) {
@@ -698,6 +753,16 @@ public class ROISet {
         while (it.hasNext()) {
             ROI roi = it.next();
             if (roi.getStainAvg() < limit) {
+                it.remove();
+            }
+        }
+    }
+
+    public final void filterOutIntenseObjects(double limit) {
+        Iterator<? extends ROI> it = list.iterator();
+        while (it.hasNext()) {
+            ROI roi = it.next();
+            if (roi.getStainSum() > limit) {
                 it.remove();
             }
         }
@@ -735,7 +800,9 @@ public class ROISet {
             analyzeCorners();
             analyzeCornerIntersections();
         }
-        quantifyStainAgainstChannel(origImg);
+        //this doesnt work very well with 16bit range so convert to 8bit
+        ImageData finImg = origImg.bits == 16 ? origImg.copy8bit() : origImg;
+        quantifyStainAgainstChannel(finImg);
         filterOutDeadDividing();
     }
 
@@ -885,8 +952,19 @@ public class ROISet {
         return cps;
     }
 
+    public int classCount() {
+        return (int) list.stream().map(o -> o.getClassID()).distinct().count();
+    }
+
     public int objectsCount() {
         return list.size();
+    }
+
+    public ROISet getOnlyClass(int classid) {
+        //gets a copy of this set with only members in a set class
+        ROISet set = copy();
+        set.list = list.stream().filter(o -> o.getClassID() == classid).collect(Collectors.toList());
+        return set;
     }
 
     public int objectsCountStainPositive(double binThreshold) {

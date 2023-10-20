@@ -16,6 +16,7 @@ public class Segmentor {
     private int avgObjSize;
     private int lineThickness;
     public static boolean segmentedSomething;
+    public static SegmentFilter segmentFilter;
 
     Segmentor(ROI myself, ROISet set) {
         ROI = myself;
@@ -23,6 +24,11 @@ public class Segmentor {
         avgObjSize = (int) SET.avgCornerlessSize();
         lineThickness = SET.targetsize > 35 ? 2 : 1;
         //lineThickness = (int) Math.max(1, Math.pow(SET.targetsize, 0.5) / 3); // 2
+    }
+
+    public interface SegmentFilter {
+
+        boolean filter(ROI roi, Point p1, Point p2);
     }
 
     abstract class formPairs {
@@ -851,12 +857,14 @@ public class Segmentor {
     }
 
     private void drawSegmentLine(Point p1, Point p2) {
-        new lineDrawer() {
-            @Override
-            public void action(int x, int y) {
-                ROI.drawPoint(x, y, false, lineThickness);
-            }
-        }.drawLine(p1, p2);
+        if (segmentFilter == null || segmentFilter.filter(ROI, p1, p2)) {
+            new lineDrawer() {
+                @Override
+                public void action(int x, int y) {
+                    ROI.drawPoint(x, y, false, lineThickness);
+                }
+            }.drawLine(p1, p2);
+        }
     }
 
     private boolean onlyCommonIntersections(List<EdgePoint> pool) {

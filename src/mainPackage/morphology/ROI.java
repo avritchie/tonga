@@ -10,8 +10,11 @@ import mainPackage.utils.GEO;
 import mainPackage.utils.DRAW.lineDrawer;
 import mainPackage.ImageData;
 import mainPackage.Iterate;
+import mainPackage.MappedImage;
 import mainPackage.Tonga;
 import mainPackage.utils.COL;
+import mainPackage.utils.DRAW;
+import mainPackage.utils.IMG;
 import mainPackage.utils.RGB;
 import mainPackage.utils.STAT;
 
@@ -34,12 +37,20 @@ public class ROI {
     private double circularity;
     private double quantitativeValue; //arvo johon voi storee kamaa
     private STAT quantitativeSTAT; //statsit quantitative arvoista
+    private int classID; //ryhmän arvo
+    private double classifyValue; //arvo jota käytetään ryhmittelyyn
+    private int color; //tämän roin väri
 
-    public ROI(ImageData id, Area a) {
+    public ROI(ImageData id, Area a, int c) {
         this.originalImage = id;
         this.area = a;
         this.xcenter = area.width / 2 + area.xstart;
         this.ycenter = area.height / 2 + area.ystart;
+        this.color = c;
+    }
+
+    public int getColor() {
+        return color;
     }
 
     public int getSize() {
@@ -59,6 +70,62 @@ public class ROI {
 
     public int getDimension() {
         return Math.max(area.width, area.height);
+    }
+
+    public double[] getDimensionsInAngle(double a) {
+        int[] ct = getCentroid();
+        Point mp = new Point(ct[0], ct[1]);
+        double aa = GEO.getPerpendicularAngle(a);
+        double hyp = GEO.hypotenuse(getWidth(), getHeight());
+        Point[] bounds = new Point[]{
+            GEO.getPointInDirection(mp, a, hyp),
+            GEO.getPointInDirection(mp, a, -hyp),
+            GEO.getPointInDirection(mp, aa, hyp),
+            GEO.getPointInDirection(mp, aa, -hyp)};
+        double[] dists = new double[]{
+            binaryBounds(this, bounds[0], mp),
+            binaryBounds(this, bounds[1], mp),
+            binaryBounds(this, bounds[2], mp),
+            binaryBounds(this, bounds[3], mp)};
+        double xx = dists[0] + dists[1];
+        double yy = dists[2] + dists[3];
+        return new double[]{xx, yy};
+    }
+
+    private static double binaryBounds(ROI roi, Point maxBound, Point midBound) {
+        //binary search principle on finding a max distance between two points where
+        //a perpendicular line still intersects with the ROI area
+        Line ll = new Line(midBound, maxBound);
+        double h = ll.length;
+        double b = ll.length;
+        lineDrawer ld = new DRAW.lineDrawer() {
+            @Override
+            public void action(int x, int y) {
+                int xx = x - roi.area.xstart, yy = y - roi.area.ystart;
+                if (xx >= 0 && yy >= 0 && xx < roi.area.area.length && yy < roi.area.area[0].length) {
+                    if (roi.area.area[xx][yy]) {
+                        abortLineDrawing();
+                    }
+                }
+            }
+        };
+        while (b > 1) {
+            Line l = ll.getPerpendicularAlong(h);
+            l.setStartEndPoints(l.mid, ll.length);
+            ld.drawLine(l.start, l.end);
+            b /= 2;
+            if (!ld.keepOnGoing) {
+                h += b;
+            } else {
+                h -= b;
+            }
+            ld.keepOnGoing = true;
+        }
+        return h;
+    }
+
+    public int getClassID() {
+        return classID;
     }
 
     public double getStainSum(double avgRawBg) {
@@ -81,6 +148,10 @@ public class ROI {
 
     public STAT getStainSTAT() {
         return quantitativeSTAT;
+    }
+
+    public double getClassifierValue() {
+        return classifyValue;
     }
 
     public boolean pointIsInside(Point p) {
@@ -164,6 +235,23 @@ public class ROI {
         ycentroid = area.ystart + (int) (yc / s);
     }
 
+    public void setClassifyValue(double value) {
+        this.classifyValue = value;
+    }
+
+    public void setClass(int group) {
+        this.classID = group;
+    }
+
+    public void classify(Classifier i) {
+        setClass(i.classify(this));
+    }
+
+    public interface Classifier {
+
+        int classify(ROI r);
+    }
+
     protected void quantifyColor(ImageData img) {
         Quantifier quant = new Quantifier(this);
         Iterate.areaPixels(this, (int p) -> {
@@ -197,6 +285,21 @@ public class ROI {
             }
         });
         quant.saveValues();
+    }
+
+    public ImageData drawArea(ImageData source) {
+        int padding = 10;
+        int width = area.width + padding * 2, height = area.height + padding * 2;
+        int[] outArr = new int[width * height];
+        IMG.fillArray(outArr, width, height, COL.BLACK);
+        for (int x = 0; x < area.width; x++) {
+            for (int y = 0; y < area.height; y++) {
+                if (area.area[x][y]) {
+                    outArr[x + 10 + (y + 10) * width] = source.pixels32[(x + area.xstart) + ((y + area.ystart) * source.width)];
+                }
+            }
+        }
+        return new ImageData(outArr, width, height);
     }
 
     private class Quantifier {
@@ -260,7 +363,7 @@ public class ROI {
             finalArea[j - axs] = Arrays.copyOfRange(newArea[j], ays, aye);
         }
         Area roiArea = new Area(finalArea, Math.max(0, area.xstart - r), Math.max(0, area.ystart - r), Math.max(0, area.firstxpos - r), Math.max(0, area.firstypos - r));
-        mask = new ROI(originalImage, roiArea);
+        mask = new ROI(originalImage, roiArea, this.color);
     }
 
     protected void fixEdges(int width, int height, boolean separate) {

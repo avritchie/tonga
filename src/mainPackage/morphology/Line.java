@@ -59,12 +59,12 @@ public class Line {
         direction = GEO.getDirection(start, end);
     }
 
-    public Line getParallelAlong(double distance) {
+    public Line getPerpendicularAlong(double distance) {
         Point p = GEO.getPointInDirection(start, direction, distance);
-        return getParallel(p);
+        return getPerpendicular(p);
     }
 
-    public Line getParallel(Point p) {
+    public Line getPerpendicular(Point p) {
         double x = p.getX();
         double y = p.getY();
         Line l;
@@ -79,22 +79,31 @@ public class Line {
         return l;
     }
 
-    public Point getParallelIntersection(Point p) {
-        Line sl = getParallel(p);
+    public Point getPerpendicularIntersection(Point p) {
+        Line sl = getPerpendicular(p);
         return Line.intersectionFree(sl, this);
     }
 
     public static Point intersectionFree(Line line1, Line line2) {
         // not restricted by start/end data
         double x, y;
-        if ((vertical(line1) || horizontal(line1)) && (vertical(line2) || horizontal(line2))) {
-            x = Double.NaN;
-            y = Double.NaN;
-        } else if (vertical(line1) || vertical(line2)) {
+        boolean line1Vertical = vertical(line1), line1Horizontal = horizontal(line1), line2Vertical = vertical(line2), line2Horizontal = horizontal(line2);
+        if ((line1Vertical || line1Horizontal) && (line2Vertical || line2Horizontal)) {
+            if (line1Vertical && line2Horizontal) {
+                x = line1.b;
+                y = line2.b;
+            } else if (line2Vertical && line1Horizontal) {
+                x = line2.b;
+                y = line1.b;
+            } else {
+                x = Double.NaN;
+                y = Double.NaN;
+            }
+        } else if (line1Vertical || line2Vertical) {
             double[] pos = verticalIntersection(line1, line2);
             x = pos[0];
             y = pos[1];
-        } else if (horizontal(line1) || horizontal(line2)) {
+        } else if (line1Horizontal || line2Horizontal) {
             double[] pos = horizontalIntersection(line1, line2);
             x = pos[0];
             y = pos[1];

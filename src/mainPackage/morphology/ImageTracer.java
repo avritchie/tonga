@@ -64,7 +64,7 @@ public class ImageTracer {
         int p = image.width * y + x;
         if (bgReversed ? image.pixels32[p] == bgColor : image.pixels32[p] != bgColor) {
             Area area = traceArea(image.pixels32, bgColor, bgReversed, image.width, image.height, p);
-            return new ROI(image, area);
+            return new ROI(image, area, image.pixels32[p]);
         } else {
             Tonga.log.trace("Object not found at position {}.{}", x, y);
             return null;
@@ -72,6 +72,7 @@ public class ImageTracer {
     }
 
     public ROISet traceInnerObjects(ROISet set) {
+        Tonga.iteration();
         List<ROI> foundObjects = new ArrayList<>();
         set.list.forEach(roi -> {
             Area outArea = roi.getOutArea();
@@ -79,13 +80,14 @@ public class ImageTracer {
                 int i = findClosestNonAreaPixel(pnt, roi.area, outArea);
                 if (i != -1 && !assigned[i]) {
                     Area area = traceArea(image.pixels32, bgColor, bgReversed, image.width, image.height, i);
-                    ROI found = new ROI(image, area);
+                    ROI found = new ROI(image, area, roi.getColor());
                     found.parent = roi;
                     foundObjects.add(found);
                     markAreaAsAssigned(area);
                 }
             });
         });
+        Tonga.loader().appendToNext();
         return new ROISet(foundObjects, image.width, image.height);
     }
 
@@ -96,7 +98,7 @@ public class ImageTracer {
             int i = image.width * pnt.y + pnt.x;
             if ((bgReversed ? image.pixels32[i] == bgColor : image.pixels32[i] != bgColor) && !assigned[i]) {
                 Area area = traceArea(image.pixels32, bgColor, bgReversed, image.width, image.height, i);
-                foundObjects.add(new ROI(image, area));
+                foundObjects.add(new ROI(image, area, image.pixels32[i]));
                 markAreaAsAssigned(area);
             }
             if (i % image.width == 0) {
@@ -112,7 +114,7 @@ public class ImageTracer {
         for (int i = 0; i < image.totalPixels(); i++) {
             if ((bgReversed ? image.pixels32[i] == bgColor : image.pixels32[i] != bgColor) && !assigned[i]) {
                 Area area = traceArea(image.pixels32, bgColor, bgReversed, image.width, image.height, i);
-                foundObjects.add(new ROI(image, area));
+                foundObjects.add(new ROI(image, area, image.pixels32[i]));
                 markAreaAsAssigned(area);
             }
             if (i % image.width == 0) {

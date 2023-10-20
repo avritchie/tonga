@@ -7,6 +7,7 @@ package mainPackage.morphology;
 
 import mainPackage.ImageData;
 import mainPackage.Tonga;
+import mainPackage.utils.COL;
 
 public class Cell extends ROI {
 
@@ -14,11 +15,11 @@ public class Cell extends ROI {
     private int cellEstimate;
 
     public Cell(ROI roi) {
-        super(roi.originalImage, roi.area);
+        super(roi.originalImage, roi.area, roi.getColor());
     }
 
     public Cell(ImageData id, Area a) {
-        super(id, a);
+        super(id, a, COL.WHITE);
     }
 
     public int getCellEstimate() {

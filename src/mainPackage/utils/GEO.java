@@ -127,6 +127,10 @@ public class GEO {
         return angle + 180 - (Math.floor((angle + 180) / 360) * 360);
     }
 
+    public static double getPerpendicularAngle(double angle) {
+        return angle + 90 - (Math.floor((angle + 90) / 360) * 360);
+    }
+
     public static double getDist(Point p1, Point p2) {
         return getDist(p1.x, p1.y, p2.x, p2.y);
     }
