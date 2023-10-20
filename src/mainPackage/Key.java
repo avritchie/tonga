@@ -10,7 +10,7 @@ import javax.swing.JTextField;
 public class Key {
 
     static boolean keyCtrl = false, keyShift = false, keyAlt = false;
-    static Set<Integer> pressedKeys = new TreeSet<Integer>();
+    static Set<Integer> pressedKeys = new TreeSet<>();
 
     public static void event(KeyEvent ke) {
         Tonga.log.trace("KeyCode: {} ; KeyID: {}", ke.getKeyCode(), ke.getID());
@@ -70,15 +70,6 @@ public class Key {
                                     debug();
                                     break;
                             }
-                        } else if (keyAlt) {
-                            switch (keyCode) {
-                                case KeyEvent.VK_UP:
-                                    moveEvent(true);
-                                    break;
-                                case KeyEvent.VK_DOWN:
-                                    moveEvent(false);
-                                    break;
-                            }
                         }
                     }
                 } else if (keyCtrl) {
@@ -92,6 +83,16 @@ public class Key {
                             Tonga.switchLayer(prevLayer);
                             break;*/
                     }
+                }
+            }
+            if (keyAlt && !keyCtrl && !keyShift) {
+                switch (keyCode) {
+                    case KeyEvent.VK_UP:
+                        moveEvent(true);
+                        break;
+                    case KeyEvent.VK_DOWN:
+                        moveEvent(false);
+                        break;
                 }
             }
         }
