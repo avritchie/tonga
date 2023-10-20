@@ -66,7 +66,7 @@ public class InfoDialog extends javax.swing.JFrame {
         jLabel3.setText(" \"Our dad has a bigger microscope than your dad!\"");
 
         jLabel4.setFont(new java.awt.Font("Tahoma", 0, 16)); // NOI18N
-        jLabel4.setText("Alexandra Ritchie © 2019-2022");
+        jLabel4.setText("Alexandra Ritchie © 2019-2023");
 
         versionLabel.setFont(new java.awt.Font("Tahoma", 0, 28)); // NOI18N
         versionLabel.setText("x.x.x.∞");
