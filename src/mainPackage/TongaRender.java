@@ -304,10 +304,15 @@ public class TongaRender {
     }
 
     private static void getPixelColourIntensity(int xx, int yy) {
-        PixelReader renderReader = getCurrentRender().getPixelReader();
-        int val = renderReader.getArgb(xx, yy);
-        imgint = RGB.brightness(val);
-        imgval = String.format("%08X", val);
+        if (Tonga.thereIsVisibleImage() && xx >= 0 && yy >= 0) {
+            PixelReader renderReader = getCurrentRender().getPixelReader();
+            int val = renderReader.getArgb(xx, yy);
+            imgint = RGB.brightness(val);
+            imgval = String.format("%08X", val);
+        } else {
+            imgint = 0;
+            imgval = String.format("--------");
+        }
     }
 
     private static void calculatePanelPosition(double x, double y) {
@@ -411,8 +416,13 @@ public class TongaRender {
     }
 
     public static void setRenderImage() {
-        if (Tonga.thereIsImage() && Tonga.getLayerIndexes().length > 0) {
-            TongaLayer[] layersToRender = Tonga.imageLayersFromIndexList();
+        if (Tonga.thereIsVisibleImage()) {
+            TongaLayer[] layersToRender;
+            if (Tonga.getImage().stack) {
+                layersToRender = Tonga.imageLayersFromStack();
+            } else {
+                layersToRender = Tonga.imageLayersFromIndexList();
+            }
             renderImage = renderImage(Tonga.layersAs8BitImageDataArray(layersToRender)).toFXImage();
         } else {
             renderImage = null;
@@ -703,7 +713,7 @@ public class TongaRender {
                 cont.drawImage(renderImage, sx, sy, sw, sh, dx, dy, dw, dh);
             }
         } else {
-            Tonga.log.warn("Requested a render for an image which was null");
+            //there is nothing to render, so render only background
         }
     }
 
@@ -745,7 +755,7 @@ public class TongaRender {
 
     static Image getCurrentRender() {
         boolean hw = Settings.settingHWAcceleration();
-        if (Tonga.thereIsImage()) {
+        if (Tonga.thereIsVisibleImage()) {
             if (hw && TongaRender.renderImages != null && TongaRender.renderImages.length > Tonga.selectedLayerIndex()) {
                 return TongaRender.renderImages[Tonga.selectedLayerIndex()];
             } else if (!hw) {

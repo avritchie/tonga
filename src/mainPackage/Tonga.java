@@ -716,7 +716,13 @@ public class Tonga {
     }
 
     public static boolean thereIsImage() {
+        //is there an image which has been selected
         return !(picList.isEmpty() || mainFrame.imagesList.getSelectedIndex() == -1 || mainFrame.layersList.getSelectedIndex() == -1 || getImage() == null);
+    }
+
+    public static boolean thereIsVisibleImage() {
+        //is there something to render
+        return thereIsImage() && (!getImage().stack || getLayerList().stream().filter(tl -> !tl.isGhost).count() > 0);
     }
 
     public static void updateImageList() {
