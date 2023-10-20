@@ -318,7 +318,11 @@ public class Counters {
 
             @Override
             protected void postProcessor(ImageData targetImage) {
-                data = histo;
+                data.delLastRow();
+                data.append(histo);
+            }
+        };
+    }
             }
         };
     }

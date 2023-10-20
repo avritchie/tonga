@@ -158,4 +158,10 @@ public class TableData {
         }
         return true;
     }
+
+    public void append(TableData itd) {
+        for (int j = 0; j < itd.rowCount(); j++) {
+            this.newRow(itd.rows.get(j));
+        }
+    }
 }
