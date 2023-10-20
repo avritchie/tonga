@@ -54,6 +54,15 @@ public class HISTO {
         return hist;
     }
 
+    public static int[] getHistogramByte(int[] px) {
+        // input image as 0-255 pixel values
+        int[] hist = new int[256];
+        for (int i = 0; i < px.length; i++) {
+            hist[px[i]]++;
+        }
+        return hist;
+    }
+
     public static int[] getHistogram(short[] px) {
         // input image as GRAYSCALE SHORT pixel values
         int[] hist = new int[65536];

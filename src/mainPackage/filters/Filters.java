@@ -1145,6 +1145,47 @@ public class Filters {
                 int[] histo = HISTO.getHistogram(in16);
                 int[] begEnd = HISTO.getMinMaxAdaptValue(histo, (int) param.sliderScaled[0]);
                 set16BitScaleRange(begEnd[0], begEnd[1]);
+    public static FilterFast whitebalance() {
+        return new FilterFast("White balance", noParams, 6) {
+
+            @Override
+            protected void processor() {
+                int[] id = new Blur().gauss(inData, (int) (this.in32.length / 100000), false);
+                int[][] rgbc = new int[3][this.in32.length];
+                int[] lows = new int[3];
+                int[] highs = new int[3];
+                Iterate.pixels(this, (int pos) -> {
+                    rgbc[0][pos] = RGB.brightness(id[pos] & 0xFFFF0000);
+                    rgbc[1][pos] = RGB.brightness(id[pos] & 0xFF00FF00);
+                    rgbc[2][pos] = RGB.brightness(id[pos] & 0xFF0000FF);
+                });
+                int lm = 255, hm = 0;
+                for (int i = 0; i < 3; i++) {
+                    int[] histo = HISTO.getHistogramByte(rgbc[i]);
+                    int[] begEnd = HISTO.getMinMaxAdaptValue(histo, (int) (this.in32.length / 20000));
+                    lows[i] = begEnd[0];
+                    highs[i] = begEnd[1];
+                    lm = Math.min(lm, begEnd[0]);
+                    hm = Math.max(hm, begEnd[1]);
+                }
+                Tonga.log.debug("RED " + highs[0] + " " + lows[0]);
+                Tonga.log.debug("GREEN " + highs[1] + " " + lows[1]);
+                Tonga.log.debug("BLUE " + highs[1] + " " + lows[2]);
+                for (int i = 0; i < 3; i++) {
+                    lows[i] = lows[i] - lm;
+                    highs[i] = 255 - (hm - highs[i]);
+                }
+                Iterate.pixels(this, (int pos) -> {
+                    out32[pos] = RGB.argb(
+                            RGB.cut(RGB.brightness(in32[pos] & 0xFFFF0000), highs[0], lows[0]),
+                            RGB.cut(RGB.brightness(in32[pos] & 0xFF00FF00), highs[1], lows[1]),
+                            RGB.cut(RGB.brightness(in32[pos] & 0xFF0000FF), highs[2], lows[2]));
+                });
+            }
+
+            @Override
+            protected void processor16() {
+                throw new UnsupportedOperationException("No 16-bit version available");
             }
         };
     }

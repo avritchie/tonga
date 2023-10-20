@@ -182,7 +182,7 @@ public class RGB {
         return a;
     }
 
-    private static int cut(int c, int upper, int lower) {
+    public static int cut(int c, int upper, int lower) {
         if (c <= lower) {
             return 0;
         } else if (c >= upper) {
