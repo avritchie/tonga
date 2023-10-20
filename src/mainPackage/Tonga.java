@@ -433,7 +433,9 @@ public class Tonga {
                     picList.get(getImageIndex()).activeLayers = vals;
                     previousLayer = currentLayer;
                     currentLayer = getLayerIndexes();
-                    if (!taskIsRunning) {
+                    //disallow stack refresh as stack render is not dependant on selected individual layers
+                    //instead the rendering depends on the on/off selections handled by a MouseEvent
+                    if (!taskIsRunning && !getImage().stack) {
                         refreshCanvases();
                     }
                 }
@@ -460,20 +462,16 @@ public class Tonga {
             public void mouseReleased(MouseEvent e) {
                 if (thereIsImage()) {
                     if (getImage().stack) {
-                        if (Key.keyShift) {
-                            getLayerList().forEach(l -> {
-                                l.isGhost = !l.isGhost;
-                            });
+                        if (e.getButton() == MouseEvent.BUTTON1) {
+                            if (Key.keyShift) {
+                                getLayerList().forEach(l -> {
+                                    l.isGhost = !l.isGhost;
+                                });
+                            } else {
+                                getLayer().isGhost = !getLayer().isGhost;
+                            }
                             layerJList.repaint();
-                            redraw();
-                            IO.waitForJFXRunLater();
-                            redraw();
-                        } else if (e.getButton() == MouseEvent.BUTTON1) {
-                            getLayer().isGhost = !getLayer().isGhost;
-                            layerJList.repaint();
-                            redraw();
-                            IO.waitForJFXRunLater();
-                            redraw();
+                            Tonga.refreshCanvases();
                         }
                     } else if (e.getButton() == MouseEvent.BUTTON1 && e.getClickCount() == 2) {
                         setLayerSelectionToAllImages();
