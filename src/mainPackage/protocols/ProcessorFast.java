@@ -111,21 +111,20 @@ public abstract class ProcessorFast extends Processor {
         setOutputBy(id, 0);
     }
 
+    protected void setOutputBy(int[] dest) {
+        outImage[0].pixels32 = dest;
+    }
+
     protected void setOutputBy(ImageData id, int i) {
-        //outImage[i].pixels32 = id.pixels32;
+        if (id.bits == 16) {
+            id.set8BitPixels();
+        }
         IMG.copyPixels(id.pixels32, outImage[i].pixels32);
     }
 
     protected void setSampleOutputBy(ImageData id, int i) {
-        if (Tonga.debug()) {
-            try {
-                IMG.copyPixels(id.pixels32, outImage[i].pixels32);
-            } catch (NullPointerException ex) {
-                if (id.bits == 16) {
-                    id.set8BitPixels();
-                    IMG.copyPixels(id.pixels32, outImage[i].pixels32);
-                }
-            }
+        if (i < outputImageNumber) {
+            setOutputBy(id, i);
         }
     }
 }
