@@ -3694,6 +3694,13 @@ public class TongaFrame extends JFrame {
 
         menuCounting.add(jMenu22);
 
+        jMenuItem138.setText("Transpose by image");
+        jMenuItem138.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jMenuItem138ActionPerformed(evt);
+            }
+        });
+        menuCounting.add(jMenuItem138);
 
         menuBar.add(menuCounting);
 
@@ -4919,6 +4926,10 @@ public class TongaFrame extends JFrame {
     private void jMenuItem111ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem111ActionPerformed
         launchProtocol(Spheroids::new, evt);
     }//GEN-LAST:event_jMenuItem111ActionPerformed
+
+    private void jMenuItem138ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem138ActionPerformed
+        TongaTable.transposeByImage();
+    }//GEN-LAST:event_jMenuItem138ActionPerformed
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     protected javax.swing.JComboBox<String> autoscaleCombo;
