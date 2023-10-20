@@ -35,7 +35,7 @@ public class DAPICorrect extends Protocol {
     protected Processor getProcessor() {
         int tissueScale = param.slider[0];
 
-        return new ProcessorFast(Tonga.debug() ? 4 : 1, "Corrected", 29) {
+        return new ProcessorFast(fullOutput() ? 4 : 1, "Corrected", 35) {
 
             ImageData binar, inten, temp;
 

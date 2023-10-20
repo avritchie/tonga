@@ -4,7 +4,6 @@ import javafx.scene.paint.Color;
 import mainPackage.PanelCreator.ControlReference;
 import static mainPackage.PanelCreator.ControlType.*;
 import mainPackage.Settings;
-import mainPackage.Tonga;
 import mainPackage.morphology.ImageTracer;
 import mainPackage.morphology.ROISet;
 import mainPackage.utils.COL;
@@ -32,7 +31,7 @@ public class __ObjectSegment extends Protocol {
         int nucleusSize = param.spinner[0];
         int mode = param.combo[0];
 
-        return new ProcessorFast(Tonga.debug() ? 2 : 1, "Objects", 3) {
+        return new ProcessorFast(fullOutput() ? 2 : 1, "Objects", 3) {
 
             int nuclSize;
 

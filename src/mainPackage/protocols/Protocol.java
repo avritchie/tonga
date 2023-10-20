@@ -34,6 +34,7 @@ public abstract class Protocol {
 
     ArrayList<JComboBox<String>> layerCombos;
     private boolean doNotChangeButtonColor;
+    private boolean fullOutput;
     public ControlReference[] parameters;
     public PanelCreator panelCreator;
     public PanelParams param;
@@ -59,6 +60,10 @@ public abstract class Protocol {
 
     public void getParams() {
         param.getFilterParameters(panelCreator);
+    }
+
+    protected boolean fullOutput() {
+        return Tonga.debug() || fullOutput;
     }
 
     public static Protocol load(Supplier<Protocol> method) {

@@ -43,7 +43,7 @@ public class __NucleusFinalMask extends Protocol {
         boolean skipAdjust = param.toggle[2];
         int iter = nucleusSize < 13 ? 55 : nucleusSize < 20 ? 61 : nucleusSize < 34 ? 68 : nucleusSize < 48 ? 84 : 85;
 
-        return new ProcessorFast(Tonga.debug() ? 27 : 1, "Objects", iter) {
+        return new ProcessorFast(fullOutput() ? 27 : 1, "Objects", iter) {
 
             ImageData mask, sMask, mMask, aMask;
             int nuclSize, minNucl, maxNucl, smallLimit, largeLimit, local, dimErode, overlapRad, smoothErode, maxDiff, finSmooth, maxSmooth, edgeFiller, noise;

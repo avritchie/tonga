@@ -48,7 +48,7 @@ public class IFCorrectAll extends Protocol {
         iterations -= param.toggle[0] && param.toggle[1] ? 1 : 0;
         iterations += param.toggle[2] && param.toggle[1] ? 8 : 0;
 
-        return new ProcessorFast(Tonga.debug() ? 5 : 1, "Normalized", iterations) {
+        return new ProcessorFast(fullOutput() ? 5 : 1, "Normalized", iterations) {
 
             ImageData normalized, dapi, ifone, iftwo, binar, temp;
             double avgdapi, avgifone, avgiftwo;

@@ -33,7 +33,7 @@ public class Spheroids extends Protocol {
         int minSize = Math.max(1, targetSize / 50);
         int filterSize = param.slider[0] * 4;
 
-        return new ProcessorFast(Tonga.debug() ? 5 : 1, "Spheroids", 43) {
+        return new ProcessorFast(fullOutput() ? 5 : 1, "Spheroids", 43) {
 
             ImageData temp, temp2;
 

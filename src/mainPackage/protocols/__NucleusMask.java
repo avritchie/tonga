@@ -4,7 +4,6 @@ import mainPackage.utils.COL;
 import mainPackage.ImageData;
 import mainPackage.PanelCreator.ControlReference;
 import static mainPackage.PanelCreator.ControlType.*;
-import mainPackage.Tonga;
 import mainPackage.counters.TableData;
 
 public class __NucleusMask extends Protocol {
@@ -29,7 +28,7 @@ public class __NucleusMask extends Protocol {
         boolean deadMode = param.toggle[1];
         boolean segmMode = param.toggle[2];
 
-        return new ProcessorFast(Tonga.debug() ? 3 : 1, "Nuclei", 165) {
+        return new ProcessorFast(fullOutput() ? 3 : 1, "Nuclei", 165) {
 
             ImageData[] separation;
             ImageData adjusted;

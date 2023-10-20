@@ -5,7 +5,6 @@ import mainPackage.Blender.Blend;
 import mainPackage.ImageData;
 import mainPackage.PanelCreator.ControlReference;
 import static mainPackage.PanelCreator.ControlType.*;
-import mainPackage.Tonga;
 import mainPackage.filters.Filters;
 import mainPackage.filters.FiltersPass;
 import static mainPackage.protocols.Processor.applyOperator;
@@ -37,7 +36,7 @@ public class IFNormalize extends Protocol {
         boolean allWithDAPI = !param.toggle[0];
         String[] names = new String[]{"Corrected", "DAPI Mask", "Channel 1 Mask", "Channel 2 Mask"};
 
-        return new ProcessorFast(Tonga.debug() ? 4 : 1, names, allWithDAPI ? 32 : 58) {
+        return new ProcessorFast(fullOutput() ? 4 : 1, names, allWithDAPI ? 32 : 92) {
 
             ImageData dapi, ifchan1, ifchan2, binar, temp;
             int rad;
