@@ -118,12 +118,33 @@ public class RGB {
                 | Math.max(0, (color >> 24 & 0xff) - value) << 24;
     }
 
+    public static int addFlip(int color, int value) {
+        // yli 255 --> 0
+        return color + (value << 16 | value << 8 | value);
+    }
+
+    public static int addLimit(int color, int value) {
+        // yli 255 --> 255
+        return Math.min(255, (color & 0xff) + value)
+                | Math.min(255, (color >> 8 & 0xff) + value) << 8
+                | Math.min(255, (color >> 16 & 0xff) + value) << 16
+                | Math.min(255, (color >> 24 & 0xff) + value) << 24;
+    }
+
     public static int multiplyColor(int color, double factor) {
         //all channels
         return (multiply(color & 0xff, factor))
                 | (multiply(color >> 8 & 0xff, factor) << 8)
                 | (multiply(color >> 16 & 0xff, factor) << 16)
                 | (multiply(color >> 24 & 0xff, factor) << 24);
+    }
+
+    public static int multiplyRGB(int color, double factor) {
+        //all channels
+        return (multiply(color & 0xff, factor))
+                | (multiply(color >> 8 & 0xff, factor) << 8)
+                | (multiply(color >> 16 & 0xff, factor) << 16)
+                | (color & 0xff000000);
     }
 
     public static int multiply(int color, double factor) {

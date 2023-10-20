@@ -609,19 +609,76 @@ public class Filters {
     }
 
     public static FilterFast multiply() {
-        return new FilterFast("Multiply Values",
-                new ControlReference[]{new ControlReference(SPINNER, "Of the original (%)", 200)}) {
+        return new FilterFast("Multiply Values", new ControlReference[]{
+            new ControlReference(SPINNER, "Of the original (%)", 200),
+            new ControlReference(TOGGLE, "Ignore alpha", 1)}) {
+
             @Override
             protected void processor() {
-                Iterate.pixels(this, (int pos) -> {
-                    out32[pos] = RGB.multiplyColor(in32[pos], param.spinner[0] / 100.);
-                });
+                if (param.toggle[0]) {
+                    Iterate.pixels(this, (int pos) -> {
+                        out32[pos] = RGB.multiplyRGB(in32[pos], param.spinner[0] / 100.);
+                    });
+                } else {
+                    Iterate.pixels(this, (int pos) -> {
+                        out32[pos] = RGB.multiplyColor(in32[pos], param.spinner[0] / 100.);
+                    });
+                }
             }
 
             @Override
             protected void processor16() {
                 Iterate.pixels(this, (int pos) -> {
                     out16[pos] = (short) Math.min(65535, ((in16[pos] & 0xFFFF) * param.spinner[0] / 100.));
+                });
+            }
+        };
+    }
+
+    public static FilterFast reduce() {
+        return new FilterFast("Reduce Values", new ControlReference[]{
+            new ControlReference(SPINNER, "How much to reduce", 20),
+            new ControlReference(TOGGLE, "Ignore alpha", 1)}) {
+
+            @Override
+            protected void processor() {
+                Iterate.pixels(this, (int pos) -> {
+                    int a = param.toggle[0] ? in32[pos] & 0xFF000000 : 0x0;
+                    out32[pos] = a | RGB.substractLimit(in32[pos], param.spinner[0]);
+                });
+            }
+
+            @Override
+            protected void processor16() {
+                Iterate.pixels(this, (int pos) -> {
+                    out16[pos] = (short) Math.max(0, (in16[pos] & 0xFFFF) - param.spinner[0]);
+                });
+            }
+        };
+    }
+
+    public static FilterFast add() {
+        return new FilterFast("Add Values", new ControlReference[]{
+            new ControlReference(SPINNER, "How much to add", 20),
+            new ControlReference(TOGGLE, "Ignore alpha", 1)}) {
+
+            @Override
+            protected void processor() {
+                Iterate.pixels(this, (int pos) -> {
+                    int a = param.toggle[0] ? in32[pos] & 0xFF000000 : 0x0;
+                    out32[pos] = a | RGB.addLimit(in32[pos], param.spinner[0]);
+                });
+            }
+
+            @Override
+            protected void processor16() {
+                Iterate.pixels(this, (int pos) -> {
+                    out16[pos] = (short) Math.max(0, (in16[pos] & 0xFFFF) + param.spinner[0]);
+                });
+            }
+        };
+    }
+
                 });
             }
         };
@@ -1297,7 +1354,7 @@ public class Filters {
                 double intlev = basevalue / (double) areapixels;
                 double target = param.slider[0] / 100.;
                 int mperc = (int) ((target / intlev) * 100);
-                setOutputBy(Filters.multiply().runSingle(inData, mperc));
+                setOutputBy(Filters.multiply().runSingle(inData, mperc, true));
             }
 
             @Override
