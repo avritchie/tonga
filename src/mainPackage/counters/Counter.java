@@ -16,11 +16,11 @@ import ome.units.unit.Unit;
 
 public abstract class Counter {
 
-    TableData data;
-    String imageName;
-    Length imageScaling;
-    int imageWidth;
-    int imageHeight;
+    public TableData data;
+    public String imageName;
+    public Length imageScaling;
+    public int imageWidth;
+    public int imageHeight;
     public Object[] row;
     public String counterName;
     public String[] columnNames;
@@ -117,6 +117,21 @@ public abstract class Counter {
                 });
             }
         }
+    }
+
+    public void Rows(int rows, RowWriter i) {
+        // make sure an initial row is set before running this
+        for (int index = 0; index < rows; index++) {
+            i.writeRow(index);
+            if (index < rows - 1) {
+                row = data.newRow(row[0].toString());
+            }
+        }
+    }
+
+    public interface RowWriter {
+
+        void writeRow(int index);
     }
 
     protected void initRows() {

@@ -127,21 +127,16 @@ public class SetCounters {
             @Override
             protected void processor() {
                 //ROISet set = getROISet(traced, targetImage);
-                String name = row[0].toString();
-                for (int f = 0; f < set.objectsCount(); f++) {
-                    ROI obj = set.list.get(f);
-                    row[1] = "#" + (f + 1);
+                Rows(set.objectsCount(), (int index) -> {
+                    ROI obj = set.list.get(index);
+                    row[1] = "#" + (index + 1);
                     int[] cent = obj.getCentroid();
                     row[2] = (Integer) cent[0];
                     row[3] = (Integer) cent[1];
                     row[4] = scaleUnit(obj.getStainSTAT().getN(), 2);
                     row[5] = STAT.decToPerc(obj.getStainAvg());
-                    row[6] = obj.getStainSum();
-                    if (f < set.objectsCount() - 1) {
-                        row = data.newRow(name);
-                    }
-                }
-
+                    row[6] = (Double) obj.getStainSum();
+                });
             }
         };
     }
@@ -163,10 +158,9 @@ public class SetCounters {
             protected void processor() {
                 //int dup = (int) (set.list.get(0).getRawStain() / set.list.get(0).getStain());
                 //ROISet set = getROISet(traced, targetImage);
-                String name = row[0].toString();
-                for (int f = 0; f < set.objectsCount(); f++) {
-                    ROI obj = set.list.get(f);
-                    row[1] = "#" + (f + 1);
+                Rows(set.objectsCount(), (int index) -> {
+                    ROI obj = set.list.get(index);
+                    row[1] = "#" + (index + 1);
                     int[] cent = obj.getCentroid();
                     row[2] = (Integer) cent[0];
                     row[3] = (Integer) cent[1];
@@ -177,11 +171,7 @@ public class SetCounters {
                     row[7] = obj.getStainSum();
                     //row[7] = obj.getStainSum() - (obj.getSize() * bg);
                     row[8] = obj.getStainSum(bg);
-                    if (f < set.objectsCount() - 1) {
-                        row = data.newRow(name);
-                    }
-                }
-
+                });
             }
         };
     }
