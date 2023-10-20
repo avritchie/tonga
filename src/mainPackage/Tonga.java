@@ -314,8 +314,19 @@ public class Tonga {
             @Override
             public void action(List<File> files) {
                 IO.importImage(files);
+                if (files.get(0).getName().endsWith(".tsv")) {
+                    TongaTable.importData(files.get(0));
+                } else {
+                    IO.importImage(files);
+                }
             }
-        }.initDnD(dndPanel, "Import a new image with multiple layers");
+        }.initDnD(dndPanel, "Import a new image with multiple layers",
+                new String[]{
+                    ".tsv"
+                },
+                new String[]{
+                    "Import data table"
+                });
         new fileDragAndDrop() {
             @Override
             public void action(List<File> files) {
@@ -330,10 +341,18 @@ public class Tonga {
                     List<File> files = (List<File>) evt.getTransferable().getTransferData(DataFlavor.javaFileListFlavor);
                     if (imageListModel.size() != 0) {
                         if (files.size() % imageListModel.size() == 0 && getImageIndexes().length == 1) {
-                            IO.importLayers(files, true);
+                            if (files.get(0).getName().endsWith(".tsv")) {
+                                TongaTable.importData(files.get(0));
+                            } else {
+                                IO.importLayers(files, true);
+                            }
                             evt.dropComplete(true);
                         } else {
-                            IO.importLayers(files, false);
+                            if (files.get(0).getName().endsWith(".tsv")) {
+                                TongaTable.importData(files.get(0));
+                            } else {
+                                IO.importLayers(files, false);
+                            }
                             evt.dropComplete(true);
                         }
                     } else {
@@ -349,14 +368,23 @@ public class Tonga {
 
             @Override
             public void dragEnter(DropTargetDragEvent dtde) {
-                if (imageListModel.size() != 0) {
-                    dtde.acceptDrag(DnDConstants.ACTION_LINK);
-                    setStatus("Import new layer(s) to existing images");
-                } else {
-                    dtde.acceptDrag(DnDConstants.ACTION_LINK);
-                    setStatus("Import multiple new images with multiple layers each.");
-                    //dtde.rejectDrag();
-                    //setStatus("Cannot import layers because there are no images. Please drag and drop into the main panel.");
+                try {
+                    if (imageListModel.size() != 0) {
+                        dtde.acceptDrag(DnDConstants.ACTION_LINK);
+                        String ext = ((List<File>) dtde.getTransferable().getTransferData(DataFlavor.javaFileListFlavor)).get(0).getName();
+                        if (ext.endsWith(".tsv")) {
+                            setStatus("Import data table");
+                        } else {
+                            setStatus("Import new layer(s) to existing images");
+                        }
+                    } else {
+                        dtde.acceptDrag(DnDConstants.ACTION_LINK);
+                        setStatus("Import multiple new images with multiple layers each.");
+                        //dtde.rejectDrag();
+                        //setStatus("Cannot import layers because there are no images. Please drag and drop into the main panel.");
+                    }
+                } catch (UnsupportedFlavorException | IOException ex) {
+                    catchError(ex, "Drag and drop failure.");
                 }
             }
         });
@@ -506,6 +534,10 @@ public class Tonga {
         public abstract void action(List<File> files);
 
         public void initDnD(Component comp, String message) {
+            initDnD(comp, message, null, null);
+        }
+
+        public void initDnD(Component comp, String message, String[] ending, String[] altmessage) {
             comp.setDropTarget(new DropTarget() {
                 @Override
                 public void drop(DropTargetDropEvent evt) {
@@ -521,7 +553,26 @@ public class Tonga {
 
                 @Override
                 public void dragEnter(DropTargetDragEvent dtde) {
-                    setStatus(message);
+                    if (ending != null) {
+                        try {
+                            Object td = dtde.getTransferable().getTransferData(DataFlavor.javaFileListFlavor);
+                            boolean setmsg = false;
+                            for (int i = 0; i < ending.length; i++) {
+                                if (((File) ((List) td).get(0)).getName().toLowerCase().endsWith(ending[i])) {
+                                    setStatus(altmessage[i]);
+                                    setmsg = true;
+                                    break;
+                                }
+                            }
+                            if (!setmsg) {
+                                setStatus(message);
+                            }
+                        } catch (UnsupportedFlavorException | IOException ex) {
+                            //
+                        }
+                    } else {
+                        setStatus(message);
+                    }
                     dtde.acceptDrag(DnDConstants.ACTION_LINK);
                 }
             });

@@ -1,8 +1,12 @@
 package mainPackage;
 
+import java.io.File;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedHashMap;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import javax.swing.SwingUtilities;
 import javax.swing.table.DefaultTableModel;
 import mainPackage.counters.TableData;
@@ -118,6 +122,42 @@ public class TongaTable {
     private static boolean isData() {
         return Tonga.frame().resultTable.getModel().getColumnCount() > 0;
     }
+
+    public static void importData(File file) {
+        try {
+            UndoRedo.start();
+            String[] lines = Files.readAllLines(file.toPath()).toArray(String[]::new);
+            String[] cols = lines[0].replaceAll("\\ufeff", "").split("\t");
+            TableData ntd = new TableData(cols, cols);
+            Pattern doublen = Pattern.compile("/^\\d+(,\\d+)*$/");
+            Pattern intn = Pattern.compile("^(\\d+)*$");
+            for (int r = 1; r < lines.length; r++) {
+                String[] vals = lines[r].split("\t");
+                Object[] row = ntd.newRow(vals[0]);
+                for (int c = 1; c < cols.length; c++) {
+                    Matcher md = doublen.matcher(vals[c]);
+                    Matcher mi = intn.matcher(vals[c]);
+                    try {
+                        if (mi.find() && !vals[c].isEmpty()) {
+                            row[c] = Integer.valueOf(vals[c]);
+                        } else if (md.find() && !vals[c].isEmpty()) {
+                            row[c] = Double.valueOf(vals[c]);
+                        } else {
+                            row[c] = vals[c];
+                        }
+                    } catch (NumberFormatException ex) {
+                        Tonga.log.warn("Failed to parse {} as a number.", vals[c]);
+                        row[c] = vals[c];
+                    }
+                }
+            }
+            publishData(ntd);
+            UndoRedo.end();
+        } catch (Exception ex) {
+            Tonga.catchError(ex, "Could not read the data table file.");
+        }
+    }
+
     public static void transposeByImage() {
         if (td == null) {
             Tonga.setStatus("No result data to transpose.");
