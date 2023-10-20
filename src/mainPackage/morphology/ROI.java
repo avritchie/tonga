@@ -445,9 +445,12 @@ public class ROI {
                     segmentor.segment();
                     break;
                 case 1:
-                    segmentor.segmentSure();
+                    segmentor.segmentStrong();
                     break;
                 case 2:
+                    segmentor.segmentSure();
+                    break;
+                case 3:
                     segmentor.segmentSuperSure();
                     break;
             }

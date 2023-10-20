@@ -22,7 +22,7 @@ public class __ObjectSegment extends Protocol {
             new ControlReference(LAYER, "Objects are on which layer"),
             new ControlReference(COLOUR, "Background is which colour", new int[]{0}),
             new ControlReference(SPINNER, "Average object diameter (pixels)", 60),
-            new ControlReference(COMBO, new String[]{"Normal", "Strict", "Very strict"}, "Criteria for separation"),
+            new ControlReference(COMBO, new String[]{"Normal", "Strong", "Strict", "Very strict"}, "Criteria for separation"),
             new ControlReference(TOGGLE, "Perform twice", 0),};
     }
 

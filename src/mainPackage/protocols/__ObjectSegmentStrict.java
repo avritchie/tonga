@@ -47,9 +47,9 @@ public class __ObjectSegmentStrict extends Protocol {
                 set.analyzeCorners();
                 set.filterUnsureCorners();
                 set.analyzeCornerIntersections();
-                set.segment(2);
+                set.segment(3);
                 set.filterCornersNotTouching(inImage[1]);
-                set.segment(1);
+                set.segment(2);
                 setOutputBy(set.drawToImageData(true));
                 //optional for debug use
                 setSampleOutputBy(set.drawToImageData(), 1);
