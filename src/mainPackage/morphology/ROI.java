@@ -41,6 +41,10 @@ public class ROI {
     private double classifyValue; //arvo jota käytetään ryhmittelyyn
     private int color; //tämän roin väri
 
+    public ROI(ImageData id, Area a) {
+        this(id, a, COL.WHITE);
+    }
+
     public ROI(ImageData id, Area a, int c) {
         this.originalImage = id;
         this.area = a;
