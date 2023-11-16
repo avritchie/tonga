@@ -787,18 +787,18 @@ public class IO {
         }.save(new File(path), "file");
     }
 
-    public static void exportTable(boolean temp) {
+    public static void exportTable(JTable table, boolean temp) {
         Tonga.frame().resultHash();
         String fname = generateFilename("results");
         Thread thread = new Thread(() -> {
             Exporter ex = new Exporter() {
                 @Override
                 void write() throws IOException {
-                    IO.toTSVfile(Tonga.frame().resultTable, file);
+                    IO.toTSVfile(table, file);
                 }
             };
             ex.exportFile(fname, "tsv", temp ? "Table exported and fired into Excel."
-                    : "Result table exported into TSV format.", temp);
+                    : "Data table exported into TSV format.", temp);
             if (temp) {
                 launchExcel(ex.file);
             }
@@ -855,7 +855,7 @@ public class IO {
                         read(in);
                     }
                 } catch (IOException ex) {
-                    Tonga.catchError(ex, "The dialog config file could not be read");
+                    Tonga.catchError(ex, "The " + desc + " file could not be read");
                     return false;
                 }
             } else {
