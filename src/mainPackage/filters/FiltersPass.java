@@ -602,6 +602,80 @@ public class FiltersPass {
         };
     }
 
+    public static FilterFast getAnnotationMaskInternal() {
+        return new FilterFast("Annotation",
+                new ControlReference[]{
+                    new ControlReference(ANNOTATION, "Which annotation to use"),
+                    new ControlReference(TOGGLE, "All", 0, new int[]{0, 0}),
+                    new ControlReference(TOGGLE, "Fill shapes", 1),
+                    new ControlReference(TOGGLE, "Internal", 0)}) {
+
+            @Override
+            protected void processor() {
+                List<TongaAnnotation> ta = new ArrayList<>();
+                if (param.toggle[0]) {
+                    ta = Tonga.getImage().annotations.getAnnotations();
+                } else {
+                    ta.add(param.annotation[0]);
+                }
+                ImageData id = param.toggle[2]
+                        ? getAnnotationMask(ta, inData)
+                        : getAnnotationMaskRender(ta, inData, param.toggle[1]);
+                setOutputBy(id);
+            }
+
+            @Override
+            protected void processor16() {
+                throw new UnsupportedOperationException("No 16-bit version available");
+            }
+        };
+    }
+
+    public static FilterFast getAnnotationMask() {
+        return new FilterFast("Annotation",
+                new ControlReference[]{
+                    new ControlReference(ANNOTATION, "Which annotation to use"),
+                    new ControlReference(TOGGLE, "All", 0, new int[]{0, 0})}) {
+
+            @Override
+            protected void processor() {
+                List<TongaAnnotation> ta = new ArrayList<>();
+                if (param.toggle[0]) {
+                    ta = Tonga.getImage().annotations.getAnnotations();
+                } else {
+                    ta.add(param.annotation[0]);
+                }
+                ImageData id = getAnnotationMask(ta, inData);
+                setOutputBy(id);
+            }
+
+            @Override
+            protected void processor16() {
+                throw new UnsupportedOperationException("No 16-bit version available");
+            }
+        };
+    }
+
+    public static ImageData getAnnotationMask(List<TongaAnnotation> ta, ImageData parent) {
+        List<ROI> rl = new ArrayList<>();
+        for (int a = 0; a < ta.size(); a++) {
+            rl.add(new ROI(parent, ta.get(a).toArea(), COL.WHITE));
+        }
+        ROISet rs = new ROISet(rl, parent.width, parent.height);
+        ImageData rid = rs.drawToImageData(true);
+        return rid;
+    }
+
+    @Deprecated
+    public static ImageData getAnnotationMaskRender(List<TongaAnnotation> ta, ImageData parent, boolean fill) {
+        ImageData id = TongaAnnotator.renderAsImage(parent.width, parent.height, ta);
+        Filters.thresholdBright().runTo(id, 1);
+        if (fill) {
+            FiltersSet.fillInnerAreas().runTo(id, COL.BLACK, true);
+        }
+        return id;
+    }
+
     public static FilterFast getNucleiMask() {
         return new FilterFast("Nuclei", noParams) {
 
