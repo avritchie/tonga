@@ -1255,6 +1255,7 @@ public class Tonga {
             TongaRender.setRenderImage();
         }
         Histogram.update();
+        frame().imageDependantElements(getLayer());
         redraw();
     }
 

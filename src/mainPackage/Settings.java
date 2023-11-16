@@ -57,7 +57,7 @@ public class Settings {
     }
 
     public static boolean settingBatchProcessing() {
-        return host.boxSettingBatch.isSelected();
+        return host.batchToggle.isSelected();
     }
 
     public static boolean settingOpenAfterExport() {
