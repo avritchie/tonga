@@ -67,7 +67,7 @@ public class __NucleusFinalMask extends Protocol {
                 overlapRad = (int) Math.pow(nuclSize * 0.13, 0.9);
                 smoothErode = (int) Math.pow(nuclSize * 0.05, 0.6);
                 maxDiff = (int) Math.pow(nuclSize * 0.12, 0.4); // 3
-                finSmooth = (int) Math.pow(nuclSize * 0.33, 0.5) - 1; // 3
+                finSmooth = (int) Math.pow(nuclSize * 0.55, 0.45) - 1; // 3
                 maxSmooth = (int) Math.pow(nuclSize * 0.05, 0.8); // 2
                 //radius for dilating the edges for nucloli etc. removal from nucleus edges
                 edgeFiller = (int) Math.pow(nuclSize * 0.03, 0.5); // 1
@@ -188,14 +188,14 @@ public class __NucleusFinalMask extends Protocol {
                     Filters.dotConnectRemove().runTo(mask, COL.BLACK, false);
                 }
                 //get the separation mask from the new smoother and eroded version to avoid accidental merging due to the smoothing
-                FiltersSet.getRadiusOverlap().runTo(mask, sMask, COL.BLACK, overlapRad);
+                //FiltersSet.getRadiusOverlap().runTo(mask, sMask, COL.BLACK, overlapRad);
                 setSampleOutputBy(mask, 24);
                 if (finSmooth > 0) {
-                    FiltersPass.gaussSmoothing().runTo(mask, finSmooth, 2);
+                    FiltersPass.gaussSmoothing().runTo(mask, finSmooth, Math.min(finSmooth, 2));
                 }
                 setSampleOutputBy(mask, 25);
                 if (smoothErode > 0) {
-                    FiltersPass.edgeDilate().runTo(mask, COL.BLACK, smoothErode + (nuclSize > 35 ? 1 : 0), true);
+                    FiltersPass.edgeDilate().runTo(mask, COL.BLACK, smoothErode + 1, true);
                 }
                 //apply the overlap mask in case dilation and smoothing merged something
                 Iterate.pixels(inImage[0], (int p) -> {
