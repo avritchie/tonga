@@ -205,11 +205,15 @@ public class FiltersSet {
     }
 
     public static FilterSet filterEdgeTouchers() {
-        return new FilterSet("Edge toucher filter", bgcol, OutputType.PLAINSET) {
+        return new FilterSet("Edge toucher filter",
+                new PanelCreator.ControlReference[]{
+                    new PanelCreator.ControlReference(COLOUR, "Background colour", -2),
+                    new PanelCreator.ControlReference(COMBO, new String[]{"All", "Upper left", "Bottom right"}, "Which edges to remove", 0)},
+                OutputType.PLAINSET) {
 
             @Override
             protected void processorSet() {
-                inSet.removeEdgeTouchers();
+                inSet.removeEdgeTouchers(param.combo[0]);
                 setOutsetBy(inSet);
             }
         };
