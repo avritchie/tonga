@@ -634,6 +634,7 @@ public class Tonga {
 
     static void selectLayer(int i) {
         mainFrame.layersList.setSelectedIndex(i);
+        Tonga.getImage().activeLayers = new int[]{i};
     }
 
     static void selectLayer(TongaImage i) {
@@ -642,11 +643,13 @@ public class Tonga {
             t[j] = j;
         }
         mainFrame.layersList.setSelectedIndices(t);
+        Tonga.getImage().activeLayers = t;
     }
 
     static void selectLayer(int[] i) {
         int[] tempLayer = currentLayer;
         mainFrame.layersList.setSelectedIndices(i);
+        Tonga.getImage().activeLayers = i;
         previousLayer = tempLayer;
         currentLayer = i;
     }
