@@ -9,7 +9,6 @@ import mainPackage.Iterate;
 import mainPackage.PanelCreator.ControlReference;
 import static mainPackage.PanelCreator.ControlType.*;
 import mainPackage.Settings;
-import mainPackage.Tonga;
 import mainPackage.filters.Filters;
 import mainPackage.filters.FiltersPass;
 import mainPackage.filters.FiltersSet;
@@ -124,7 +123,7 @@ public class __NucleusFinalMask extends Protocol {
                 applyOperator(inImage[0], mask, p -> mMask.pixels32[p] == COL.WHITE ? COL.BLACK : mask.pixels32[p]);
                 setSampleOutputBy(mask, 11);
                 //remove the shapes which wont touche the edges of the nuclei and thus are likely only nucleoli etc. crap
-                mask = FiltersSet.fillInnerAreasSizeShape().runSingle(mask, COL.BLACK, GEO.circleArea(nuclSize) / 10, 80);
+                mask = FiltersSet.fillInnerAreasSizeShape().runSingle(mask, COL.BLACK, (int) GEO.circleArea(nuclSize) / 10, 80);
                 setSampleOutputBy(mask, 12);
                 //attempt to do additional segmenting by detecting concave points and close pairings formed by the additional shapes..
                 //..which were detected with the intensity gradient and connected and selected above
@@ -210,6 +209,7 @@ public class __NucleusFinalMask extends Protocol {
                 mMask = FiltersPass.edgeErode().runSingle(fillSet, aMask, COL.BLACK, dimErode, false, true);
                 quantSet = new ImageTracer(mMask, COL.BLACK).trace();
                 int largeErodedLimit = (int) (GEO.circleCircumference(largeLimit) * dimErode * 1.25);
+                //
                 quantSet.quantifyStainAgainstChannel(Filters.dog().runSingle(inImage[1], minNucl, maxNucl, false));
                 quantSet.filterOutDimObjects(quantSet.avgStain() * 0.05);
                 quantSet.filterOutDimSmallObjects(largeLimit - largeErodedLimit, quantSet.avgStain() * 0.5);
