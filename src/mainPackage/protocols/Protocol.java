@@ -158,6 +158,15 @@ public abstract class Protocol {
         imageDest.setAttributes(ids[0]);
     }
 
+    public final ImageData[] runSilentFull(TongaImage imageSource, ImageData[] layerSources, Object... parameters) {
+        fullOutput = true;
+        return runSilent(imageSource, layerSources, parameters);
+    }
+
+    public final ImageData[] runSilentFull(TongaImage source, ImageData layerSource, Object... parameters) {
+        return runSilentFull(source, new ImageData[]{layerSource}, parameters);
+    }
+
     public final ImageData[] runSilent(TongaImage imageSource, ImageData[] layerSources, Object... parameters) {
         param.setFilterParameters(this.parameters, parameters);
         Processor processor = bootProcessor(imageSource, layerSources);
