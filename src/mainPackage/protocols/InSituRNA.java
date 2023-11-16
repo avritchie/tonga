@@ -7,6 +7,7 @@ import mainPackage.PanelCreator.ControlReference;
 import static mainPackage.PanelCreator.ControlType.*;
 import mainPackage.counters.Counters;
 import mainPackage.filters.Filters;
+import mainPackage.filters.FiltersPass;
 import mainPackage.filters.FiltersSet;
 import mainPackage.utils.RGB;
 
@@ -21,29 +22,30 @@ public class InSituRNA extends Protocol {
     protected ControlReference[] getParameters() {
         return new ControlReference[]{
             new ControlReference(LAYER, "Source layer is which one"),
-            new ControlReference(SELECT, new String[]{"Good pictures with colour contrast and proper staining",
-                "Good colour contrast with grey water stains",
-                "Pictures with low contrast and undistinctive colours",
-                "Messy pictures colours with shit stains and noise",
-                "Combined method for good contrast with artifacts v1",
-                "Combined method for good contrast with artifacts v2"}, "Method for the ISH staining"),
-            new ControlReference(SLIDER, "Threshold for the ISH", 60),
-            new ControlReference(SELECT, new String[]{"Luminance with colour separation (good contrast and colours)",
-                "Combined luma with edge detection (messy and bad contrast)",
-                "Chroma and luma combined (bad contrast and bland colours)",
-                "Do not detect tissue, only ISH (complete slides)"}, "Method for the tissue"),
-            new ControlReference(SLIDER, "Threshold for the tissue", 50)};
+            new ControlReference(SELECT, new String[]{
+                "Default",
+                "Default (low contrast)",
+                "Sensitive",
+                "Sensitive (artefacts)",
+                "Adaptive (low contrast)",
+                "Adaptive (low contrast and pale colours)"}, "Method for chromogen separation"),
+            new ControlReference(SLIDER, "Threshold for the chromogen separation", 60),
+            new ControlReference(SELECT, new String[]{"Default detailed",
+                "Default rough",
+                "Low contrast and bright colours",
+                "Low contrast and pale colours",
+                "Do not segment tissue"}, "Method for tissue segmentation"),
+            new ControlReference(SLIDER, "Threshold for the tissue segmentation", 50)};
     }
 
     @Override
     protected Processor getProcessor() {
         int ishMethod = param.select[0];
-        // 0 = good, 1 = low cont, 2 = shitstains
         int tissueMethod = param.select[1];
         double thresh = param.slider[0];
         double threshTissue = param.slider[1];
 
-        return new ProcessorFast("In Situ") {
+        return new ProcessorFast("DAB signal", calculateIterations()) {
 
             double[] ishVals;
             double threshReduce;
@@ -59,7 +61,7 @@ public class InSituRNA extends Protocol {
             @Override
             protected void methodCore(int p) {
                 switch (ishMethod) {
-                    case 4: {//its complicated
+                    case 1: {//its complicated
                         //colors
                         int r = (inImage[0].pixels32[p] >> 16) & 0xFF;
                         int g = (inImage[0].pixels32[p] >> 8) & 0xFF;
@@ -83,7 +85,7 @@ public class InSituRNA extends Protocol {
                         tissueVals.pixels32[p] = RGB.argb(RGB.brightness(inImage[0].pixels32[p] & COL.RED));
                     }
                     break;
-                    case 5: {//its complicated 2
+                    case 0: {//its complicated 2
                         //colors
                         //double considerer = (100 - thresh2) / 500. - 0.1; // increase this to include MORE, put to negative to include LESS;
                         int r = ((inImage[0].pixels32[p] >> 16) & 0xFF) + 1;
@@ -122,11 +124,11 @@ public class InSituRNA extends Protocol {
                         int rbValue = (int) Math.max(0, Math.min(255, threshMoreDots * (blueChannelBright + redChannelBright)));
                         tissueVals.pixels32[p] = RGB.argb(redChannelBright);
                         switch (ishMethod) {
-                            case 0: //goodcontrast
-                            case 1: //graystains
+                            case 2: //goodcontrast
+                            case 3: //graystains
                                 int bValue = Math.max(0, Math.min(255, blueChannelBright - redChannelBright));
                                 int redGreen = Math.max(0, Math.min(255, redChannelBright - greenChannelBright));
-                                if (ishMethod == 1) {
+                                if (ishMethod == 3) {
                                     redGreen = RGB.levels(255 - redGreen, (int) 255, (int) 225) & 0xFF;
                                 } else {
                                     redGreen = 0;
@@ -134,14 +136,14 @@ public class InSituRNA extends Protocol {
                                 ishVals[p] = (bValue * 2.5 + redGreen + blueChannelBright + greenChannelBright) / 2;
                                 threshReduce = thresh / 50.0;
                                 break;
-                            case 2: //lowcontrast
+                            case 5: //lowcontrast
                                 int stains = Math.max(0, Math.min(255, Math.abs(bgValue - rbValue)));
                                 stains = RGB.levels(stains, (int) 50, (int) 0) & 0xFF;
                                 bgValue = RGB.levels(bgValue, (int) 255, (int) 127) & 0xFF;
                                 ishVals[p] = (int) Math.max(0, (Math.min(255, stains + bgValue)));
                                 threshReduce = (2 - thresh / 100.);
                                 break;
-                            case 3: //shitstains
+                            case 4: //shitstains
                                 int excessiveBlue = (int) Math.max(0, (Math.min(255, (255 - bgValue) + rgValue)));
                                 int shitStains = (int) Math.max(0, (Math.min(255, (255 - rgValue) + bgValue)));
                                 int combinedVals = (int) Math.max(0, (Math.min(255, (255 - excessiveBlue) + (255 - shitStains) + rgValue)));
@@ -156,22 +158,33 @@ public class InSituRNA extends Protocol {
             @Override
             protected void methodFinal() {
                 switch (tissueMethod) {
-                    case 0: {//goodcontrast
+                    case 0: {//twostep
+                        layer = Filters.invert().runSingle(inImage[0]);
+                        applyOperator(layer, layer, p -> layer.pixels32[p] & 0xFFFF0000);
+                        layer = Filters.autoscaleWithAdapt().runSingle(layer, 2.0);
+                        layer = Filters.cutFilter().runSingle(layer, new Object[]{75, 255});
+                        layer = FiltersPass.dogSementing().runSingle(layer, (int) threshTissue, 100, 0, true);
+                        layer = Filters.thresholdBiol().runSingle(layer, 99);
+                        layer = Filters.gaussApprox().runSingle(layer, 2., true);
+                        layer = Filters.thresholdBright().runSingle(layer, 60);
+                        layer = FiltersSet.filterObjectSize().runSingle(layer, COL.BLACK, 100, false, 0);
+                    }
+                    break;
+                    case 1: {//goodcontrast
                         layer2 = tissueVals;
                         layer = Filters.autoscaleWithAdapt().runSingle(tissueVals, 5);
                         layer = Filters.cutFilter().runSingle(layer, new Object[]{0, 225});
                         layer = Filters.invert().runSingle(layer);
                         layer3 = layer;
-                        layer = Filters.multiply().runSingle(layer, 1600.);
+                        layer = Filters.multiply().runSingle(layer, 800.);
                         layer = Filters.box().runSingle(layer, 2.);
-                        layer = Filters.invert().runSingle(layer);
                         layer = Filters.thresholdBright().runSingle(layer, (int) threshTissue);
-                        layer = Filters.gaussApprox().runSingle(layer, 4.);
-                        layer = Filters.thresholdBright().runSingle(layer, 67);
+                        layer = Filters.gaussApprox().runSingle(layer, 3., true);
+                        layer = Filters.thresholdBright().runSingle(layer, 33);
                         layer = FiltersSet.filterObjectSize().runSingle(layer, COL.BLACK, 500, false, 0);
                     }
                     break;
-                    case 1: {//lowcontrast
+                    case 2: {//lowcontrast
                         layer = Filters.autoscaleWithAdapt().runSingle(inImage[0], 1);
                         layer = Filters.bwLuminance().runSingle(layer);
                         layer2 = Filters.box().runSingle(layer, 1.);
@@ -181,17 +194,17 @@ public class InSituRNA extends Protocol {
                         layer3 = Filters.invert().runSingle(layer2);
                         layer3 = Filters.thresholdBright().runSingle(layer3, (int) (50 + (threshTissue / 5.)));
                         layer = Blender.renderBlend(layer, layer3);
-                        layer = Filters.gaussApprox().runSingle(layer, 9.);
+                        layer = Filters.gaussApprox().runSingle(layer, 6., true);
                         layer = Filters.thresholdBright().runSingle(layer, (int) (threshTissue / 5.));
                         layer = FiltersSet.filterObjectSize().runSingle(layer, COL.BLACK, 500, true, 500);
                     }
                     break;
-                    case 2: {//shitstains
+                    case 3: {//shitstains
                         layer = Filters.autoscaleWithAdapt().runSingle(inImage[0], 1);
                         layer3 = Filters.bwLuminance().runSingle(layer);
                         layer2 = Filters.bwSaturation().runSingle(layer);
-                        layer3 = Filters.gaussApprox().runSingle(layer3, 4.);
-                        layer2 = Filters.gaussApprox().runSingle(layer2, 4.);
+                        layer3 = Filters.gaussApprox().runSingle(layer3, 3., true);
+                        layer2 = Filters.gaussApprox().runSingle(layer2, 3., true);
                         layer3 = Filters.invert().runSingle(layer3);
                         layer3 = Filters.autoscaleWithAdapt().runSingle(layer3, 5);
                         layer2 = Filters.autoscaleWithAdapt().runSingle(layer2, 5);
@@ -199,7 +212,7 @@ public class InSituRNA extends Protocol {
                         layer2 = Filters.cutFilter().runSingle(layer2, new Object[]{50, 255});
                         layer = Blender.renderBlend(layer3, layer2);
                         layer = Filters.thresholdBright().runSingle(layer, 15);
-                        layer = Filters.gaussApprox().runSingle(layer, 4.);
+                        layer = Filters.gaussApprox().runSingle(layer, 3., true);
                         layer = Filters.thresholdBright().runSingle(layer, (int) (threshTissue / 1.25));
                         layer = FiltersSet.filterObjectSize().runSingle(layer, COL.BLACK, 500, true, 500);
                     }
@@ -210,14 +223,27 @@ public class InSituRNA extends Protocol {
                         int p = (y * sourceWidth[0] + x);
                         int ishVal = 255 - Math.min(255, (int) (threshReduce * ishVals[p]));
                         int ishARGB = (255 << 16 | (255 - ishVal) << 8 | (255 - ishVal) | 0xFF << 24);
-                        boolean eval = (tissueMethod == 3
-                                || (tissueMethod == 0 && (layer.pixels32[p] & 0xFF) == 0x0)
-                                || (tissueMethod > 0 && (layer.pixels32[p] & 0xFF) == 0xFF));
+                        boolean eval = (tissueMethod == 4 || (layer.pixels32[p] & 0xFF) == 0xFF);
                         outImage[0].pixels32[p] = eval ? ishARGB : COL.BLACK;
                     }
                 }
                 addResultData(Counters.countRBStain().runSingle(sourceImage, outImage[0]));
             }
         };
+    }
+
+    private int calculateIterations() {
+        switch (param.select[1]) {
+            case 0:
+                return 46;
+            case 1:
+                return 14;
+            case 2:
+                return 19;
+            case 3:
+                return 23;
+            default:
+                return 2;
+        }
     }
 }
