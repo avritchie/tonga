@@ -449,9 +449,10 @@ public class Tonga {
                     picList.get(getImageIndex()).activeLayers = vals;
                     previousLayer = currentLayer;
                     currentLayer = getLayerIndexes();
-                    //disallow stack refresh as stack render is not dependant on selected individual layers
+                    //stack render is not dependant on selected individual layers
                     //instead the rendering depends on the on/off selections handled by a MouseEvent
-                    if (!taskIsRunning && !getImage().stack) {
+                    //however, to avoid overlap imagelist changes should be reflected here regardless of stack
+                    if (!taskIsRunning) {
                         refreshCanvases();
                     }
                 }
