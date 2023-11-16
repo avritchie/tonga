@@ -91,6 +91,7 @@ public class TongaFrame extends JFrame {
                 splashScreen();
                 initComponents();
                 initExtraComponents();
+                initTables();
                 initFilterList();
                 createDialogs();
                 createPanels();
