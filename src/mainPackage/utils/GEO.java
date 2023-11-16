@@ -67,7 +67,12 @@ public class GEO {
 
     public static double getSlope(double angle) {
         double rad = Math.toRadians(angle);
-        double kx = Math.sin(rad) / Math.cos(rad);
+        double kx;
+        if (rad == Math.PI) {
+            kx = 0;
+        } else {
+            kx = Math.sin(rad) / Math.cos(rad);
+        }
         if (kx > Integer.MAX_VALUE) {
             return Double.POSITIVE_INFINITY;
         }
