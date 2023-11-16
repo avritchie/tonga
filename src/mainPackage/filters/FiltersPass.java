@@ -18,6 +18,8 @@ import mainPackage.ImageData;
 import mainPackage.Iterate;
 import mainPackage.PanelCreator.ControlReference;
 import static mainPackage.PanelCreator.ControlType.*;
+import mainPackage.TongaAnnotator;
+import mainPackage.TongaAnnotation;
 import static mainPackage.filters.Filter.noParams;
 import mainPackage.filters.FilterSet.OutputType;
 import mainPackage.morphology.EdgeAnalyzer;

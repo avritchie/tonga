@@ -8,10 +8,10 @@ import mainPackage.morphology.ROISet;
 
 public abstract class FilterSet extends FilterFast {
 
-    ROISet inSet;
-    ROISet outSet;
-    boolean setHandling;
-    OutputType outType;
+    public ROISet inSet;
+    public ROISet outSet;
+    private boolean setHandling;
+    private OutputType outType;
 
     public FilterSet(String name, ControlReference[] params, OutputType out) {
         super(name, params);

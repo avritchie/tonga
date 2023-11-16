@@ -4,7 +4,6 @@ import javafx.scene.paint.Color;
 import mainPackage.ImageData;
 import mainPackage.PanelCreator.ControlReference;
 import static mainPackage.PanelCreator.ControlType.*;
-import mainPackage.Tonga;
 import mainPackage.counters.SetCounters;
 import mainPackage.filters.Filters;
 import mainPackage.filters.FiltersPass;

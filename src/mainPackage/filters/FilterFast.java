@@ -7,12 +7,12 @@ import mainPackage.PanelCreator.ControlReference;
 
 public abstract class FilterFast extends Filter {
 
-    ImageData inData;
-    ImageData outData;
-    int[] in32;
-    int[] out32;
-    short[] in16;
-    short[] out16;
+    public ImageData inData;
+    public ImageData outData;
+    public int[] in32;
+    public int[] out32;
+    public short[] in16;
+    public short[] out16;
 
     public FilterFast(String name, ControlReference[] params) {
         super(name, params);

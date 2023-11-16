@@ -22,7 +22,6 @@ import java.util.stream.IntStream;
 import javafx.application.Platform;
 import javafx.embed.swing.JFXPanel;
 import javafx.embed.swing.SwingFXUtils;
-import javafx.scene.Group;
 import javafx.scene.Scene;
 import javafx.scene.SnapshotParameters;
 import javafx.scene.canvas.Canvas;
@@ -32,10 +31,12 @@ import javafx.scene.image.Image;
 import javafx.scene.image.PixelReader;
 import javafx.scene.image.PixelWriter;
 import javafx.scene.image.WritableImage;
+import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.ImagePattern;
 import javafx.scene.paint.Paint;
 import javax.swing.JPanel;
+import javax.swing.JSpinner;
 import loci.formats.gui.AWTImageTools;
 import static mainPackage.Tonga.picList;
 import mainPackage.utils.COL;
@@ -49,8 +50,8 @@ public class TongaRender {
     static ImageData[] renderCopies;
     static Image renderImage;
     static boolean zoomFreeze;
-    static Semaphore redrawSem;
-    static int mainPHash = 0, zoomPHash = 0;
+    private static Semaphore redrawSem;
+    static int mainPHash = 0, zoomPHash = 0, annoHash = 0;
     public static JFXPanel mainPanel, zoomPanel;
     private static JPanel actionPanel;
     public static GraphicsContext mainDraw, zoomDraw, mainAnno, zoomAnno;
@@ -60,7 +61,7 @@ public class TongaRender {
     static int zoomx = 0, zoomy = 0;
     static double posx = 0, posy = 0;
     static int mousx = 0, mousy = 0;
-    public static int pointx = 0, pointy = 0;
+    static int moupx = 0, moupy = 0;
     static int imgx = 0, imgy = 0;
     static int imgint = 0;
     static int[] zoomC = new int[8];
@@ -69,6 +70,7 @@ public class TongaRender {
     static int[] imageDimensions;
     static double[] dragDimensions;
     static Thread bgRenderThread;
+    static long time;
 
     static void boot() {
         mainPanel = Tonga.frame().panelBig;
