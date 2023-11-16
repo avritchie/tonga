@@ -70,6 +70,9 @@ public abstract class Processor {
     }
 
     protected ImageData initTempData() {
+        /* if (sourceLayer[0].layerImage.bits == 16) {
+            return new ImageData(new short[sourceWidth[0] * sourceHeight[0]], sourceWidth[0], sourceHeight[0]);
+        } else {*/
         return new ImageData(sourceWidth[0], sourceHeight[0]);
         // }
     }
