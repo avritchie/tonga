@@ -654,6 +654,10 @@ public class Tonga {
         currentLayer = i;
     }
 
+    public static void injectNewImage(TongaImage image) {
+        Tonga.picList.add(image);
+    }
+
     public static void injectNewLayer(TongaLayer layer) {
         injectNewLayer(layer, getImageIndex());
     }
