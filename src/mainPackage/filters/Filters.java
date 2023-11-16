@@ -2089,7 +2089,6 @@ public class Filters {
             @Override
             protected void processor() {
                 int r = param.spinner[0];
-                Tonga.iteration();
                 Iterate.pixels(this, (int pos) -> {
                     int[] bs = edgeKernel(in32, pos, width, r);
                     int max = 0, min = 255;
@@ -2181,7 +2180,7 @@ public class Filters {
         return bs;
     }
 
-    protected static double averageIntensity(ImageData id, int[] in32, int bgcol) {
+    public static double averageIntensity(ImageData id, int[] in32, int bgcol) {
         int[] val = new int[1];
         int[] cnt = new int[1];
         double[] avg = new double[1];
