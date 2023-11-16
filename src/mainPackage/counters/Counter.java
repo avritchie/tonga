@@ -186,34 +186,38 @@ public abstract class Counter {
     public static void setUnit(TableData table) {
         for (int c = 0; c < table.columns.length; c++) {
             if (table.columns[c].contains("%unit")) {
-                Unit<Length> rawUnit = (Unit<Length>) ((Object[]) (table.rows.get(0)[c]))[2];
-                String unit = rawUnit == null ? null : rawUnit.getSymbol();
-                boolean useUnits = unit != null;
-                if (useUnits) {
-                    for (int r = 0; r < table.rows.size(); r++) {
-                        Object[] row = table.rows.get(r);
-                        Unit<Length> rowUnit = (Unit<Length>) ((Object[]) row[c])[2];
-                        if (rowUnit == null || !unit.equals(rowUnit.getSymbol())) {
-                            useUnits = false;
-                            break;
+                try {
+                    Unit<Length> rawUnit = (Unit<Length>) ((Object[]) (table.rows.get(0)[c]))[2];
+                    String unit = rawUnit == null ? null : rawUnit.getSymbol();
+                    boolean useUnits = unit != null;
+                    if (useUnits) {
+                        for (int r = 0; r < table.rows.size(); r++) {
+                            Object[] row = table.rows.get(r);
+                            Unit<Length> rowUnit = (Unit<Length>) ((Object[]) row[c])[2];
+                            if (rowUnit == null || !unit.equals(rowUnit.getSymbol())) {
+                                useUnits = false;
+                                break;
+                            }
                         }
                     }
-                }
-                unit = useUnits ? unit : "px";
-                if (!useUnits) {
-                    table.columns[c] = table.columns[c].replace("%unit2", "pixels").replace("%unit", "pixels");
-                    table.descriptions[c] = table.descriptions[c].replace("%unit2", "pixels").replace("%unit", "pixels") + " (no unit metadata available, can not be converted to real units)";
-                    for (int r = 0; r < table.rows.size(); r++) {
-                        Object[] row = table.rows.get(r);
-                        row[c] = ((Object[]) row[c])[0];
+                    unit = useUnits ? unit : "px";
+                    if (!useUnits) {
+                        table.columns[c] = table.columns[c].replace("%unit2", "pixels").replace("%unit", "pixels");
+                        table.descriptions[c] = table.descriptions[c].replace("%unit2", "pixels").replace("%unit", "pixels") + " (no unit metadata available, can not be converted to real units)";
+                        for (int r = 0; r < table.rows.size(); r++) {
+                            Object[] row = table.rows.get(r);
+                            row[c] = ((Object[]) row[c])[0];
+                        }
+                    } else {
+                        table.columns[c] = table.columns[c].replace("%unit2", unit + "²").replace("%unit", unit);
+                        table.descriptions[c] = table.descriptions[c].replace("%unit2", unit + "²").replace("%unit", unit);
+                        for (int r = 0; r < table.rows.size(); r++) {
+                            Object[] row = table.rows.get(r);
+                            row[c] = ((Object[]) row[c])[1];
+                        }
                     }
-                } else {
-                    table.columns[c] = table.columns[c].replace("%unit2", unit + "²").replace("%unit", unit);
-                    table.descriptions[c] = table.descriptions[c].replace("%unit2", unit + "²").replace("%unit", unit);
-                    for (int r = 0; r < table.rows.size(); r++) {
-                        Object[] row = table.rows.get(r);
-                        row[c] = ((Object[]) row[c])[1];
-                    }
+                } catch (ClassCastException ex) {
+                    Tonga.catchError(ex, "Unit scaling failed. Column values do not contain a scale object.");
                 }
             }
         }
