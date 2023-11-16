@@ -83,19 +83,19 @@ public class UndoRedo {
         }
 
         public TongaStructure(TongaImage ti) {
-            size = ti.layerList.size();
+            size = ti.layerCount();
             layerSel = ti.activeLayers;
             subList = null;
             nameList = new ArrayList<>();
             referenceList = new ArrayList<>();
-            ti.layerList.forEach((TongaLayer tl) -> {
+            ti.getLayerStream().forEach((TongaLayer tl) -> {
                 nameList.add(tl.layerName);
                 referenceList.add(tl);
             });
         }
 
         private static TableData getResults() {
-            TableData td = TongaTable.td;
+            TableData td = Tonga.frame().resultTable.getData();
             if (td == null) {
                 return null;
             } else {
@@ -133,28 +133,28 @@ public class UndoRedo {
             }
             if (!rename) {
                 for (int r = 0; r < cs.size; r++) {
-                    ArrayList<TongaLayer> cl = ((TongaImage) cs.referenceList.get(r)).layerList;
+                    TongaImage ti = ((TongaImage) cs.referenceList.get(r));
                     TongaStructure pl = cs.subList.get(r);
-                    if (pl.size != cl.size()) {
-                        if (pl.size > cl.size()) {
+                    if (pl.size != ti.layerCount()) {
+                        if (pl.size > ti.layerCount()) {
                             for (int i = 0, j = 0; i < pl.size; i++) {
-                                if (i - j >= cl.size() || pl.referenceList.get(i) != cl.get(i - j)) {
+                                if (i - j >= ti.layerCount() || pl.referenceList.get(i) != ti.getLayer(i - j)) {
                                     al.add(new TongaAction(Action.ADD, pl.referenceList.get(i), r, i));
                                     j++;
                                 }
                             }
                         }
-                        if (pl.size < cl.size()) {
-                            for (int i = 0, j = 0; i < cl.size(); i++) {
-                                if (i - j >= pl.referenceList.size() || pl.referenceList.get(i - j) != cl.get(i)) {
-                                    al.add(new TongaAction(Action.DELETE, cl.get(i), r, i));
+                        if (pl.size < ti.layerCount()) {
+                            for (int i = 0, j = 0; i < ti.layerCount(); i++) {
+                                if (i - j >= pl.referenceList.size() || pl.referenceList.get(i - j) != ti.getLayer(i)) {
+                                    al.add(new TongaAction(Action.DELETE, ti.getLayer(i), r, i));
                                     j++;
                                 }
                             }
                         }
                     } else {
                         for (int i = 0; i < pl.size; i++) {
-                            if (!pl.nameList.get(i).equals(cl.get(i).layerName)) {
+                            if (!pl.nameList.get(i).equals(ti.getLayer(i).layerName)) {
                                 al.add(new TongaAction(Action.RENAME, pl.nameList.get(i), r, i));
                             }
                         }
@@ -164,7 +164,7 @@ public class UndoRedo {
                     al.add(new TongaAction(Action.SELECT, cs.subList.get(j).layerSel, cs.imgSel.length > 0 ? j : -99, -1));
                     j++;
                 }
-                if (cs.results != TongaTable.td && (cs.results == null || !cs.results.equals(TongaTable.td))) {
+                if (cs.results != Tonga.frame().resultTable.getData() && (cs.results == null || !cs.results.equals(Tonga.frame().resultTable.getData()))) {
                     al.add(new TongaAction(Action.TABLE, cs.results));
                 }
             }
@@ -247,9 +247,9 @@ public class UndoRedo {
             else if (!processSelections) {
                 if (ac.type == Action.TABLE) {
                     if (ac.container == null) {
-                        TongaTable.clearData();
+                        Tonga.frame().resultTable.clearData();
                     } else {
-                        TongaTable.overwriteData((TableData) ac.container);
+                        Tonga.frame().resultTable.overwriteData((TableData) ac.container);
                     }
                 } else if (ac.imageId == -1) {
                     switch (ac.type) {
@@ -266,13 +266,13 @@ public class UndoRedo {
                 } else {
                     switch (ac.type) {
                         case DELETE:
-                            Tonga.getImage(ac.imageId).layerList.remove(ac.position);
+                            Tonga.getImage(ac.imageId).removeLayer(ac.position);
                             break;
                         case ADD:
-                            Tonga.getImage(ac.imageId).layerList.add(ac.position, (TongaLayer) ac.container);
+                            Tonga.getImage(ac.imageId).addLayer(ac.position, (TongaLayer) ac.container);
                             break;
                         case RENAME:
-                            Tonga.getImage(ac.imageId).layerList.get(ac.position).layerName = (String) ac.container;
+                            Tonga.getImage(ac.imageId).getLayer(ac.position).layerName = (String) ac.container;
                             break;
                     }
                 }

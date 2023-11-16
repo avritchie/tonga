@@ -169,10 +169,10 @@ public abstract class Protocol {
         return runSilent(source, new ImageData[]{new ImageData(layerSource)}, parameters);
     }
 
-    private TongaLayer[] getLayers(int[] layerAccess, ArrayList<TongaLayer> layers) {
+    private TongaLayer[] getLayers(int[] layerAccess, TongaImage image) {
         TongaLayer[] images = new TongaLayer[layerAccess.length];
         for (int i = 0; i < layerAccess.length; i++) {
-            images[i] = layers.get(layerAccess[i]);
+            images[i] = image.getLayer(layerAccess[i]);
         }
         return images;
     }

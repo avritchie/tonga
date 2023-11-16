@@ -123,7 +123,7 @@ public abstract class Importer {
                 Tonga.log.info("No images were imported. No scaling will be performed.");
                 return;
             }
-            int expLayerCount = Tonga.getImage(imagesBeginning).layerList.size();
+            int expLayerCount = Tonga.getImage(imagesBeginning).layerCount();
             if (newImgs > 1) {
                 int[] indexes = new int[expLayerCount];
                 for (int i = 0; i < expLayerCount; i++) {

@@ -418,8 +418,8 @@ public class Tonga {
                     TongaImage img = picList.get(getImageIndex());
                     if (img.activeLayers[0] == -1) {
                         img.activeLayers = new int[]{0};
-                    } else if (img.activeLayers[0] >= img.layerList.size()) {
-                        img.activeLayers = new int[]{img.layerList.size() - 1};
+                    } else if (img.activeLayers[0] >= img.layerCount()) {
+                        img.activeLayers = new int[]{img.layerCount() - 1};
                     }
                     TongaRender.copyFromCache();
                     selectLayer(img.activeLayers);
@@ -507,7 +507,7 @@ public class Tonga {
         // images true = imageList, false = layerList
         // direction true = up, false = down
         int[] is = images ? getImageIndexes() : getLayerIndexes();
-        List collection = images ? picList : getImage().layerList;
+        List collection = images ? picList : getImage().getLayerList();
         //if altering layer order when hw is enabled, the order of the render array must also be updated
         //otherwise the image displayed to the used will be that of an incorrect order
         boolean updateRenders = !images && Settings.settingHWAcceleration();
@@ -637,7 +637,7 @@ public class Tonga {
     }
 
     static void selectLayer(TongaImage i) {
-        int[] t = new int[i.layerList.size()];
+        int[] t = new int[i.layerCount()];
         for (int j = 0; j < t.length; j++) {
             t[j] = j;
         }
@@ -682,11 +682,11 @@ public class Tonga {
     }
 
     public static ArrayList<TongaLayer> getLayerList() {
-        return picList.isEmpty() ? null : picList.get(getImageIndex()).layerList;
+        return picList.isEmpty() ? null : picList.get(getImageIndex()).getLayerList();
     }
 
     public static ArrayList<TongaLayer> getLayerList(int i) {
-        return picList.get(i).layerList;
+        return picList.get(i).getLayerList();
     }
 
     public static ArrayList<TongaImage> getImageList() {
@@ -719,15 +719,16 @@ public class Tonga {
 
     public static TongaLayer getLayer() {
         int i = getLayerIndex();
-        return i == -1 ? null : getImage().layerList.get(i);
+        return i == -1 ? null : getImage().getLayer(i);
     }
 
+    @Deprecated
     public static ArrayList<TongaLayer> getLayers() {
         ArrayList<TongaLayer> layers = new ArrayList<>();
-        ArrayList<TongaLayer> img = getImage().layerList;
+        TongaImage ti = getImage();
         int[] incs = getLayerIndexes();
         for (int i = 0; i < incs.length; i++) {
-            layers.add(img.get(incs[i]));
+            layers.add(ti.getLayer(incs[i]));
         }
         return layers;
     }
@@ -790,10 +791,10 @@ public class Tonga {
     public static void setLayerSelectionToAllImages() {
         int i = getLayerIndex();
         int c = 0;
-        String s = picList.get(getImageIndex()).layerList.get(i).layerName;
+        String s = picList.get(getImageIndex()).getLayer(i).layerName;
         for (TongaImage t : picList) {
-            if (!(t.layerList.size() < (i + 1))) {
-                if (t.layerList.get(i).layerName.equals(s)) {
+            if (!(t.layerCount() < (i + 1))) {
+                if (t.getLayer(i).layerName.equals(s)) {
                     t.activeLayers = new int[]{i};
                     c++;
                 }
@@ -805,14 +806,14 @@ public class Tonga {
     public static void removeLayer(int[] i) {
         UndoRedo.start();
         TongaImage t = picList.get(getImageIndex());
-        if (i.length == t.layerList.size()) {
+        if (i.length == t.layerCount()) {
             picList.remove(t);
             selectImage();
             refreshChanges("Removed the image");
         } else {
             Arrays.stream(i).boxed().sorted(Collections.reverseOrder()).mapToInt(x -> (int) x).forEach(n -> {
-                t.layerList.remove(n);
-                t.activeLayers = IntStream.of(t.activeLayers).filter(x -> x < t.layerList.size()).map(x -> x >= n ? x - 1 : x).distinct().toArray();
+                t.removeLayer(n);
+                t.activeLayers = IntStream.of(t.activeLayers).filter(x -> x < t.layerCount()).map(x -> x >= n ? x - 1 : x).distinct().toArray();
             });
             selectLayer();
             refreshChanges("Removed the layer(s)");
@@ -838,16 +839,16 @@ public class Tonga {
         while (picIter.hasNext()) {
             TongaImage t = picIter.next();
             if (t != ci) {
-                if (i[i.length - 1] < t.layerList.size()) {
+                if (i[i.length - 1] < t.layerCount()) {
                     if (layerStructureMatches(getImageIndex(), picList.indexOf(t), i)) {
                         c++;
                         for (int j = i.length - 1; j >= 0; j--) {
-                            t.layerList.remove(i[j]);
+                            t.removeLayer(i[j]);
                         }
-                        if (t.layerList.isEmpty()) {
+                        if (t.noLayers()) {
                             picIter.remove();
                         } else {
-                            t.activeLayers = new int[]{t.layerList.size() - 1};
+                            t.activeLayers = new int[]{t.layerCount() - 1};
                         }
                     }
                 }
@@ -904,6 +905,10 @@ public class Tonga {
         return selectedLayers;
     }
 
+    public static TongaLayer[] imageLayersFromStack() {
+        return getLayerList().stream().filter(tl -> !tl.isGhost).toArray(TongaLayer[]::new);
+    }
+
     public static ImageData[] layersAsImageDataArray(TongaLayer[] layers) {
         return Arrays.stream(layers).map(i -> new ImageData(i)).toArray(ImageData[]::new);
     }
@@ -919,7 +924,7 @@ public class Tonga {
     public static int[] imageAsSelectedLayerArray(TongaImage img) {
         //array of index numbers of the selected layers 
         if (img.stack) {
-            return img.layerList.stream().filter(tl -> !tl.isGhost).mapToInt(tl -> img.layerList.indexOf(tl)).toArray();
+            return img.getLayerStream().filter(tl -> !tl.isGhost).mapToInt(tl -> img.getLayerIndex(tl)).toArray();
         } else {
             return img.activeLayers;
         }
@@ -927,9 +932,9 @@ public class Tonga {
 
     public static int[] imageAsBinarySelectedLayerArray(TongaImage img) {
         //array of 0s and 1s (not selected and selected, respectively)
-        int[] prior = new int[img.layerList.size()];
+        int[] prior = new int[img.layerCount()];
         if (img.stack) {
-            prior = img.layerList.stream().mapToInt(l -> l.isGhost ? 0 : 1).toArray();
+            prior = img.getLayerStream().mapToInt(l -> l.isGhost ? 0 : 1).toArray();
         } else {
             for (int i = 0; i < img.activeLayers.length; i++) {
                 prior[img.activeLayers[i]] = 1;
@@ -948,8 +953,8 @@ public class Tonga {
                 return false;
             }
             for (int i = 0; i < indexes.length; i++) {
-                firstLayer = firstCompare.layerList.get(i);
-                secondLayer = secondCompare.layerList.get(i);
+                firstLayer = firstCompare.getLayer(i);
+                secondLayer = secondCompare.getLayer(i);
                 if (!firstLayer.layerName.equals(secondLayer.layerName)) {
                     return false;
                 }
@@ -981,7 +986,7 @@ public class Tonga {
             for (int i = 0; i < images.length; i++) {
                 TongaImage im = getImageList().get(images[i]);
                 for (int j = 0; j < layers.length; j++) {
-                    im.layerList.get(layers[j]).layerName = newName;
+                    im.getLayer(layers[j]).layerName = newName;
                 }
             }
             refreshLayerList();

@@ -11,7 +11,7 @@ import static mainPackage.Tonga.picList;
 
 public class MappingManager {
 
-    private static List<WeakReference<MappedBuffer>> mbs = new ArrayList<WeakReference<MappedBuffer>>();
+    private static List<WeakReference<MappedBuffer>> mbs = new ArrayList<>();
     private static Cleaner wipe = Cleaner.create();
 
     public static void manage(MappedBuffer mb) {
@@ -74,7 +74,7 @@ public class MappingManager {
             //remove all files which are still in use
             if (!Settings.settingBatchProcessing()) {
                 picList.forEach(p -> {
-                    p.layerList.forEach(i -> {
+                    p.getLayerStream().forEach(i -> {
                         if (i.layerImage.isMapped()) {
                             al.remove(((MappedBuffer) i.layerImage.getBuffer()).getMapping().getFile());
                         }
@@ -85,7 +85,7 @@ public class MappingManager {
                 UndoRedo.redoList.forEach(r -> {
                     if (r.type == UndoRedo.Action.ADD) {
                         if (r.container.getClass() == TongaImage.class) {
-                            ((TongaImage) r.container).layerList.forEach(i -> {
+                            ((TongaImage) r.container).getLayerStream().forEach(i -> {
                                 if (i.layerImage.isMapped()) {
                                     al.remove(((MappedBuffer) i.layerImage.getBuffer()).getMapping().getFile());
                                 }
@@ -103,7 +103,7 @@ public class MappingManager {
                 UndoRedo.undoList.forEach(r -> {
                     if (r.type == UndoRedo.Action.ADD) {
                         if (r.container.getClass() == TongaImage.class) {
-                            ((TongaImage) r.container).layerList.forEach(i -> {
+                            ((TongaImage) r.container).getLayerStream().forEach(i -> {
                                 if (i.layerImage.isMapped()) {
                                     al.remove(((MappedBuffer) i.layerImage.getBuffer()).getMapping().getFile());
                                 }

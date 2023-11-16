@@ -362,7 +362,7 @@ public class IO {
                                     }
                                     readFile();
                                 }
-                                if (!image.layerList.isEmpty()) {
+                                if (!image.noLayers()) {
                                     picList.add(image);
                                 }
                             }
@@ -374,7 +374,7 @@ public class IO {
                                 }
                                 readFile();
                                 if (i % channels == channels - 1) {
-                                    if (!image.layerList.isEmpty()) {
+                                    if (!image.noLayers()) {
                                         picList.add(image);
                                     }
                                 }
@@ -388,12 +388,12 @@ public class IO {
 
                 @Override
                 void read(MappedImage mi) throws Exception {
-                    image.layerList.add(new TongaLayer(mi, "Channel #" + (image.layerList.size() + 1)));
+                    image.addLayer(new TongaLayer(mi, "Channel #" + (image.layerCount() + 1)));
                 }
 
                 @Override
                 void readBatch() throws Exception {
-                    image.layerList.add(new TongaLayer(file.getAbsolutePath(), "Channel #" + (image.layerList.size() + 1)));
+                    image.addLayer(new TongaLayer(file.getAbsolutePath(), "Channel #" + (image.layerCount() + 1)));
                 }
 
                 @Override
@@ -529,7 +529,7 @@ public class IO {
                         file = files.get(i);
                         readFile();
                     }
-                    layers = image.layerList.size();
+                    layers = image.layerCount();
                     if (layers > 0) {
                         picList.add(image);
                     }
@@ -537,12 +537,12 @@ public class IO {
 
                 @Override
                 void read(MappedImage mi) throws Exception {
-                    image.layerList.add(new TongaLayer(mi, image.layerList.isEmpty() ? "Original" : "Layer"));
+                    image.addLayer(new TongaLayer(mi, image.noLayers() ? "Original" : "Layer"));
                 }
 
                 @Override
                 void readBatch() throws Exception {
-                    image.layerList.add(new TongaLayer(file.getAbsolutePath(), image.layerList.isEmpty() ? "Original" : "Layer"));
+                    image.addLayer(new TongaLayer(file.getAbsolutePath(), image.noLayers() ? "Original" : "Layer"));
                 }
 
                 @Override
@@ -824,8 +824,8 @@ public class IO {
                 ? new Thread(() -> {
                     Tonga.loader().loaderProgress(0, picList.size());
                     int layer = Tonga.getLayerIndex();
-                    if (picList.stream().mapToInt((i) -> i.layerList.size()).min().getAsInt() == Tonga.getLayerList().size()
-                            && picList.stream().map((i) -> i.layerList.get(layer).layerName).distinct().count() == 1) {
+                    if (picList.stream().mapToInt((i) -> i.layerCount()).min().getAsInt() == Tonga.getLayerList().size()
+                            && picList.stream().map((i) -> i.getLayer(layer).layerName).distinct().count() == 1) {
                         picList.forEach((p) -> {
                             if (Thread.currentThread().isInterrupted()) {
                                 return;
@@ -852,13 +852,13 @@ public class IO {
                 ? new Thread(() -> {
                     Tonga.loader().loaderProgress(0, picList.size());
                     picList.forEach((p) -> {
-                        p.layerList.forEach((l) -> {
+                        p.getLayerStream().forEach((l) -> {
                             if (Thread.currentThread().isInterrupted()) {
                                 return;
                             }
-                            exportImage(p, p.layerList.indexOf(l));
+                            exportImage(p, p.getLayerIndex(l));
                             Tonga.loader().loaderProgress((int) ((picList.indexOf(p)
-                                    + (p.layerList.indexOf(l) + 1) / (double) p.layerList.size()) * 100), picList.size() * 100);
+                                    + (p.getLayerIndex(l) + 1) / (double) p.layerCount()) * 100), picList.size() * 100);
                         });
                         Tonga.loader().loaderProgress(picList.indexOf(p) + 1, picList.size());
                     });
@@ -866,12 +866,12 @@ public class IO {
                 }) : new Thread(() -> {
                     Tonga.loader().loaderProgress(0, picList.size());
                     TongaImage p = Tonga.getImage();
-                    p.layerList.forEach((l) -> {
+                    p.getLayerStream().forEach((l) -> {
                         if (Thread.currentThread().isInterrupted()) {
                             return;
                         }
-                        exportImage(p, p.layerList.indexOf(l));
-                        Tonga.loader().loaderProgress(p.layerList.indexOf(l) + 1, p.layerList.size());
+                        exportImage(p, p.getLayerIndex(l));
+                        Tonga.loader().loaderProgress(p.getLayerIndex(l) + 1, p.layerCount());
                     });
                     Tonga.loader().loaderProgress(picList.size(), picList.size());
                     Tonga.setStatus("All layers of the selected image were exported into PNG format");
@@ -980,8 +980,8 @@ public class IO {
     }
 
     private static boolean exportImage(TongaImage p, int layer) {
-        String name = p.imageName + "_" + p.layerList.get(layer).layerName;
-        return exportImage(p.layerList.get(layer).layerImage, name);
+        String name = p.imageName + "_" + p.getLayer(layer).layerName;
+        return exportImage(p.getLayer(layer).layerImage, name);
     }
 
     private static boolean exportImage(BufferedImage i, String name) {
@@ -1131,7 +1131,7 @@ public class IO {
     private static int getLayerNumber(TongaImage[] images) {
         int counter = 0;
         for (TongaImage image : images) {
-            counter += image.layerList.size();
+            counter += image.layerCount();
         }
         return counter;
     }

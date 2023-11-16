@@ -131,7 +131,7 @@ public class StackImporter {
                     if (bitNumber == 8) {
                         // if 8bit then just force the output as ARGB
                         image = new MappedImage(channel);
-                        ti.layerList.add(new TongaLayer(image, getChannelName(channelColor, ti)));
+                        ti.addLayer(new TongaLayer(image, getChannelName(channelColor, ti)));
                         LOADER.appendProgress(1. / 2 / channelNumber / timeNumber / imageNumber);
                     } else {
                         // if not force the output as grayscale shorts
@@ -154,7 +154,7 @@ public class StackImporter {
                             if (Settings.settingAutoscaleType() == Settings.Autoscale.IMAGE) {
                                 TongaRender.setDisplayRange(sub, image);
                             }
-                            ti.layerList.add(new TongaLayer(image, getChannelName(channelColor, ti)));
+                            ti.addLayer(new TongaLayer(image, getChannelName(channelColor, ti)));
                             LOADER.appendProgress(1. / 4 / subchannel.length / channelNumber / timeNumber / imageNumber);
                         }
                     }
@@ -207,7 +207,7 @@ public class StackImporter {
     private static String getChannelName(Color channel, TongaImage ti) {
         String colorName = getColorName(channel);
         if (colorName == null) {
-            return ti.layerList.isEmpty() ? "Original" : "Layer";
+            return ti.noLayers() ? "Original" : "Layer";
         } else {
             return "Channel #" + colorName;
         }

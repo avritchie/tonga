@@ -65,8 +65,8 @@ public abstract class Counter {
         Tonga.loader().setIterations(images);
         for (int i = 0; i < images; i++) {
             TongaImage image = Tonga.getImageList().get(i);
-            TongaLayer layer = image.layerList.get(index);
-            if (image.layerList.size() - 1 >= index && layer.layerName.equals(commonName)) {
+            TongaLayer layer = image.getLayer(index);
+            if (image.layerCount() - 1 >= index && layer.layerName.equals(commonName)) {
                 handle(image, retrieveImage(layer));
             }
         }

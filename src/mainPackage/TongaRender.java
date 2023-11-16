@@ -434,22 +434,22 @@ public class TongaRender {
             return;
         }
         TongaImage img = Tonga.getImage();
-        ArrayList<TongaLayer> list = img.layerList;
-        int[] rhas = new int[list.size()];
+        int lsize = img.layerCount();
+        int[] rhas = new int[lsize];
         int[] prior = Tonga.imageAsBinarySelectedLayerArray(img);
         boolean hw = Settings.settingHWAcceleration();
         HashMap<Integer, Object> rtsk = new HashMap<>();
-        Image[] rimsi = new Image[list.size()];
-        ImageData[] rimsid = new ImageData[list.size()];
-        for (int i = 0; i < list.size(); i++) {
-            rhas[i] = list.get(i).layerImage.hashCode();
+        Image[] rimsi = new Image[lsize];
+        ImageData[] rimsid = new ImageData[lsize];
+        for (int i = 0; i < lsize; i++) {
+            rhas[i] = img.getLayer(i).layerImage.hashCode();
             boolean ev = renderHashes == null || i >= renderHashes.length || rhas[i] != renderHashes[i];
             if (hw) {
                 if (ev) {
                     if (prior[i] == 1) {
-                        rimsi[i] = list.get(i).layerImage.getFXImage();
+                        rimsi[i] = img.getLayer(i).layerImage.getFXImage();
                     } else {
-                        rtsk.put(i, list.get(i).layerImage);
+                        rtsk.put(i, img.getLayer(i).layerImage);
                     }
                 } else {
                     rimsi[i] = renderImages[i];
@@ -457,9 +457,9 @@ public class TongaRender {
             } else {
                 if (ev) {
                     if (prior[i] == 1) {
-                        rimsid[i] = new ImageData(list.get(i));
+                        rimsid[i] = new ImageData(img.getLayer(i));
                     } else {
-                        rtsk.put(i, list.get(i));
+                        rtsk.put(i, img.getLayer(i));
                     }
                 } else {
                     rimsid[i] = renderCopies[i];
@@ -637,19 +637,18 @@ public class TongaRender {
     }
 
     public static int[] getMaxDim(TongaImage image, int[] indx) {
-        List<TongaLayer> pictList = image.layerList;
         TongaImage cimage = Tonga.getImage();
         boolean isthis = cimage == image || cimage == null;
         int lidx = isthis ? indx[0] : 0;
-        int width = image.layerList.get(lidx).width;
+        int width = image.getLayer(lidx).width;
         try {
-            width = (image.stack || !isthis) ? pictList.stream().filter(i -> !i.isGhost).mapToInt(i -> i.width).min().getAsInt() : indx.length > 1 ? Arrays.stream(indx).mapToObj(i -> pictList.get(i)).mapToInt(i -> i.width).min().getAsInt() : width;
+            width = (image.stack || !isthis) ? image.getLayerStream().filter(i -> !i.isGhost).mapToInt(i -> i.width).min().getAsInt() : indx.length > 1 ? Arrays.stream(indx).mapToObj(i -> image.getLayer(i)).mapToInt(i -> i.width).min().getAsInt() : width;
         } catch (NoSuchElementException ex) {
             //use the default
         }
-        int height = image.layerList.get(lidx).height;
+        int height = image.getLayer(lidx).height;
         try {
-            height = (image.stack || !isthis) ? pictList.stream().filter(i -> !i.isGhost).mapToInt(i -> i.height).min().getAsInt() : indx.length > 1 ? Arrays.stream(indx).mapToObj(i -> pictList.get(i)).mapToInt(i -> i.height).min().getAsInt() : height;
+            height = (image.stack || !isthis) ? image.getLayerStream().filter(i -> !i.isGhost).mapToInt(i -> i.height).min().getAsInt() : indx.length > 1 ? Arrays.stream(indx).mapToObj(i -> image.getLayer(i)).mapToInt(i -> i.height).min().getAsInt() : height;
         } catch (NoSuchElementException ex) {
         }
         return new int[]{width, height};
@@ -706,8 +705,8 @@ public class TongaRender {
             min[i] = 65535;
         }
         for (TongaImage ti : returnableImages) {
-            for (int j = 0; j < ti.layerList.size(); j++) {
-                MappedImage ci = ti.layerList.get(j).layerImage;
+            for (int j = 0; j < ti.layerCount(); j++) {
+                MappedImage ci = ti.getLayer(j).layerImage;
                 if (ci.bits == 16) {
                     int[] hist = HISTO.getHistogram(ci.getShorts());
                     int[] b = HISTO.getImportScaled(hist);
@@ -720,8 +719,8 @@ public class TongaRender {
             Tonga.log.debug("Common scaling for channel {} will be between {} and {}", i, min[i], max[i]);
         }
         for (TongaImage ti : returnableImages) {
-            for (int j = 0; j < ti.layerList.size(); j++) {
-                MappedImage ci = ti.layerList.get(j).layerImage;
+            for (int j = 0; j < ti.layerCount(); j++) {
+                MappedImage ci = ti.getLayer(j).layerImage;
                 if (ci.bits == 16) {
                     ci.min = min[j];
                     ci.max = max[j];
@@ -754,9 +753,9 @@ public class TongaRender {
                 if (TongaRender.renderImages != null) {
                     cont.setGlobalBlendMode(BlendMode.SRC_OVER);
                     boolean stack = image.stack;
-                    int[] iter = stack ? IntStream.range(0, image.layerList.size()).toArray() : indices;
+                    int[] iter = stack ? IntStream.range(0, image.layerCount()).toArray() : indices;
                     Arrays.stream(iter).forEach(i -> {
-                        TongaLayer layer = image.layerList.get(i);
+                        TongaLayer layer = image.getLayer(i);
                         if (!stack || !layer.isGhost) {
                             if (TongaRender.renderImages[i] == null) {
                                 TongaRender.renderImages[i] = layer.layerImage.getFXImage();
