@@ -53,11 +53,19 @@ public class Key {
                                 case KeyEvent.VK_ESCAPE:
                                     /*if (Tonga.query().isVisible()) {
                                     Tonga.frame().closeDialog(Tonga.query());
-                                }*/
+                                    }*/
+                                    if (TongaAnnotator.annotationPending()) {
+                                        TongaAnnotator.cancelAnnotation();
+                                    }
                                     if (Tonga.loader().threadTask != null
                                             && Tonga.loader().threadTask.isAlive()) {
                                         Tonga.log.info("Thread {} abortion request.", Tonga.loader().threadTask.getName());
                                         Tonga.loader().abort();
+                                    }
+                                    break;
+                                case KeyEvent.VK_ENTER:
+                                    if (TongaAnnotator.annotating()) {
+                                        TongaAnnotator.finalizePendingAnnotation();
                                     }
                                     break;
                                 case KeyEvent.VK_TAB:
@@ -84,6 +92,13 @@ public class Key {
                             break;*/
                     }
                 }
+                switch (keyCode) {
+                    case KeyEvent.VK_ALT:
+                        if (TongaAnnotator.annotationPending()) {
+                            TongaRender.redraw();
+                        }
+                        break;
+                }
             }
             if (keyAlt && !keyCtrl && !keyShift) {
                 switch (keyCode) {
@@ -107,6 +122,11 @@ public class Key {
                     break;
                 case KeyEvent.VK_TAB:
                     Tonga.switchLayer();
+                    break;
+                case KeyEvent.VK_ALT:
+                    if (TongaAnnotator.annotationPending()) {
+                        TongaRender.redraw();
+                    }
                     break;
             }
         }

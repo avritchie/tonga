@@ -7,6 +7,7 @@ import java.util.function.UnaryOperator;
 import mainPackage.IO;
 import mainPackage.ImageData;
 import mainPackage.Iterate;
+import mainPackage.PanelParams;
 import mainPackage.Settings;
 import mainPackage.Tonga;
 import mainPackage.TongaImage;
@@ -26,6 +27,7 @@ public abstract class Processor {
     protected int iterations;
     protected int outputImageNumber;
     protected List<TableData> datas;
+    public PanelParams lparam;
 
     public Processor(int outputs, String[] output, int iters) {
         outputNames = output;
@@ -69,6 +71,18 @@ public abstract class Processor {
 
     protected ImageData initTempData() {
         return new ImageData(sourceWidth[0], sourceHeight[0]);
+        // }
+    }
+
+    protected void localParameters(PanelParams paramParent) {
+        //create local parameters for parameters which depend on the image
+        //these cannot be derived from the panel directly
+        lparam = new PanelParams(paramParent);
+        lparam.setImageFilterParameters(paramParent,sourceImage);
+    }
+
+    protected void internalParameters(PanelParams param) {
+        //null
     }
 
     protected ImageData[] internalProcessing() {

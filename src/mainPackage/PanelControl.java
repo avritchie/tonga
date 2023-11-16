@@ -62,6 +62,9 @@ public class PanelControl {
                 label.setPreferredSize(new Dimension(200, 25));
                 comp = cc;
                 break;
+            case ANNOTATION:
+            case ANNOTATION_TYPE:
+            case ANNOTATION_GROUP:
             case LAYER:
                 JComboBox cy = new JComboBox<>();
                 cy.setPreferredSize(new Dimension(100, 25));

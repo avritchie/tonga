@@ -16,6 +16,7 @@ import mainPackage.PanelParams;
 import mainPackage.Settings;
 import mainPackage.Tonga;
 import static mainPackage.PanelCreator.ControlType.COLOUR;
+import mainPackage.PanelUtils;
 
 public abstract class Filter {
 
@@ -64,6 +65,7 @@ public abstract class Filter {
 
     public final void loadComponents() {
         panelCreator = new PanelCreator(parameterData);
+        PanelUtils.updateComponents(panelCreator);
     }
 
     public final void loadParams() {
@@ -173,6 +175,8 @@ public abstract class Filter {
     }
 
     public ImageData[] runSingle(int image, int[] indexes) {
+    public final ImageData[] runSingle(int image, int[] indexes) {
+        param.setImageFilterParameters(param, Tonga.getImage(image));
         if (Settings.settingBatchProcessing()) {
             String[] pointers = Tonga.layersAsPointerArray(Tonga.imageLayersFromIndexList(image, indexes));
             ImageData[] imgs = new ImageData[pointers.length];

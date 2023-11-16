@@ -71,6 +71,9 @@ public class PanelCreator {
                     case COLOUR:
                     case COMBO:
                     case LAYER:
+                    case ANNOTATION:
+                    case ANNOTATION_TYPE:
+                    case ANNOTATION_GROUP:
                     case FOLDER:
                     case SPINNER:
                     case TOGGLE:
@@ -120,6 +123,9 @@ public class PanelCreator {
                     case COLOUR:
                     case COMBO:
                     case LAYER:
+                    case ANNOTATION:
+                    case ANNOTATION_TYPE:
+                    case ANNOTATION_GROUP:
                     case FOLDER:
                     case SPINNER:
                     case TOGGLE:
@@ -190,6 +196,9 @@ public class PanelCreator {
         COMBO,
         LAYER,
         FOLDER,
+        ANNOTATION,
+        ANNOTATION_TYPE,
+        ANNOTATION_GROUP,
         SELECT,
         TOGGLE,
         SLIDER,

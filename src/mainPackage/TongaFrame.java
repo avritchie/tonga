@@ -29,6 +29,7 @@ import javax.swing.DefaultListModel;
 import javax.swing.GroupLayout;
 import javax.swing.JButton;
 import javax.swing.JColorChooser;
+import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -38,6 +39,7 @@ import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu.Separator;
+import javax.swing.JScrollPane;
 import javax.swing.JSeparator;
 import javax.swing.JSlider;
 import javax.swing.JSpinner;
@@ -55,6 +57,8 @@ import mainPackage.JRangeSlider.RangeSliderUI;
 import mainPackage.PanelCreator.ControlReference;
 import mainPackage.PanelCreator.ControlType;
 import mainPackage.Tonga.OS;
+import mainPackage.TongaAnnotator.AnnotationType;
+import mainPackage.utils.COL;
 
 /**
  *
@@ -159,6 +163,8 @@ public class TongaFrame extends JFrame {
         histoAdjApplyAll.setEnabled(yesorno);
         histoAdjAutoSingle.setEnabled(yesorno);
         histoAdjAutoAll.setEnabled(yesorno);
+        exportAnnot.setEnabled(yesorno);
+        importAnnot.setEnabled(yesorno);
         menuFile.setEnabled(yesorno);
         menuFilters.setEnabled(yesorno);
         menuProtocols.setEnabled(yesorno);
@@ -223,17 +229,25 @@ public class TongaFrame extends JFrame {
             Tonga.setStatus("Please make sure all the selected layers are the same size.");
             return false;
         }
-        if (currentProtocol.param.folder.length > 0) {
-            for (PanelControl pc : currentProtocol.panelCreator.getControls()) {
-                if (pc.type == ControlType.FOLDER) {
-                    JButton jb = (JButton) pc.comp;
-                    if (jb.getText().equals("Browse...")) {
-                        jb.putClientProperty("Nimbus.Overrides.InheritDefaults", true);
-                        jb.putClientProperty("Nimbus.Overrides", Tonga.specialFeels);
-                        jb.requestFocus();
-                        Tonga.setStatus("The protocol can not be executed without a folder target.");
-                        return false;
-                    }
+        for (PanelControl pc : currentProtocol.panelCreator.getControls()) {
+            if (pc.type == ControlType.FOLDER) {
+                JButton jb = (JButton) pc.comp;
+                if (jb.getText().equals("Browse...")) {
+                    jb.putClientProperty("Nimbus.Overrides.InheritDefaults", true);
+                    jb.putClientProperty("Nimbus.Overrides", Tonga.specialFeels);
+                    jb.requestFocus();
+                    Tonga.setStatus("The protocol can not be executed without a folder target.");
+                    return false;
+                }
+            }
+            if (pc.type == ControlType.ANNOTATION) {
+                JComboBox jc = (JComboBox) pc.comp;
+                if (jc.getSelectedIndex() == -1) {
+                    jc.putClientProperty("Nimbus.Overrides.InheritDefaults", true);
+                    jc.putClientProperty("Nimbus.Overrides", Tonga.specialFeels);
+                    jc.requestFocus();
+                    Tonga.setStatus("The protocol can not be executed without an annotation.");
+                    return false;
                 }
             }
         }
@@ -349,6 +363,18 @@ public class TongaFrame extends JFrame {
         }
     }
 
+    public void updatePanels() {
+        if (currentProtocol != null) {
+            PanelUtils.updateComponents(currentProtocol.panelCreator);
+        }
+        if (currentCounter != null) {
+            PanelUtils.updateComponents(currentCounter.panelCreator);
+        }
+        if (currentFilter != null) {
+            PanelUtils.updateComponents(currentFilter.panelCreator);
+        }
+    }
+
     public void updateSavePath(File file) {
         if (filePathField.getText().isEmpty()) {
             Tonga.log.debug("Set the output path from: {}", file.toString());
@@ -434,6 +460,13 @@ public class TongaFrame extends JFrame {
         panelToolTips(filterPanel);
         addToolTipListener(stackToggle);
         addToolTipListener(maxTabButton);
+        addToolTipListener(annotColour);
+        addToolTipListener(annotVisible);
+        addToolTipListener(annotMove);
+        addToolTipListener(annotErase);
+        addToolTipListener(annotClearAll);
+        addToolTipListenerSub(annotRadius, annotRadius.getComponents()[2].getComponentAt(0, 0));
+        addToolTipListenerSub(annotGroup, annotGroup.getComponents()[2].getComponentAt(0, 0));
         addTableHeaderListener(resultTable);
     }
 
@@ -532,11 +565,11 @@ public class TongaFrame extends JFrame {
         }
     }
 
-    private void addTableHeaderListener(JTable t) {
-        t.getTableHeader().addMouseMotionListener(new MouseAdapter() {
+    private void addTableHeaderListener(TongaTable t) {
+        t.getTableComponent().getTableHeader().addMouseMotionListener(new MouseAdapter() {
             @Override
             public void mouseMoved(MouseEvent evt) {
-                TongaTable.hover(t.columnAtPoint(evt.getPoint()));
+                t.hover(t.getTableComponent().columnAtPoint(evt.getPoint()));
             }
         });
     }
@@ -550,6 +583,16 @@ public class TongaFrame extends JFrame {
         });
     }
 
+    private void addToolTipListenerSub(Component c, Component subc) {
+        subc.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseEntered(MouseEvent evt) {
+                Tonga.setStatus(((JComponent) c).getToolTipText());
+            }
+        });
+    }
+
+    @Deprecated
     private void addColorListener(Component c) {
         c.addMouseListener(new MouseAdapter() {
             @Override
@@ -677,8 +720,38 @@ public class TongaFrame extends JFrame {
         }
     }
 
+    private void colorMenuSelect(java.awt.Color col) {
+        if (col == UIManager.get("MenuItem.foreground")) {
+            ((JButton) annotColour).setBackground(col);
+            TongaAnnotator.setAnnotationColor(null);
+        } else {
+            ((JButton) annotColour).setBackground(col);
+            TongaAnnotator.setAnnotationColor(COL.awt2FX(col));
+        }
+    }
+
+    public void annotButtonToggle() {
+        annotDot.setSelected(TongaAnnotator.annotating() && (TongaAnnotator.getAnnoType() == AnnotationType.DOT
+                || TongaAnnotator.getAnnoType() == AnnotationType.RADIUS));
+        annotLine.setSelected(TongaAnnotator.annotating() && (TongaAnnotator.getAnnoType() == AnnotationType.LINE
+                || TongaAnnotator.getAnnoType() == AnnotationType.POLYLINE
+                || TongaAnnotator.getAnnoType() == AnnotationType.PLANE));
+        annotShape.setSelected(TongaAnnotator.annotating() && (TongaAnnotator.getAnnoType() == AnnotationType.RECTANGLE
+                || TongaAnnotator.getAnnoType() == AnnotationType.CIRCLE
+                || TongaAnnotator.getAnnoType() == AnnotationType.OVAL
+                || TongaAnnotator.getAnnoType() == AnnotationType.POLYGON));
+        annotMove.setSelected(!TongaAnnotator.annotating());
+        annotErase.setSelected(TongaAnnotator.annotating() && TongaAnnotator.getAnnoType() == AnnotationType.ERASER);
+    }
+
+    protected boolean annotationTabOpen() {
+        return Tonga.frame().tabbedPane.getSelectedIndex() == 5;
+    }
+
     private void maxButtEnable() {
-        maxTabButton.setEnabled(tabbedPane.getSelectedIndex() == 3);
+        maxTabButton.setEnabled(tabbedPane.getSelectedIndex() == 3 || tabbedPane.getSelectedIndex() == 5);
+    }
+
     }
 
     private void initFilterList() {
@@ -796,10 +869,46 @@ public class TongaFrame extends JFrame {
         contImgMoveDown = new javax.swing.JMenuItem();
         contImgDelete = new javax.swing.JMenuItem();
         contImgClear = new javax.swing.JMenuItem();
-        contextResultMenu = new javax.swing.JPopupMenu();
+        contextTableMenu = new javax.swing.JPopupMenu();
         contResClear = new javax.swing.JMenuItem();
         contResDelRow = new javax.swing.JMenuItem();
+        jSeparator24 = new javax.swing.JPopupMenu.Separator();
+        contResTranspose = new javax.swing.JMenuItem();
+        contResSeparator = new javax.swing.JPopupMenu.Separator();
+        contResExport = new javax.swing.JMenuItem();
+        contResExcel = new javax.swing.JMenuItem();
+        contextAnnotationMenu = new javax.swing.JPopupMenu();
+        contAnnoClear = new javax.swing.JMenuItem();
+        contAnnoDelRow = new javax.swing.JMenuItem();
+        contAnnoSeparator = new javax.swing.JPopupMenu.Separator();
+        contAnnoExport = new javax.swing.JMenuItem();
+        contAnnoExcel = new javax.swing.JMenuItem();
         filterMenu = new javax.swing.JPopupMenu();
+        shapeMenu = new javax.swing.JPopupMenu();
+        shapeRectangle = new javax.swing.JMenuItem();
+        shapeCircle = new javax.swing.JMenuItem();
+        shapeOval = new javax.swing.JMenuItem();
+        shapePoly = new javax.swing.JMenuItem();
+        lineMenu = new javax.swing.JPopupMenu();
+        lineLine = new javax.swing.JMenuItem();
+        linePolyline = new javax.swing.JMenuItem();
+        lineThick = new javax.swing.JMenuItem();
+        lineAngle = new javax.swing.JMenuItem();
+        colorMenu = new javax.swing.JPopupMenu();
+        colorDefault = new javax.swing.JMenuItem();
+        colorRed = new javax.swing.JMenuItem();
+        colorGreen = new javax.swing.JMenuItem();
+        colorBlue = new javax.swing.JMenuItem();
+        colorYellow = new javax.swing.JMenuItem();
+        colorCyan = new javax.swing.JMenuItem();
+        colorMagenta = new javax.swing.JMenuItem();
+        colorPink = new javax.swing.JMenuItem();
+        colorOrange = new javax.swing.JMenuItem();
+        colorPurple = new javax.swing.JMenuItem();
+        colorLime = new javax.swing.JMenuItem();
+        dotMenu = new javax.swing.JPopupMenu();
+        dotDot = new javax.swing.JMenuItem();
+        dotRadius = new javax.swing.JMenuItem();
         Splash.append("Menu control",10);
         frame = new javax.swing.JPanel();
         Splash.append("Panel control");
@@ -874,6 +983,23 @@ public class TongaFrame extends JFrame {
         histoAdjApplyAll = new javax.swing.JButton();
         histoAdjAutoAll = new javax.swing.JButton();
         histoSliderPanel = new javax.swing.JPanel();
+        jPanel3 = new javax.swing.JPanel();
+        exportAnnot = new javax.swing.JButton();
+        importAnnot = new javax.swing.JButton();
+        annoScrollPane = new javax.swing.JScrollPane();
+        annoTableComponent = new javax.swing.JTable();
+        annotClearAll = new javax.swing.JButton();
+        jSeparator20 = new javax.swing.JSeparator();
+        annotDot = new javax.swing.JToggleButton();
+        annotLine = new javax.swing.JToggleButton();
+        annotShape = new javax.swing.JToggleButton();
+        jSeparator21 = new javax.swing.JSeparator();
+        annotErase = new javax.swing.JToggleButton();
+        annotMove = new javax.swing.JToggleButton();
+        annotColour = new javax.swing.JButton();
+        annotRadius = new javax.swing.JSpinner();
+        annotVisible = new javax.swing.JToggleButton();
+        annotGroup = new javax.swing.JSpinner();
         progressBar = new javax.swing.JProgressBar();
         jSeparator1 = new javax.swing.JSeparator();
         brightLabel = new javax.swing.JLabel();
@@ -1352,6 +1478,184 @@ public class TongaFrame extends JFrame {
             public void popupMenuWillBecomeVisible(javax.swing.event.PopupMenuEvent evt) {
             }
         });
+
+        shapeRectangle.setText("Rectangle");
+        shapeRectangle.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                shapeRectangleActionPerformed(evt);
+            }
+        });
+        shapeMenu.add(shapeRectangle);
+
+        shapeCircle.setText("Circle");
+        shapeCircle.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                shapeCircleActionPerformed(evt);
+            }
+        });
+        shapeMenu.add(shapeCircle);
+
+        shapeOval.setText("Oval");
+        shapeOval.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                shapeOvalActionPerformed(evt);
+            }
+        });
+        shapeMenu.add(shapeOval);
+
+        shapePoly.setText("Polygon");
+        shapePoly.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                shapePolyActionPerformed(evt);
+            }
+        });
+        shapeMenu.add(shapePoly);
+
+        lineLine.setText("Line");
+        lineLine.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                lineLineActionPerformed(evt);
+            }
+        });
+        lineMenu.add(lineLine);
+
+        linePolyline.setText("Polyline");
+        linePolyline.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                linePolylineActionPerformed(evt);
+            }
+        });
+        lineMenu.add(linePolyline);
+
+        lineThick.setText("Polyline radius");
+        lineThick.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                lineThickActionPerformed(evt);
+            }
+        });
+        lineMenu.add(lineThick);
+
+        lineAngle.setText("Angle");
+        lineAngle.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                lineAngleActionPerformed(evt);
+            }
+        });
+        lineMenu.add(lineAngle);
+
+        colorDefault.setText("Default");
+        colorDefault.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                colorMenuActionPerformed(evt);
+            }
+        });
+        colorMenu.add(colorDefault);
+
+        colorRed.setForeground(new java.awt.Color(255, 51, 51));
+        colorRed.setText("Red");
+        colorRed.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                colorMenuActionPerformed(evt);
+            }
+        });
+        colorMenu.add(colorRed);
+
+        colorGreen.setForeground(new java.awt.Color(0, 204, 0));
+        colorGreen.setText("Green");
+        colorGreen.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                colorMenuActionPerformed(evt);
+            }
+        });
+        colorMenu.add(colorGreen);
+
+        colorBlue.setForeground(new java.awt.Color(0, 51, 255));
+        colorBlue.setText("Blue");
+        colorBlue.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                colorMenuActionPerformed(evt);
+            }
+        });
+        colorMenu.add(colorBlue);
+
+        colorYellow.setForeground(new java.awt.Color(255, 255, 51));
+        colorYellow.setText("Yellow");
+        colorYellow.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                colorMenuActionPerformed(evt);
+            }
+        });
+        colorMenu.add(colorYellow);
+
+        colorCyan.setForeground(new java.awt.Color(51, 255, 255));
+        colorCyan.setText("Cyan");
+        colorCyan.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                colorMenuActionPerformed(evt);
+            }
+        });
+        colorMenu.add(colorCyan);
+
+        colorMagenta.setForeground(new java.awt.Color(255, 51, 255));
+        colorMagenta.setText("Fuchsia");
+        colorMagenta.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                colorMenuActionPerformed(evt);
+            }
+        });
+        colorMenu.add(colorMagenta);
+
+        colorPink.setForeground(new java.awt.Color(255, 204, 255));
+        colorPink.setText("Pink");
+        colorPink.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                colorMenuActionPerformed(evt);
+            }
+        });
+        colorMenu.add(colorPink);
+
+        colorOrange.setForeground(new java.awt.Color(255, 153, 51));
+        colorOrange.setText("Orange");
+        colorOrange.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                colorMenuActionPerformed(evt);
+            }
+        });
+        colorMenu.add(colorOrange);
+
+        colorPurple.setForeground(new java.awt.Color(153, 51, 255));
+        colorPurple.setText("Purple");
+        colorPurple.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                colorMenuActionPerformed(evt);
+            }
+        });
+        colorMenu.add(colorPurple);
+
+        colorLime.setForeground(new java.awt.Color(204, 255, 0));
+        colorLime.setText("Lime");
+        colorLime.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                colorMenuActionPerformed(evt);
+            }
+        });
+        colorMenu.add(colorLime);
+
+        dotDot.setText("Point");
+        dotDot.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                dotDotActionPerformed(evt);
+            }
+        });
+        dotMenu.add(dotDot);
+
+        dotRadius.setText("Point radius");
+        dotRadius.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                dotRadiusActionPerformed(evt);
+            }
+        });
+        dotMenu.add(dotRadius);
 
         Splash.append("Popup layout",2);
 
@@ -2174,6 +2478,240 @@ public class TongaFrame extends JFrame {
         );
 
         tabbedPane.addTab("Histogram", histogramPanel);
+
+        exportAnnot.setText("Export annotations");
+        exportAnnot.setMaximumSize(new java.awt.Dimension(100, 23));
+        exportAnnot.setMinimumSize(new java.awt.Dimension(100, 23));
+        exportAnnot.setPreferredSize(new java.awt.Dimension(100, 23));
+        exportAnnot.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                exportAnnotActionPerformed(evt);
+            }
+        });
+
+        importAnnot.setText("Import annotations");
+        importAnnot.setMaximumSize(new java.awt.Dimension(100, 23));
+        importAnnot.setMinimumSize(new java.awt.Dimension(100, 23));
+        importAnnot.setPreferredSize(new java.awt.Dimension(100, 23));
+        importAnnot.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                importAnnotActionPerformed(evt);
+            }
+        });
+
+        annoTableComponent.setAutoCreateRowSorter(true);
+        annoTableComponent.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+
+            },
+            new String [] {
+
+            }
+        ));
+        annoTableComponent.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseReleased(java.awt.event.MouseEvent evt) {
+                annoTableComponentMouseReleased(evt);
+            }
+        });
+        annoScrollPane.setViewportView(annoTableComponent);
+
+        annotClearAll.setIcon(new javax.swing.ImageIcon(getClass().getResource("/resourcePackage/tool/cross.png"))); // NOI18N
+        annotClearAll.setToolTipText("Delete all annotations");
+        annotClearAll.setMargin(new java.awt.Insets(-7, -9, -7, -9));
+        annotClearAll.setMaximumSize(new java.awt.Dimension(32, 32));
+        annotClearAll.setMinimumSize(new java.awt.Dimension(32, 32));
+        annotClearAll.setPreferredSize(new java.awt.Dimension(32, 32));
+        annotClearAll.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                annotClearAllActionPerformed(evt);
+            }
+        });
+
+        jSeparator20.setOrientation(javax.swing.SwingConstants.VERTICAL);
+
+        annotDot.setIcon(new javax.swing.ImageIcon(getClass().getResource("/resourcePackage/tool/dots.png"))); // NOI18N
+        annotDot.setMargin(new java.awt.Insets(-7, -9, -7, -9));
+        annotDot.setMaximumSize(new java.awt.Dimension(32, 32));
+        annotDot.setMinimumSize(new java.awt.Dimension(32, 32));
+        annotDot.setPreferredSize(new java.awt.Dimension(32, 32));
+        annotDot.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                annotDotActionPerformed(evt);
+            }
+        });
+
+        annotLine.setIcon(new javax.swing.ImageIcon(getClass().getResource("/resourcePackage/tool/lines.png"))); // NOI18N
+        annotLine.setMargin(new java.awt.Insets(-7, -9, -7, -9));
+        annotLine.setMaximumSize(new java.awt.Dimension(32, 32));
+        annotLine.setMinimumSize(new java.awt.Dimension(32, 32));
+        annotLine.setPreferredSize(new java.awt.Dimension(32, 32));
+        annotLine.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                annotLineActionPerformed(evt);
+            }
+        });
+
+        annotShape.setIcon(new javax.swing.ImageIcon(getClass().getResource("/resourcePackage/tool/shapes.png"))); // NOI18N
+        annotShape.setMargin(new java.awt.Insets(-7, -9, -7, -9));
+        annotShape.setMaximumSize(new java.awt.Dimension(32, 32));
+        annotShape.setMinimumSize(new java.awt.Dimension(32, 32));
+        annotShape.setPreferredSize(new java.awt.Dimension(32, 32));
+        annotShape.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                annotShapeActionPerformed(evt);
+            }
+        });
+
+        jSeparator21.setOrientation(javax.swing.SwingConstants.VERTICAL);
+
+        annotErase.setIcon(new javax.swing.ImageIcon(getClass().getResource("/resourcePackage/tool/delete.png"))); // NOI18N
+        annotErase.setToolTipText("Click an annotation to delete");
+        annotErase.setMargin(new java.awt.Insets(-7, -9, -7, -9));
+        annotErase.setMaximumSize(new java.awt.Dimension(32, 32));
+        annotErase.setMinimumSize(new java.awt.Dimension(32, 32));
+        annotErase.setPreferredSize(new java.awt.Dimension(32, 32));
+        annotErase.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                annotEraseActionPerformed(evt);
+            }
+        });
+
+        annotMove.setIcon(new javax.swing.ImageIcon(getClass().getResource("/resourcePackage/tool/arrow.png"))); // NOI18N
+        annotMove.setSelected(true);
+        annotMove.setToolTipText("Select annotations");
+        annotMove.setMargin(new java.awt.Insets(-7, -9, -7, -9));
+        annotMove.setMaximumSize(new java.awt.Dimension(32, 32));
+        annotMove.setMinimumSize(new java.awt.Dimension(32, 32));
+        annotMove.setPreferredSize(new java.awt.Dimension(32, 32));
+        annotMove.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                annotMoveActionPerformed(evt);
+            }
+        });
+
+        annotColour.setIcon(new javax.swing.ImageIcon(getClass().getResource("/resourcePackage/tool/color.png"))); // NOI18N
+        annotColour.setToolTipText("Annotation color");
+        annotColour.setMargin(new java.awt.Insets(-7, -9, -7, -9));
+        annotColour.setMaximumSize(new java.awt.Dimension(32, 32));
+        annotColour.setMinimumSize(new java.awt.Dimension(32, 32));
+        annotColour.setPreferredSize(new java.awt.Dimension(32, 32));
+        annotColour.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                annotColourActionPerformed(evt);
+            }
+        });
+
+        annotRadius.setToolTipText("Annotation radius (for dot/polyline radius)");
+        annotRadius.setMinimumSize(new java.awt.Dimension(30, 22));
+        annotRadius.setPreferredSize(new java.awt.Dimension(30, 32));
+        annotRadius.setValue(Integer.valueOf(20));
+        annotRadius.addChangeListener(new javax.swing.event.ChangeListener() {
+            public void stateChanged(javax.swing.event.ChangeEvent evt) {
+                annotRadiusStateChanged(evt);
+            }
+        });
+        annotRadius.addMouseWheelListener(new java.awt.event.MouseWheelListener() {
+            public void mouseWheelMoved(java.awt.event.MouseWheelEvent evt) {
+                annotRadiusMouseWheelMoved(evt);
+            }
+        });
+
+        annotVisible.setIcon(new javax.swing.ImageIcon(getClass().getResource("/resourcePackage/tool/eye.png"))); // NOI18N
+        annotVisible.setSelected(true);
+        annotVisible.setToolTipText("Toggle annotation visibility");
+        annotVisible.setMargin(new java.awt.Insets(-7, -9, -7, -9));
+        annotVisible.setMaximumSize(new java.awt.Dimension(32, 32));
+        annotVisible.setMinimumSize(new java.awt.Dimension(32, 32));
+        annotVisible.setPreferredSize(new java.awt.Dimension(32, 32));
+        annotVisible.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                annotVisibleActionPerformed(evt);
+            }
+        });
+
+        annotGroup.setToolTipText("Annotation group");
+        annotGroup.setMinimumSize(new java.awt.Dimension(25, 22));
+        annotGroup.setPreferredSize(new java.awt.Dimension(25, 32));
+        annotGroup.setValue(Integer.valueOf(1));
+        annotGroup.addChangeListener(new javax.swing.event.ChangeListener() {
+            public void stateChanged(javax.swing.event.ChangeEvent evt) {
+                annotGroupStateChanged(evt);
+            }
+        });
+        annotGroup.addMouseWheelListener(new java.awt.event.MouseWheelListener() {
+            public void mouseWheelMoved(java.awt.event.MouseWheelEvent evt) {
+                annotGroupMouseWheelMoved(evt);
+            }
+        });
+
+        javax.swing.GroupLayout jPanel3Layout = new javax.swing.GroupLayout(jPanel3);
+        jPanel3.setLayout(jPanel3Layout);
+        jPanel3Layout.setHorizontalGroup(
+            jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel3Layout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel3Layout.createSequentialGroup()
+                        .addComponent(annotDot, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(4, 4, 4)
+                        .addComponent(annotLine, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(4, 4, 4)
+                        .addComponent(annotShape, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jSeparator21, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(annotGroup, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(annotRadius, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(annotColour, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jSeparator20, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(annotVisible, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(annotMove, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(4, 4, 4)
+                        .addComponent(annotErase, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(4, 4, 4)
+                        .addComponent(annotClearAll, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(annoScrollPane, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel3Layout.createSequentialGroup()
+                        .addComponent(exportAnnot, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(importAnnot, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
+                .addContainerGap())
+        );
+        jPanel3Layout.setVerticalGroup(
+            jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel3Layout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(jSeparator20, javax.swing.GroupLayout.PREFERRED_SIZE, 32, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addGroup(javax.swing.GroupLayout.Alignment.LEADING, jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                        .addComponent(annotClearAll, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(annotErase, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(annotMove, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(annotVisible, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(jSeparator21, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.PREFERRED_SIZE, 32, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addGroup(javax.swing.GroupLayout.Alignment.LEADING, jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                        .addComponent(annotDot, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(annotLine, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(annotShape, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(javax.swing.GroupLayout.Alignment.LEADING, jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                        .addComponent(annotColour, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(annotRadius, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(annotGroup, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(annoScrollPane, javax.swing.GroupLayout.DEFAULT_SIZE, 325, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(importAnnot, javax.swing.GroupLayout.PREFERRED_SIZE, 32, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(exportAnnot, javax.swing.GroupLayout.PREFERRED_SIZE, 32, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(6, 6, 6))
+        );
+
+        tabbedPane.addTab("Annotations", jPanel3);
 
         layerPane.setLayer(floatingPane, javax.swing.JLayeredPane.DEFAULT_LAYER);
         layerPane.setLayer(tabbedPane, javax.swing.JLayeredPane.DEFAULT_LAYER);
@@ -4972,6 +5510,114 @@ public class TongaFrame extends JFrame {
         launchProtocol(Spheroids::new, evt);
     }//GEN-LAST:event_jMenuItem111ActionPerformed
 
+    private void exportAnnotActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_exportAnnotActionPerformed
+        IO.exportAnnos(false);
+    }//GEN-LAST:event_exportAnnotActionPerformed
+
+    private void importAnnotActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_importAnnotActionPerformed
+        IO.importAnnos();
+    }//GEN-LAST:event_importAnnotActionPerformed
+
+    private void annoTableComponentMouseReleased(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_annoTableComponentMouseReleased
+        if (evt.getButton() == MouseEvent.BUTTON3) {
+            contextAnnotationMenu.show((Component) evt.getSource(), evt.getX(), evt.getY());
+        }
+    }//GEN-LAST:event_annoTableComponentMouseReleased
+
+    private void annotClearAllActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_annotClearAllActionPerformed
+        TongaAnnotator.deleteAll();
+    }//GEN-LAST:event_annotClearAllActionPerformed
+
+    private void annotDotActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_annotDotActionPerformed
+        annotButtonToggle();
+        dotMenu.show((Component) evt.getSource(), 8, 8);
+    }//GEN-LAST:event_annotDotActionPerformed
+
+    private void annotLineActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_annotLineActionPerformed
+        annotButtonToggle();
+        lineMenu.show((Component) evt.getSource(), 8, 8);
+    }//GEN-LAST:event_annotLineActionPerformed
+
+    private void annotShapeActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_annotShapeActionPerformed
+        annotButtonToggle();
+        shapeMenu.show((Component) evt.getSource(), 8, 8);
+    }//GEN-LAST:event_annotShapeActionPerformed
+
+    private void annotMoveActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_annotMoveActionPerformed
+        TongaAnnotator.activateAnnotator(false);
+    }//GEN-LAST:event_annotMoveActionPerformed
+
+    private void annotEraseActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_annotEraseActionPerformed
+        TongaAnnotator.setAnnotationType(AnnotationType.ERASER);
+    }//GEN-LAST:event_annotEraseActionPerformed
+
+    private void annotColourActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_annotColourActionPerformed
+        annotButtonToggle();
+        colorMenu.show((Component) evt.getSource(), 8, 8);
+    }//GEN-LAST:event_annotColourActionPerformed
+
+    private void shapeRectangleActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_shapeRectangleActionPerformed
+        TongaAnnotator.setAnnotationType(AnnotationType.RECTANGLE);
+    }//GEN-LAST:event_shapeRectangleActionPerformed
+
+    private void shapeCircleActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_shapeCircleActionPerformed
+        TongaAnnotator.setAnnotationType(AnnotationType.CIRCLE);
+    }//GEN-LAST:event_shapeCircleActionPerformed
+
+    private void shapeOvalActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_shapeOvalActionPerformed
+        TongaAnnotator.setAnnotationType(AnnotationType.OVAL);
+    }//GEN-LAST:event_shapeOvalActionPerformed
+
+    private void lineLineActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_lineLineActionPerformed
+        TongaAnnotator.setAnnotationType(AnnotationType.LINE);
+    }//GEN-LAST:event_lineLineActionPerformed
+
+    private void linePolylineActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_linePolylineActionPerformed
+        TongaAnnotator.setAnnotationType(AnnotationType.POLYLINE);
+    }//GEN-LAST:event_linePolylineActionPerformed
+
+    private void lineThickActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_lineThickActionPerformed
+        TongaAnnotator.setAnnotationType(AnnotationType.PLANE);
+    }//GEN-LAST:event_lineThickActionPerformed
+
+    private void colorMenuActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_colorMenuActionPerformed
+        colorMenuSelect(((JMenuItem) evt.getSource()).getForeground());
+    }//GEN-LAST:event_colorMenuActionPerformed
+
+    private void annotRadiusMouseWheelMoved(java.awt.event.MouseWheelEvent evt) {//GEN-FIRST:event_annotRadiusMouseWheelMoved
+        JSpinner source = (JSpinner) evt.getSource();
+        int val = Integer.parseInt((source.getValue().toString())) - evt.getWheelRotation();
+        source.setValue(val);
+    }//GEN-LAST:event_annotRadiusMouseWheelMoved
+
+    private void annotRadiusStateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_annotRadiusStateChanged
+        TongaAnnotator.setAnnotationSize((int) ((JSpinner) evt.getSource()).getValue());
+    }//GEN-LAST:event_annotRadiusStateChanged
+
+    private void launchExcelActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_launchExcelActionPerformed
+        IO.exportTable(returnActiveTable(), true);
+    }//GEN-LAST:event_launchExcelActionPerformed
+
+    private void jMenuItem112ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem112ActionPerformed
+        launchCounter(AnnoCounters::planeIntensities, evt);
+    }//GEN-LAST:event_jMenuItem112ActionPerformed
+
+    private void shapePolyActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_shapePolyActionPerformed
+        TongaAnnotator.setAnnotationType(AnnotationType.POLYGON);
+    }//GEN-LAST:event_shapePolyActionPerformed
+
+    private void annotVisibleActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_annotVisibleActionPerformed
+        TongaAnnotator.visible(((javax.swing.JToggleButton) evt.getSource()).isSelected());
+    }//GEN-LAST:event_annotVisibleActionPerformed
+
+    private void dotDotActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_dotDotActionPerformed
+        TongaAnnotator.setAnnotationType(AnnotationType.DOT);
+    }//GEN-LAST:event_dotDotActionPerformed
+
+    private void dotRadiusActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_dotRadiusActionPerformed
+        TongaAnnotator.setAnnotationType(AnnotationType.RADIUS);
+    }//GEN-LAST:event_dotRadiusActionPerformed
+
     private void jMenuItem137ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem137ActionPerformed
         launchCounter(Counters::intHisto, evt);
     }//GEN-LAST:event_jMenuItem137ActionPerformed
@@ -4985,6 +5631,18 @@ public class TongaFrame extends JFrame {
     }//GEN-LAST:event_jMenuItem139ActionPerformed
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    protected javax.swing.JScrollPane annoScrollPane;
+    protected javax.swing.JTable annoTableComponent;
+    protected javax.swing.JButton annotClearAll;
+    protected javax.swing.JButton annotColour;
+    protected javax.swing.JToggleButton annotDot;
+    protected javax.swing.JToggleButton annotErase;
+    protected javax.swing.JSpinner annotGroup;
+    protected javax.swing.JToggleButton annotLine;
+    protected javax.swing.JToggleButton annotMove;
+    protected javax.swing.JSpinner annotRadius;
+    protected javax.swing.JToggleButton annotShape;
+    protected javax.swing.JToggleButton annotVisible;
     protected javax.swing.JComboBox<String> autoscaleCombo;
     protected javax.swing.JLabel autoscaleLabel;
     protected javax.swing.JLabel bleftLabel;
@@ -5004,6 +5662,23 @@ public class TongaFrame extends JFrame {
     protected javax.swing.JButton btnRunAll2;
     protected javax.swing.JButton btnRunSingle;
     protected javax.swing.JButton btnRunSingle2;
+    protected javax.swing.JMenuItem colorBlue;
+    protected javax.swing.JMenuItem colorCyan;
+    protected javax.swing.JMenuItem colorDefault;
+    protected javax.swing.JMenuItem colorGreen;
+    protected javax.swing.JMenuItem colorLime;
+    protected javax.swing.JMenuItem colorMagenta;
+    protected javax.swing.JPopupMenu colorMenu;
+    protected javax.swing.JMenuItem colorOrange;
+    protected javax.swing.JMenuItem colorPink;
+    protected javax.swing.JMenuItem colorPurple;
+    protected javax.swing.JMenuItem colorRed;
+    protected javax.swing.JMenuItem colorYellow;
+    protected javax.swing.JMenuItem contAnnoClear;
+    protected javax.swing.JMenuItem contAnnoDelRow;
+    protected javax.swing.JMenuItem contAnnoExcel;
+    protected javax.swing.JMenuItem contAnnoExport;
+    protected javax.swing.JPopupMenu.Separator contAnnoSeparator;
     protected javax.swing.JMenuItem contImgClear;
     protected javax.swing.JMenuItem contImgDelete;
     protected javax.swing.JMenuItem contImgMoveDown;
@@ -5034,6 +5709,11 @@ public class TongaFrame extends JFrame {
     protected javax.swing.JPopupMenu.Separator contLaySep;
     protected javax.swing.JMenuItem contResClear;
     protected javax.swing.JMenuItem contResDelRow;
+    protected javax.swing.JMenuItem contResExcel;
+    protected javax.swing.JMenuItem contResExport;
+    protected javax.swing.JPopupMenu.Separator contResSeparator;
+    protected javax.swing.JMenuItem contResTranspose;
+    protected javax.swing.JPopupMenu contextAnnotationMenu;
     protected javax.swing.JPopupMenu contextImageMenu;
     protected javax.swing.JPopupMenu contextLayerMenu;
     protected javax.swing.JPopupMenu contextResultMenu;
@@ -5045,6 +5725,11 @@ public class TongaFrame extends JFrame {
     protected javax.swing.JMenuItem debugTestProtocol;
     protected javax.swing.JMenu debugTestProtocols;
     protected javax.swing.JButton exportAsCSV;
+    protected javax.swing.JMenuItem dotDot;
+    protected javax.swing.JPopupMenu dotMenu;
+    protected javax.swing.JMenuItem dotRadius;
+    protected javax.swing.JButton exportAnnot;
+    protected javax.swing.JButton exportTSV;
     public javax.swing.JTextField filePathField;
     protected javax.swing.JComboBox<String> filterCombo;
     protected javax.swing.JPopupMenu filterMenu;
@@ -5066,6 +5751,7 @@ public class TongaFrame extends JFrame {
     protected javax.swing.JPanel imageBig;
     protected javax.swing.JPanel imageZoom;
     public javax.swing.JList<String> imagesList;
+    protected javax.swing.JButton importAnnot;
     protected javax.swing.JCheckBoxMenuItem jCheckBoxMenuItem1;
     protected javax.swing.JLabel jLabel2;
     protected javax.swing.JList<String> jList4;
@@ -5236,6 +5922,11 @@ public class TongaFrame extends JFrame {
     public javax.swing.JButton layerBackColor;
     protected javax.swing.JLayeredPane layerPane;
     public javax.swing.JList<String> layersList;
+    protected javax.swing.JMenuItem lineAngle;
+    protected javax.swing.JMenuItem lineLine;
+    protected javax.swing.JPopupMenu lineMenu;
+    protected javax.swing.JMenuItem linePolyline;
+    protected javax.swing.JMenuItem lineThick;
     protected javax.swing.JButton maxTabButton;
     protected javax.swing.JMenuItem menuAbout;
     protected javax.swing.JMenuItem menuAlphaBright;
@@ -5311,6 +6002,11 @@ public class TongaFrame extends JFrame {
     protected javax.swing.JPanel settingPanelGeneral;
     protected javax.swing.JPanel settingPanelLayer;
     protected javax.swing.JPanel settingPanelScale;
+    protected javax.swing.JMenuItem shapeCircle;
+    protected javax.swing.JPopupMenu shapeMenu;
+    protected javax.swing.JMenuItem shapeOval;
+    protected javax.swing.JMenuItem shapePoly;
+    protected javax.swing.JMenuItem shapeRectangle;
     protected javax.swing.JComboBox<String> stackCombo;
     protected javax.swing.JToggleButton stackToggle;
     public javax.swing.JTabbedPane tabbedPane;

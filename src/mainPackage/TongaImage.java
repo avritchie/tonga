@@ -10,6 +10,7 @@ public class TongaImage {
     public String imageName;
     public Length imageScaling;
     public ArrayList<TongaLayer> layerList;
+    public TongaAnnotations annotations;
     public int[] activeLayers;
     public boolean stack;
 

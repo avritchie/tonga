@@ -53,7 +53,7 @@ public class TongaRender {
     static int mainPHash = 0, zoomPHash = 0;
     public static JFXPanel mainPanel, zoomPanel;
     private static JPanel actionPanel;
-    private static GraphicsContext mainDraw, zoomDraw;
+    public static GraphicsContext mainDraw, zoomDraw, mainAnno, zoomAnno;
     static double zoomFactor = 2, mainFactor = 1;
     static ImagePattern diamonds, stripes;
     static Paint fill;
@@ -126,10 +126,14 @@ public class TongaRender {
         }
         mainDraw.getCanvas().setWidth(mainWidth);
         mainDraw.getCanvas().setHeight(mainHeight);
+        mainAnno.getCanvas().setWidth(mainWidth);
+        mainAnno.getCanvas().setHeight(mainHeight);
         int zoomWidth = zoomPanel.getWidth();
         int zoomHeight = zoomPanel.getHeight();
         zoomDraw.getCanvas().setWidth(zoomWidth);
         zoomDraw.getCanvas().setHeight(zoomHeight);
+        zoomAnno.getCanvas().setWidth(zoomWidth);
+        zoomAnno.getCanvas().setHeight(zoomHeight);
     }
 
     private static void setDragBounds() {
@@ -181,15 +185,34 @@ public class TongaRender {
         fill = Settings.settingBatchProcessing() ? stripes : Settings.settingsAlphaBackground() ? COL.awt2FX(Settings.settingAlphaBackgroundColor()) : diamonds;
         int newMainPHash = (int) (posx * mainC[6] - posy * mainC[7] - mainFactor * 100);
         int newZoomPHash = (int) (zoomx * zoomC[6] - zoomy * zoomC[7] - zoomFactor * 100);
+        int newAnnoHash = TongaAnnotator.getHash();
+        boolean mainAnnoRender = false;
+        boolean zoomAnnoRender = false;
         if (mainPHash != newMainPHash) {
             mainPHash = newMainPHash;
             fillGraphics(mainDraw, mainC[6], mainC[7]);
             renderGraphics(mainDraw, mainC[0], mainC[1], mainC[2], mainC[3], mainC[4], mainC[5], mainC[6], mainC[7]);
+            mainAnnoRender = true;
         }
         if (zoomPHash != newZoomPHash) {
             zoomPHash = newZoomPHash;
             fillGraphics(zoomDraw, (int) zoomDraw.getCanvas().getWidth(), (int) zoomDraw.getCanvas().getHeight());
             renderGraphics(zoomDraw, zoomC[0], zoomC[1], zoomC[2], zoomC[3], zoomC[4], zoomC[5], zoomC[6], zoomC[7]);
+            zoomAnnoRender = true;
+        }
+        if (annoHash != newAnnoHash || TongaAnnotator.annotating() || TongaAnnotator.selection()) { //|| TongaAnnotate.annotationPending() || 
+            annoHash = newAnnoHash;
+            mainAnnoRender = true;
+            zoomAnnoRender = true;
+            TongaAnnotator.deselect();
+        }
+        if (mainAnnoRender) {
+            clearGraphics(mainAnno, mainC[6], mainC[7]);
+            renderAnnotations(mainAnno, mainC[0], mainC[1], mainC[2], mainC[3], mainC[4], mainC[5], mainC[6], mainC[7]);
+        }
+        if (zoomAnnoRender) {
+            clearGraphics(zoomAnno, (int) zoomDraw.getCanvas().getWidth(), (int) zoomDraw.getCanvas().getHeight());
+            renderAnnotations(zoomAnno, zoomC[0], zoomC[1], zoomC[2], zoomC[3], zoomC[4], zoomC[5], zoomC[6], zoomC[7]);
         }
     }
 
@@ -199,24 +222,36 @@ public class TongaRender {
         cont.fillRect(0, 0, w, h);
     }
 
+    private static void clearGraphics(GraphicsContext cont, int w, int h) {
+        cont.clearRect(0, 0, w, h);
+    }
+
     private static void initZoomPanel() {
         Canvas canvas2 = new Canvas(0, 0);
         zoomDraw = canvas2.getGraphicsContext2D();
-        initPanel(zoomDraw, zoomPanel);
+        Canvas canvas2a = new Canvas(0, 0);
+        zoomAnno = canvas2a.getGraphicsContext2D();
+        initPanel(zoomDraw, zoomAnno, zoomPanel);
     }
 
     private static void initMainPanel() {
         Canvas canvas2 = new Canvas(0, 0);
         mainDraw = canvas2.getGraphicsContext2D();
-        initPanel(mainDraw, mainPanel);
+        Canvas canvas2a = new Canvas(0, 0);
+        mainAnno = canvas2a.getGraphicsContext2D();
+        initPanel(mainDraw, mainAnno, mainPanel);
         updateLabel();
         mainPanel.addMouseMotionListener(new MouseMotionListener() {
             @Override
             public void mouseDragged(MouseEvent me) {
-                int mx = me.getX(), my = me.getY();
-                calculatePanelPosition(posx + ((mousx - mx) / mainFactor), posy + ((mousy - my) / mainFactor));
-                mousx = mx;
-                mousy = my;
+                if (!annotationControl()) {
+                    int mx = me.getX(), my = me.getY();
+                    calculatePanelPosition(posx + ((mousx - mx) / mainFactor), posy + ((mousy - my) / mainFactor));
+                    mousx = mx;
+                    mousy = my;
+                } else {
+                    TongaAnnotator.mouseEvent(me, MouseEvent.MOUSE_DRAGGED, imgx, imgy);
+                }
                 mouseMoved(me);
             }
 
@@ -224,9 +259,14 @@ public class TongaRender {
             public void mouseMoved(MouseEvent me) {
                 if (Tonga.thereIsImage()) {
                     int mx = me.getX(), my = me.getY();
+                    moupx = mx;
+                    moupy = my;
                     if (mx <= imageDimensions[0] * mainFactor && my <= imageDimensions[1] * mainFactor) {
                         calculatePixelPosition(mx, my);
                         getPixelColourIntensity(imgx, imgy);
+                        if (Tonga.frame().annotationTabOpen()) {
+                            Tonga.getImage().annotations.annotationCollision();
+                        }
                     }
                     updateLabel();
                     redraw();
@@ -236,23 +276,30 @@ public class TongaRender {
         mainPanel.addMouseListener(new MouseListener() {
             @Override
             public void mouseClicked(MouseEvent me) {
-                if (me.getClickCount() == 2) {
-                    resetZooms();
+                if (!annotationControl()) {
+                    if (me.getClickCount() == 2) {
+                        resetZooms();
+                    }
+                    zoomFreeze = !zoomFreeze;
+                } else {
+                    TongaAnnotator.mouseEvent(me, MouseEvent.MOUSE_CLICKED, imgx, imgy);
                 }
-                zoomFreeze = !zoomFreeze;
                 redraw();
             }
 
             @Override
             public void mousePressed(MouseEvent me) {
-                mousx = me.getX();
-                mousy = me.getY();
-                pointx = imgx;
-                pointy = imgy;
+                if (!annotationControl()) {
+                    mousx = me.getX();
+                    mousy = me.getY();
+                }
             }
 
             @Override
             public void mouseReleased(MouseEvent me) {
+                if (annotationControl()) {
+                    TongaAnnotator.mouseEvent(me, MouseEvent.MOUSE_RELEASED, imgx, imgy);
+                }
             }
 
             @Override
@@ -264,33 +311,46 @@ public class TongaRender {
             }
         });
         mainPanel.addMouseWheelListener((MouseWheelEvent mwe) -> {
-            if (Tonga.getImageIndex() >= 0) {
-                if (Key.keyCtrl) {
-                    mainFactor = Math.min(Math.max(mainFactor - (mwe.getWheelRotation() * (1 / (10 / mainFactor))), 0.1), 8);
-                    int deltaX = imgx, deltaY = imgy;
-                    int mx = mwe.getX(), my = mwe.getY();
-                    updateMainCoordinates();
-                    calculatePixelPosition(mx, my);
-                    posx += deltaX - imgx;
-                    posy += deltaY - imgy;
-                    setDragBounds();
-                    updateMainCoordinates();
-                    calculatePixelPosition(mx, my);
-                } else if (!zoomFreeze) {
-                    zoomFactor = Math.min(Math.max(zoomFactor - (mwe.getWheelRotation() * (1 / (10 / zoomFactor))), 1), 16);
+            if (!annotationControl()) {
+                if (Tonga.getImageIndex() >= 0) {
+                    if (Key.keyCtrl) {
+                        mainFactor = Math.min(Math.max(mainFactor - (mwe.getWheelRotation() * (1 / (10 / mainFactor))), 0.1), 8);
+                        int deltaX = imgx, deltaY = imgy;
+                        int mx = mwe.getX(), my = mwe.getY();
+                        updateMainCoordinates();
+                        calculatePixelPosition(mx, my);
+                        posx += deltaX - imgx;
+                        posy += deltaY - imgy;
+                        setDragBounds();
+                        updateMainCoordinates();
+                        calculatePixelPosition(mx, my);
+                    } else if (!zoomFreeze) {
+                        zoomFactor = Math.min(Math.max(zoomFactor - (mwe.getWheelRotation() * (1 / (10 / zoomFactor))), 1), 16);
+                    }
+                    redraw();
+                    updateLabel();
                 }
+            } else {
+                JSpinner js = Tonga.frame().annotRadius;
+                int ss = (int) js.getValue();
+                int ch = -mwe.getWheelRotation();
+                ss += ch * (Key.keyCtrl ? 10 : 1);
+                TongaAnnotator.setAnnotationSize(ss);
+                js.setValue(ss);
                 redraw();
-                updateLabel();
             }
         });
     }
 
-    private static void initPanel(GraphicsContext gc, JFXPanel panel) {
+    private static boolean annotationControl() {
+        return (TongaAnnotator.annotating() && Tonga.frame().annotationTabOpen() && TongaAnnotator.isVisible() && !Key.keyShift);
+    }
+
+    private static void initPanel(GraphicsContext gc, GraphicsContext ac, JFXPanel panel) {
         if (Tonga.javaFxVersion >= 12) {
             gc.setImageSmoothing(false);
         }
-        Group root2 = new Group();
-        root2.getChildren().add(gc.getCanvas());
+        Pane root2 = new Pane(gc.getCanvas(), ac.getCanvas());
         Scene scene2 = new Scene(root2);
         scene2.setFill(Color.GRAY);
         panel.setScene(scene2);
@@ -468,6 +528,7 @@ public class TongaRender {
     static void resetHash() {
         zoomPHash = 0;
         mainPHash = 0;
+        annoHash = 0;
     }
 
     static <T> BufferedImage sliceProjection(BufferedImage[] slcs, int maxval) {
@@ -671,6 +732,10 @@ public class TongaRender {
 
     public static MappedImage imageToCache(Image img) {
         return new MappedImage(SwingFXUtils.fromFXImage(img, null));
+    }
+
+    public static void renderAnnotations(GraphicsContext cont, int sx, int sy, int sw, int sh, int dx, int dy, int dw, int dh) {
+        TongaAnnotator.renderAnnotations(cont, sx, sy, sw, sh, dx, dy, dw, dh);
     }
 
     public static void renderGraphics(GraphicsContext cont, int sx, int sy, int sw, int sh, int dx, int dy, int dw, int dh) {

@@ -6,11 +6,23 @@ import java.awt.Container;
 import java.awt.event.ActionEvent;
 import java.awt.event.MouseWheelEvent;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
 import javax.swing.JColorChooser;
+import javax.swing.JComboBox;
 import javax.swing.JSlider;
 import javax.swing.JSpinner;
 import javax.swing.JToggleButton;
+import static mainPackage.PanelCreator.ControlType.ANNOTATION;
+import static mainPackage.PanelCreator.ControlType.ANNOTATION_GROUP;
+import static mainPackage.PanelCreator.ControlType.ANNOTATION_TYPE;
+import static mainPackage.PanelCreator.ControlType.FOLDER;
+import static mainPackage.PanelCreator.ControlType.LAYER;
+import static mainPackage.Tonga.picList;
+import mainPackage.TongaAnnotator.AnnotationType;
+import mainPackage.utils.COL;
 
 public class PanelUtils {
 
@@ -107,6 +119,112 @@ public class PanelUtils {
             }
             controls.get(pc.interaction[i]).comp.setEnabled(status);
         }
+    }
+
+    public static void updateComboAnnotationList(JComboBox<String> combo, Object[] allowedTypes) {
+        TongaAnnotation[] list;
+        if (Tonga.getImage() == null) {
+            list = new TongaAnnotation[0];
+        } else {
+            List<TongaAnnotation> annos = Tonga.getAnnotations();
+            List<TongaAnnotation> fannos;
+            if (allowedTypes != null) {
+                List<AnnotationType> atl = Arrays.asList((AnnotationType[]) allowedTypes);
+                fannos = annos.stream().filter(a -> atl.contains(a.getType())).toList();
+            } else {
+                fannos = annos;
+            }
+            int lsize = fannos.size();
+            list = new TongaAnnotation[lsize];
+            for (int j = 0; j < lsize; j++) {
+                list[j] = fannos.get(j);
+            }
+            combo.putClientProperty("Nimbus.Overrides", null);
+        }
+        combo.setModel(new DefaultComboBoxModel(list));
+    }
+
+    public static void updateComboAnnotationTypeList(JComboBox<String> combo) {
+        Object[] list;
+        if (Tonga.getImage() == null) {
+            list = new Object[]{"All"};
+        } else {
+            List<AnnotationType> atl = Tonga.getAnnotations().stream().map(a -> a.getType()).distinct().toList();
+            list = new Object[atl.size() + 1];
+            list[0] = "All";
+            for (int a = 0; a < atl.size(); a++) {
+                list[a + 1] = atl.get(a);
+            }
+        }
+        combo.setModel(new DefaultComboBoxModel(list));
+    }
+
+    public static void updateComboAnnotationGroupList(JComboBox<String> combo) {
+        String[] list;
+        if (Tonga.getImage() == null) {
+            list = new String[]{"All"};
+        } else {
+            List<Integer> atl = Tonga.getAnnotations().stream().map(a -> a.getGroup()).distinct().toList();
+            list = new String[atl.size() + 1];
+            list[0] = "All";
+            for (int a = 0; a < atl.size(); a++) {
+                list[a + 1] = atl.get(a).toString();
+            }
+        }
+        combo.setModel(new DefaultComboBoxModel(list));
+    }
+
+    public static void comboSelector(JComboBox<String> c, int defval) {
+        int i = defval;
+        if (i >= 0 && i < c.getItemCount()) {
+            c.setSelectedIndex(i);
+        } else {
+            c.setSelectedIndex(c.getItemCount() - 1);
+        }
+    }
+
+    public static void comboSelector(JComboBox<Object> c, Object defitem) {
+        boolean exists = false;
+        for (int i = 0; i < c.getItemCount(); i++) {
+            Object item = c.getItemAt(i);
+            if (item.equals(defitem)) {
+                exists = true;
+                break;
+            }
+        }
+        if (exists) {
+            c.setSelectedItem(defitem);
+        } else {
+            c.setSelectedIndex(0);
+        }
+    }
+
+    public static void updateComponents(PanelCreator pc) {
+        pc.getControls().forEach(c -> {
+            if (c.type == LAYER || c.type == ANNOTATION || c.type == ANNOTATION_TYPE || c.type == ANNOTATION_GROUP) {
+                JComboBox co = (JComboBox) c.comp;
+                int dv = co.getSelectedIndex();
+                Object di = co.getSelectedItem();
+                switch (c.type) {
+                    case LAYER:
+                        PanelUtils.updateComboLayerList(co);
+                        PanelUtils.comboSelector(co, dv);
+                        break;
+                    case ANNOTATION:
+                        PanelUtils.updateComboAnnotationList(co, c.data);
+                        PanelUtils.comboSelector(co, dv);
+                        break;
+                    case ANNOTATION_TYPE:
+                        PanelUtils.updateComboAnnotationTypeList(co);
+                        PanelUtils.comboSelector(co, di);
+                        break;
+                    case ANNOTATION_GROUP:
+                        PanelUtils.updateComboAnnotationGroupList(co);
+                        PanelUtils.comboSelector(co, di);
+                        break;
+                }
+            }
+        });
     }
 
     private static void toggleCosmetics(JToggleButton source) {

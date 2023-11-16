@@ -899,6 +899,81 @@ public class IO {
         Tonga.bootThread(thread, "Exporter", false, true);
     }
 
+    private static String pathParent() {
+        File f = new File(Tonga.frame().filePathField.getText());
+        if (f.getParent() == null) {
+            return Tonga.frame().filePathField.getText();
+        } else {
+            return f.getParent();
+        }
+    }
+
+    public static void importAnnos() {
+        File[] file = IO.getFile(pathParent(), true, new FileFilter() {
+
+            public String getDescription() {
+                return "Tonga Annotation File (*.taf)";
+            }
+
+            public boolean accept(File f) {
+                return f.getName().toLowerCase().endsWith(".taf") || f.isDirectory();
+            }
+        });
+        if (file != null) {
+            if (file.length % Tonga.picList.size() == 0) {
+                TongaAnnotator.importAnnos(Arrays.asList(file), true);
+            } else {
+                TongaAnnotator.importAnnos(Arrays.asList(file), false);
+            }
+        }
+    }
+
+    public static void exportAnnos(boolean all) {
+        Thread thread = new Thread(() -> {
+            Tonga.loader().loaderProgress(0, picList.size());
+            int it = 0;
+            for (int i = all ? 0 : Tonga.getImageIndex(); i <= (all ? picList.size() - 1 : Tonga.getImageIndex()); i++) {
+                TongaImage m = Tonga.picList.get(i);
+                String fname = generateFilename(m.imageName + "_annotations");
+                new Exporter() {
+                    @Override
+                    void write() throws IOException {
+                        TongaAnnotator.exportAnnos(m, file);
+                    }
+                }.exportFile(fname, "taf", "Annotations exported into file.", false);
+                Tonga.loader().loaderProgress(++it, picList.size());
+            }
+            Tonga.loader().loaderProgress(picList.size(), picList.size());
+            Tonga.setStatus("All annotations of " + (all ? "all of the images were" : "the current image were") + " exported");
+        });
+        Tonga.bootThread(thread, "Exporter", true, true);
+    }
+
+    public static void exportAnnotationAreas(boolean all) {
+        Thread thread = new Thread(() -> {
+            Tonga.loader().loaderProgress(0, picList.size());
+            int it = 0;
+            Tonga.loader().stopAppending();
+            for (int i = all ? 0 : Tonga.getImageIndex(); i <= (all ? picList.size() - 1 : Tonga.getImageIndex()); i++) {
+                TongaImage m = Tonga.picList.get(i);
+                List<TongaAnnotation> ta = m.annotations.getAnnotations();
+                TongaLayer tl = m.getLayer(Tonga.getLayerIndex());
+                for (int a = 0; a < ta.size(); a++) {
+
+                    ImageData mask = FiltersPass.getAnnotationMask().runSingle(tl, ta.get(a), false, true);
+                    ImageData renderedImage = new ImageTracer(mask, COL.BLACK).trace().list.get(0).drawArea(new ImageData(tl.layerImage));
+                    exportImage(m, renderedImage, "Annotation_" + (a + 1));
+                    Tonga.loader().loaderProgress(it + (a / (double) ta.size()), picList.size());
+                }
+                it++;
+            }
+            Tonga.loader().continueAppending();
+            Tonga.loader().loaderProgress(picList.size(), picList.size());
+            Tonga.setStatus("All annotations of " + (all ? "all of the images were" : "the current image was") + " exported into PNG format");
+        });
+        Tonga.bootThread(thread, "Exporter", false, true);
+    }
+
     private static boolean exportImage(TongaImage p, ImageData i, String name) {
         String iname = p.imageName + "_[" + name + "]";
         return exportImage(i.toStreamedImage(), iname);

@@ -145,13 +145,16 @@ public class Tonga {
             UIManager.setLookAndFeel(new NimbusLookAndFeel());
             Object ogFocus = UIManager.get("nimbusFocus");
             UIManager.put("nimbusFocus", Color.RED);
-            Object[] painters = new Object[6];
+            Object[] painters = new Object[9];
             painters[0] = UIManager.get("Button[Focused+MouseOver].backgroundPainter");
             painters[1] = UIManager.get("Button[Focused+Pressed].backgroundPainter");
             painters[2] = UIManager.get("Button[Focused].backgroundPainter");
             painters[3] = UIManager.get("Button[Default+Focused+MouseOver].backgroundPainter");
             painters[4] = UIManager.get("Button[Default+Focused+Pressed].backgroundPainter");
             painters[5] = UIManager.get("Button[Default+Focused].backgroundPainter");
+            painters[6] = UIManager.get("ComboBox[Focused+MouseOver].backgroundPainter");
+            painters[7] = UIManager.get("ComboBox[Focused+Pressed].backgroundPainter");
+            painters[8] = UIManager.get("ComboBox[Focused].backgroundPainter");
             UIManager.getLookAndFeel().uninitialize();
             UIManager.put("nimbusFocus", ogFocus);
             specialFeels = new UIDefaults();
@@ -161,8 +164,12 @@ public class Tonga {
             specialFeels.put("Button[Default+Focused+MouseOver].backgroundPainter", painters[3]);
             specialFeels.put("Button[Default+Focused+Pressed].backgroundPainter", painters[4]);
             specialFeels.put("Button[Default+Focused].backgroundPainter", painters[5]);
+            specialFeels.put("ComboBox[Focused+MouseOver].backgroundPainter", painters[6]);
+            specialFeels.put("ComboBox[Focused+Pressed].backgroundPainter", painters[7]);
+            specialFeels.put("ComboBox[Focused].backgroundPainter", painters[8]);
             UIManager.setLookAndFeel(new NimbusLookAndFeel());
             UIManager.put("nimbusOrange", tongaBlue);
+            //
             Tonga.log.info("Looks initialized successfully");
         } catch (UnsupportedLookAndFeelException ex) {
             catchError(ex, "GUI initialization failed.");
@@ -319,18 +326,21 @@ public class Tonga {
         new fileDragAndDrop() {
             @Override
             public void action(List<File> files) {
-                IO.importImage(files);
                 if (files.get(0).getName().endsWith(".tsv")) {
-                    TongaTable.importData(files.get(0));
+                    frame().resultTable.importData(files.get(0));
+                } else if (files.get(0).getName().endsWith(".taf")) {
+                    TongaAnnotator.importAnnos(files, false);
                 } else {
                     IO.importImage(files);
                 }
             }
         }.initDnD(dndPanel, "Import a new image with multiple layers",
                 new String[]{
+                    ".taf",
                     ".tsv"
                 },
                 new String[]{
+                    "Import annotations to the current image",
                     "Import data table"
                 });
         new fileDragAndDrop() {
@@ -348,14 +358,18 @@ public class Tonga {
                     if (imageListModel.size() != 0) {
                         if (files.size() % imageListModel.size() == 0 && getImageIndexes().length == 1) {
                             if (files.get(0).getName().endsWith(".tsv")) {
-                                TongaTable.importData(files.get(0));
+                                frame().resultTable.importData(files.get(0));
+                            } else if (files.get(0).getName().endsWith(".taf")) {
+                                TongaAnnotator.importAnnos(files, true);
                             } else {
                                 IO.importLayers(files, true);
                             }
                             evt.dropComplete(true);
                         } else {
                             if (files.get(0).getName().endsWith(".tsv")) {
-                                TongaTable.importData(files.get(0));
+                                frame().resultTable.importData(files.get(0));
+                            } else if (files.get(0).getName().endsWith(".taf")) {
+                                TongaAnnotator.importAnnos(files, false);
                             } else {
                                 IO.importLayers(files, false);
                             }
@@ -380,6 +394,8 @@ public class Tonga {
                         String ext = ((List<File>) dtde.getTransferable().getTransferData(DataFlavor.javaFileListFlavor)).get(0).getName();
                         if (ext.endsWith(".tsv")) {
                             setStatus("Import data table");
+                        } else if (ext.endsWith(".taf")) {
+                            setStatus("Import annotations to existing images");
                         } else {
                             setStatus("Import new layer(s) to existing images");
                         }
@@ -481,7 +497,8 @@ public class Tonga {
         });
         KeyboardFocusManager.getCurrentKeyboardFocusManager().addKeyEventDispatcher((KeyEvent ke) -> {
             Key.event(ke);
-            return false;
+            //disable OS alt
+            return ke.getKeyCode() == 18;
         });
         Splash.append("Listeners", 2);
     }
@@ -684,6 +701,10 @@ public class Tonga {
         return getImage(getImageIndex());
     }
 
+    public static List<TongaAnnotation> getAnnotations() {
+        return getImage().annotations.getAnnotations();
+    }
+
     public static TongaImage getImage(int index) {
         return index == -1 || picList.isEmpty() ? null : picList.get(index);
     }
@@ -740,9 +761,8 @@ public class Tonga {
                 layerListModel.addElement(name);
             });
         }
-        if (mainFrame.currentProtocol != null) {
-            mainFrame.currentProtocol.updateComponents();
-        }
+        Tonga.frame().updatePanels();
+        TongaAnnotator.update();
     }
 
     protected static void refreshChanges(File path, String string) {

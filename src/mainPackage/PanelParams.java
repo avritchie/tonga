@@ -1,6 +1,8 @@
 package mainPackage;
 
 import java.awt.Color;
+import java.util.Arrays;
+import java.util.List;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JSlider;
@@ -8,12 +10,17 @@ import javax.swing.JSpinner;
 import javax.swing.JToggleButton;
 import mainPackage.PanelCreator.ControlReference;
 import static mainPackage.PanelCreator.ControlType.*;
+import mainPackage.TongaAnnotator.AnnotationType;
 import mainPackage.utils.COL;
 
 public class PanelParams {
 
     public PanelParams(ControlReference[] parameterData) {
         initArrays(parameterData);
+    }
+
+    public PanelParams(PanelParams parameterParent) {
+        initArrays(parameterParent);
     }
 
     public int[] slider;
@@ -27,9 +34,15 @@ public class PanelParams {
     public int[] colorARGB;
     public int[] spinner;
     public boolean[] toggle;
+    public TongaAnnotation[] annotation;
+    private int[] annotationIndex;
+    private AnnotationType[][] annotationIndexType;
+    public int[] annotationGroup;
+    public AnnotationType[] annotationType;
 
     public void getFilterParameters(PanelCreator panelCreator) {
-        int sliders = 0, colors = 0, spinners = 0, combos = 0, toggles = 0, ranges = 0, selects = 0, layers = 0, folders = 0;
+        int sliders = 0, colors = 0, spinners = 0, combos = 0, toggles = 0, ranges = 0, selects = 0, layers = 0, folders = 0, annos = 0,
+                annotypes = 0, annogroups = 0;
         for (PanelControl pc : panelCreator.getControls()) {
             switch (pc.type) {
                 case SLIDER:
@@ -64,6 +77,25 @@ public class PanelParams {
                     layer[layers] = ((JComboBox) pc.comp).getSelectedIndex();
                     layers++;
                     break;
+                case ANNOTATION:
+                    annotationIndex[annos] = ((JComboBox) pc.comp).getSelectedIndex();
+                    annotationIndexType[annos] = (AnnotationType[]) pc.data;
+                    annos++;
+                    break;
+                case ANNOTATION_TYPE:
+                    Object at = ((JComboBox) pc.comp).getSelectedItem();
+                    if (at.getClass() == AnnotationType.class) {
+                        annotationType[annotypes] = (AnnotationType) at;
+                    } else {
+                        annotationType[annotypes] = null;
+                    }
+                    annotypes++;
+                    break;
+                case ANNOTATION_GROUP:
+                    String ag = ((String) ((JComboBox) pc.comp).getSelectedItem());
+                    annotationGroup[annogroups] = ag.equals("All") ? -1 : Integer.parseInt(ag);
+                    annogroups++;
+                    break;
                 case FOLDER:
                     folder[folders] = ((JButton) pc.comp).getText();
                     folders++;
@@ -76,8 +108,27 @@ public class PanelParams {
         }
     }
 
+    public void setImageFilterParameters(PanelParams paramParent, TongaImage ti) {
+        //create local parameters using parent protocol parameters
+        for (int a = 0; a < paramParent.annotationIndex.length; a++) {
+            try {
+                List<TongaAnnotation> annos = ti.annotations.getAnnotations();
+                if (paramParent.annotationIndex[a] != -1) {
+                    if (paramParent.annotationIndexType[a] != null) {
+                        List<AnnotationType> atl = Arrays.asList((AnnotationType[]) paramParent.annotationIndexType[a]);
+                        annos = annos.stream().filter(n -> atl.contains(n.getType())).toList();
+                    }
+                    annotation[a] = annos.get(paramParent.annotationIndex[a]);
+                }
+            } catch (Exception ex) {
+                Tonga.catchError(ex, "Annotation " + a + " was not loaded from " + ti.imageName);
+            }
+        }
+    }
+
     public void setFilterParameters(ControlReference[] parameterData, Object... parameters) {
-        int sliders = 0, colors = 0, spinners = 0, combos = 0, toggles = 0, ranges = 0, selects = 0, folders = 0;
+        int sliders = 0, colors = 0, spinners = 0, combos = 0, toggles = 0, ranges = 0, selects = 0, folders = 0, annotations = 0,
+                annotationtypes = 0, annotationgroups = 0;
         for (int i = 0, j = 0; i < parameters.length; i++, j++) {
             if (parameters[i] != null) {
                 try {
@@ -130,6 +181,38 @@ public class PanelParams {
                             // layers skipped
                             i--;
                             break;
+                        case ANNOTATION:
+                            if (parameters[i].getClass().equals(TongaAnnotation.class)) {
+                                annotationIndex[annotations] = -1;
+                                annotation[annotations] = (TongaAnnotation) parameters[i];
+                            } else {
+                                annotationIndex[annotations] = (int) parameters[i];
+                                annotation[annotations] = null;
+                            }
+                            annotations++;
+                            break;
+                        case ANNOTATION_TYPE:
+                            if (parameters[i].getClass().equals(AnnotationType.class)) {
+                                annotationType[annotationtypes] = (AnnotationType) parameters[i];
+                            } else {
+                                //"All" has been selected
+                                annotationType[annotationtypes] = null;
+                            }
+                            annotationtypes++;
+                            break;
+                        case ANNOTATION_GROUP:
+                            if (parameters[i].getClass().equals(String.class)) {
+                                String ag = (String) parameters[i];
+                                if (ag.equals("All")) {
+                                    annotationGroup[annotationgroups] = -1;
+                                } else {
+                                    annotationGroup[annotationgroups] = Integer.parseInt(ag);
+                                }
+                            } else {
+                                annotationGroup[annotationgroups] = (Integer) parameters[i];
+                            }
+                            annotationgroups++;
+                            break;
                         case FOLDER:
                             folder[folders] = (String) parameters[i];
                             folders++;
@@ -152,8 +235,8 @@ public class PanelParams {
         try {
             for (int i = 0, j = 0; i < parameters.length; i++, j++) {
                 PanelControl pc = panelControls.getControls().get(j);
-                if (pc.type == LAYER) {
-                    // layers skipped
+                if (pc.type == LAYER || pc.type == ANNOTATION || pc.type == ANNOTATION_TYPE || pc.type == ANNOTATION_GROUP) {
+                    // layers and annotations skipped because their value depends on the selected image and can't be set globally
                     i--;
                 } else if (parameters[i] != null) {
                     switch (pc.type) {
@@ -204,7 +287,8 @@ public class PanelParams {
     }
 
     private void initArrays(ControlReference[] parameterData) {
-        int sliders = 0, colors = 0, spinners = 0, combos = 0, toggles = 0, ranges = 0, selects = 0, layers = 0, folders = 0;
+        int sliders = 0, colors = 0, spinners = 0, combos = 0, toggles = 0, ranges = 0, selects = 0, layers = 0, folders = 0, annos = 0,
+                annotypes = 0, annogroups = 0;
         for (ControlReference pc : parameterData) {
             switch (pc.type) {
                 case SLIDER:
@@ -225,6 +309,15 @@ public class PanelParams {
                 case LAYER:
                     layers++;
                     break;
+                case ANNOTATION:
+                    annos++;
+                    break;
+                case ANNOTATION_TYPE:
+                    annotypes++;
+                    break;
+                case ANNOTATION_GROUP:
+                    annogroups++;
+                    break;
                 case FOLDER:
                     folders++;
                     break;
@@ -244,9 +337,32 @@ public class PanelParams {
         layer = new int[layers];
         folder = new String[folders];
         color = new javafx.scene.paint.Color[colors];
+        annotationIndex = new int[annos];
+        annotationIndexType = new AnnotationType[annos][];
+        annotation = new TongaAnnotation[annos];
+        annotationType = new AnnotationType[annotypes];
+        annotationGroup = new int[annogroups];
         colorARGB = new int[colors];
         spinner = new int[spinners];
         toggle = new boolean[toggles];
+    }
+
+    private void initArrays(PanelParams parameterParent) {
+        range = new int[parameterParent.range.length];
+        slider = new int[parameterParent.slider.length];
+        sliderScaled = new double[parameterParent.slider.length];
+        spinner = new int[parameterParent.spinner.length];
+        toggle = new boolean[parameterParent.toggle.length];
+        combo = new int[parameterParent.combo.length];
+        select = new int[parameterParent.select.length];
+        layer = new int[parameterParent.layer.length];
+        color = new javafx.scene.paint.Color[parameterParent.color.length];
+        colorARGB = new int[parameterParent.color.length];
+        annotation = new TongaAnnotation[parameterParent.annotation.length];
+        annotationIndex = new int[parameterParent.annotation.length];
+        annotationIndexType = new AnnotationType[parameterParent.annotation.length][];
+        annotationType = new AnnotationType[parameterParent.annotationType.length];
+        annotationGroup = new int[parameterParent.annotationGroup.length];
     }
 
     public static Double[] sliderParams(Object[] data) {

@@ -11,11 +11,11 @@ import mainPackage.morphology.Line;
 public class GEO {
 
     public static Point getMidPoint(Point p1, Point p2) {
-        return new Point((p1.x + p2.x) / 2, (p1.y + p2.y) / 2);
+        return new DoublePoint((p1.getX() + p2.getX()) / 2, (p1.getY() + p2.getY()) / 2);
     }
 
-    public static double getAngle(Point p1, Point p2, Point p3) {
-        return getAngle(p1.x, p1.y, p2.x, p2.y, p3.x, p3.y);
+    public static double getAngle(Point crossing, Point previous, Point next) {
+        return getAngle(crossing.x, crossing.y, previous.x, previous.y, next.x, next.y);
     }
 
     public static double getDirection(Point a, Point b) {
@@ -104,16 +104,56 @@ public class GEO {
         return new Point(fx, fy);
     }
 
+    public static double getPerpendicularDistance(Point lineStart, Point lineEnd, Point space) {
+        double ld = getDirection(lineStart, lineEnd);
+        Point pp = new Line(lineStart.x, lineStart.y, ld).getPerpendicularIntersection(space);
+        return getDist(pp, space);
+    }
+
     public static double hypotenuse(double a, double b) {
         return Math.sqrt(a * a + b * b);
+    }
+
+    public static double ellipsePerimeter(double largeRadius, double smallRadius) {
+        return Math.PI * (3 * (smallRadius + largeRadius) - Math.sqrt((3 * smallRadius + largeRadius) * (3 * largeRadius + smallRadius)));
     }
 
     public static double circleCircumference(double area) {
         return Math.sqrt(area / Math.PI) * 2 * Math.PI;
     }
 
-    public static int circleArea(double diameter) {
-        return (int) (Math.pow(diameter / 2., 2) * Math.PI);
+    public static double ellipseArea(double largeRadius, double smallRadius) {
+        return Math.PI * smallRadius * largeRadius;
+    }
+
+    public static double circleArea(double diameter) {
+        return Math.PI * Math.pow(diameter / 2., 2);
+    }
+
+    public static double polygonArea(Point[] points) {
+        int p = points.length;
+        double area = 0;
+        for (int i = 0; i < p; i++) {
+            Point nextp = points[(i + 1) % p];
+            Point prevp = points[(i + p - 1) % p];
+            area += points[i].x * (nextp.y - prevp.y);
+        }
+        return 0.5 * Math.abs(area);
+    }
+
+    public static double planeArea(Point[] points, int span) {
+        int p = points.length;
+        double area = 0;
+        for (int i = 0; i < p - 1; i++) {
+            area += getDist(points[i], points[i + 1]) * span;
+            if (i < p - 2) {
+                double angle = 180 - getAngle(points[i + 1], points[i], points[i + 2]);
+                double radp = Math.pow(span / 2., 2);
+                area += Math.PI * radp * (angle / 360.);
+                area -= (radp * Math.sin(Math.toRadians(angle / 2))) / (2 * Math.sin(Math.toRadians(90 - angle / 2))) * 2;
+            }
+        }
+        return area;
     }
 
     public static double getAngle(int x1, int y1, int x2, int y2, int x3, int y3) {

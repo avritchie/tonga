@@ -8,6 +8,7 @@ import mainPackage.Iterate;
 import mainPackage.PanelCreator;
 import mainPackage.PanelCreator.ControlReference;
 import mainPackage.PanelParams;
+import mainPackage.PanelUtils;
 import mainPackage.Tonga;
 import mainPackage.TongaImage;
 import mainPackage.TongaLayer;
@@ -45,10 +46,15 @@ public abstract class Counter {
 
     public final void loadComponents() {
         panelCreator = new PanelCreator(parameterData);
+        PanelUtils.updateComponents(panelCreator);
     }
 
     public final void loadParams() {
         param.getFilterParameters(panelCreator);
+    }
+
+    public final String getName() {
+        return counterName;
     }
 
     public TableData runAll() {
@@ -79,6 +85,11 @@ public abstract class Counter {
     public TableData runSingle(TongaImage image, ImageData source) {
         handle(image, source);
         return data;
+    }
+
+    public TableData runSingle(TongaImage image, ImageData source, Object... parameters) {
+        param.setFilterParameters(parameterData, parameters);
+        return runSingle(image, source);
     }
 
     protected void handle(TongaImage image, ImageData layer) {

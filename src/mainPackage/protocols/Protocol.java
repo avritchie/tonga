@@ -22,6 +22,7 @@ import mainPackage.PanelCreator;
 import mainPackage.PanelCreator.ControlReference;
 import mainPackage.PanelParams;
 import mainPackage.PanelCreator.ControlType;
+import mainPackage.PanelUtils;
 import mainPackage.Settings;
 import mainPackage.Threader;
 import mainPackage.Tonga;
@@ -54,6 +55,7 @@ public abstract class Protocol {
 
     public void loadComponents() {
         panelCreator = new PanelCreator(parameters);
+        PanelUtils.updateComponents(panelCreator);
         setLayerSelectors();
         setBGColourSelectors();
     }
