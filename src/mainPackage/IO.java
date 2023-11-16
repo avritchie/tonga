@@ -1,6 +1,5 @@
 package mainPackage;
 
-import MRXS.MRXSLevel;
 import MRXS.MRXSSlide;
 import java.awt.Component;
 import java.awt.Desktop;
@@ -170,47 +169,6 @@ public class IO {
                 }
             }.importFile(files);
         }
-        /*
-        if (Settings.settingBatchProcessing()) {
-            Tonga.setStatus("Stacked images cannot be opened in the batch-mode since the contents may vary.");
-        } else {
-            Thread thread = new Thread(() -> {
-                Tonga.loader().setIterations(files.size());
-                int failures = 0;
-                boolean formatissue = false;
-                int count = picList.size();
-                for (int i = 0; i < files.size(); i++) {
-                    if (Thread.currentThread().isInterrupted()) {
-                        return;
-                    }
-                    File file = files.get(i);
-                    try {
-                        importStack(file);
-                    } catch (IOException | ServiceException | FormatException ex) {
-                        if (file.isDirectory()) {
-                            Tonga.catchError(ex, "Folder importing is not supported.");
-                        } else {
-                            Tonga.catchError(ex, "Image file can not be imported.");
-                        }
-                        failures++;
-                        if (ex instanceof FormatException || ex instanceof IllegalStateException) {
-                            formatissue = true;
-                            Tonga.log.warn("Unsupported format");
-                        }
-                        Tonga.loader().appendToNext();
-                    }
-                }
-                count = picList.size() - count;
-                if (failures == files.size()) {
-                    Tonga.refreshChanges(files.get(0), "<font color=\"red\">Image importing failed.</font>" + (formatissue ? " Unsupported file format." : ""));
-                } else {
-                    Tonga.refreshChanges(files.get(0), "Imported image file(s) containing a total of " + count + " new images"
-                            + (failures > 0 ? " but " + failures + " file" + (failures > 1 ? "s" : "") + " failed to be imported." : "."));
-                }
-            }
-            );
-            Tonga.bootThread(thread, "Importer", false, true);
-        }*/
     }
 
     public static void importLayers(List<File> files, boolean toAllImages) {
@@ -272,81 +230,6 @@ public class IO {
                 return "Imported " + mod + " new layers to " + imgEnts + " images";
             }
         }.importFile(files);
-        /*
-        if (Settings.settingBatchProcessing()) {
-            int mod = files.size() / Tonga.imageListModel.size();
-            for (int i = 0; i < Tonga.imageListModel.size(); i++) {
-                for (int j = 0; j < mod; j++) {
-                    File file = files.get(i * mod + j);
-                    Tonga.injectNewLayer(file.getAbsolutePath(), "Layer", i);
-                }
-            }
-            Tonga.refreshChanges(files.get(0), "Imported file pointers");
-        } else {
-            Thread thread = new Thread(() -> {
-                Tonga.loader().setIterations(files.size());
-                boolean formatissue = false;
-                int failures = 0;
-                int stacks = 0;
-                int imgEnts;
-                int[] imgIds;
-                if (toAllImages) {
-                    // all images get new layers
-                    imgEnts = Tonga.imageListModel.size();
-                    imgIds = new int[imgEnts];
-                    for (int i = 0; i < imgEnts; i++) {
-                        imgIds[i] = i;
-                    }
-                } else {
-                    // only selected images get new layers
-                    imgEnts = Tonga.getImageIndexes().length;
-                    imgIds = Tonga.getImageIndexes();
-                }
-                if (files.size() % imgEnts == 0) {
-                    int mod = files.size() / imgEnts;
-                    for (int i = 0; i < imgEnts; i++) {
-                        for (int j = 0; j < mod; j++) {
-                            if (Thread.currentThread().isInterrupted()) {
-                                return;
-                            }
-                            File file = files.get(i * mod + j);
-                            try {
-                                if (StackImporter.isStackImage(file)) {
-                                    stacks++;
-                                } else {
-                                    Tonga.injectNewLayer(file, "Layer", imgIds[i]);
-                                    Tonga.loader().appendProgress(1.0);
-                                }
-                            } catch (Exception ex) {
-                                if (file.isDirectory()) {
-                                    Tonga.catchError(ex, "Folder importing is not supported.");
-                                } else {
-                                    Tonga.catchError(ex, "Image file can not be imported.");
-                                }
-                                failures++;
-                                if (ex instanceof FormatException || ex instanceof IllegalStateException) {
-                                    formatissue = true;
-                                    Tonga.log.warn("Unsupported format");
-                                }
-                                Tonga.loader().appendProgress(1.0);
-                            }
-                        }
-                    }
-                    if (failures == files.size()) {
-                        Tonga.refreshChanges(files.get(0), "<font color=\"red\">Image importing failed.</font> "
-                                + (stacks > 0 ? "Stack images can not be imported as layers." : "")
-                                + (formatissue ? " Unsupported file format." : ""));
-                    } else {
-                        Tonga.refreshChanges(files.get(0), "Imported " + mod + " new layers to " + imgEnts + " images"
-                                + (failures > 0 ? " but " + failures + " file" + (failures > 1 ? "s" : "") + " failed to be imported." : ".")
-                                + (stacks > 0 ? "Stack images can not be imported as layers." : ""));
-                    }
-                } else {
-                    Tonga.setStatus("Number of files has to be divisible with the number of images (" + imgEnts + ")");
-                }
-            });
-            Tonga.bootThread(thread, "Importer", false, true);
-        }*/
     }
 
     public static void importMultichannel(List<File> files) {
@@ -465,61 +348,6 @@ public class IO {
                 return "Imported " + (images > 0 ? images + " new images" : "");
             }
         }.importFile(files);
-        /*
-        if (Settings.settingBatchProcessing()) {
-            for (int i = 0; i < files.size(); i++) {
-                File file = files.get(i);
-                TongaImage ti = new TongaImage(file);
-                picList.add(ti);
-                ti.layerList.add(new TongaLayer(file.getAbsolutePath(), "Original"));
-            }
-            Tonga.refreshChanges(files.get(0), "Imported file pointers");
-        } else {
-            Thread thread = new Thread(() -> {
-                Tonga.loader().setIterations(files.size());
-                boolean formatissue = false;
-                int failures = 0;
-                int stacks = 0;
-                int images = 0;
-                for (int i = 0; i < files.size(); i++) {
-                    if (Thread.currentThread().isInterrupted()) {
-                        return;
-                    }
-                    File file = files.get(i);
-                    try {
-                        if (StackImporter.isStackImage(file)) {
-                            importStack(file);
-                            stacks++;
-                        } else {
-                            picList.add(new TongaImage(file, "Original"));
-                            images++;
-                            Tonga.loader().appendProgress(1.0);
-                        }
-                    } catch (Exception ex) {
-                        if (file.isDirectory()) {
-                            Tonga.catchError(ex, "Folder importing is not supported.");
-                        } else {
-                            Tonga.catchError(ex, "Image file can not be imported.");
-                        }
-                        failures++;
-                        if (ex instanceof FormatException || ex instanceof IllegalStateException) {
-                            formatissue = true;
-                            Tonga.log.warn("Unsupported format");
-                        }
-                        Tonga.loader().appendToNext();
-                    }
-                }
-                if (failures == files.size()) {
-                    Tonga.refreshChanges(files.get(0), "<font color=\"red\">Image importing failed.</font>" + (formatissue ? " Unsupported file format." : ""));
-                } else {
-                    Tonga.refreshChanges(files.get(0), "Imported "
-                            + (images > 0 ? images + " new images" + (stacks > 0 ? " and " : "") : "")
-                            + (stacks > 0 ? stacks + " stack image(s)" : "")
-                            + (failures > 0 ? " but " + failures + " file" + (failures > 1 ? "s" : "") + " failed to be imported." : "."));
-                }
-            });
-            Tonga.bootThread(thread, "Importer", false, true);
-        }*/
     }
 
     public static void importImage(List<File> files) {
@@ -569,81 +397,6 @@ public class IO {
                     return "Imported " + (layers > 0 ? "a new image with " + layers + " layers" : "");
                 }
             }.importFile(files);
-            /*
-            if (Settings.settingBatchProcessing()) {
-                File file = files.get(0);
-                TongaImage ti = new TongaImage(file);
-                ti.layerList.add(new TongaLayer(file.getAbsolutePath(), "Original"));
-                for (int i = 1; i < files.size(); i++) {
-                    file = files.get(i);
-                    ti.layerList.add(new TongaLayer(file.getAbsolutePath(), "Layer"));
-                }
-                picList.add(ti);
-                Tonga.refreshChanges(files.get(0), "Imported file pointers");
-            } else {
-                Thread thread = new Thread(() -> {
-                    Tonga.loader().setIterations(files.size());
-                    boolean formatissue = false;
-                    int failures = 0;
-                    int stacks = 0;
-                    int layers = 0;
-                    TongaImage image = new TongaImage(files.get(0));
-                    try {
-                        for (int i = 0; i < files.size(); i++) {
-                            if (Thread.currentThread().isInterrupted()) {
-                                return;
-                            }
-                            File file = files.get(i);
-                            TongaLayer layer;
-                            try {
-                                if (StackImporter.isStackImage(file)) {
-                                    importStack(file);
-                                    stacks++;
-                                } else {
-                                    layer = new TongaLayer(getImageFromFile(file), i == 0 ? "Original" : "Layer");
-                                    image.layerList.add(layer);
-                                    Tonga.loader().appendProgress(1.0);
-                                }
-                            } catch (ClosedChannelException ex) {
-                                Tonga.log.warn("Interrupted wile BFIO importing.");
-                            } catch (Exception ex) {
-                                if (file.isDirectory()) {
-                                    Tonga.catchError(ex, "Folder importing is not supported.");
-                                } else {
-                                    Tonga.catchError(ex, "Image file can not be imported.");
-                                }
-                                failures++;
-                                if (ex instanceof FormatException || ex instanceof IllegalStateException) {
-                                    formatissue = true;
-                                    Tonga.log.warn("Unsupported format");
-                                }
-                                Tonga.loader().appendToNext();
-                            }
-                        }
-                        layers = image.layerList.size();
-                        if (layers > 0) {
-                            picList.add(image);
-                        }
-                    } catch (Exception ex) {
-                        Tonga.catchError(ex, "Image file can not be imported.");
-                        failures++;
-                        if (ex instanceof FormatException || ex instanceof IllegalStateException) {
-                            formatissue = true;
-                            Tonga.log.warn("Unsupported format");
-                        }
-                        Tonga.loader().appendToNext();
-                    }
-                    if (failures == files.size()) {
-                        Tonga.refreshChanges(files.get(0), "<font color=\"red\">Image importing failed.</font>" + (formatissue ? " Unsupported file format." : ""));
-                    } else {
-                        Tonga.refreshChanges(files.get(0), "Imported "
-                                + (layers > 0 ? "a new image with " + layers + " layers" + (stacks > 0 ? " and " : "") : "")
-                                + (stacks > 0 ? stacks + " stack image(s)" : "")
-                                + (failures > 0 ? " but " + failures + " file" + (failures > 1 ? "s" : "") + " failed to be imported." : "."));
-                    }
-                });
-                Tonga.bootThread(thread, "Importer", false, true);
-            }*/
         }
     }
 

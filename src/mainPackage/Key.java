@@ -80,7 +80,7 @@ public class Key {
                             }
                         }
                     }
-                } else if (keyCtrl) {
+                } else {
                     switch (keyCode) {
                         case KeyEvent.VK_F:
                             Tonga.frame().executeFilter(keyShift);

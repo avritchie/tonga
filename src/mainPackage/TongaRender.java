@@ -83,7 +83,6 @@ public class TongaRender {
         initMainPanel();
         Splash.append("Main panel", 9);
         redraw();
-        Tonga.log.info("Renderer initialized successfully");
     }
 
     public static void redraw() {

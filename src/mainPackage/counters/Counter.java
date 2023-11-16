@@ -1,6 +1,5 @@
 package mainPackage.counters;
 
-import mainPackage.TongaTable;
 import mainPackage.MappedImage;
 import mainPackage.IO;
 import mainPackage.ImageData;
