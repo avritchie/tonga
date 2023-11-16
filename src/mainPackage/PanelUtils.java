@@ -104,14 +104,13 @@ public class PanelUtils {
     }
 
     private static void toggleEnable(PanelControl pc, ArrayList<PanelControl> controls) {
-        for (int i = 0; i <= pc.interaction.length / 2; i += 2) {
+        for (int i = 0; i < pc.interaction.length; i += 2) {
             boolean status;
             status = ((JToggleButton) pc.comp).isSelected();
             // to enable based on another toggle button, set index as 3-digit number:
             // fe. 131 checks if the 3rd element is selected and enables it if it is
             if (pc.interaction[i + 1] > 100) {
                 boolean estatus = ((JToggleButton) (controls.get((pc.interaction[i + 1] - 100) / 10).comp)).isSelected();
-                System.out.println(i + 1);
                 estatus = pc.interaction[i + 1] % 2 == 1 ? estatus : !estatus;
                 status = status ? estatus : false;
             } else {
