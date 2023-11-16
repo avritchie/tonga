@@ -273,7 +273,7 @@ public class ROI {
         quant.saveValues();
     }
 
-    protected void quantifyStain(ImageData img) {
+    public void quantifyStain(ImageData img) {
         Quantifier quant = new Quantifier(this);
         Iterate.areaPixels(this, (int p) -> {
             boolean bits = img.bits == 16;
