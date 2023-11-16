@@ -234,6 +234,71 @@ public class SetCounters {
         };
     }
 
+    public static SetCounter countObjectsStainClassSingle(ROISet set, String[] classNames) {
+        return new SetCounter("Count staining", new String[]{"Image", "Object", "Class", "X", "Y",
+            "Area %unit2", "Value", "<html><b>Stain %</b></html>", "<html><b>Stain sum</b></html>"},
+                new String[]{"The name of the image",
+                    "The unique id number of nucleus in the image",
+                    "The classified class of the nucleus",
+                    "The X-coordinate pixel of the centroid of this nucleus in the image",
+                    "The Y-coordinate pixel of the centroid of this nucleus in the image",
+                    "The area size of this nucleus in %unit2",
+                    "The value of this nucleus used for classifying",
+                    "The average relative intensity of this nucleus",
+                    "The total relative intensity of this nucleus"}) {
+
+            @Override
+            protected void processor() {
+                //ROISet set = getROISet(traced, targetImage);
+                Rows(set.objectsCount(), (int index) -> {
+                    ROI obj = set.list.get(index);
+                    row[1] = "#" + (index + 1);
+                    row[2] = classNames[obj.getClassID() - 1];
+                    int[] cent = obj.getCentroid();
+                    row[3] = (Integer) cent[0];
+                    row[4] = (Integer) cent[1];
+                    row[5] = scaleUnit(obj.getStainSTAT().getN(), 2);
+                    row[6] = obj.getClassifierValue();
+                    row[7] = STAT.decToPerc(obj.getStainAvg());
+                    row[8] = obj.getStainSum();
+                });
+            }
+        };
+    }
+
+    public static SetCounter countObjectsStainClassImage(ROISet set, String[] classNames) {
+        return new SetCounter("Count staining", new String[]{"Image", "Class", "Objects",
+            "<html><b>Avg.Stain %</b></html>", "Std.Stain %", "Med.Stain %",
+            "<html><b>Avg.Stain sum</b></html>", "Std.Stain sum", "Med.Stain sum"},
+                new String[]{"The name of the image",
+                    "The classified class of the nuclei",
+                    "The total number of recognized nuclei in the image",
+                    "The average relative intensity from all the nuclei in the image",
+                    "The standard deviation of the relative intensity measurement between the nuclei",
+                    "The median relative intensity from all the nuclei in the image",
+                    "The average relative intensity sum from all the nuclei in the image",
+                    "The standard deviation of the intensity sum measurement between the nuclei",
+                    "The median relative intensity sum from all the nuclei in the image"}) {
+
+            @Override
+            protected void processor() {
+                Rows(set.classCount(), (int index) -> {
+                    ROISet nset = set.getOnlyClass(index + 1);
+                    STAT stain = nset.statsForStainAvg();
+                    row[1] = classNames[index];
+                    row[2] = nset.objectsCount();
+                    row[3] = STAT.decToPerc(stain.getMean());
+                    row[4] = STAT.decToPerc(stain.getStdDev());
+                    row[5] = STAT.decToPerc(stain.getMedian());
+                    stain = nset.statsForStainSum();
+                    row[6] = stain.getMean();
+                    row[7] = stain.getStdDev();
+                    row[8] = stain.getMedian();
+                });
+            }
+        };
+    }
+
     public static SetCounter countObjectPositive(ROISet set, double d) {
         return new SetCounter("Count positivity", new String[]{"Image", "Objects", "Positive", "<html><b>Ratio %</b></html>"},
                 new String[]{"The name of the image",
