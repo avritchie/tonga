@@ -1,10 +1,9 @@
 package mainPackage.protocols;
 
+import mainPackage.ImageData;
 import mainPackage.PanelCreator.ControlReference;
 import static mainPackage.PanelCreator.ControlType.LAYER;
-import mainPackage.morphology.ImageTracer;
-import mainPackage.morphology.ROISet;
-import mainPackage.utils.COL;
+import mainPackage.filters.Filters;
 
 public class TestProtocol extends Protocol {
 
@@ -26,8 +25,11 @@ public class TestProtocol extends Protocol {
 
             @Override
             protected void pixelProcessor() {
-                ROISet set = new ImageTracer(inImage[0], COL.BLACK).trace();
-                setOutputBy(set.drawToImageData());
+                ImageData layerCorrect = initTempData();
+                Filters.gamma().runTo(inImage[0], layerCorrect, 0.5);
+                setOutputBy(layerCorrect, 1);
+                Filters.autoscale().runTo(layerCorrect);
+                setOutputBy(layerCorrect);
             }
         };
     }
