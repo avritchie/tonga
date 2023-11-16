@@ -316,13 +316,12 @@ public class FiltersPass {
                 Filters.autoscale().runTo(temp);
                 //scaled reverse dog for primary segmentation
                 temp2 = Filters.dog().runSingle(temp, Math.min(1, param.spinner[0] / 50), param.spinner[0], param.combo[0] == 0);
-                temp3 = Filters.dog().runSingle(temp, Math.min(1, param.spinner[0] / 50), param.spinner[0] * 2, param.combo[0] == 0);
-                temp3 = Blender.renderBlend(temp2, temp3, Blend.MAXIMUM);
+                temp3 = Filters.autoscale().runSingle(temp2);
                 //get two thresholdings from the primary segmentation
-                Filters.thresholdBright().runTo(temp3, temp2, 1); // 30 + (100 - param.slider[0]) * 0.3
+                Filters.thresholdBright().runTo(temp3, temp2, 30 + (100 - param.slider[0]) * 0.3);
                 Filters.thresholdBright().runTo(temp3, 10);
                 //intensity gradient for secondary segmentation
-                temp4 = Filters.maximumDiffEdge().runSingle(temp, 0, 1, true, 6 + (param.slider[0] / 5));
+                temp4 = Filters.maximumDiffEdge().runSingle(temp, 0, 1, true, 6 + (param.slider[0] / 10));
                 Filters.connectEdges().runTo(temp4, COL.BLACK, false);
                 //merge and smoothen the results to get an acceptable combined result
                 Iterate.pixels(this, (int pos) -> {
