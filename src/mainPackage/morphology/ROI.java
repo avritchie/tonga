@@ -162,6 +162,14 @@ public class ROI {
         return (area.xstart == 0 || area.ystart == 0 || area.xstart + area.width == originalImage.width || area.ystart + area.height == originalImage.height);
     }
 
+    public boolean touchesImageEdgesUL() {
+        return (area.xstart == 0 || area.ystart == 0);
+    }
+
+    public boolean touchesImageEdgesBR() {
+        return (area.xstart + area.width == originalImage.width || area.ystart + area.height == originalImage.height);
+    }
+
     public int[] getCentroid() {
         if (xcentroid == 0 && ycentroid == 0) {
             calculateCentroid();

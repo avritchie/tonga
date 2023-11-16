@@ -783,11 +783,29 @@ public class ROISet {
     }
 
     public void removeEdgeTouchers() {
+        removeEdgeTouchers(0);
+    }
+
+    public void removeEdgeTouchers(int type) {
         Iterator<? extends ROI> it = list.iterator();
         while (it.hasNext()) {
             ROI roi = it.next();
-            if (roi.touchesImageEdges()) {
-                it.remove();
+            switch (type) {
+                case 0:
+                    if (roi.touchesImageEdges()) {
+                        it.remove();
+                    }
+                    break;
+                case 1:
+                    if (roi.touchesImageEdgesUL()) {
+                        it.remove();
+                    }
+                    break;
+                case 2:
+                    if (roi.touchesImageEdgesBR()) {
+                        it.remove();
+                    }
+                    break;
             }
         }
     }
