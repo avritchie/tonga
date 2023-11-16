@@ -29,7 +29,7 @@ public class CountColoredObjects extends Protocol {
     @Override
     protected Processor getProcessor() {
         int limit = param.spinner[0];
-        double thresh = param.slider[0] / 100.0;
+        double thresh = param.slider[0] * 2.55;
         int color = param.combo[0];
         boolean indv = param.toggle[0];
 
