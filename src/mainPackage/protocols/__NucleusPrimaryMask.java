@@ -7,7 +7,6 @@ import mainPackage.ImageData;
 import mainPackage.PanelCreator.ControlReference;
 import static mainPackage.PanelCreator.ControlType.*;
 import mainPackage.Settings;
-import mainPackage.Tonga;
 import mainPackage.filters.Filters;
 import mainPackage.filters.FiltersPass;
 import mainPackage.filters.FiltersSet;
@@ -33,9 +32,9 @@ public class __NucleusPrimaryMask extends Protocol {
         int nucleusSize = param.spinner[0];
         int iter = nucleusSize < 34 ? 52 : 70;
 
-        return new ProcessorFast(Tonga.debug() ? 13 : 2, new String[]{"Nucleus Mask"}, iter) {
+        return new ProcessorFast(fullOutput() ? 13 : 2, new String[]{"Nucleus Mask"}, iter) {
 
-            ImageData layerCorrect, layerBackground, layerNuclei, layerComb;
+            ImageData layerCorrect, layerBackground, layerNuclei, layerComb, layerDog;
             ROISet quantSet, fillSet;
             int nuclSize, nuclArea, minNucl, maxNucl, maxInn, maxBack, maxEdge, smooth, noise, dilate, inRem;
 
@@ -45,8 +44,9 @@ public class __NucleusPrimaryMask extends Protocol {
                 layerBackground = initTempData();
                 layerNuclei = initTempData();
                 layerComb = initTempData();
+                layerDog = initTempData();
                 nuclSize = Settings.settingsOverrideSizeEstimate() ? (int) (sourceWidth[0] / 10.) : nucleusSize;
-                nuclArea = GEO.circleArea(nuclSize);
+                nuclArea = (int) GEO.circleArea(nuclSize);
                 // first gaussian
                 minNucl = (int) Math.max(1, nuclSize * 0.06); // 2
                 // second gaussian for detecting nuclei edges
@@ -81,14 +81,14 @@ public class __NucleusPrimaryMask extends Protocol {
                 Filters.dog().runTo(layerCorrect, layerNuclei, minNucl, maxNucl, true);
                 Filters.multiply().runTo(layerNuclei, 300);
                 setSampleOutputBy(layerNuclei, 3);
-                Filters.dog().runTo(layerNuclei, 1, maxInn, true);
-                setSampleOutputBy(layerNuclei, 4);
+                Filters.dog().runTo(layerNuclei, layerDog, 1, maxInn, true);
+                setSampleOutputBy(layerDog, 4);
                 // process with difference of gaussians 
                 Filters.dog().runTo(layerCorrect, layerBackground, minNucl + 1, maxBack, true);
                 setSampleOutputBy(layerBackground, 5);
                 // substract the second combination from the newly created final gaussian
                 applyOperator(inImage[0], layerComb, p
-                        -> (layerNuclei.pixels32[p] & 0xFF) > 1 && (layerBackground.pixels32[p] & 0xFF) < 1 ? COL.WHITE : COL.BLACK);
+                        -> (layerDog.pixels32[p] & 0xFF) > 1 && (layerBackground.pixels32[p] & 0xFF) < 1 ? COL.WHITE : COL.BLACK);
                 setSampleOutputBy(layerComb, 6);
                 quantSet = new ImageTracer(layerComb, Color.BLACK).trace();
                 Filters.dog().runTo(layerCorrect, layerComb, minNucl, nuclSize, false);
@@ -103,11 +103,10 @@ public class __NucleusPrimaryMask extends Protocol {
                 Filters.dog().runTo(layerBackground, 1, maxEdge, false);
                 setSampleOutputBy(layerBackground, 9);
                 Filters.dog().runTo(layerBackground, 1, maxEdge, false);
-                setSampleOutputBy(layerBackground, 10);
                 // stack
                 applyOperator(inImage[0], layerNuclei, p
                         -> (layerBackground.pixels32[p] & 0xFF) >= 1 || layerComb.pixels32[p] == COL.BLACK ? COL.BLACK : COL.WHITE);
-                setSampleOutputBy(layerNuclei, 11);
+                setSampleOutputBy(layerNuclei, 10);
                 fillSet = FiltersSet.fillInnerAreasSizeShape().runSet(layerNuclei, COL.BLACK, inRem, 90, false, 0, true);
                 //setSampleOutputBy(layerBackground, 10);// remove nuclei or other irregular holes on nuclei edges
                 if (noise > 0) {
@@ -118,7 +117,8 @@ public class __NucleusPrimaryMask extends Protocol {
                     layerBackground = fillSet.drawToImageData(true);
                 }
                 //fill inner shapes most likely NOT background
-                Protocol.load(BrightRemover::new).runSilentTo(sourceImage, new ImageData[]{layerBackground, inImage[0]}, layerBackground, COL.WHITE, dilate, 0.5);
+                setSampleOutputBy(layerBackground, 11);
+                Protocol.load(BrightRemover::new).runSilentTo(sourceImage, new ImageData[]{layerBackground, layerDog}, layerBackground, COL.WHITE, dilate, 1.0);
                 setSampleOutputBy(layerBackground, 12);
                 // smooth the masks but on convex areas only
                 if (smooth > 0) {
