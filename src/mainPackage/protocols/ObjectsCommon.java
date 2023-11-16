@@ -9,6 +9,7 @@ import mainPackage.morphology.ImageTracer;
 import mainPackage.morphology.ROI;
 import mainPackage.morphology.ROISet;
 import static mainPackage.PanelCreator.ControlType.COLOUR;
+import static mainPackage.PanelCreator.ControlType.COMBO;
 
 public class ObjectsCommon extends Protocol {
 
@@ -22,12 +23,15 @@ public class ObjectsCommon extends Protocol {
         return new ControlReference[]{
             new ControlReference(LAYER, "Layer with filtered objects"),
             new ControlReference(LAYER, "Original unfiltered layer"),
-            new ControlReference(COLOUR, "Background is which color", new int[]{0})};
+            new ControlReference(COLOUR, "Background is which color", new int[]{0}),
+            new ControlReference(COMBO, new String[]{"Corner", "Center", "Centroid"}, "Common location to assume", 0)};
     }
 
     @Override
     protected Processor getProcessor() {
         Color bg = param.color[0];
+        int location = param.combo[0];
+
         return new ProcessorFast("Original Objects") {
 
             @Override
@@ -36,7 +40,12 @@ public class ObjectsCommon extends Protocol {
                 ImageTracer origSet = new ImageTracer(inImage[1], bg);
                 List<ROI> newRois = new ArrayList<>();
                 filteredSet.list.forEach(roi -> {
-                    ROI newRoi = origSet.traceSingleObjectAtPoint(roi.area.firstxpos, roi.area.firstypos);
+                    if (location == 2) {
+                        roi.getCentroid();
+                    }
+                    int x = location == 2 ? roi.xcentroid : location == 1 ? roi.xcenter : roi.area.firstxpos;
+                    int y = location == 2 ? roi.ycentroid : location == 1 ? roi.ycenter : roi.area.firstypos;
+                    ROI newRoi = origSet.traceSingleObjectAtPoint(x, y);
                     if (newRoi != null) {
                         newRois.add(newRoi);
                     }
