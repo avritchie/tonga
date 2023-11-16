@@ -4,6 +4,8 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.Container;
 import java.awt.event.ActionEvent;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.awt.event.MouseWheelEvent;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -51,6 +53,12 @@ public class PanelUtils {
                     ((JButton) component).addActionListener((ActionEvent evt) -> {
                         JButton source = (JButton) evt.getSource();
                         pathSelect(source);
+                    });
+                    ((JButton) component).addMouseListener(new MouseAdapter() {
+                        @Override
+                        public void mouseEntered(MouseEvent mEvt) {
+                            Tonga.setStatus(((JButton) component).getToolTipText());
+                        }
                     });
                 }
             }
