@@ -1,11 +1,15 @@
 package mainPackage.filters;
 
+import java.awt.Point;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import mainPackage.Iterate;
 import mainPackage.PanelCreator;
 import static mainPackage.PanelCreator.ControlType.*;
+import mainPackage.Tonga;
+import mainPackage.TongaAnnotator;
+import static mainPackage.TongaAnnotator.AnnotationType.DOT;
 import static mainPackage.filters.Filter.bgcol;
 import mainPackage.filters.FilterSet.OutputType;
 import mainPackage.morphology.ImageTracer;
@@ -118,6 +122,86 @@ public class FiltersSet {
                     setOutsetBy(inSet);
                 }
             }
+
+            @Override
+            protected int iterations(boolean bits) {
+                return param.toggle[0] ? 4 : 2;
+            }
+        };
+    }
+
+    public static FilterSet filterObjectSmallEdgeAdjusted() {
+        return new FilterSet("Size Filter",
+                new PanelCreator.ControlReference[]{
+                    new PanelCreator.ControlReference(COLOUR, "Background colour", -2),
+                    new PanelCreator.ControlReference(SPINNER, "Maximum size", 100)},
+                OutputType.PLAINSET) {
+
+            @Override
+            protected void processorSet() {
+                inSet.filterOutSmallObjectsEdgeAdjusted(param.spinner[0]);
+                setOutsetBy(inSet);
+            }
+        };
+    }
+
+    public static FilterSet filterObjectLarge() {
+        return new FilterSet("Size Filter",
+                new PanelCreator.ControlReference[]{
+                    new PanelCreator.ControlReference(COLOUR, "Background colour", -2),
+                    new PanelCreator.ControlReference(SPINNER, "Maximum size", 100),
+                    new PanelCreator.ControlReference(TOGGLE, "Also do for the background", 0, new int[]{3, 1}),
+                    new PanelCreator.ControlReference(SPINNER, "Background maximum size", 100)}, OutputType.PLAINSET, 2) {
+
+            ROISet innerSet, origSet;
+
+            @Override
+            protected void processorSet() {
+                if (param.toggle[0]) {
+                    origSet = inSet.copy();
+                }
+                inSet.filterOutLargeObjects((int) param.spinner[0]);
+                if (param.toggle[0]) {
+                    origSet.list.removeAll(inSet.list);
+                    origSet.drawAppend(inData, param.colorARGB[0]);
+                    innerSet = FiltersSet.innerAreas().runSet(inSet, inData, param.colorARGB[0], true);
+                    innerSet.filterOutSmallObjects((int) (param.spinner[1]));
+                    innerSet.parentalMerge();
+                } else {
+                    setOutsetBy(inSet);
+                }
+            }
+        };
+    }
+
+    public static FilterSet filterObjectIntense() {
+        return new FilterSet("Intensity Filter",
+                new PanelCreator.ControlReference[]{
+                    new PanelCreator.ControlReference(COLOUR, "Background colour", -2),
+                    new PanelCreator.ControlReference(SPINNER, "Maximum stain", 1000)}, OutputType.PLAINSET, 2) {
+
+            @Override
+            protected void processorSet() {
+                inSet.quantifyEvenColour(inData);
+                inSet.filterOutIntenseObjects(param.spinner[0]);
+                setOutsetBy(inSet);
+            }
+        };
+    }
+
+    public static FilterSet filterObjectSmallIntense() {
+        return new FilterSet("Intensity Filter",
+                new PanelCreator.ControlReference[]{
+                    new PanelCreator.ControlReference(COLOUR, "Background colour", -2),
+                    new PanelCreator.ControlReference(SPINNER, "Maximum size", 200),
+                    new PanelCreator.ControlReference(SLIDER, "Minimum stain", 80)}, OutputType.PLAINSET, 2) {
+
+            @Override
+            protected void processorSet() {
+                inSet.quantifyEvenColour(inData);
+                inSet.filterOutBrightSmallObjects(param.spinner[0], param.slider[0] / 100.);
+                setOutsetBy(inSet);
+            }
         };
     }
 
@@ -204,6 +288,24 @@ public class FiltersSet {
         };
     }
 
+    public static FilterSet filterObjectRatioAngle() {
+        return new FilterSet("Size Filter",
+                new PanelCreator.ControlReference[]{
+                    new PanelCreator.ControlReference(COLOUR, "Background colour", -2),
+                    new PanelCreator.ControlReference(ANNOTATION, new TongaAnnotator.AnnotationType[]{DOT},"Dot to point towards"),
+                    new PanelCreator.ControlReference(SLIDER, new Object[]{0.1, 1, 5.5, 180}, "Classifying ratio", 90),
+                    new PanelCreator.ControlReference(TOGGLE, "Flip result", 0)}, OutputType.PLAINSET) {
+
+            @Override
+            protected void processorSet() {
+                int posx = param.annotation[0].points.get(0).x;
+                int posy = param.annotation[0].points.get(0).y;
+                inSet.filterOutRatioAngled(param.sliderScaled[0], param.toggle[0], new Point(posx, posy));
+                setOutsetBy(inSet);
+            }
+        };
+    }
+
     public static FilterSet filterEdgeTouchers() {
         return new FilterSet("Edge toucher filter",
                 new PanelCreator.ControlReference[]{
@@ -227,6 +329,21 @@ public class FiltersSet {
                 inSet.imageEdgeFixer(false);
                 inSet.findOuterEdges();
                 inSet.findInnerEdges();
+                setOutsetBy(inSet);
+            }
+        };
+    }
+
+    public static FilterSet getOutlines() {
+        return new FilterSet("Outlines", bgcol, OutputType.OUTDATA) {
+
+            @Override
+            protected void processorSet() {
+                inSet = getEdgeMask().runSet(inSet, new Object[]{bgcol});
+                int[] vals = inSet.drawToArray(false);
+                Iterate.pixels(outData, (int p) -> {
+                    outData.pixels32[p] = vals[p] == 0xFFFF0000 ? COL.WHITE : COL.BLACK;
+                });
                 setOutsetBy(inSet);
             }
         };

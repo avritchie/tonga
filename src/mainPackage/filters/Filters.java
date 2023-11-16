@@ -679,7 +679,26 @@ public class Filters {
         };
     }
 
+    public static FilterFast findLast() {
+        return new FilterFast("Alpha", noParams) {
+            int lpos = 0;
+
+            @Override
+            protected void processor() {
+                Iterate.pixels(this, (int pos) -> {
+                    if (in32[pos] != COL.BLACK) {
+                        lpos = pos;
+                    }
                 });
+                IMG.copyPixels(in32, out32);
+                if (lpos < out32.length - 1) {
+                    Arrays.fill(out32, lpos + 1, out32.length, 0x00000000);
+                }
+            }
+
+            @Override
+            protected void processor16() {
+                throw new UnsupportedOperationException("No 16-bit version available");
             }
         };
     }
@@ -806,6 +825,30 @@ public class Filters {
                 Iterate.pixels(this, (int pos) -> {
                     int c = RGB.brightness(in32[pos]);
                     out32[pos] = c >= param.range[1] ? COL.WHITE : c >= param.range[0] ? COL.GRAY : COL.BLACK;
+                });
+            }
+
+            @Override
+            protected void processor16() {
+                throw new UnsupportedOperationException("No 16-bit version available");
+            }
+        };
+    }
+
+    public static FilterFast clampAverage() {
+        return new FilterFast("Intensity Clamp", new ControlReference[]{
+            new ControlReference(SPINNER, "Radius (px)", 10),
+            new ControlReference(COMBO, new String[]{"Above", "Below"}, "Clamp everything ... the average")}, 2) {
+            @Override
+            protected void processor() {
+                int[] integral = Filters.integral().runSingle(inData).pixels32;
+                int r = param.spinner[0];
+                Iterate.pixels(this, (int pos) -> {
+                    double localMean = Integral.integralMean(integral, r, pos, width, height);
+                    double b = (param.combo[0] == 0 ? Math.min(localMean, RGB.brightness(in32[pos])) : Math.max(localMean, RGB.brightness(in32[pos]))) / 255.;
+                    double h = RGB.hue(in32[pos]);
+                    double s = RGB.saturation(in32[pos]);
+                    out32[pos] = java.awt.Color.HSBtoRGB((float) h, (float) s, (float) b);
                 });
             }
 
@@ -1262,6 +1305,28 @@ public class Filters {
                 int low = param.toggle[0] ? begEnd[0] : 0;
                 int hi = param.toggle[1] ? begEnd[1] : outData.max - outData.min;
                 set16BitScaleRange(hi, low, false);
+            }
+        };
+    }
+
+    public static FilterFast cutAnnotation() {
+        return new FilterFast("Annotation",
+                new ControlReference[]{
+                    new ControlReference(ANNOTATION, "Which annotation to use"),
+                    new ControlReference(TOGGLE, "All", 0, new int[]{0, 0})}) {
+
+            @Override
+            protected void processor() {
+                ImageData id = FiltersPass.getAnnotationMask().runSingle(inData, param.annotation[0], param.toggle[0], true);
+                id = Blender.renderBlend(id, inData, Blend.MULTIPLY);
+                setOutputBy(id);
+            }
+
+            @Override
+            protected void processor16() {
+                ImageData id = FiltersPass.getAnnotationMask().runSingle(inData, param.annotation[0], param.toggle[0], true);
+                id = Blender.renderBlend(id, inData, Blend.MULTIPLY);
+                setOutputBy(id);
             }
         };
     }

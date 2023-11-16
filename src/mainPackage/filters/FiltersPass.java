@@ -20,9 +20,12 @@ import mainPackage.PanelCreator.ControlReference;
 import static mainPackage.PanelCreator.ControlType.*;
 import mainPackage.TongaAnnotator;
 import mainPackage.TongaAnnotation;
+import static mainPackage.filters.Filter.bgcol;
 import static mainPackage.filters.Filter.noParams;
 import mainPackage.filters.FilterSet.OutputType;
 import mainPackage.morphology.EdgeAnalyzer;
+import mainPackage.morphology.ROI;
+import mainPackage.morphology.ROISet;
 import mainPackage.protocols.ApplyIllumination;
 import mainPackage.protocols.AverageMaskThreshold;
 import mainPackage.protocols.DimRemover;
@@ -189,6 +192,21 @@ public class FiltersPass {
         };
     }
 
+    public static FilterFast getOutlines() {
+        return new FilterFast("Outlines", bgcol, 2) {
+
+            @Override
+            protected void processor() {
+                setOutputBy(Blender.renderBlend(inData, Filters.maximumDiffEdge().runSingle(inData, 0, 1, true, 1), Blend.MULTIPLY));
+            }
+
+            @Override
+            protected void processor16() {
+                throw new UnsupportedOperationException("No 16-bit version available");
+            }
+        };
+    }
+
     public static FilterFast gaussSmoothing() {
         return new FilterFast("Smoothing",
                 new ControlReference[]{
@@ -208,6 +226,26 @@ public class FiltersPass {
             @Override
             protected int iterations(boolean bits) {
                 return (int) (param.spinner[1] * 5);
+            }
+
+            @Override
+            protected void processor16() {
+                throw new UnsupportedOperationException("No 16-bit version available");
+            }
+        };
+    }
+
+    public static FilterFast heterochromatin() {
+        return new FilterFast("Clamped", new ControlReference[]{
+            new ControlReference(SLIDER, new Object[]{0, 20}, "Size multiplier", 5)}, 6) {
+
+            ImageData tempData;
+
+            @Override
+            protected void processor() {
+                tempData = Filters.clampAverage().runSingle(inData, param.slider[0], 0);
+                tempData = Filters.gaussApprox().runSingle(tempData, Math.max(1, param.slider[0] / 5), true);
+                setOutputBy(tempData);
             }
 
             @Override
@@ -675,6 +713,84 @@ public class FiltersPass {
             FiltersSet.fillInnerAreas().runTo(id, COL.BLACK, true);
         }
         return id;
+    }
+
+    public static FilterFast getCorrectionMatrix() {
+        return new FilterFast("Matrix", new ControlReference[]{
+            new ControlReference(COMBO, new String[]{"Red", "Green", "Blue", "Alpha"}, "Channel to use", 0),
+            new ControlReference(SPINNER, "Radius", 40),
+            new ControlReference(TOGGLE, "Ratios", 0),
+            new ControlReference(TOGGLE, "Restrict to tissue", 1)}, 32) {
+
+            ImageData ec, bc, tc;
+
+            @Override
+            protected void processor() {
+                tc = Filters.thresholdBright().runSingle(inData, 1);
+                tc = FiltersPass.edgeErode().runSingle(tc, COL.BLACK, 2, true, false);
+                bc = Blender.renderBlend(tc, inData, Blend.MULTIPLY);
+                bc = FiltersPass.adaptiveThreshold().runSingle(bc, COL.BLACK, 1.0, 10, false);
+                ec = Filters.separateChannel().runSingle(inData, param.combo[0], true);
+                ec = Blender.renderBlend(bc, ec, Blend.MULTIPLY);
+                ec = Filters.blurConditional().runSingle(ec, COL.BLACK, param.spinner[0], false);
+                bc = Blender.renderBlend(bc, ec, Blend.MULTIPLY);
+                if (!param.toggle[1]) {
+                    IMG.fillArray(tc.pixels32, tc.width, tc.height, COL.WHITE);
+                }
+                if (param.toggle[0]) {
+                    double ai = Math.max(0.1, Filters.averageIntensity(bc, ec.pixels32, COL.BLACK));
+                    Iterate.pixels(ec, (int p) -> {
+                        int bb = Math.min(255, (int) (((ec.pixels32[p] & 0xFF) / ai - 1) * 100)), ob;
+                        if (bb < 0) {
+                            ob = 0xFF000000 | (Math.abs(bb) << 16);
+                        } else {
+                            ob = 0xFF000000 | Math.abs(bb);
+                        }
+                        outData.pixels32[p] = tc.pixels32[p] == COL.BLACK ? COL.BLACK : ob;
+                    });
+                } else {
+                    int ai = (int) Filters.averageIntensity(bc, ec.pixels32, COL.BLACK);
+                    Iterate.pixels(ec, (int p) -> {
+                        int bb = (ec.pixels32[p] & 0xFF) - ai, ob;
+                        if (bb < 0) {
+                            ob = 0xFF000000 | (Math.abs(bb) << 16);
+                        } else {
+                            ob = 0xFF000000 | Math.abs(bb);
+                        }
+                        outData.pixels32[p] = tc.pixels32[p] == COL.BLACK ? COL.BLACK : ob;
+                    });
+                }
+            }
+
+            @Override
+            protected void processor16() {
+                throw new UnsupportedOperationException("No 16-bit version available");
+            }
+        };
+    }
+
+    public static FilterFast getCorrectionMatrixIntensity() {
+        return new FilterFast("Matrix", noParams, 2) {
+
+            @Override
+            protected void processor() {
+                int ai = (int) Filters.averageIntensity(inData, inData.pixels32, COL.BLACK);
+                Iterate.pixels(inData, (int p) -> {
+                    int bb = (inData.pixels32[p] & 0xFF) - ai, ob;
+                    if (bb < 0) {
+                        ob = 0xFF000000 | (Math.abs(bb) << 16);
+                    } else {
+                        ob = 0xFF000000 | Math.abs(bb);
+                    }
+                    outData.pixels32[p] = inData.pixels32[p] == COL.BLACK ? COL.BLACK : ob;
+                });
+            }
+
+            @Override
+            protected void processor16() {
+                throw new UnsupportedOperationException("No 16-bit version available");
+            }
+        };
     }
 
     public static FilterFast getNucleiMask() {
