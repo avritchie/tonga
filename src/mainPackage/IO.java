@@ -37,6 +37,7 @@ import javax.swing.JRadioButton;
 import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.event.CaretEvent;
+import javax.swing.filechooser.FileFilter;
 import javax.swing.table.TableModel;
 import loci.common.services.ServiceException;
 import loci.formats.FormatException;
@@ -60,8 +61,11 @@ public class IO {
         return null;
     }
 
-    protected static File[] getFile(String text, boolean allowmany) {
+    protected static File[] getFile(String text, boolean allowmany, FileFilter ff) {
         JFileChooser chooser = new JFileChooser();
+        if (ff != null) {
+            chooser.setFileFilter(ff);
+        }
         chooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
         chooser.setDialogTitle("Choose files");
         chooser.setMultiSelectionEnabled(allowmany);
@@ -75,6 +79,10 @@ public class IO {
             }
         }
         return null;
+    }
+
+    protected static File[] getFile(String text, boolean allowmany) {
+        return getFile(text, allowmany, null);
     }
 
     protected static void toTSVfile(JTable table, File file) {
