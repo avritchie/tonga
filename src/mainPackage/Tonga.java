@@ -1349,8 +1349,8 @@ public class Tonga {
     }
 
     protected static void cleanAndShutDown() {
-        if (mainFrame.resultTable.getModel().getRowCount() > 0 && (mainFrame.resultHash == null
-                || mainFrame.resultTable.getModel().hashCode() != mainFrame.resultHash)
+        if (mainFrame.resultTableComponent.getModel().getRowCount() > 0 && (mainFrame.resultHash == null
+                || mainFrame.resultTableComponent.getModel().hashCode() != mainFrame.resultHash)
                 && !askYesNo("Save before exit", "You have unsaved results in the results table. Do you want to exit without saving them?", true, true)) {
             return;
         }

@@ -78,6 +78,8 @@ public class TongaFrame extends JFrame {
     JLayeredPane panelBigLayer;
     JPanel actionPanel;
     JRangeSlider histoRange;
+    public TongaResultTable resultTable;
+    public TongaAnnotationTable annotationTable;
     public Map<String, Filter> filterHistory;
     boolean accelDisabled, historyAdjusting;
     Integer resultHash;
@@ -468,6 +470,12 @@ public class TongaFrame extends JFrame {
         addToolTipListenerSub(annotRadius, annotRadius.getComponents()[2].getComponentAt(0, 0));
         addToolTipListenerSub(annotGroup, annotGroup.getComponents()[2].getComponentAt(0, 0));
         addTableHeaderListener(resultTable);
+        addTableHeaderListener(annotationTable);
+    }
+
+    private void initTables() {
+        resultTable = new TongaResultTable(resultTableComponent, 3);
+        annotationTable = new TongaAnnotationTable(annoTableComponent, 5);
     }
 
     private void initExtraComponents() {
@@ -752,6 +760,26 @@ public class TongaFrame extends JFrame {
         maxTabButton.setEnabled(tabbedPane.getSelectedIndex() == 3 || tabbedPane.getSelectedIndex() == 5);
     }
 
+    private JScrollPane returnActiveTableScrollPanel() {
+        int tabIndex = tabbedPane.getSelectedIndex();
+        if (tabIndex == 5) {
+            return annoScrollPane;
+        } else if (tabIndex == 3) {
+            return resultScrollPane;
+        }
+        Tonga.log.warn("Requested an active table scroll panel but a table was not open.");
+        return null;
+    }
+
+    private JTable returnActiveTable() {
+        int tabIndex = tabbedPane.getSelectedIndex();
+        if (tabIndex == 5) {
+            return annoTableComponent;
+        } else if (tabIndex == 3) {
+            return resultTableComponent;
+        }
+        Tonga.log.warn("Requested an active table but a table was not open.");
+        return null;
     }
 
     private void initFilterList() {
@@ -827,7 +855,9 @@ public class TongaFrame extends JFrame {
     }
 
     protected void resultHash() {
-        resultHash = resultTable.getModel().hashCode();
+        resultHash = resultTableComponent.getModel().hashCode();
+    }
+
     }
 
     /**
@@ -973,7 +1003,9 @@ public class TongaFrame extends JFrame {
         exportAsCSV = new javax.swing.JButton();
         openExcel = new javax.swing.JButton();
         resultScrollPane = new javax.swing.JScrollPane();
-        resultTable = new javax.swing.JTable();
+        resultTableComponent = new javax.swing.JTable();
+        launchExcel = new javax.swing.JButton();
+        exportTSV = new javax.swing.JButton();
         histogramPanel = new javax.swing.JPanel();
         histoImg = new javax.swing.JPanel();
         histoLabel = new javax.swing.JLabel();
@@ -1455,7 +1487,7 @@ public class TongaFrame extends JFrame {
                 contResClearActionPerformed(evt);
             }
         });
-        contextResultMenu.add(contResClear);
+        contextTableMenu.add(contResClear);
 
         contResDelRow.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_DELETE, 0));
         contResDelRow.setText("Delete selected row(s)");
@@ -1465,7 +1497,71 @@ public class TongaFrame extends JFrame {
                 contResDelRowActionPerformed(evt);
             }
         });
-        contextResultMenu.add(contResDelRow);
+        contextTableMenu.add(contResDelRow);
+        contextTableMenu.add(jSeparator24);
+
+        contResTranspose.setText("Transpose by image");
+        contResTranspose.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                contResTransposeActionPerformed(evt);
+            }
+        });
+        contextTableMenu.add(contResTranspose);
+        contextTableMenu.add(contResSeparator);
+
+        contResExport.setText("Export as TSV");
+        contResExport.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                contResExportActionPerformed(evt);
+            }
+        });
+        contextTableMenu.add(contResExport);
+
+        contResExcel.setText("Open in Excel");
+        contResExcel.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                contResExcelActionPerformed(evt);
+            }
+        });
+        contextTableMenu.add(contResExcel);
+
+        Splash.append("Context layout",5);
+
+        contAnnoClear.setText("Clear all");
+        contAnnoClear.setToolTipText("");
+        contAnnoClear.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                contAnnoClearActionPerformed(evt);
+            }
+        });
+        contextAnnotationMenu.add(contAnnoClear);
+
+        contAnnoDelRow.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_DELETE, 0));
+        contAnnoDelRow.setText("Delete selected row(s)");
+        contAnnoDelRow.setToolTipText("");
+        contAnnoDelRow.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                contAnnoDelRowActionPerformed(evt);
+            }
+        });
+        contextAnnotationMenu.add(contAnnoDelRow);
+        contextAnnotationMenu.add(contAnnoSeparator);
+
+        contAnnoExport.setText("Export as TSV");
+        contAnnoExport.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                contAnnoExportActionPerformed(evt);
+            }
+        });
+        contextAnnotationMenu.add(contAnnoExport);
+
+        contAnnoExcel.setText("Open in Excel");
+        contAnnoExcel.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                contAnnoExcelActionPerformed(evt);
+            }
+        });
+        contextAnnotationMenu.add(contAnnoExcel);
 
         Splash.append("Context layout",5);
 
@@ -1819,10 +1915,10 @@ public class TongaFrame extends JFrame {
 
         floatingPane.setOpaque(false);
 
-        maxTabButton.setText("🗖");
+        maxTabButton.setIcon(new javax.swing.ImageIcon(getClass().getResource("/resourcePackage/tool/window.png"))); // NOI18N
         maxTabButton.setToolTipText("Open the result table in a new big window");
         maxTabButton.setIconTextGap(0);
-        maxTabButton.setMargin(new java.awt.Insets(-7, -9, -7, -9));
+        maxTabButton.setMargin(new java.awt.Insets(0, 0, -1, 0));
         maxTabButton.setMaximumSize(new java.awt.Dimension(24, 23));
         maxTabButton.setMinimumSize(new java.awt.Dimension(24, 23));
         maxTabButton.setPreferredSize(new java.awt.Dimension(24, 23));
@@ -1876,7 +1972,7 @@ public class TongaFrame extends JFrame {
         );
         protocolSettingsPanelLayout.setVerticalGroup(
             protocolSettingsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 258, Short.MAX_VALUE)
+            .addGap(0, 313, Short.MAX_VALUE)
         );
 
         btnRunSingle.setText("Run for single");
@@ -2320,8 +2416,8 @@ public class TongaFrame extends JFrame {
             }
         });
 
-        resultTable.setAutoCreateRowSorter(true);
-        resultTable.setModel(new javax.swing.table.DefaultTableModel(
+        resultTableComponent.setAutoCreateRowSorter(true);
+        resultTableComponent.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
 
             },
@@ -2329,41 +2425,40 @@ public class TongaFrame extends JFrame {
 
             }
         ));
-        resultTable.addMouseListener(new java.awt.event.MouseAdapter() {
+        resultTableComponent.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseReleased(java.awt.event.MouseEvent evt) {
-                resultTableMouseReleased(evt);
+                resultTableComponentMouseReleased(evt);
             }
         });
-        resultScrollPane.setViewportView(resultTable);
+        resultScrollPane.setViewportView(resultTableComponent);
+
+            }
+        });
 
         javax.swing.GroupLayout resultsPanelLayout = new javax.swing.GroupLayout(resultsPanel);
         resultsPanel.setLayout(resultsPanelLayout);
         resultsPanelLayout.setHorizontalGroup(
             resultsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 391, Short.MAX_VALUE)
-            .addGroup(resultsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                .addGroup(resultsPanelLayout.createSequentialGroup()
-                    .addContainerGap()
-                    .addGroup(resultsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                        .addComponent(resultScrollPane, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 371, Short.MAX_VALUE)
-                        .addGroup(resultsPanelLayout.createSequentialGroup()
-                            .addComponent(exportAsCSV, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                            .addComponent(openExcel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
-                    .addContainerGap()))
+            .addGroup(resultsPanelLayout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(resultsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(resultScrollPane, javax.swing.GroupLayout.DEFAULT_SIZE, 432, Short.MAX_VALUE)
+                    .addGroup(resultsPanelLayout.createSequentialGroup()
+                        .addComponent(exportTSV, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(launchExcel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
+                .addContainerGap())
         );
         resultsPanelLayout.setVerticalGroup(
             resultsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 368, Short.MAX_VALUE)
-            .addGroup(resultsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                .addGroup(resultsPanelLayout.createSequentialGroup()
-                    .addContainerGap()
-                    .addComponent(resultScrollPane, javax.swing.GroupLayout.DEFAULT_SIZE, 308, Short.MAX_VALUE)
-                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                    .addGroup(resultsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                        .addComponent(exportAsCSV, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(openExcel, javax.swing.GroupLayout.PREFERRED_SIZE, 32, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addContainerGap()))
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, resultsPanelLayout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(resultScrollPane, javax.swing.GroupLayout.DEFAULT_SIZE, 363, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(resultsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(launchExcel, javax.swing.GroupLayout.PREFERRED_SIZE, 32, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(exportTSV, javax.swing.GroupLayout.PREFERRED_SIZE, 32, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addContainerGap())
         );
 
         tabbedPane.addTab("Results", resultsPanel);
@@ -4919,11 +5014,11 @@ public class TongaFrame extends JFrame {
         launchProtocol(__ObjectSegment::new, evt);
     }//GEN-LAST:event_jMenuItem36ActionPerformed
 
-    private void resultTableMouseReleased(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_resultTableMouseReleased
+    private void resultTableComponentMouseReleased(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_resultTableComponentMouseReleased
         if (evt.getButton() == MouseEvent.BUTTON3) {
-            contextResultMenu.show((Component) evt.getSource(), evt.getX(), evt.getY());
+            contextTableMenu.show((Component) evt.getSource(), evt.getX(), evt.getY());
         }
-    }//GEN-LAST:event_resultTableMouseReleased
+    }//GEN-LAST:event_resultTableComponentMouseReleased
 
     private void menuOpaqueActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_menuOpaqueActionPerformed
         launchFilter(Filters::opaque, evt);
@@ -5235,7 +5330,7 @@ public class TongaFrame extends JFrame {
                     (Math.round(((new Random().nextDouble() + 2) * 35) * 10000.) / 10000.) + "%"});
             }
         }
-        TongaTable.publishData(tableData);
+        resultTable.publishData(tableData);
     }//GEN-LAST:event_jMenuItem82ActionPerformed
 
     private void boxSettingHWRenderingActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_boxSettingHWRenderingActionPerformed
@@ -5310,8 +5405,13 @@ public class TongaFrame extends JFrame {
     }//GEN-LAST:event_menuWizardMouseClicked
 
     private void maxTabButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_maxTabButtonActionPerformed
-        if (resultTable.getParent().getParent().equals(resultScrollPane)) {
+        JScrollPane scrollPane = returnActiveTableScrollPanel();
+        JTable tableComponent = returnActiveTable();
+        if (tableWindow == null) {
             tableWindow = new TableViewer();
+        }
+        if (tableComponent.getParent().getParent().equals(scrollPane)) {
+            tableWindow.setTable(tableComponent, scrollPane, tabbedPane.getSelectedIndex());
         } else {
             tableWindow.requestFocus();
         }
@@ -5347,13 +5447,13 @@ public class TongaFrame extends JFrame {
 
     private void contResDelRowActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_contResDelRowActionPerformed
         UndoRedo.start();
-        TongaTable.deleteRow();
+        resultTable.removeSelectedRows();
         UndoRedo.end();
     }//GEN-LAST:event_contResDelRowActionPerformed
 
     private void contResClearActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_contResClearActionPerformed
         UndoRedo.start();
-        TongaTable.clearData();
+        resultTable.clearData();
         UndoRedo.end();
     }//GEN-LAST:event_contResClearActionPerformed
 
@@ -5622,9 +5722,9 @@ public class TongaFrame extends JFrame {
         launchCounter(Counters::intHisto, evt);
     }//GEN-LAST:event_jMenuItem137ActionPerformed
 
-    private void jMenuItem138ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem138ActionPerformed
-        TongaTable.transposeByImage();
-    }//GEN-LAST:event_jMenuItem138ActionPerformed
+    private void contResTransposeActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_contResTransposeActionPerformed
+        resultTable.transposeByImage();
+    }//GEN-LAST:event_contResTransposeActionPerformed
 
     private void jMenuItem139ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem139ActionPerformed
         launchCounter(Counters::analIFHisto, evt);
@@ -5996,7 +6096,7 @@ public class TongaFrame extends JFrame {
     protected javax.swing.JSeparator protocolSettingsSeparator;
     protected javax.swing.JSplitPane rSplitPane;
     protected javax.swing.JScrollPane resultScrollPane;
-    public javax.swing.JTable resultTable;
+    protected javax.swing.JTable resultTableComponent;
     protected javax.swing.JPanel resultsPanel;
     protected javax.swing.JPanel settingPanelFile;
     protected javax.swing.JPanel settingPanelGeneral;

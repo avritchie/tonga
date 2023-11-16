@@ -2,12 +2,18 @@ package mainPackage;
 
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import javax.swing.JScrollPane;
+import javax.swing.JTable;
 
 /**
  *
  * @author Victoria
  */
 public class TableViewer extends javax.swing.JFrame {
+
+    JScrollPane scrollPane;
+    JTable tableComponent;
+    int tab;
 
     public TableViewer() {
         initComponents();
@@ -18,12 +24,26 @@ public class TableViewer extends javax.swing.JFrame {
         addWindowListener(new WindowAdapter() {
             @Override
             public void windowClosing(WindowEvent evt) {
-                Tonga.frame().resultScrollPane.setViewportView(Tonga.frame().resultTable);
-                Tonga.frame().tabbedPane.setSelectedIndex(3);
+                Tonga.frame().tableWindow = null;
+                restoreTable();
+                Tonga.frame().tabbedPane.setSelectedIndex(tab);
             }
         });
-        this.resultScrollPane.setViewportView(Tonga.frame().resultTable);
+    }
+
+    public void setTable(JTable table, JScrollPane origin, int tab) {
+        if (tableComponent != null) {
+            restoreTable();
+        }
+        this.tab = tab;
+        this.scrollPane = origin;
+        this.tableComponent = table;
+        this.resultScrollPane.setViewportView(tableComponent);
         setVisible(true);
+    }
+
+    public void restoreTable() {
+        scrollPane.setViewportView(tableComponent);
     }
 
     @SuppressWarnings("unchecked")
@@ -49,6 +69,8 @@ public class TableViewer extends javax.swing.JFrame {
                 .addComponent(resultScrollPane, javax.swing.GroupLayout.DEFAULT_SIZE, 700, Short.MAX_VALUE)
                 .addGap(0, 0, 0))
         );
+
+        getAccessibleContext().setAccessibleName("Table");
 
         pack();
     }// </editor-fold>//GEN-END:initComponents

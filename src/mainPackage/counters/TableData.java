@@ -7,15 +7,15 @@ import mainPackage.Tonga;
 
 public class TableData {
 
+    public String[] columns;
+    public String[] descriptions;
+    public List<Object[]> rows;
+
     public TableData(String[] titles, String[] descs) {
         columns = Arrays.copyOf(titles, titles.length);
         descriptions = Arrays.copyOf(descs, descs.length);
         rows = new ArrayList<>();
     }
-
-    public String[] columns;
-    public String[] descriptions;
-    public List<Object[]> rows;
 
     public int columnCount() {
         return columns.length;
@@ -23,6 +23,12 @@ public class TableData {
 
     public int rowCount() {
         return rows.size();
+    }
+
+    public void newRows(Object[][] rows) {
+        for (Object[] row : rows) {
+            newRow(row);
+        }
     }
 
     public void newRow(Object[] row) {
@@ -35,27 +41,31 @@ public class TableData {
         for (int j = 1; j < columnCount(); j++) {
             row[j] = box(0);
         }
-        rows.add(row);
+        newRow(row);
         return row;
     }
 
     public Object[] newRow(String... param) {
         Object[] row = new Object[columnCount()];
         System.arraycopy(param, 0, row, 0, columnCount());
-        rows.add(row);
+        newRow(row);
         return row;
-    }
-
-    public void delLastRow() {
-        rows.remove(rows.size() - 1);
     }
 
     public void delRow(int i) {
         rows.remove(i);
     }
 
+    public void delLastRow() {
+        delRow(rows.size() - 1);
+    }
+
+    public Object[] getRow(int row) {
+        return rows.get(row);
+    }
+
     public Object getVal(int row, int column) {
-        return rows.get(row)[column];
+        return getRow(row)[column];
     }
 
     public int getInteger(int row, int column) {
@@ -77,9 +87,9 @@ public class TableData {
     }
 
     public Object[][] getAsArray() {
-        Object[][] data = new Object[rows.size()][columns.length];
-        for (int i = 0; i < rows.size(); i++) {
-            data[i] = rows.get(i);
+        Object[][] data = new Object[rowCount()][columns.length];
+        for (int i = 0; i < rowCount(); i++) {
+            data[i] = getRow(i);
         }
         return data;
     }
@@ -118,15 +128,15 @@ public class TableData {
     }
 
     public void rowIntInc(int row, int column) {
-        Integer target = (Integer) this.rows.get(row)[column];
-        this.rows.get(row)[column] = target + 1;
+        Integer target = (Integer) getRow(row)[column];
+        getRow(row)[column] = target + 1;
     }
 
     public TableData copy() {
         TableData td = new TableData(this.columns, this.descriptions);
         for (int i = 0; i < this.rowCount(); i++) {
             Object[] nr = new Object[this.columnCount()];
-            System.arraycopy(this.rows.get(i), 0, nr, 0, this.columnCount());
+            System.arraycopy(getRow(i), 0, nr, 0, this.columnCount());
             td.newRow(nr);
         }
         return td;
@@ -151,7 +161,7 @@ public class TableData {
         }
         for (int i = 0; i < this.rowCount(); i++) {
             for (int j = 0; j < this.columnCount(); j++) {
-                if (!this.rows.get(i)[j].equals(other.rows.get(i)[j])) {
+                if (!getRow(i)[j].equals(other.getRow(i)[j])) {
                     return false;
                 }
             }
@@ -161,7 +171,7 @@ public class TableData {
 
     public void append(TableData itd) {
         for (int j = 0; j < itd.rowCount(); j++) {
-            this.newRow(itd.rows.get(j));
+            this.newRow(itd.getRow(j));
         }
     }
 }

@@ -141,8 +141,10 @@ public class Key {
             } else {
                 Tonga.removeLayer();
             }
-        } else if (Tonga.frame().resultTable.hasFocus()) {
-            TongaTable.deleteRow();
+        } else if (Tonga.frame().resultTableComponent.hasFocus()) {
+            Tonga.frame().resultTable.removeSelectedRows();
+        } else if (Tonga.frame().annoTableComponent.hasFocus()) {
+            Tonga.frame().annotationTable.removeSelectedRows();
         }
     }
 

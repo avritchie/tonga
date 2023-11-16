@@ -230,7 +230,7 @@ public abstract class Counter {
             return;
         }
         Tonga.loader().maxProgress();
-        TongaTable.publishData(tableData);
+        Tonga.frame().resultTable.publishData(tableData);
     }
 
     private static ImageData retrieveImage(TongaLayer img) {
