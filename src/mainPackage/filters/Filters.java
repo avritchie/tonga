@@ -1732,10 +1732,13 @@ public class Filters {
     }
 
     public static FilterFast illuminationCorrection() {
-        return new FilterFast("Lighting correction", noParams, 3) {
+        return new FilterFast("Lighting correction", new ControlReference[]{
+            new ControlReference(SPINNER, "Correction radius (px)", 500),
+            new ControlReference(TOGGLE, "Guess automatically", 1, new int[]{0, 0})}, 3) {
+
             @Override
             protected void processor() {
-                int rad = inData.width * inData.height / 10000;
+                int rad = param.toggle[0] ? (inData.width * inData.height / 10000) : param.spinner[0];
                 int[] gauss = new Blur().gauss(inData, rad, false);
                 int[] a = Arrays.stream(gauss).map(i -> i >> 24 & 0xFF).toArray();
                 int[] r = Arrays.stream(gauss).map(i -> i >> 16 & 0xFF).toArray();
