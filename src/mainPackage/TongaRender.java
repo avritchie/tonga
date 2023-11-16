@@ -50,6 +50,7 @@ public class TongaRender {
     static ImageData[] renderCopies;
     static Image renderImage;
     static boolean zoomFreeze;
+    static boolean onCanvas;
     private static Semaphore redrawSem;
     static int mainPHash = 0, zoomPHash = 0, annoHash = 0;
     public static JFXPanel mainPanel, zoomPanel;
@@ -305,10 +306,14 @@ public class TongaRender {
 
             @Override
             public void mouseEntered(MouseEvent me) {
+                onCanvas = true;
+                redraw();
             }
 
             @Override
             public void mouseExited(MouseEvent me) {
+                onCanvas = false;
+                redraw();
             }
         });
         mainPanel.addMouseWheelListener((MouseWheelEvent mwe) -> {
