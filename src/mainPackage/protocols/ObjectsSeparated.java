@@ -12,6 +12,7 @@ import mainPackage.morphology.ImageTracer;
 import mainPackage.morphology.ROI;
 import mainPackage.morphology.ROISet;
 import static mainPackage.PanelCreator.ControlType.COLOUR;
+import static mainPackage.PanelCreator.ControlType.COMBO;
 
 public class ObjectsSeparated extends Protocol {
 
@@ -25,12 +26,14 @@ public class ObjectsSeparated extends Protocol {
         return new ControlReference[]{
             new ControlReference(LAYER, "Layer with separated objects"),
             new ControlReference(LAYER, "Original unseparated layer"),
-            new ControlReference(COLOUR, "Background is which color", new int[]{0})};
+            new ControlReference(COLOUR, "Background is which color", new int[]{0}),
+            new ControlReference(COMBO, new String[]{"Center", "Centroid", "Corner"}, "Location to use for comparing", 0)};
     }
 
     @Override
     protected Processor getProcessor() {
         Color bg = param.color[0];
+        int sp = param.combo[0];
         return new ProcessorFast(2, new String[]{"Separated Objects", "Non-separated Objects"}) {
 
             @Override
@@ -41,7 +44,14 @@ public class ObjectsSeparated extends Protocol {
                 List<ROI> oldRois = new ArrayList<>();
                 Map<Integer, ROI> detcPos = new HashMap<>();
                 separSet.list.forEach(roi -> {
-                    ROI newRoi = origSet.traceSingleObjectAtPoint(roi.xcenter, roi.ycenter);
+                    int xp = sp == 0 ? roi.xcenter : roi.area.firstxpos;
+                    int yp = sp == 0 ? roi.ycenter : roi.area.firstypos;
+                    if (sp == 1) {
+                        int[] c = roi.getCentroid();
+                        xp = c[0];
+                        yp = c[1];
+                    }
+                    ROI newRoi = origSet.traceSingleObjectAtPoint(xp, yp);
                     if (newRoi != null) {
                         oldRois.add(newRoi);
                         Integer code = newRoi.ycenter * sourceWidth[0] + newRoi.xcenter;
