@@ -53,7 +53,7 @@ public class FiltersPass {
                 }
                 oMask = FiltersSet.getRadiusOverlap().runSingle(inSet, param.colorARGB[0], param.spinner[0] * 4);
                 mMask = FiltersPass.edgeDilate().runSingle(inSet, param.toggle[0] ? mMask : inData, param.colorARGB[0], param.spinner[0], false);
-                sMask = FiltersSet.fillInnerAreasSizeShape().runSingle(mMask, param.colorARGB[0], param.spinner[1], 80);
+                sMask = FiltersSet.fillInnerAreasSizeShape().runSingle(mMask, param.colorARGB[0], param.spinner[1], 80, false, 0, true);
                 sMask = Blender.renderBlend(mMask, sMask, Blend.DIFFERENCE);
                 sMask = FiltersPass.edgeDilate().runSingle(sMask, COL.BLACK, param.spinner[0] + 1, false);
                 if (param.toggle[1]) {
@@ -465,7 +465,7 @@ public class FiltersPass {
             new ControlReference(COLOUR, "Background colour", -2),
             new ControlReference(SPINNER, "Radius", 40),
             new ControlReference(SLIDER, new Object[]{0.5, 2, 150}, "Filter", 50),
-            new ControlReference(TOGGLE, "Extract the background", 0)}, 3) {
+            new ControlReference(TOGGLE, "Extract the background", 0)}, 8) {
 
             ImageData ifthree, ifone, iftwo;
             int rad;

@@ -98,7 +98,7 @@ public class FiltersSet {
                     new PanelCreator.ControlReference(COLOUR, "Background colour", -2),
                     new PanelCreator.ControlReference(SPINNER, "Minimum size", 100),
                     new PanelCreator.ControlReference(TOGGLE, "Also do for the background", 0, new int[]{3, 1}),
-                    new PanelCreator.ControlReference(SPINNER, "Background minimum size", 100)}, OutputType.PLAINSET) {
+                    new PanelCreator.ControlReference(SPINNER, "Background minimum size", 100)}, OutputType.PLAINSET, 2) {
 
             ROISet innerSet, origSet;
 
