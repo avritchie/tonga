@@ -224,6 +224,20 @@ public class PanelUtils {
                         break;
                 }
             }
+            if (c.type == FOLDER) {
+                JButton jb = (JButton) c.comp;
+                if (!picList.isEmpty()) {
+                    TongaLayer tl = Tonga.getImage().getLayer(0);
+                    String fp = tl.layerImage.source;
+                    if ((jb.getText().equals("Browse...") || jb.getForeground().equals(new Color(0, 128, 0))) && fp != null) {
+                        if (fp.toLowerCase().endsWith(".mrxs")) {
+                            pathSelect(jb, IO.folderPath(fp));
+                        }
+                    }
+                } else if (jb.getForeground().equals(new Color(0, 128, 0))) {
+                    pathSelect(jb, null);
+                }
+            }
         });
     }
 
@@ -247,16 +261,31 @@ public class PanelUtils {
     private static void pathSelect(Component control) {
         JButton butt = (JButton) control;
         String ct = butt.getText();
-        String fp;
         String sp = ct;
         if (ct.equals("Browse...")) {
             sp = Tonga.frame().filePathField.getText();
         }
-        fp = IO.getFolder(sp);
+        String fp = IO.getFolder(sp);
+        pathSelect(control, fp);
+    }
+
+    private static void pathSelect(Component control, String fp) {
+        JButton butt = (JButton) control;
+        butt.putClientProperty("Nimbus.Overrides", null);
         if (fp != null) {
-            butt.putClientProperty("Nimbus.Overrides", null);
             butt.setText(fp);
             butt.setToolTipText(fp);
+            TongaLayer tl = Tonga.getImage().getLayer(0);
+            String ip = tl.layerImage.source;
+            if (ip != null && fp.toLowerCase().contains(ip.toLowerCase().replaceAll(".mrxs", ""))) {
+                butt.setForeground(new Color(0, 128, 0));
+            } else {
+                butt.setForeground(null);
+            }
+        } else {
+            butt.setText("Browse...");
+            butt.setToolTipText(null);
+            butt.setForeground(null);
         }
     }
 }

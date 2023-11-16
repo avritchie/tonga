@@ -29,11 +29,12 @@ public class PanelParams {
     public int[] combo;
     public int[] select;
     public int[] layer;
-    public String[] folder;
     public javafx.scene.paint.Color[] color;
     public int[] colorARGB;
     public int[] spinner;
     public boolean[] toggle;
+    public File[] folder;
+    private String[] folderRaw;
     public TongaAnnotation[] annotation;
     private int[] annotationIndex;
     private AnnotationType[][] annotationIndexType;
@@ -97,7 +98,8 @@ public class PanelParams {
                     annogroups++;
                     break;
                 case FOLDER:
-                    folder[folders] = ((JButton) pc.comp).getText();
+                    folderRaw[folders] = (pc.comp.getForeground().equals(new Color(0, 128, 0)))
+                            ? "%SOURCE%" : ((JButton) pc.comp).getText();
                     folders++;
                     break;
                 case TOGGLE:
@@ -122,6 +124,14 @@ public class PanelParams {
                 }
             } catch (Exception ex) {
                 Tonga.catchError(ex, "Annotation " + a + " was not loaded from " + ti.imageName);
+            }
+        }
+        for (int f = 0; f < paramParent.folderRaw.length; f++) {
+            try {
+                folder[f] = new File(paramParent.folderRaw[f].equals("%SOURCE%")
+                        ? IO.folderPath(ti.getLayer(0).layerImage.source) : paramParent.folderRaw[f]);
+            } catch (Exception ex) {
+                Tonga.catchError(ex, "No acceptable path for " + ti.imageName);
             }
         }
     }
@@ -214,7 +224,13 @@ public class PanelParams {
                             annotationgroups++;
                             break;
                         case FOLDER:
-                            folder[folders] = (String) parameters[i];
+                            if (parameters[i].getClass().equals(File.class)) {
+                                folderRaw[folders] = null;
+                                folder[folders] = (File) parameters[i];
+                            } else {
+                                folderRaw[folders] = (String) parameters[i];
+                                folder[folders] = null;
+                            }
                             folders++;
                             break;
                         case TOGGLE:
@@ -335,13 +351,14 @@ public class PanelParams {
         combo = new int[combos];
         select = new int[selects];
         layer = new int[layers];
-        folder = new String[folders];
         color = new javafx.scene.paint.Color[colors];
+        folderRaw = new String[folders];
         annotationIndex = new int[annos];
         annotationIndexType = new AnnotationType[annos][];
         annotation = new TongaAnnotation[annos];
         annotationType = new AnnotationType[annotypes];
         annotationGroup = new int[annogroups];
+        folder = new File[folders];
         colorARGB = new int[colors];
         spinner = new int[spinners];
         toggle = new boolean[toggles];
@@ -358,6 +375,8 @@ public class PanelParams {
         layer = new int[parameterParent.layer.length];
         color = new javafx.scene.paint.Color[parameterParent.color.length];
         colorARGB = new int[parameterParent.color.length];
+        folderRaw = new String[parameterParent.folder.length];
+        folder = new File[parameterParent.folder.length];
         annotation = new TongaAnnotation[parameterParent.annotation.length];
         annotationIndex = new int[parameterParent.annotation.length];
         annotationIndexType = new AnnotationType[parameterParent.annotation.length][];
