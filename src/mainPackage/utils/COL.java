@@ -3,6 +3,7 @@ package mainPackage.utils;
 import java.awt.Color;
 import java.awt.image.BufferedImage;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -10,6 +11,7 @@ import javafx.embed.swing.SwingFXUtils;
 import javafx.scene.image.WritableImage;
 import mainPackage.ImageData;
 import mainPackage.MappedImage;
+import mainPackage.Tonga;
 
 public class COL {
 
@@ -33,6 +35,38 @@ public class COL {
     final public static short UBLACK = (short) 0x0000;
     final public static short UGRAY = (short) 0x8080;
     final public static short UWHITE = (short) 0xFFFF;
+
+    public static Map<Integer, String> COLORS = new HashMap<Integer, String>() {
+        {
+            put(0xFFFF0000, "Red");
+            put(0xFFFF3333, "Red");
+            put(0xFFFF8080, "Light red");
+            put(0xFF00FF00, "Green");
+            put(0xFF00CC00, "Green");
+            put(0xFF80FF80, "Light green");
+            put(0xFF0000FF, "Blue");
+            put(0xFF0033FF, "Blue");
+            put(0xFF8080FF, "Light blue");
+            put(0xFFFFFF00, "Yellow");
+            put(0xFFFFFF33, "Yellow");
+            put(0xFFFFFFC0, "Light yellow");
+            put(0xFFFF9933, "Orange");
+            put(0xFFCCFF00, "Lime");
+            put(0xFF00FFFF, "Cyan");
+            put(0xFF33FFFF, "Cyan");
+            put(0xFFC0FFFF, "Light cyan");
+            put(0xFFFF00FF, "Fuchsia");
+            put(0xFFFF33FF, "Fuchsia");
+            put(0xFFFFCCFF, "Pink");
+            put(0xFF9933FF, "Purple");
+            put(0xFFFFC0FF, "Light fuchsia");
+            put(0xFF000000, "Black");
+            put(0xFFFFFFFF, "White");
+            put(0xFF808080, "Gray");
+            put(0xFFC0C0C0, "Light gray");
+            put(0xFF404040, "Dark gray");
+        }
+    };
 
     public static int comboColorSelector(int selection, int col) {
         // 0 = RED, 1 = GREEN, 2 = BLUE;
@@ -190,77 +224,11 @@ public class COL {
     }
 
     public static String colorName(int color) {
-        switch (color) {
-            case 0xFFFF0000:
-            case 0xFFFF3333: {
-                return "Red";
-            }
-            case 0xFFFF8080: {
-                return "Light red";
-            }
-            case 0xFF00FF00:
-            case 0xFF00CC00: {
-                return "Green";
-            }
-            case 0xFF80FF80: {
-                return "Light green";
-            }
-            case 0xFF0000FF:
-            case 0xFF0033FF: {
-                return "Blue";
-            }
-            case 0xFF8080FF: {
-                return "Light blue";
-            }
-            case 0xFFFFFF00:
-            case 0xFFFFFF33: {
-                return "Yellow";
-            }
-            case 0xFFFFFFC0: {
-                return "Light yellow";
-            }
-            case 0xFFFF9933: {
-                return "Orange";
-            }
-            case 0xFFCCFF00: {
-                return "Lime";
-            }
-            case 0xFF00FFFF:
-            case 0xFF33FFFF: {
-                return "Cyan";
-            }
-            case 0xFFC0FFFF: {
-                return "Light cyan";
-            }
-            case 0xFFFF00FF:
-            case 0xFFFF33FF: {
-                return "Fuchsia";
-            }
-            case 0xFFFFCCFF: {
-                return "Pink";
-            }
-            case 0xFF9933FF: {
-                return "Purple";
-            }
-            case 0xFFFFC0FF: {
-                return "Light fuchsia";
-            }
-            case 0xFF000000: {
-                return "Black";
-            }
-            case 0xFFFFFFFF: {
-                return "White";
-            }
-            case 0xFF808080: {
-                return "Gray";
-            }
-            case 0xFFC0C0C0: {
-                return "Light gray";
-            }
-            case 0xFF404040: {
-                return "Dark gray";
-            }
+        if (COLORS.containsKey(color)) {
+            return COLORS.get(color);
+        } else {
+            Tonga.log.warn("No color name associated with {}.", color);
+            return String.format("%08X", color);
         }
-        return String.format("%08X", color);
     }
 }
