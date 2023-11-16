@@ -267,7 +267,7 @@
         </MenuItem>
       </SubComponents>
     </Container>
-    <Container class="javax.swing.JPopupMenu" name="contextResultMenu">
+    <Container class="javax.swing.JPopupMenu" name="contextTableMenu">
       <AuxValues>
         <AuxValue name="JavaCodeGenerator_LayoutCodePost" type="java.lang.String" value="Splash.append(&quot;Context layout&quot;,5);"/>
       </AuxValues>
@@ -297,6 +297,84 @@
             <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="contResDelRowActionPerformed"/>
           </Events>
         </MenuItem>
+        <Component class="javax.swing.JPopupMenu$Separator" name="jSeparator24">
+        </Component>
+        <MenuItem class="javax.swing.JMenuItem" name="contResTranspose">
+          <Properties>
+            <Property name="text" type="java.lang.String" value="Transpose by image"/>
+          </Properties>
+          <Events>
+            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="contResTransposeActionPerformed"/>
+          </Events>
+        </MenuItem>
+        <Component class="javax.swing.JPopupMenu$Separator" name="contResSeparator">
+        </Component>
+        <MenuItem class="javax.swing.JMenuItem" name="contResExport">
+          <Properties>
+            <Property name="text" type="java.lang.String" value="Export as TSV"/>
+          </Properties>
+          <Events>
+            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="contResExportActionPerformed"/>
+          </Events>
+        </MenuItem>
+        <MenuItem class="javax.swing.JMenuItem" name="contResExcel">
+          <Properties>
+            <Property name="text" type="java.lang.String" value="Open in Excel"/>
+          </Properties>
+          <Events>
+            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="contResExcelActionPerformed"/>
+          </Events>
+        </MenuItem>
+      </SubComponents>
+    </Container>
+    <Container class="javax.swing.JPopupMenu" name="contextAnnotationMenu">
+      <AuxValues>
+        <AuxValue name="JavaCodeGenerator_LayoutCodePost" type="java.lang.String" value="Splash.append(&quot;Context layout&quot;,5);"/>
+      </AuxValues>
+
+      <Layout class="org.netbeans.modules.form.compat2.layouts.DesignAbsoluteLayout">
+        <Property name="useNullLayout" type="boolean" value="true"/>
+      </Layout>
+      <SubComponents>
+        <MenuItem class="javax.swing.JMenuItem" name="contAnnoClear">
+          <Properties>
+            <Property name="text" type="java.lang.String" value="Clear all"/>
+            <Property name="toolTipText" type="java.lang.String" value=""/>
+          </Properties>
+          <Events>
+            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="contAnnoClearActionPerformed"/>
+          </Events>
+        </MenuItem>
+        <MenuItem class="javax.swing.JMenuItem" name="contAnnoDelRow">
+          <Properties>
+            <Property name="accelerator" type="javax.swing.KeyStroke" editor="org.netbeans.modules.form.editors.KeyStrokeEditor">
+              <KeyStroke key="DELETE"/>
+            </Property>
+            <Property name="text" type="java.lang.String" value="Delete selected row(s)"/>
+            <Property name="toolTipText" type="java.lang.String" value=""/>
+          </Properties>
+          <Events>
+            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="contAnnoDelRowActionPerformed"/>
+          </Events>
+        </MenuItem>
+        <Component class="javax.swing.JPopupMenu$Separator" name="contAnnoSeparator">
+        </Component>
+        <MenuItem class="javax.swing.JMenuItem" name="contAnnoExport">
+          <Properties>
+            <Property name="text" type="java.lang.String" value="Export as TSV"/>
+          </Properties>
+          <Events>
+            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="contAnnoExportActionPerformed"/>
+          </Events>
+        </MenuItem>
+        <MenuItem class="javax.swing.JMenuItem" name="contAnnoExcel">
+          <Properties>
+            <Property name="text" type="java.lang.String" value="Open in Excel"/>
+          </Properties>
+          <Events>
+            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="contAnnoExcelActionPerformed"/>
+          </Events>
+        </MenuItem>
       </SubComponents>
     </Container>
     <Container class="javax.swing.JPopupMenu" name="filterMenu">
@@ -308,12 +386,242 @@
         <Property name="useNullLayout" type="boolean" value="true"/>
       </Layout>
     </Container>
+    <Container class="javax.swing.JPopupMenu" name="shapeMenu">
+
+      <Layout class="org.netbeans.modules.form.compat2.layouts.DesignAbsoluteLayout">
+        <Property name="useNullLayout" type="boolean" value="true"/>
+      </Layout>
+      <SubComponents>
+        <MenuItem class="javax.swing.JMenuItem" name="shapeRectangle">
+          <Properties>
+            <Property name="text" type="java.lang.String" value="Rectangle"/>
+          </Properties>
+          <Events>
+            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="shapeRectangleActionPerformed"/>
+          </Events>
+        </MenuItem>
+        <MenuItem class="javax.swing.JMenuItem" name="shapeCircle">
+          <Properties>
+            <Property name="text" type="java.lang.String" value="Circle"/>
+          </Properties>
+          <Events>
+            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="shapeCircleActionPerformed"/>
+          </Events>
+        </MenuItem>
+        <MenuItem class="javax.swing.JMenuItem" name="shapeOval">
+          <Properties>
+            <Property name="text" type="java.lang.String" value="Oval"/>
+          </Properties>
+          <Events>
+            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="shapeOvalActionPerformed"/>
+          </Events>
+        </MenuItem>
+        <MenuItem class="javax.swing.JMenuItem" name="shapePoly">
+          <Properties>
+            <Property name="text" type="java.lang.String" value="Polygon"/>
+          </Properties>
+          <Events>
+            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="shapePolyActionPerformed"/>
+          </Events>
+        </MenuItem>
+      </SubComponents>
+    </Container>
+    <Container class="javax.swing.JPopupMenu" name="lineMenu">
+
+      <Layout class="org.netbeans.modules.form.compat2.layouts.DesignAbsoluteLayout">
+        <Property name="useNullLayout" type="boolean" value="true"/>
+      </Layout>
+      <SubComponents>
+        <MenuItem class="javax.swing.JMenuItem" name="lineLine">
+          <Properties>
+            <Property name="text" type="java.lang.String" value="Line"/>
+          </Properties>
+          <Events>
+            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="lineLineActionPerformed"/>
+          </Events>
+        </MenuItem>
+        <MenuItem class="javax.swing.JMenuItem" name="linePolyline">
+          <Properties>
+            <Property name="text" type="java.lang.String" value="Polyline"/>
+          </Properties>
+          <Events>
+            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="linePolylineActionPerformed"/>
+          </Events>
+        </MenuItem>
+        <MenuItem class="javax.swing.JMenuItem" name="lineThick">
+          <Properties>
+            <Property name="text" type="java.lang.String" value="Polyline radius"/>
+          </Properties>
+          <Events>
+            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="lineThickActionPerformed"/>
+          </Events>
+        </MenuItem>
+        <MenuItem class="javax.swing.JMenuItem" name="lineAngle">
+          <Properties>
+            <Property name="text" type="java.lang.String" value="Angle"/>
+          </Properties>
+          <Events>
+            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="lineAngleActionPerformed"/>
+          </Events>
+        </MenuItem>
+      </SubComponents>
+    </Container>
+    <Container class="javax.swing.JPopupMenu" name="colorMenu">
+
+      <Layout class="org.netbeans.modules.form.compat2.layouts.DesignAbsoluteLayout">
+        <Property name="useNullLayout" type="boolean" value="true"/>
+      </Layout>
+      <SubComponents>
+        <MenuItem class="javax.swing.JMenuItem" name="colorDefault">
+          <Properties>
+            <Property name="text" type="java.lang.String" value="Default"/>
+          </Properties>
+          <Events>
+            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="colorMenuActionPerformed"/>
+          </Events>
+        </MenuItem>
+        <MenuItem class="javax.swing.JMenuItem" name="colorRed">
+          <Properties>
+            <Property name="foreground" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
+              <Color blue="33" green="33" red="ff" type="rgb"/>
+            </Property>
+            <Property name="text" type="java.lang.String" value="Red"/>
+          </Properties>
+          <Events>
+            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="colorMenuActionPerformed"/>
+          </Events>
+        </MenuItem>
+        <MenuItem class="javax.swing.JMenuItem" name="colorGreen">
+          <Properties>
+            <Property name="foreground" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
+              <Color blue="0" green="cc" red="0" type="rgb"/>
+            </Property>
+            <Property name="text" type="java.lang.String" value="Green"/>
+          </Properties>
+          <Events>
+            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="colorMenuActionPerformed"/>
+          </Events>
+        </MenuItem>
+        <MenuItem class="javax.swing.JMenuItem" name="colorBlue">
+          <Properties>
+            <Property name="foreground" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
+              <Color blue="ff" green="33" red="0" type="rgb"/>
+            </Property>
+            <Property name="text" type="java.lang.String" value="Blue"/>
+          </Properties>
+          <Events>
+            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="colorMenuActionPerformed"/>
+          </Events>
+        </MenuItem>
+        <MenuItem class="javax.swing.JMenuItem" name="colorYellow">
+          <Properties>
+            <Property name="foreground" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
+              <Color blue="33" green="ff" red="ff" type="rgb"/>
+            </Property>
+            <Property name="text" type="java.lang.String" value="Yellow"/>
+          </Properties>
+          <Events>
+            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="colorMenuActionPerformed"/>
+          </Events>
+        </MenuItem>
+        <MenuItem class="javax.swing.JMenuItem" name="colorCyan">
+          <Properties>
+            <Property name="foreground" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
+              <Color blue="ff" green="ff" red="33" type="rgb"/>
+            </Property>
+            <Property name="text" type="java.lang.String" value="Cyan"/>
+          </Properties>
+          <Events>
+            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="colorMenuActionPerformed"/>
+          </Events>
+        </MenuItem>
+        <MenuItem class="javax.swing.JMenuItem" name="colorMagenta">
+          <Properties>
+            <Property name="foreground" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
+              <Color blue="ff" green="33" red="ff" type="rgb"/>
+            </Property>
+            <Property name="text" type="java.lang.String" value="Fuchsia"/>
+          </Properties>
+          <Events>
+            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="colorMenuActionPerformed"/>
+          </Events>
+        </MenuItem>
+        <MenuItem class="javax.swing.JMenuItem" name="colorPink">
+          <Properties>
+            <Property name="foreground" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
+              <Color blue="ff" green="cc" red="ff" type="rgb"/>
+            </Property>
+            <Property name="text" type="java.lang.String" value="Pink"/>
+          </Properties>
+          <Events>
+            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="colorMenuActionPerformed"/>
+          </Events>
+        </MenuItem>
+        <MenuItem class="javax.swing.JMenuItem" name="colorOrange">
+          <Properties>
+            <Property name="foreground" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
+              <Color blue="33" green="99" red="ff" type="rgb"/>
+            </Property>
+            <Property name="text" type="java.lang.String" value="Orange"/>
+          </Properties>
+          <Events>
+            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="colorMenuActionPerformed"/>
+          </Events>
+        </MenuItem>
+        <MenuItem class="javax.swing.JMenuItem" name="colorPurple">
+          <Properties>
+            <Property name="foreground" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
+              <Color blue="ff" green="33" red="99" type="rgb"/>
+            </Property>
+            <Property name="text" type="java.lang.String" value="Purple"/>
+          </Properties>
+          <Events>
+            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="colorMenuActionPerformed"/>
+          </Events>
+        </MenuItem>
+        <MenuItem class="javax.swing.JMenuItem" name="colorLime">
+          <Properties>
+            <Property name="foreground" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
+              <Color blue="0" green="ff" red="cc" type="rgb"/>
+            </Property>
+            <Property name="text" type="java.lang.String" value="Lime"/>
+          </Properties>
+          <Events>
+            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="colorMenuActionPerformed"/>
+          </Events>
+        </MenuItem>
+      </SubComponents>
+    </Container>
+    <Container class="javax.swing.JPopupMenu" name="dotMenu">
       <AuxValues>
         <AuxValue name="JavaCodeGenerator_allCodePost" type="java.lang.String" value="Splash.append(&quot;Popup layout&quot;,2);"/>
       </AuxValues>
+
+      <Layout class="org.netbeans.modules.form.compat2.layouts.DesignAbsoluteLayout">
+        <Property name="useNullLayout" type="boolean" value="true"/>
+      </Layout>
+      <SubComponents>
+        <MenuItem class="javax.swing.JMenuItem" name="dotDot">
+          <Properties>
+            <Property name="text" type="java.lang.String" value="Point"/>
+          </Properties>
+          <Events>
+            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="dotDotActionPerformed"/>
+          </Events>
+        </MenuItem>
+        <MenuItem class="javax.swing.JMenuItem" name="dotRadius">
+          <Properties>
+            <Property name="text" type="java.lang.String" value="Point radius"/>
+          </Properties>
+          <Events>
+            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="dotRadiusActionPerformed"/>
+          </Events>
           <AuxValues>
             <AuxValue name="JavaCodeGenerator_CreateCodePost" type="java.lang.String" value="Splash.append(&quot;Menu control&quot;,10);"/>
           </AuxValues>
+        </MenuItem>
+      </SubComponents>
+    </Container>
     <Menu class="javax.swing.JMenuBar" name="menuBar">
       <SubComponents>
         <Menu class="javax.swing.JMenu" name="menuFile">
@@ -340,7 +648,7 @@
             </MenuItem>
             <Menu class="javax.swing.JMenu" name="menuImport">
               <Properties>
-                <Property name="text" type="java.lang.String" value="Import images"/>
+                <Property name="text" type="java.lang.String" value="Import"/>
               </Properties>
               <SubComponents>
                 <MenuItem class="javax.swing.JMenuItem" name="menuFileImportImages">
@@ -348,7 +656,7 @@
                     <Property name="accelerator" type="javax.swing.KeyStroke" editor="org.netbeans.modules.form.editors.KeyStrokeEditor">
                       <KeyStroke key="Ctrl+O"/>
                     </Property>
-                    <Property name="text" type="java.lang.String" value="As new images"/>
+                    <Property name="text" type="java.lang.String" value="Images"/>
                     <Property name="toolTipText" type="java.lang.String" value="Import new images with one layer each. Each file will become a new image with only one layer."/>
                   </Properties>
                   <Events>
@@ -360,7 +668,7 @@
                     <Property name="accelerator" type="javax.swing.KeyStroke" editor="org.netbeans.modules.form.editors.KeyStrokeEditor">
                       <KeyStroke key="Shift+Ctrl+O"/>
                     </Property>
-                    <Property name="text" type="java.lang.String" value="As an image with layers"/>
+                    <Property name="text" type="java.lang.String" value="An image with layers"/>
                     <Property name="toolTipText" type="java.lang.String" value="Import new image with multiple layers. One image will be created, and each file will become a layer of this image."/>
                   </Properties>
                   <Events>
@@ -372,7 +680,7 @@
                     <Property name="accelerator" type="javax.swing.KeyStroke" editor="org.netbeans.modules.form.editors.KeyStrokeEditor">
                       <KeyStroke key="Ctrl+Alt+O"/>
                     </Property>
-                    <Property name="text" type="java.lang.String" value="Add layers to all images"/>
+                    <Property name="text" type="java.lang.String" value="Layers to all images"/>
                     <Property name="toolTipText" type="java.lang.String" value="Import new layer(s) to all images. Please make sure that the number of files is divisible with the number of images open."/>
                   </Properties>
                   <Events>
@@ -384,7 +692,7 @@
                     <Property name="accelerator" type="javax.swing.KeyStroke" editor="org.netbeans.modules.form.editors.KeyStrokeEditor">
                       <KeyStroke key="Shift+Alt+O"/>
                     </Property>
-                    <Property name="text" type="java.lang.String" value="Add layers to this/these image(s)"/>
+                    <Property name="text" type="java.lang.String" value="Layers to this/these image(s)"/>
                     <Property name="toolTipText" type="java.lang.String" value="Import new layer(s) to the images selected in the Images-list. Please make sure that the number of files is divisible with the number of selected images."/>
                   </Properties>
                   <Events>
@@ -411,11 +719,19 @@
                     <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="menuFileImportMultichannelActionPerformed"/>
                   </Events>
                 </MenuItem>
+                <MenuItem class="javax.swing.JMenuItem" name="jMenuItem147">
+                  <Properties>
+                    <Property name="text" type="java.lang.String" value="Annotations"/>
+                  </Properties>
+                  <Events>
+                    <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jMenuItem147ActionPerformed"/>
+                  </Events>
+                </MenuItem>
               </SubComponents>
             </Menu>
             <Menu class="javax.swing.JMenu" name="menuExport">
               <Properties>
-                <Property name="text" type="java.lang.String" value="Export images"/>
+                <Property name="text" type="java.lang.String" value="Export"/>
               </Properties>
               <SubComponents>
                 <Menu class="javax.swing.JMenu" name="menuExportSingle">
@@ -450,6 +766,26 @@
                         <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="menuExportSingleStackActionPerformed"/>
                       </Events>
                     </MenuItem>
+                    <MenuItem class="javax.swing.JPopupMenu$Separator" name="jSeparator28">
+                    </MenuItem>
+                    <MenuItem class="javax.swing.JMenuItem" name="jMenuItem151">
+                      <Properties>
+                        <Property name="text" type="java.lang.String" value="Annotation data"/>
+                        <Property name="toolTipText" type="java.lang.String" value="Export annotation data to a file for the current image"/>
+                      </Properties>
+                      <Events>
+                        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jMenuItem151ActionPerformed"/>
+                      </Events>
+                    </MenuItem>
+                    <MenuItem class="javax.swing.JMenuItem" name="jMenuItem122">
+                      <Properties>
+                        <Property name="text" type="java.lang.String" value="Annotation area"/>
+                        <Property name="toolTipText" type="java.lang.String" value="Export each annotation cropped from the current layer as an image"/>
+                      </Properties>
+                      <Events>
+                        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jMenuItem122ActionPerformed"/>
+                      </Events>
+                    </MenuItem>
                   </SubComponents>
                 </Menu>
                 <Menu class="javax.swing.JMenu" name="menuExportAll">
@@ -482,6 +818,26 @@
                       </Properties>
                       <Events>
                         <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="menuExportAllStacksActionPerformed"/>
+                      </Events>
+                    </MenuItem>
+                    <MenuItem class="javax.swing.JPopupMenu$Separator" name="jSeparator29">
+                    </MenuItem>
+                    <MenuItem class="javax.swing.JMenuItem" name="jMenuItem152">
+                      <Properties>
+                        <Property name="text" type="java.lang.String" value="Annotation data"/>
+                        <Property name="toolTipText" type="java.lang.String" value="Export annotation data to a file for each image"/>
+                      </Properties>
+                      <Events>
+                        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jMenuItem152ActionPerformed"/>
+                      </Events>
+                    </MenuItem>
+                    <MenuItem class="javax.swing.JMenuItem" name="jMenuItem123">
+                      <Properties>
+                        <Property name="text" type="java.lang.String" value="Annotation area"/>
+                        <Property name="toolTipText" type="java.lang.String" value="Export each annotation cropped from the current layer as an image"/>
+                      </Properties>
+                      <Events>
+                        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jMenuItem123ActionPerformed"/>
                       </Events>
                     </MenuItem>
                   </SubComponents>
@@ -567,9 +923,25 @@
               <SubComponents>
                 <Menu class="javax.swing.JMenu" name="jMenu24">
                   <Properties>
-                    <Property name="text" type="java.lang.String" value="Multiply"/>
+                    <Property name="text" type="java.lang.String" value="Arithmetic"/>
                   </Properties>
                   <SubComponents>
+                    <MenuItem class="javax.swing.JMenuItem" name="jMenuItem135">
+                      <Properties>
+                        <Property name="text" type="java.lang.String" value="Add to pixel values"/>
+                      </Properties>
+                      <Events>
+                        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jMenuItem135ActionPerformed"/>
+                      </Events>
+                    </MenuItem>
+                    <MenuItem class="javax.swing.JMenuItem" name="jMenuItem136">
+                      <Properties>
+                        <Property name="text" type="java.lang.String" value="Subtract from pixel values"/>
+                      </Properties>
+                      <Events>
+                        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jMenuItem136ActionPerformed"/>
+                      </Events>
+                    </MenuItem>
                     <MenuItem class="javax.swing.JMenuItem" name="menuMultiplyPxls">
                       <Properties>
                         <Property name="accelerator" type="javax.swing.KeyStroke" editor="org.netbeans.modules.form.editors.KeyStrokeEditor">
@@ -787,6 +1159,16 @@
                 </MenuItem>
                 <MenuItem class="javax.swing.JPopupMenu$Separator" name="jSeparator7">
                 </MenuItem>
+                <MenuItem class="javax.swing.JMenuItem" name="jMenuItem130">
+                  <Properties>
+                    <Property name="text" type="java.lang.String" value="Clamp by average"/>
+                  </Properties>
+                  <Events>
+                    <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jMenuItem130ActionPerformed"/>
+                  </Events>
+                </MenuItem>
+                <MenuItem class="javax.swing.JPopupMenu$Separator" name="jSeparator23">
+                </MenuItem>
                 <MenuItem class="javax.swing.JMenuItem" name="jMenuItem62">
                   <Properties>
                     <Property name="text" type="java.lang.String" value="Replace a colour with another"/>
@@ -897,6 +1279,51 @@
                     </MenuItem>
                   </SubComponents>
                 </Menu>
+                <Menu class="javax.swing.JMenu" name="jMenu36">
+                  <Properties>
+                    <Property name="text" type="java.lang.String" value="Automatic scaling"/>
+                  </Properties>
+                  <SubComponents>
+                    <MenuItem class="javax.swing.JMenuItem" name="jMenuItem41">
+                      <Properties>
+                        <Property name="accelerator" type="javax.swing.KeyStroke" editor="org.netbeans.modules.form.editors.KeyStrokeEditor">
+                          <KeyStroke key="Shift+B"/>
+                        </Property>
+                        <Property name="text" type="java.lang.String" value="Scale brightness to maximum"/>
+                        <Property name="toolTipText" type="java.lang.String" value="Same as above, but detect the minimum and maximum automatically, so that no data is lost."/>
+                      </Properties>
+                      <Events>
+                        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jMenuItem41ActionPerformed"/>
+                      </Events>
+                    </MenuItem>
+                    <MenuItem class="javax.swing.JMenuItem" name="jMenuItem60">
+                      <Properties>
+                        <Property name="text" type="java.lang.String" value="Scale brightness to maximum with adaptation (averages)"/>
+                        <Property name="toolTipText" type="java.lang.String" value="Same as above, but ignore certain percentage of the darkest and brightest values to remove noise and bright dots"/>
+                      </Properties>
+                      <Events>
+                        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jMenuItem60ActionPerformed"/>
+                      </Events>
+                    </MenuItem>
+                    <MenuItem class="javax.swing.JMenuItem" name="jMenuItem144">
+                      <Properties>
+                        <Property name="text" type="java.lang.String" value="Scale brightness to maximum with adaptation (fractions)"/>
+                      </Properties>
+                      <Events>
+                        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jMenuItem144ActionPerformed"/>
+                      </Events>
+                    </MenuItem>
+                    <MenuItem class="javax.swing.JMenuItem" name="jMenuItem61">
+                      <Properties>
+                        <Property name="text" type="java.lang.String" value="Scale brightness to maximum with pixel limit"/>
+                        <Property name="toolTipText" type="java.lang.String" value="Same as above, but use the absolute number of outlier pixels instead of percentage"/>
+                      </Properties>
+                      <Events>
+                        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jMenuItem61ActionPerformed"/>
+                      </Events>
+                    </MenuItem>
+                  </SubComponents>
+                </Menu>
                 <MenuItem class="javax.swing.JMenuItem" name="jMenuItem34">
                   <Properties>
                     <Property name="text" type="java.lang.String" value="Scale brightness to range"/>
@@ -906,34 +1333,12 @@
                     <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jMenuItem34ActionPerformed"/>
                   </Events>
                 </MenuItem>
-                <MenuItem class="javax.swing.JMenuItem" name="jMenuItem41">
+                <MenuItem class="javax.swing.JMenuItem" name="jMenuItem114">
                   <Properties>
-                    <Property name="accelerator" type="javax.swing.KeyStroke" editor="org.netbeans.modules.form.editors.KeyStrokeEditor">
-                      <KeyStroke key="Shift+B"/>
-                    </Property>
-                    <Property name="text" type="java.lang.String" value="Scale brightness to maximum"/>
-                    <Property name="toolTipText" type="java.lang.String" value="Same as above, but detect the minimum and maximum automatically, so that no data is lost."/>
+                    <Property name="text" type="java.lang.String" value="Scale RGB (white balance)"/>
                   </Properties>
                   <Events>
-                    <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jMenuItem41ActionPerformed"/>
-                  </Events>
-                </MenuItem>
-                <MenuItem class="javax.swing.JMenuItem" name="jMenuItem60">
-                  <Properties>
-                    <Property name="text" type="java.lang.String" value="Scale brightness to maximum with adaptation"/>
-                    <Property name="toolTipText" type="java.lang.String" value="Same as above, but ignore certain percentage of the darkest and brightest values to remove noise and bright dots"/>
-                  </Properties>
-                  <Events>
-                    <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jMenuItem60ActionPerformed"/>
-                  </Events>
-                </MenuItem>
-                <MenuItem class="javax.swing.JMenuItem" name="jMenuItem61">
-                  <Properties>
-                    <Property name="text" type="java.lang.String" value="Scale brightness to maximum with pixel limit"/>
-                    <Property name="toolTipText" type="java.lang.String" value="Same as above, but use the absolute number of outlier pixels instead of percentage"/>
-                  </Properties>
-                  <Events>
-                    <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jMenuItem61ActionPerformed"/>
+                    <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jMenuItem114ActionPerformed"/>
                   </Events>
                 </MenuItem>
                 <MenuItem class="javax.swing.JMenuItem" name="jMenuItem92">
@@ -942,6 +1347,14 @@
                   </Properties>
                   <Events>
                     <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jMenuItem92ActionPerformed"/>
+                  </Events>
+                </MenuItem>
+                <MenuItem class="javax.swing.JMenuItem" name="jMenuItem129">
+                  <Properties>
+                    <Property name="text" type="java.lang.String" value="Scale to level"/>
+                  </Properties>
+                  <Events>
+                    <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jMenuItem129ActionPerformed"/>
                   </Events>
                 </MenuItem>
                 <MenuItem class="javax.swing.JMenuItem" name="jMenuItem94">
@@ -1127,57 +1540,113 @@
                     <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="menuGammaActionPerformed"/>
                   </Events>
                 </MenuItem>
-                <MenuItem class="javax.swing.JMenuItem" name="jMenuItem56">
+                <Menu class="javax.swing.JMenu" name="jMenu31">
+                  <Properties>
+                    <Property name="text" type="java.lang.String" value="Correction matrix"/>
+                  </Properties>
+                  <SubComponents>
+                    <MenuItem class="javax.swing.JMenuItem" name="jMenuItem131">
+                      <Properties>
+                        <Property name="text" type="java.lang.String" value="Generate heat matrix from channel"/>
+                      </Properties>
+                      <Events>
+                        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jMenuItem131ActionPerformed"/>
+                      </Events>
+                    </MenuItem>
+                    <MenuItem class="javax.swing.JMenuItem" name="jMenuItem133">
+                      <Properties>
+                        <Property name="text" type="java.lang.String" value="Convert intensity matrix to heat matrix"/>
+                      </Properties>
+                      <Events>
+                        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jMenuItem133ActionPerformed"/>
+                      </Events>
+                    </MenuItem>
+                    <MenuItem class="javax.swing.JMenuItem" name="jMenuItem132">
+                      <Properties>
+                        <Property name="text" type="java.lang.String" value="Apply correction heat matrix"/>
+                      </Properties>
+                      <Events>
+                        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jMenuItem132ActionPerformed"/>
+                      </Events>
+                    </MenuItem>
+                    <MenuItem class="javax.swing.JMenuItem" name="jMenuItem93">
+                      <Properties>
+                        <Property name="text" type="java.lang.String" value="Apply correction intensity matrix"/>
+                        <Property name="toolTipText" type="java.lang.String" value="Correct image by applying a custom correction map"/>
+                      </Properties>
+                      <Events>
+                        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jMenuItem93ActionPerformed"/>
+                      </Events>
+                    </MenuItem>
+                  </SubComponents>
+                </Menu>
+                <MenuItem class="javax.swing.JPopupMenu$Separator" name="jSeparator26">
+                </MenuItem>
+                <Menu class="javax.swing.JMenu" name="jMenu30">
+                  <Properties>
+                    <Property name="text" type="java.lang.String" value="Background correction"/>
+                  </Properties>
+                  <SubComponents>
+                    <MenuItem class="javax.swing.JMenuItem" name="jMenuItem87">
+                      <Properties>
+                        <Property name="text" type="java.lang.String" value="Background correction subtract"/>
+                      </Properties>
+                      <Events>
+                        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jMenuItem87ActionPerformed"/>
+                      </Events>
+                    </MenuItem>
+                    <MenuItem class="javax.swing.JMenuItem" name="jMenuItem102">
+                      <Properties>
+                        <Property name="text" type="java.lang.String" value="Background correction scale"/>
+                      </Properties>
+                      <Events>
+                        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jMenuItem102ActionPerformed"/>
+                      </Events>
+                    </MenuItem>
+                    <MenuItem class="javax.swing.JMenuItem" name="jMenuItem108">
+                      <Properties>
+                        <Property name="text" type="java.lang.String" value="Background correction gradient"/>
+                      </Properties>
+                      <Events>
+                        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jMenuItem108ActionPerformed"/>
+                      </Events>
+                    </MenuItem>
+                  </SubComponents>
+                </Menu>
+                <Menu class="javax.swing.JMenu" name="jMenu32">
                   <Properties>
                     <Property name="text" type="java.lang.String" value="Illumination correction"/>
-                    <Property name="toolTipText" type="java.lang.String" value="Correct uneven background lighting"/>
                   </Properties>
-                  <Events>
-                    <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jMenuItem56ActionPerformed"/>
-                  </Events>
-                </MenuItem>
-                <MenuItem class="javax.swing.JMenuItem" name="jMenuItem87">
-                  <Properties>
-                    <Property name="text" type="java.lang.String" value="Background correction subtract"/>
-                  </Properties>
-                  <Events>
-                    <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jMenuItem87ActionPerformed"/>
-                  </Events>
-                </MenuItem>
-                <MenuItem class="javax.swing.JMenuItem" name="jMenuItem102">
-                  <Properties>
-                    <Property name="text" type="java.lang.String" value="Background correction scale"/>
-                  </Properties>
-                  <Events>
-                    <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jMenuItem102ActionPerformed"/>
-                  </Events>
-                </MenuItem>
-                <MenuItem class="javax.swing.JMenuItem" name="jMenuItem108">
-                  <Properties>
-                    <Property name="text" type="java.lang.String" value="Background correction gradient"/>
-                  </Properties>
-                  <Events>
-                    <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jMenuItem108ActionPerformed"/>
-                  </Events>
-                </MenuItem>
-                <MenuItem class="javax.swing.JMenuItem" name="jMenuItem90">
-                  <Properties>
-                    <Property name="text" type="java.lang.String" value="Fixation correction nonlinear"/>
-                    <Property name="toolTipText" type="java.lang.String" value="Correct uneven staining for multichannel images due to uneven fixation/deparaffinization etc. using a nonlinear DAPI normalization"/>
-                  </Properties>
-                  <Events>
-                    <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jMenuItem90ActionPerformed"/>
-                  </Events>
-                </MenuItem>
-                <MenuItem class="javax.swing.JMenuItem" name="jMenuItem97">
-                  <Properties>
-                    <Property name="text" type="java.lang.String" value="Fixation correction linear"/>
-                    <Property name="toolTipText" type="java.lang.String" value="Correct uneven staining for multichannel images due to uneven fixation/deparaffinization etc. using linear normalization"/>
-                  </Properties>
-                  <Events>
-                    <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jMenuItem97ActionPerformed"/>
-                  </Events>
-                </MenuItem>
+                  <SubComponents>
+                    <MenuItem class="javax.swing.JMenuItem" name="jMenuItem56">
+                      <Properties>
+                        <Property name="text" type="java.lang.String" value="Global illumination correction"/>
+                        <Property name="toolTipText" type="java.lang.String" value="Correct uneven background lighting"/>
+                      </Properties>
+                      <Events>
+                        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jMenuItem56ActionPerformed"/>
+                      </Events>
+                    </MenuItem>
+                    <MenuItem class="javax.swing.JMenuItem" name="jMenuItem90">
+                      <Properties>
+                        <Property name="text" type="java.lang.String" value="Tissue illumination correction (nonlinear)"/>
+                        <Property name="toolTipText" type="java.lang.String" value="Correct uneven staining for multichannel images due to uneven fixation/deparaffinization etc. using a nonlinear DAPI normalization"/>
+                      </Properties>
+                      <Events>
+                        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jMenuItem90ActionPerformed"/>
+                      </Events>
+                    </MenuItem>
+                    <MenuItem class="javax.swing.JMenuItem" name="jMenuItem97">
+                      <Properties>
+                        <Property name="text" type="java.lang.String" value="Tissue illumination correction (linear)"/>
+                        <Property name="toolTipText" type="java.lang.String" value="Correct uneven staining for multichannel images due to uneven fixation/deparaffinization etc. using linear normalization"/>
+                      </Properties>
+                      <Events>
+                        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jMenuItem97ActionPerformed"/>
+                      </Events>
+                    </MenuItem>
+                  </SubComponents>
+                </Menu>
                 <MenuItem class="javax.swing.JMenuItem" name="jMenuItem101">
                   <Properties>
                     <Property name="text" type="java.lang.String" value="Overlap correction"/>
@@ -1194,17 +1663,6 @@
                   </Properties>
                   <Events>
                     <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jMenuItem70ActionPerformed"/>
-                  </Events>
-                </MenuItem>
-                <MenuItem class="javax.swing.JPopupMenu$Separator" name="jSeparator19">
-                </MenuItem>
-                <MenuItem class="javax.swing.JMenuItem" name="jMenuItem93">
-                  <Properties>
-                    <Property name="text" type="java.lang.String" value="Manual correction"/>
-                    <Property name="toolTipText" type="java.lang.String" value="Correct image by applying a custom correction map"/>
-                  </Properties>
-                  <Events>
-                    <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jMenuItem93ActionPerformed"/>
                   </Events>
                 </MenuItem>
               </SubComponents>
@@ -1228,6 +1686,14 @@
                   </Properties>
                   <Events>
                     <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jMenuItem95ActionPerformed"/>
+                  </Events>
+                </MenuItem>
+                <MenuItem class="javax.swing.JMenuItem" name="jMenuItem109">
+                  <Properties>
+                    <Property name="text" type="java.lang.String" value="Binning by radius"/>
+                  </Properties>
+                  <Events>
+                    <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jMenuItem109ActionPerformed"/>
                   </Events>
                 </MenuItem>
               </SubComponents>
@@ -1345,6 +1811,14 @@
                         <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jMenuItem40ActionPerformed"/>
                       </Events>
                     </MenuItem>
+                    <MenuItem class="javax.swing.JMenuItem" name="jMenuItem117">
+                      <Properties>
+                        <Property name="text" type="java.lang.String" value="Large objects (by area size)"/>
+                      </Properties>
+                      <Events>
+                        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jMenuItem117ActionPerformed"/>
+                      </Events>
+                    </MenuItem>
                     <MenuItem class="javax.swing.JMenuItem" name="menuFilterSmallSize">
                       <Properties>
                         <Property name="text" type="java.lang.String" value="Small objects (by area size)"/>
@@ -1381,6 +1855,30 @@
                         <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jMenuItem67ActionPerformed"/>
                       </Events>
                     </MenuItem>
+                    <MenuItem class="javax.swing.JMenuItem" name="jMenuItem118">
+                      <Properties>
+                        <Property name="text" type="java.lang.String" value="Small and bright objects"/>
+                      </Properties>
+                      <Events>
+                        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jMenuItem118ActionPerformed"/>
+                      </Events>
+                    </MenuItem>
+                    <MenuItem class="javax.swing.JMenuItem" name="jMenuItem119">
+                      <Properties>
+                        <Property name="text" type="java.lang.String" value="Bright objects"/>
+                      </Properties>
+                      <Events>
+                        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jMenuItem119ActionPerformed"/>
+                      </Events>
+                    </MenuItem>
+                    <MenuItem class="javax.swing.JMenuItem" name="jMenuItem134">
+                      <Properties>
+                        <Property name="text" type="java.lang.String" value="Bright objects (extended)"/>
+                      </Properties>
+                      <Events>
+                        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jMenuItem134ActionPerformed"/>
+                      </Events>
+                    </MenuItem>
                     <MenuItem class="javax.swing.JMenuItem" name="jMenuItem85">
                       <Properties>
                         <Property name="text" type="java.lang.String" value="Dim objects (by intensity)"/>
@@ -1397,6 +1895,14 @@
                       </Properties>
                       <Events>
                         <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jMenuItem77ActionPerformed"/>
+                      </Events>
+                    </MenuItem>
+                    <MenuItem class="javax.swing.JMenuItem" name="jMenuItem127">
+                      <Properties>
+                        <Property name="text" type="java.lang.String" value="Objects by direction and ratio"/>
+                      </Properties>
+                      <Events>
+                        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jMenuItem127ActionPerformed"/>
                       </Events>
                     </MenuItem>
                   </SubComponents>
@@ -1493,6 +1999,15 @@
                         <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jMenuItem69ActionPerformed"/>
                       </Events>
                     </MenuItem>
+                    <MenuItem class="javax.swing.JMenuItem" name="jMenuItem143">
+                      <Properties>
+                        <Property name="text" type="java.lang.String" value="Outline"/>
+                        <Property name="toolTipText" type="java.lang.String" value="Render only the outline of the object(s)"/>
+                      </Properties>
+                      <Events>
+                        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jMenuItem143ActionPerformed"/>
+                      </Events>
+                    </MenuItem>
                     <MenuItem class="javax.swing.JMenuItem" name="jMenuItem25">
                       <Properties>
                         <Property name="text" type="java.lang.String" value="Distance to the edges"/>
@@ -1559,6 +2074,22 @@
                     <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jMenuItem84ActionPerformed"/>
                   </Events>
                 </MenuItem>
+                <MenuItem class="javax.swing.JMenuItem" name="jMenuItem124">
+                  <Properties>
+                    <Property name="text" type="java.lang.String" value="Segment angled"/>
+                  </Properties>
+                  <Events>
+                    <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jMenuItem124ActionPerformed"/>
+                  </Events>
+                </MenuItem>
+                <MenuItem class="javax.swing.JMenuItem" name="jMenuItem128">
+                  <Properties>
+                    <Property name="text" type="java.lang.String" value="Carve by channel"/>
+                  </Properties>
+                  <Events>
+                    <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jMenuItem128ActionPerformed"/>
+                  </Events>
+                </MenuItem>
               </SubComponents>
             </Menu>
             <Menu class="javax.swing.JMenu" name="jMenu17">
@@ -1579,6 +2110,14 @@
                     <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jMenuItem46ActionPerformed"/>
                   </Events>
                 </MenuItem>
+                <MenuItem class="javax.swing.JMenuItem" name="jMenuItem116">
+                  <Properties>
+                    <Property name="text" type="java.lang.String" value="Render mask outlines to image"/>
+                  </Properties>
+                  <Events>
+                    <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jMenuItem116ActionPerformed"/>
+                  </Events>
+                </MenuItem>
                 <MenuItem class="javax.swing.JMenuItem" name="jMenuItem54">
                   <Properties>
                     <Property name="text" type="java.lang.String" value="Blend image with another"/>
@@ -1586,6 +2125,24 @@
                   </Properties>
                   <Events>
                     <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jMenuItem54ActionPerformed"/>
+                  </Events>
+                </MenuItem>
+                <MenuItem class="javax.swing.JPopupMenu$Separator" name="jSeparator22">
+                </MenuItem>
+                <MenuItem class="javax.swing.JMenuItem" name="jMenuItem120">
+                  <Properties>
+                    <Property name="text" type="java.lang.String" value="Render annotations as a mask"/>
+                  </Properties>
+                  <Events>
+                    <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jMenuItem120ActionPerformed"/>
+                  </Events>
+                </MenuItem>
+                <MenuItem class="javax.swing.JMenuItem" name="jMenuItem121">
+                  <Properties>
+                    <Property name="text" type="java.lang.String" value="Cut out annotation area"/>
+                  </Properties>
+                  <Events>
+                    <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jMenuItem121ActionPerformed"/>
                   </Events>
                 </MenuItem>
               </SubComponents>
@@ -1607,22 +2164,61 @@
               <SubComponents>
                 <MenuItem class="javax.swing.JMenuItem" name="jMenuItem98">
                   <Properties>
-                    <Property name="text" type="java.lang.String" value="IF tissue intensities"/>
+                    <Property name="text" type="java.lang.String" value="Fluorescent signal intensity"/>
                     <Property name="toolTipText" type="java.lang.String" value="Perform a multichannel normalization for background staining, uneven illumination, and staining artefacts all at once, on fluorescent tissue images"/>
                   </Properties>
                   <Events>
                     <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jMenuItem98ActionPerformed"/>
                   </Events>
                 </MenuItem>
-                <MenuItem class="javax.swing.JMenuItem" name="jMenuItem107">
+                <MenuItem class="javax.swing.JMenuItem" name="jMenuItem68">
                   <Properties>
-                    <Property name="text" type="java.lang.String" value="IF tissue intensitites for Mirax files"/>
-                    <Property name="toolTipText" type="java.lang.String" value="Perform a multichannel normalization for background staining, uneven illumination, and staining artefacts all at once, on fluorescent tissue images"/>
+                    <Property name="text" type="java.lang.String" value="Chromogen signal intensity"/>
                   </Properties>
                   <Events>
-                    <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jMenuItem107ActionPerformed"/>
+                    <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jMenuItem68ActionPerformed"/>
                   </Events>
                 </MenuItem>
+                <MenuItem class="javax.swing.JMenuItem" name="jMenuItem115">
+                  <Properties>
+                    <Property name="text" type="java.lang.String" value="Nuclear chromogen signal intensity"/>
+                  </Properties>
+                  <Events>
+                    <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jMenuItem115ActionPerformed"/>
+                  </Events>
+                </MenuItem>
+                <MenuItem class="javax.swing.JMenuItem" name="jMenuItem141">
+                  <Properties>
+                    <Property name="text" type="java.lang.String" value="Tissue blockification"/>
+                  </Properties>
+                  <Events>
+                    <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jMenuItem141ActionPerformed"/>
+                  </Events>
+                </MenuItem>
+                <Menu class="javax.swing.JMenu" name="jMenu33">
+                  <Properties>
+                    <Property name="text" type="java.lang.String" value="Mirax files"/>
+                  </Properties>
+                  <SubComponents>
+                    <MenuItem class="javax.swing.JMenuItem" name="jMenuItem138">
+                      <Properties>
+                        <Property name="text" type="java.lang.String" value="Chromogen signal intensity"/>
+                      </Properties>
+                      <Events>
+                        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jMenuItem138ActionPerformed"/>
+                      </Events>
+                    </MenuItem>
+                    <MenuItem class="javax.swing.JMenuItem" name="jMenuItem107">
+                      <Properties>
+                        <Property name="text" type="java.lang.String" value="Fluorescence nuclear signal intensity"/>
+                        <Property name="toolTipText" type="java.lang.String" value="Perform a multichannel normalization for background staining, uneven illumination, and staining artefacts all at once, on fluorescent tissue images"/>
+                      </Properties>
+                      <Events>
+                        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jMenuItem107ActionPerformed"/>
+                      </Events>
+                    </MenuItem>
+                  </SubComponents>
+                </Menu>
               </SubComponents>
             </Menu>
             <Menu class="javax.swing.JMenu" name="jMenu7">
@@ -1772,6 +2368,52 @@
                     </MenuItem>
                   </SubComponents>
                 </Menu>
+                <Menu class="javax.swing.JMenu" name="jMenu28">
+                  <Properties>
+                    <Property name="text" type="java.lang.String" value="Classify"/>
+                  </Properties>
+                  <SubComponents>
+                    <MenuItem class="javax.swing.JMenuItem" name="jMenuItem126">
+                      <Properties>
+                        <Property name="text" type="java.lang.String" value="Shape on an angle and measure class intensity"/>
+                      </Properties>
+                      <Events>
+                        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jMenuItem126ActionPerformed"/>
+                      </Events>
+                    </MenuItem>
+                  </SubComponents>
+                </Menu>
+                <MenuItem class="javax.swing.JMenuItem" name="jMenuItem146">
+                  <Properties>
+                    <Property name="text" type="java.lang.String" value="Split mask"/>
+                  </Properties>
+                  <Events>
+                    <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jMenuItem146ActionPerformed"/>
+                  </Events>
+                </MenuItem>
+              </SubComponents>
+            </Menu>
+            <Menu class="javax.swing.JMenu" name="jMenu37">
+              <Properties>
+                <Property name="text" type="java.lang.String" value="For other"/>
+              </Properties>
+              <SubComponents>
+                <MenuItem class="javax.swing.JMenuItem" name="jMenuItem111">
+                  <Properties>
+                    <Property name="text" type="java.lang.String" value="Count brightfield spheroids"/>
+                  </Properties>
+                  <Events>
+                    <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jMenuItem111ActionPerformed"/>
+                  </Events>
+                </MenuItem>
+                <MenuItem class="javax.swing.JMenuItem" name="jMenuItem142">
+                  <Properties>
+                    <Property name="text" type="java.lang.String" value="Myotube differentiation index"/>
+                  </Properties>
+                  <Events>
+                    <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jMenuItem142ActionPerformed"/>
+                  </Events>
+                </MenuItem>
               </SubComponents>
             </Menu>
             <MenuItem class="javax.swing.JPopupMenu$Separator" name="jSeparator2">
@@ -1782,108 +2424,86 @@
                 <Property name="toolTipText" type="java.lang.String" value="Potentially unstable protocols in development"/>
               </Properties>
               <SubComponents>
-                <Menu class="javax.swing.JMenu" name="jMenu4">
+                <MenuItem class="javax.swing.JMenuItem" name="menuProtocolIFMask">
                   <Properties>
-                    <Property name="text" type="java.lang.String" value="Experiment image analysis"/>
+                    <Property name="text" type="java.lang.String" value="IF staining"/>
                   </Properties>
-                  <SubComponents>
-                    <MenuItem class="javax.swing.JMenuItem" name="menuProtocolIFMask">
-                      <Properties>
-                        <Property name="text" type="java.lang.String" value="IF staining"/>
-                      </Properties>
-                      <Events>
-                        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="menuProtocolIFMaskActionPerformed"/>
-                      </Events>
-                    </MenuItem>
-                    <MenuItem class="javax.swing.JMenuItem" name="jMenuItem48">
-                      <Properties>
-                        <Property name="text" type="java.lang.String" value="Oligodendrocyte branching"/>
-                      </Properties>
-                      <Events>
-                        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jMenuItem48ActionPerformed"/>
-                      </Events>
-                    </MenuItem>
-                    <MenuItem class="javax.swing.JMenuItem" name="jMenuItem39">
-                      <Properties>
-                        <Property name="text" type="java.lang.String" value="Tissue separation &amp; stain calculation"/>
-                      </Properties>
-                      <Events>
-                        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jMenuItem39ActionPerformed"/>
-                      </Events>
-                    </MenuItem>
-                    <MenuItem class="javax.swing.JMenuItem" name="jMenuItem2">
-                      <Properties>
-                        <Property name="text" type="java.lang.String" value="HE tissue separation"/>
-                      </Properties>
-                      <Events>
-                        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jMenuItem2ActionPerformed"/>
-                      </Events>
-                    </MenuItem>
-                    <MenuItem class="javax.swing.JMenuItem" name="jMenuItem68">
-                      <Properties>
-                        <Property name="text" type="java.lang.String" value="In Situ -hybridisation"/>
-                      </Properties>
-                      <Events>
-                        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jMenuItem68ActionPerformed"/>
-                      </Events>
-                    </MenuItem>
-                    <MenuItem class="javax.swing.JMenuItem" name="jMenuItem9">
-                      <Properties>
-                        <Property name="text" type="java.lang.String" value="Intestinal crypt cells"/>
-                      </Properties>
-                      <Events>
-                        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jMenuItem9ActionPerformed"/>
-                      </Events>
-                    </MenuItem>
-                    <MenuItem class="javax.swing.JMenuItem" name="jMenuItem22">
-                      <Properties>
-                        <Property name="text" type="java.lang.String" value="Matrigel organoids"/>
-                      </Properties>
-                      <Events>
-                        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jMenuItem22ActionPerformed"/>
-                      </Events>
-                    </MenuItem>
-                    <MenuItem class="javax.swing.JMenuItem" name="jMenuItem111">
-                      <Properties>
-                        <Property name="text" type="java.lang.String" value="Organoids"/>
-                      </Properties>
-                      <Events>
-                        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jMenuItem111ActionPerformed"/>
-                      </Events>
-                    </MenuItem>
-                    <MenuItem class="javax.swing.JMenuItem" name="menuProtocolNucleusSep">
-                      <Properties>
-                        <Property name="text" type="java.lang.String" value="Nucleus (+EdU) recognition"/>
-                      </Properties>
-                      <Events>
-                        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="menuProtocolNucleusSepActionPerformed"/>
-                      </Events>
-                    </MenuItem>
-                  </SubComponents>
-                </Menu>
-                <Menu class="javax.swing.JMenu" name="jMenu18">
+                  <Events>
+                    <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="menuProtocolIFMaskActionPerformed"/>
+                  </Events>
+                </MenuItem>
+                <MenuItem class="javax.swing.JMenuItem" name="jMenuItem48">
                   <Properties>
-                    <Property name="text" type="java.lang.String" value="Object regcognition and counting"/>
+                    <Property name="text" type="java.lang.String" value="Oligodendrocyte branching"/>
                   </Properties>
-                  <SubComponents>
-                    <MenuItem class="javax.swing.JMenuItem" name="jMenuItem44">
-                      <Properties>
-                        <Property name="text" type="java.lang.String" value="Count areas around objects"/>
-                      </Properties>
-                      <Events>
-                        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jMenuItem44ActionPerformed"/>
-                      </Events>
-                    </MenuItem>
-                    <MenuItem class="javax.swing.JMenuItem" name="jMenuItem37">
-                      <Properties>
-                        <Property name="text" type="java.lang.String" value="Count colored areas"/>
-                      </Properties>
-                      <Events>
-                        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jMenuItem37ActionPerformed"/>
-                      </Events>
-                    </MenuItem>
-                  </SubComponents>
-                </Menu>
+                  <Events>
+                    <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jMenuItem48ActionPerformed"/>
+                  </Events>
+                </MenuItem>
+                <MenuItem class="javax.swing.JMenuItem" name="jMenuItem39">
+                  <Properties>
+                    <Property name="text" type="java.lang.String" value="Tissue separation &amp; stain calculation"/>
+                  </Properties>
+                  <Events>
+                    <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jMenuItem39ActionPerformed"/>
+                  </Events>
+                </MenuItem>
+                <MenuItem class="javax.swing.JMenuItem" name="jMenuItem2">
+                  <Properties>
+                    <Property name="text" type="java.lang.String" value="HE tissue separation"/>
+                  </Properties>
+                  <Events>
+                    <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jMenuItem2ActionPerformed"/>
+                  </Events>
+                </MenuItem>
+                <MenuItem class="javax.swing.JMenuItem" name="jMenuItem9">
+                  <Properties>
+                    <Property name="text" type="java.lang.String" value="Intestinal crypt cells"/>
+                  </Properties>
+                  <Events>
+                    <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jMenuItem9ActionPerformed"/>
+                  </Events>
+                </MenuItem>
+                <MenuItem class="javax.swing.JMenuItem" name="jMenuItem125">
+                  <Properties>
+                    <Property name="text" type="java.lang.String" value="Intestinal crypt cells (concave)"/>
+                  </Properties>
+                  <Events>
+                    <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jMenuItem125ActionPerformed"/>
+                  </Events>
+                </MenuItem>
+                <MenuItem class="javax.swing.JMenuItem" name="jMenuItem22">
+                  <Properties>
+                    <Property name="text" type="java.lang.String" value="Matrigel organoids"/>
+                  </Properties>
+                  <Events>
+                    <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jMenuItem22ActionPerformed"/>
+                  </Events>
+                </MenuItem>
+                <MenuItem class="javax.swing.JMenuItem" name="menuProtocolNucleusSep">
+                  <Properties>
+                    <Property name="text" type="java.lang.String" value="Nucleus (+EdU) recognition"/>
+                  </Properties>
+                  <Events>
+                    <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="menuProtocolNucleusSepActionPerformed"/>
+                  </Events>
+                </MenuItem>
+                <MenuItem class="javax.swing.JMenuItem" name="jMenuItem44">
+                  <Properties>
+                    <Property name="text" type="java.lang.String" value="Count areas around objects"/>
+                  </Properties>
+                  <Events>
+                    <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jMenuItem44ActionPerformed"/>
+                  </Events>
+                </MenuItem>
+                <MenuItem class="javax.swing.JMenuItem" name="jMenuItem37">
+                  <Properties>
+                    <Property name="text" type="java.lang.String" value="Count colored areas"/>
+                  </Properties>
+                  <Events>
+                    <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jMenuItem37ActionPerformed"/>
+                  </Events>
+                </MenuItem>
               </SubComponents>
             </Menu>
           </SubComponents>
@@ -1973,16 +2593,77 @@
                 </MenuItem>
               </SubComponents>
             </Menu>
-            <MenuItem class="javax.swing.JPopupMenu$Separator" name="jSeparator24">
-            </MenuItem>
-            <MenuItem class="javax.swing.JMenuItem" name="jMenuItem138">
+            <Menu class="javax.swing.JMenu" name="jMenu25">
               <Properties>
-                <Property name="text" type="java.lang.String" value="Transpose by image"/>
+                <Property name="text" type="java.lang.String" value="Annotation counters"/>
               </Properties>
-              <Events>
-                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jMenuItem138ActionPerformed"/>
-              </Events>
-            </MenuItem>
+              <SubComponents>
+                <MenuItem class="javax.swing.JMenuItem" name="jMenuItem150">
+                  <Properties>
+                    <Property name="text" type="java.lang.String" value="Annotation dimensions"/>
+                    <Property name="toolTipText" type="java.lang.String" value="List dimensions of all annotations across images"/>
+                  </Properties>
+                  <Events>
+                    <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jMenuItem150ActionPerformed"/>
+                  </Events>
+                </MenuItem>
+                <MenuItem class="javax.swing.JMenuItem" name="jMenuItem113">
+                  <Properties>
+                    <Property name="text" type="java.lang.String" value="Annotation area sizes"/>
+                    <Property name="toolTipText" type="java.lang.String" value="Calculate the average/median area size of annotations for each image"/>
+                  </Properties>
+                  <Events>
+                    <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jMenuItem113ActionPerformed"/>
+                  </Events>
+                </MenuItem>
+                <MenuItem class="javax.swing.JMenuItem" name="jMenuItem145">
+                  <Properties>
+                    <Property name="text" type="java.lang.String" value="Annotation lengths"/>
+                    <Property name="toolTipText" type="java.lang.String" value="Calculate the average/median length of annotations for each image"/>
+                  </Properties>
+                  <Events>
+                    <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jMenuItem145ActionPerformed"/>
+                  </Events>
+                </MenuItem>
+                <MenuItem class="javax.swing.JMenuItem" name="jMenuItem149">
+                  <Properties>
+                    <Property name="text" type="java.lang.String" value="Annotation angles"/>
+                    <Property name="toolTipText" type="java.lang.String" value="Calculate the average/median angle of angle-annotations for each image"/>
+                  </Properties>
+                  <Events>
+                    <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jMenuItem149ActionPerformed"/>
+                  </Events>
+                </MenuItem>
+                <MenuItem class="javax.swing.JMenuItem" name="jMenuItem153">
+                  <Properties>
+                    <Property name="text" type="java.lang.String" value="Count annotations by group"/>
+                  </Properties>
+                  <Events>
+                    <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jMenuItem153ActionPerformed"/>
+                  </Events>
+                </MenuItem>
+                <MenuItem class="javax.swing.JPopupMenu$Separator" name="jSeparator27">
+                </MenuItem>
+                <MenuItem class="javax.swing.JMenuItem" name="jMenuItem148">
+                  <Properties>
+                    <Property name="text" type="java.lang.String" value="Intensity on the annotation area"/>
+                    <Property name="toolTipText" type="java.lang.String" value="Quantify the signal intensity on the annotation area"/>
+                  </Properties>
+                  <Events>
+                    <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jMenuItem148ActionPerformed"/>
+                  </Events>
+                </MenuItem>
+                <MenuItem class="javax.swing.JMenuItem" name="jMenuItem112">
+                  <Properties>
+                    <Property name="text" type="java.lang.String" value="Intensity along the polyline radius"/>
+                    <Property name="toolTipText" type="java.lang.String" value="Quantify the signal intensity along the polyline on the radius for polyline radius annotations"/>
+                  </Properties>
+                  <Events>
+                    <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jMenuItem112ActionPerformed"/>
+                  </Events>
+                </MenuItem>
+              </SubComponents>
+            </Menu>
           </SubComponents>
         </Menu>
         <Menu class="javax.swing.JMenu" name="menuDebug">
@@ -2128,6 +2809,21 @@
                     <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jMenuItem81ActionPerformed"/>
                   </Events>
                 </MenuItem>
+                <Menu class="javax.swing.JMenu" name="jMenu29">
+                  <Properties>
+                    <Property name="text" type="java.lang.String" value="Plotting"/>
+                  </Properties>
+                  <SubComponents>
+                    <MenuItem class="javax.swing.JMenuItem" name="jMenuItem140">
+                      <Properties>
+                        <Property name="text" type="java.lang.String" value="Plot XY"/>
+                      </Properties>
+                      <Events>
+                        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jMenuItem140ActionPerformed"/>
+                      </Events>
+                    </MenuItem>
+                  </SubComponents>
+                </Menu>
               </SubComponents>
             </Menu>
           </SubComponents>
@@ -2177,7 +2873,7 @@
               <EmptySpace max="-2" attributes="0"/>
               <Component id="bleftLabel" max="32767" attributes="0"/>
               <EmptySpace type="unrelated" max="-2" attributes="0"/>
-              <Component id="brightLabel" min="-2" pref="220" max="-2" attributes="0"/>
+              <Component id="brightLabel" min="-2" pref="250" max="-2" attributes="0"/>
               <EmptySpace max="-2" attributes="0"/>
           </Group>
       </Group>
@@ -2238,10 +2934,7 @@
       <SubComponents>
         <Container class="javax.swing.JSplitPane" name="rSplitPane">
           <Properties>
-            <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
-              <Border info="null"/>
-            </Property>
-            <Property name="dividerLocation" type="int" value="450"/>
+            <Property name="dividerLocation" type="int" value="400"/>
             <Property name="dividerSize" type="int" value="6"/>
             <Property name="orientation" type="int" value="0"/>
             <Property name="resizeWeight" type="double" value="0.75"/>
@@ -2313,11 +3006,20 @@
                 <DimensionLayout dim="0">
                   <Group type="103" groupAlignment="0" attributes="0">
                       <Component id="jScrollPane1" alignment="0" pref="188" max="32767" attributes="0"/>
+                      <Component id="jSeparator19" alignment="0" max="32767" attributes="0"/>
+                      <Component id="batchToggle" alignment="0" max="32767" attributes="0"/>
                   </Group>
                 </DimensionLayout>
                 <DimensionLayout dim="1">
                   <Group type="103" groupAlignment="0" attributes="0">
-                      <Component id="jScrollPane1" alignment="0" max="32767" attributes="0"/>
+                      <Group type="102" alignment="1" attributes="0">
+                          <Component id="jScrollPane1" pref="337" max="32767" attributes="0"/>
+                          <EmptySpace min="-2" pref="2" max="-2" attributes="0"/>
+                          <Component id="jSeparator19" min="-2" max="-2" attributes="0"/>
+                          <EmptySpace min="-2" pref="2" max="-2" attributes="0"/>
+                          <Component id="batchToggle" min="-2" pref="30" max="-2" attributes="0"/>
+                          <EmptySpace min="-2" pref="2" max="-2" attributes="0"/>
+                      </Group>
                   </Group>
                 </DimensionLayout>
               </Layout>
@@ -2355,6 +3057,20 @@
                     </Component>
                   </SubComponents>
                 </Container>
+                <Component class="javax.swing.JSeparator" name="jSeparator19">
+                </Component>
+                <Component class="javax.swing.JToggleButton" name="batchToggle">
+                  <Properties>
+                    <Property name="text" type="java.lang.String" value="Batch"/>
+                    <Property name="toolTipText" type="java.lang.String" value="Toggle the batch mode on/off. In batch mode the images are imported upon running a filter/protocol and the result is saved on disk to allow handling a large number of files."/>
+                    <Property name="preferredSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
+                      <Dimension value="[100, 23]"/>
+                    </Property>
+                  </Properties>
+                  <Events>
+                    <EventHandler event="mouseReleased" listener="java.awt.event.MouseListener" parameters="java.awt.event.MouseEvent" handler="batchToggleMouseReleased"/>
+                  </Events>
+                </Component>
               </SubComponents>
             </Container>
             <Container class="javax.swing.JPanel" name="jPanel2">
@@ -2384,20 +3100,23 @@
               <Layout>
                 <DimensionLayout dim="0">
                   <Group type="103" groupAlignment="0" attributes="0">
-                      <Component id="jScrollPane3" pref="188" max="32767" attributes="0"/>
-                      <Component id="stackToggle" alignment="1" max="32767" attributes="0"/>
-                      <Component id="jSeparator4" alignment="1" max="32767" attributes="0"/>
+                      <Component id="jScrollPane3" alignment="1" max="32767" attributes="0"/>
+                      <Component id="jSeparator4" alignment="0" max="32767" attributes="0"/>
+                      <Component id="stackToggle" pref="188" max="32767" attributes="0"/>
+                      <Component id="stackCombo" alignment="0" max="32767" attributes="0"/>
                   </Group>
                 </DimensionLayout>
                 <DimensionLayout dim="1">
                   <Group type="103" groupAlignment="0" attributes="0">
                       <Group type="102" alignment="0" attributes="0">
-                          <Component id="jScrollPane3" pref="349" max="32767" attributes="0"/>
-                          <EmptySpace min="-2" pref="1" max="-2" attributes="0"/>
+                          <Component id="jScrollPane3" pref="371" max="32767" attributes="0"/>
+                          <EmptySpace min="-2" pref="2" max="-2" attributes="0"/>
                           <Component id="jSeparator4" min="-2" max="-2" attributes="0"/>
                           <EmptySpace min="-2" pref="2" max="-2" attributes="0"/>
-                          <Component id="stackToggle" min="-2" pref="35" max="-2" attributes="0"/>
-                          <EmptySpace min="0" pref="0" max="-2" attributes="0"/>
+                          <Component id="stackToggle" min="-2" pref="30" max="-2" attributes="0"/>
+                          <EmptySpace min="-2" pref="2" max="-2" attributes="0"/>
+                          <Component id="stackCombo" min="-2" pref="25" max="-2" attributes="0"/>
+                          <EmptySpace min="-2" pref="2" max="-2" attributes="0"/>
                       </Group>
                   </Group>
                 </DimensionLayout>
@@ -2456,15 +3175,34 @@
                     <EventHandler event="mouseReleased" listener="java.awt.event.MouseListener" parameters="java.awt.event.MouseEvent" handler="stackToggleMouseReleased"/>
                   </Events>
                 </Component>
+                <Component class="javax.swing.JComboBox" name="stackCombo">
+                  <Properties>
+                    <Property name="model" type="javax.swing.ComboBoxModel" editor="org.netbeans.modules.form.editors2.ComboBoxModelEditor">
+                      <StringArray count="5">
+                        <StringItem index="0" value="Sum"/>
+                        <StringItem index="1" value="Difference"/>
+                        <StringItem index="2" value="Multiply"/>
+                        <StringItem index="3" value="Maximum"/>
+                        <StringItem index="4" value="Minimum"/>
+                      </StringArray>
+                    </Property>
+                    <Property name="preferredSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
+                      <Dimension value="[100, 20]"/>
+                    </Property>
+                  </Properties>
+                  <Events>
+                    <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="stackComboActionPerformed"/>
+                  </Events>
+                  <AuxValues>
+                    <AuxValue name="JavaCodeGenerator_TypeParameters" type="java.lang.String" value="&lt;String&gt;"/>
+                  </AuxValues>
+                </Component>
               </SubComponents>
             </Container>
           </SubComponents>
         </Container>
         <Container class="javax.swing.JSplitPane" name="lSplitPane">
           <Properties>
-            <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
-              <Border info="null"/>
-            </Property>
             <Property name="dividerLocation" type="int" value="780"/>
             <Property name="dividerSize" type="int" value="6"/>
             <Property name="resizeWeight" type="double" value="0.7"/>
@@ -2517,9 +3255,6 @@
             </Container>
             <Container class="javax.swing.JSplitPane" name="vSplitPane">
               <Properties>
-                <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
-                  <Border info="null"/>
-                </Property>
                 <Property name="dividerLocation" type="int" value="405"/>
                 <Property name="dividerSize" type="int" value="6"/>
                 <Property name="orientation" type="int" value="0"/>
@@ -2643,11 +3378,13 @@
                       <SubComponents>
                         <Component class="javax.swing.JButton" name="maxTabButton">
                           <Properties>
-                            <Property name="text" type="java.lang.String" value="\ud83d\uddd6" containsInvalidXMLChars="true"/>
+                            <Property name="icon" type="javax.swing.Icon" editor="org.netbeans.modules.form.editors2.IconEditor">
+                              <Image iconType="3" name="/resourcePackage/tool/window.png"/>
+                            </Property>
                             <Property name="toolTipText" type="java.lang.String" value="Open the result table in a new big window"/>
                             <Property name="iconTextGap" type="int" value="0"/>
                             <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
-                              <Insets value="[-7, -9, -7, -9]"/>
+                              <Insets value="[0, 0, -1, 0]"/>
                             </Property>
                             <Property name="maximumSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
                               <Dimension value="[24, 23]"/>
@@ -2723,7 +3460,7 @@
                                           <Group type="103" groupAlignment="0" attributes="0">
                                               <Component id="protocolName" max="32767" attributes="0"/>
                                               <Component id="protocolNameSeparator" alignment="0" max="32767" attributes="0"/>
-                                              <Component id="protocolSettingsPanel" alignment="0" pref="419" max="32767" attributes="0"/>
+                                              <Component id="protocolSettingsPanel" alignment="0" pref="432" max="32767" attributes="0"/>
                                               <Component id="protocolSettingsSeparator" alignment="1" max="32767" attributes="0"/>
                                               <Group type="102" alignment="1" attributes="0">
                                                   <Component id="btnRunSingle" max="32767" attributes="0"/>
@@ -2743,7 +3480,7 @@
                                           <EmptySpace min="-2" max="-2" attributes="0"/>
                                           <Component id="protocolNameSeparator" min="-2" pref="5" max="-2" attributes="0"/>
                                           <EmptySpace min="-2" pref="8" max="-2" attributes="0"/>
-                                          <Component id="protocolSettingsPanel" pref="310" max="32767" attributes="0"/>
+                                          <Component id="protocolSettingsPanel" pref="317" max="32767" attributes="0"/>
                                           <EmptySpace min="-2" max="-2" attributes="0"/>
                                           <Component id="protocolSettingsSeparator" min="-2" pref="5" max="-2" attributes="0"/>
                                           <EmptySpace min="-2" pref="3" max="-2" attributes="0"/>
@@ -2790,7 +3527,7 @@
                                     </DimensionLayout>
                                     <DimensionLayout dim="1">
                                       <Group type="103" groupAlignment="0" attributes="0">
-                                          <EmptySpace min="0" pref="258" max="32767" attributes="0"/>
+                                          <EmptySpace min="0" pref="313" max="32767" attributes="0"/>
                                       </Group>
                                     </DimensionLayout>
                                   </Layout>
@@ -2850,7 +3587,7 @@
                                   <Group type="102" attributes="0">
                                       <EmptySpace max="-2" attributes="0"/>
                                       <Group type="103" groupAlignment="0" attributes="0">
-                                          <Component id="filterSettingsPanel" alignment="0" pref="419" max="32767" attributes="0"/>
+                                          <Component id="filterSettingsPanel" alignment="0" pref="432" max="32767" attributes="0"/>
                                           <Component id="filterSettingsSeparator" alignment="1" max="32767" attributes="0"/>
                                           <Group type="102" alignment="1" attributes="0">
                                               <Component id="btnRunSingle2" max="32767" attributes="0"/>
@@ -2879,7 +3616,7 @@
                                       <EmptySpace min="-2" max="-2" attributes="0"/>
                                       <Component id="filterNameSeparator" min="-2" pref="5" max="-2" attributes="0"/>
                                       <EmptySpace min="-2" pref="8" max="-2" attributes="0"/>
-                                      <Component id="filterSettingsPanel" pref="307" max="32767" attributes="0"/>
+                                      <Component id="filterSettingsPanel" pref="314" max="32767" attributes="0"/>
                                       <EmptySpace min="-2" max="-2" attributes="0"/>
                                       <Component id="filterSettingsSeparator" min="-2" pref="5" max="-2" attributes="0"/>
                                       <EmptySpace min="-2" pref="3" max="-2" attributes="0"/>
@@ -2916,7 +3653,7 @@
                                 </DimensionLayout>
                                 <DimensionLayout dim="1">
                                   <Group type="103" groupAlignment="0" attributes="0">
-                                      <EmptySpace min="0" pref="255" max="32767" attributes="0"/>
+                                      <EmptySpace min="0" pref="310" max="32767" attributes="0"/>
                                   </Group>
                                 </DimensionLayout>
                               </Layout>
@@ -2999,10 +3736,10 @@
                                   <Group type="102" attributes="0">
                                       <EmptySpace max="-2" attributes="0"/>
                                       <Group type="103" groupAlignment="0" attributes="0">
-                                          <Component id="settingPanelLayer" pref="419" max="32767" attributes="0"/>
-                                          <Component id="settingPanelGeneral" pref="419" max="32767" attributes="0"/>
-                                          <Component id="settingPanelScale" alignment="0" pref="419" max="32767" attributes="0"/>
-                                          <Component id="settingPanelFile" alignment="0" pref="419" max="32767" attributes="0"/>
+                                          <Component id="settingPanelLayer" pref="432" max="32767" attributes="0"/>
+                                          <Component id="settingPanelGeneral" pref="432" max="32767" attributes="0"/>
+                                          <Component id="settingPanelScale" alignment="0" pref="432" max="32767" attributes="0"/>
+                                          <Component id="settingPanelFile" alignment="0" pref="432" max="32767" attributes="0"/>
                                       </Group>
                                       <EmptySpace max="-2" attributes="0"/>
                                   </Group>
@@ -3012,8 +3749,8 @@
                               <Group type="103" groupAlignment="0" attributes="0">
                                   <Group type="102" alignment="0" attributes="0">
                                       <EmptySpace max="-2" attributes="0"/>
-                                      <Component id="settingPanelLayer" min="-2" pref="92" max="-2" attributes="0"/>
-                                      <EmptySpace min="-2" pref="5" max="-2" attributes="0"/>
+                                      <Component id="settingPanelLayer" min="-2" pref="65" max="-2" attributes="0"/>
+                                      <EmptySpace max="-2" attributes="0"/>
                                       <Component id="settingPanelGeneral" min="-2" pref="120" max="-2" attributes="0"/>
                                       <EmptySpace max="-2" attributes="0"/>
                                       <Component id="settingPanelScale" min="-2" pref="65" max="-2" attributes="0"/>
@@ -3046,21 +3783,10 @@
                                 <DimensionLayout dim="0">
                                   <Group type="103" groupAlignment="0" attributes="0">
                                       <Group type="102" attributes="0">
-                                          <Group type="103" groupAlignment="0" attributes="0">
-                                              <Group type="102" attributes="0">
-                                                  <EmptySpace min="-2" pref="8" max="-2" attributes="0"/>
-                                                  <Component id="jLabel2" pref="218" max="32767" attributes="0"/>
-                                              </Group>
-                                              <Group type="102" attributes="0">
-                                                  <EmptySpace max="-2" attributes="0"/>
-                                                  <Component id="boxSettingAlphaBG" max="32767" attributes="0"/>
-                                              </Group>
-                                          </Group>
+                                          <EmptySpace max="-2" attributes="0"/>
+                                          <Component id="boxSettingAlphaBG" pref="237" max="32767" attributes="0"/>
                                           <EmptySpace type="unrelated" max="-2" attributes="0"/>
-                                          <Group type="103" groupAlignment="0" attributes="0">
-                                              <Component id="layerBackColor" min="-2" pref="161" max="-2" attributes="0"/>
-                                              <Component id="stackCombo" alignment="0" min="-2" pref="161" max="-2" attributes="0"/>
-                                          </Group>
+                                          <Component id="layerBackColor" min="-2" pref="161" max="-2" attributes="0"/>
                                           <EmptySpace max="-2" attributes="0"/>
                                       </Group>
                                   </Group>
@@ -3070,14 +3796,9 @@
                                       <Group type="102" alignment="1" attributes="0">
                                           <Group type="103" groupAlignment="1" max="-2" attributes="0">
                                               <Component id="layerBackColor" pref="0" max="32767" attributes="0"/>
-                                              <Component id="boxSettingAlphaBG" pref="20" max="32767" attributes="0"/>
+                                              <Component id="boxSettingAlphaBG" max="32767" attributes="0"/>
                                           </Group>
-                                          <EmptySpace max="-2" attributes="0"/>
-                                          <Group type="103" groupAlignment="3" attributes="0">
-                                              <Component id="jLabel2" alignment="3" min="-2" pref="20" max="-2" attributes="0"/>
-                                              <Component id="stackCombo" alignment="3" min="-2" max="-2" attributes="0"/>
-                                          </Group>
-                                          <EmptySpace pref="24" max="32767" attributes="0"/>
+                                          <EmptySpace pref="22" max="32767" attributes="0"/>
                                       </Group>
                                   </Group>
                                 </DimensionLayout>
@@ -3110,34 +3831,6 @@
                                     <AuxValue name="JavaCodeGenerator_VariableModifier" type="java.lang.Integer" value="1"/>
                                   </AuxValues>
                                 </Component>
-                                <Component class="javax.swing.JComboBox" name="stackCombo">
-                                  <Properties>
-                                    <Property name="model" type="javax.swing.ComboBoxModel" editor="org.netbeans.modules.form.editors2.ComboBoxModelEditor">
-                                      <StringArray count="5">
-                                        <StringItem index="0" value="Sum"/>
-                                        <StringItem index="1" value="Difference"/>
-                                        <StringItem index="2" value="Multiply"/>
-                                        <StringItem index="3" value="Maximum"/>
-                                        <StringItem index="4" value="Minimum"/>
-                                      </StringArray>
-                                    </Property>
-                                    <Property name="preferredSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
-                                      <Dimension value="[100, 20]"/>
-                                    </Property>
-                                  </Properties>
-                                  <Events>
-                                    <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="stackComboActionPerformed"/>
-                                  </Events>
-                                  <AuxValues>
-                                    <AuxValue name="JavaCodeGenerator_TypeParameters" type="java.lang.String" value="&lt;String&gt;"/>
-                                  </AuxValues>
-                                </Component>
-                                <Component class="javax.swing.JLabel" name="jLabel2">
-                                  <Properties>
-                                    <Property name="text" type="java.lang.String" value="Stack mode"/>
-                                    <Property name="toolTipText" type="java.lang.String" value=""/>
-                                  </Properties>
-                                </Component>
                               </SubComponents>
                             </Container>
                             <Container class="javax.swing.JPanel" name="settingPanelGeneral">
@@ -3160,15 +3853,12 @@
                                       <Group type="102" alignment="1" attributes="0">
                                           <EmptySpace max="-2" attributes="0"/>
                                           <Group type="103" groupAlignment="1" attributes="0">
-                                              <Component id="boxSettingMMapping" alignment="0" max="32767" attributes="0"/>
+                                              <Component id="boxSettingMMapping" alignment="0" pref="192" max="32767" attributes="0"/>
                                               <Component id="boxSettingMultiThreading" max="32767" attributes="0"/>
                                               <Component id="boxSettingHWRendering" max="32767" attributes="0"/>
                                           </Group>
                                           <EmptySpace min="-2" pref="25" max="-2" attributes="0"/>
-                                          <Group type="103" groupAlignment="0" attributes="0">
-                                              <Component id="boxSettingBatch" max="32767" attributes="0"/>
-                                              <Component id="boxSettingResultsAppend" max="32767" attributes="0"/>
-                                          </Group>
+                                          <Component id="boxSettingResultsAppend" pref="193" max="32767" attributes="0"/>
                                           <EmptySpace max="-2" attributes="0"/>
                                       </Group>
                                   </Group>
@@ -3178,17 +3868,14 @@
                                       <Group type="102" alignment="0" attributes="0">
                                           <EmptySpace min="-2" pref="1" max="-2" attributes="0"/>
                                           <Group type="103" groupAlignment="3" attributes="0">
-                                              <Component id="boxSettingBatch" alignment="3" min="-2" pref="20" max="-2" attributes="0"/>
                                               <Component id="boxSettingMultiThreading" alignment="3" min="-2" pref="20" max="-2" attributes="0"/>
-                                          </Group>
-                                          <EmptySpace max="-2" attributes="0"/>
-                                          <Group type="103" groupAlignment="3" attributes="0">
-                                              <Component id="boxSettingMMapping" alignment="3" min="-2" pref="20" max="-2" attributes="0"/>
                                               <Component id="boxSettingResultsAppend" alignment="3" min="-2" pref="20" max="-2" attributes="0"/>
                                           </Group>
                                           <EmptySpace max="-2" attributes="0"/>
+                                          <Component id="boxSettingMMapping" min="-2" pref="20" max="-2" attributes="0"/>
+                                          <EmptySpace max="-2" attributes="0"/>
                                           <Component id="boxSettingHWRendering" min="-2" pref="20" max="-2" attributes="0"/>
-                                          <EmptySpace pref="37" max="32767" attributes="0"/>
+                                          <EmptySpace pref="24" max="32767" attributes="0"/>
                                       </Group>
                                   </Group>
                                 </DimensionLayout>
@@ -3245,24 +3932,6 @@
                                     <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="boxSettingHWRenderingActionPerformed"/>
                                   </Events>
                                 </Component>
-                                <Component class="javax.swing.JCheckBox" name="boxSettingBatch">
-                                  <Properties>
-                                    <Property name="text" type="java.lang.String" value="work on disk"/>
-                                    <Property name="toolTipText" type="java.lang.String" value="Only a file location pointer is imported - images are imported upon running a filter/protocol and the result is saved on disk."/>
-                                    <Property name="maximumSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
-                                      <Dimension value="[200, 23]"/>
-                                    </Property>
-                                    <Property name="minimumSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
-                                      <Dimension value="[80, 23]"/>
-                                    </Property>
-                                    <Property name="preferredSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
-                                      <Dimension value="[120, 23]"/>
-                                    </Property>
-                                  </Properties>
-                                  <Events>
-                                    <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="boxSettingBatchActionPerformed"/>
-                                  </Events>
-                                </Component>
                                 <Component class="javax.swing.JCheckBox" name="boxSettingResultsAppend">
                                   <Properties>
                                     <Property name="text" type="java.lang.String" value="append results"/>
@@ -3316,7 +3985,7 @@
                                               <Component id="autoscaleCombo" alignment="3" min="-2" max="-2" attributes="0"/>
                                               <Component id="boxSettingAutoscale1" alignment="3" min="-2" max="-2" attributes="0"/>
                                           </Group>
-                                          <EmptySpace min="0" pref="20" max="32767" attributes="0"/>
+                                          <EmptySpace min="0" pref="22" max="32767" attributes="0"/>
                                       </Group>
                                   </Group>
                                 </DimensionLayout>
@@ -3331,14 +4000,15 @@
                                 <Component class="javax.swing.JComboBox" name="autoscaleCombo">
                                   <Properties>
                                     <Property name="model" type="javax.swing.ComboBoxModel" editor="org.netbeans.modules.form.editors2.ComboBoxModelEditor">
-                                      <StringArray count="3">
+                                      <StringArray count="4">
                                         <StringItem index="0" value="None"/>
-                                        <StringItem index="1" value="Image sets"/>
-                                        <StringItem index="2" value="Every image"/>
+                                        <StringItem index="1" value="File channel"/>
+                                        <StringItem index="2" value="Every channel"/>
+                                        <StringItem index="3" value="Every image"/>
                                       </StringArray>
                                     </Property>
-                                    <Property name="selectedIndex" type="int" value="1"/>
-                                    <Property name="toolTipText" type="java.lang.String" value="Autoscaling can be done for every image separately, or for a set of images (=channels) jointly to maintain visual comparability"/>
+                                    <Property name="selectedIndex" type="int" value="2"/>
+                                    <Property name="toolTipText" type="java.lang.String" value="Autoscaling can be done for every image separately, or channelwise (either per file or per a set of imported images) to maintain visual comparability"/>
                                     <Property name="preferredSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
                                       <Dimension value="[100, 20]"/>
                                     </Property>
@@ -3352,7 +4022,7 @@
                                 </Component>
                                 <Component class="javax.swing.JCheckBox" name="boxSettingAutoscale1">
                                   <Properties>
-                                    <Property name="text" type="java.lang.String" value="aggressive"/>
+                                    <Property name="text" type="java.lang.String" value="adaptive"/>
                                     <Property name="toolTipText" type="java.lang.String" value="The autoscaling has adaptation to ignore single bright dots etc."/>
                                   </Properties>
                                 </Component>
@@ -3405,7 +4075,7 @@
                                               <Component id="boxSettingOpenAfter" alignment="3" min="-2" max="-2" attributes="0"/>
                                               <Component id="boxSettingSubfolder" alignment="3" min="-2" max="-2" attributes="0"/>
                                           </Group>
-                                          <EmptySpace pref="20" max="32767" attributes="0"/>
+                                          <EmptySpace pref="22" max="32767" attributes="0"/>
                                       </Group>
                                   </Group>
                                 </DimensionLayout>
@@ -3452,60 +4122,63 @@
                           <Layout>
                             <DimensionLayout dim="0">
                               <Group type="103" groupAlignment="0" attributes="0">
-                                  <EmptySpace min="0" pref="391" max="32767" attributes="0"/>
-                                  <Group type="103" rootIndex="1" groupAlignment="0" attributes="0">
-                                      <Group type="102" attributes="0">
-                                          <EmptySpace max="-2" attributes="0"/>
-                                          <Group type="103" groupAlignment="0" attributes="0">
-                                              <Component id="resultScrollPane" alignment="1" pref="371" max="32767" attributes="0"/>
-                                              <Group type="102" alignment="0" attributes="0">
-                                                  <Component id="exportAsCSV" max="32767" attributes="0"/>
-                                                  <EmptySpace min="-2" max="-2" attributes="0"/>
-                                                  <Component id="openExcel" max="32767" attributes="0"/>
-                                              </Group>
+                                  <Group type="102" attributes="0">
+                                      <EmptySpace max="-2" attributes="0"/>
+                                      <Group type="103" groupAlignment="0" attributes="0">
+                                          <Component id="resultScrollPane" pref="432" max="32767" attributes="0"/>
+                                          <Group type="102" attributes="0">
+                                              <Component id="exportTSV" max="32767" attributes="0"/>
+                                              <EmptySpace max="-2" attributes="0"/>
+                                              <Component id="launchExcel" max="32767" attributes="0"/>
                                           </Group>
-                                          <EmptySpace max="-2" attributes="0"/>
                                       </Group>
+                                      <EmptySpace max="-2" attributes="0"/>
                                   </Group>
                               </Group>
                             </DimensionLayout>
                             <DimensionLayout dim="1">
                               <Group type="103" groupAlignment="0" attributes="0">
-                                  <EmptySpace min="0" pref="368" max="32767" attributes="0"/>
-                                  <Group type="103" rootIndex="1" groupAlignment="0" attributes="0">
-                                      <Group type="102" attributes="0">
-                                          <EmptySpace max="-2" attributes="0"/>
-                                          <Component id="resultScrollPane" pref="308" max="32767" attributes="0"/>
-                                          <EmptySpace max="-2" attributes="0"/>
-                                          <Group type="103" groupAlignment="0" max="-2" attributes="0">
-                                              <Component id="exportAsCSV" max="32767" attributes="0"/>
-                                              <Component id="openExcel" min="-2" pref="32" max="-2" attributes="0"/>
-                                          </Group>
-                                          <EmptySpace max="-2" attributes="0"/>
+                                  <Group type="102" alignment="1" attributes="0">
+                                      <EmptySpace max="-2" attributes="0"/>
+                                      <Component id="resultScrollPane" pref="363" max="32767" attributes="0"/>
+                                      <EmptySpace max="-2" attributes="0"/>
+                                      <Group type="103" groupAlignment="3" attributes="0">
+                                          <Component id="launchExcel" alignment="3" min="-2" pref="32" max="-2" attributes="0"/>
+                                          <Component id="exportTSV" alignment="3" min="-2" pref="32" max="-2" attributes="0"/>
                                       </Group>
+                                      <EmptySpace max="-2" attributes="0"/>
                                   </Group>
                               </Group>
                             </DimensionLayout>
                           </Layout>
                           <SubComponents>
-                            <Component class="javax.swing.JButton" name="exportAsCSV">
-                              <Properties>
-                                <Property name="text" type="java.lang.String" value="Export as TSV"/>
-                                <Property name="maximumSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
-                                  <Dimension value="[100, 23]"/>
-                                </Property>
-                                <Property name="minimumSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
-                                  <Dimension value="[100, 23]"/>
-                                </Property>
-                                <Property name="preferredSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
-                                  <Dimension value="[100, 23]"/>
-                                </Property>
-                              </Properties>
-                              <Events>
-                                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="exportAsCSVActionPerformed"/>
-                              </Events>
-                            </Component>
-                            <Component class="javax.swing.JButton" name="openExcel">
+                            <Container class="javax.swing.JScrollPane" name="resultScrollPane">
+                              <AuxValues>
+                                <AuxValue name="autoScrollPane" type="java.lang.Boolean" value="true"/>
+                              </AuxValues>
+
+                              <Layout class="org.netbeans.modules.form.compat2.layouts.support.JScrollPaneSupportLayout"/>
+                              <SubComponents>
+                                <Component class="javax.swing.JTable" name="resultTableComponent">
+                                  <Properties>
+                                    <Property name="autoCreateRowSorter" type="boolean" value="true"/>
+                                    <Property name="model" type="javax.swing.table.TableModel" editor="org.netbeans.modules.form.editors2.TableModelEditor">
+                                      <Table columnCount="0" rowCount="0"/>
+                                    </Property>
+                                    <Property name="columnModel" type="javax.swing.table.TableColumnModel" editor="org.netbeans.modules.form.editors2.TableColumnModelEditor">
+                                      <TableColumnModel selectionModel="0"/>
+                                    </Property>
+                                    <Property name="tableHeader" type="javax.swing.table.JTableHeader" editor="org.netbeans.modules.form.editors2.JTableHeaderEditor">
+                                      <TableHeader reorderingAllowed="true" resizingAllowed="true"/>
+                                    </Property>
+                                  </Properties>
+                                  <Events>
+                                    <EventHandler event="mouseReleased" listener="java.awt.event.MouseListener" parameters="java.awt.event.MouseEvent" handler="resultTableComponentMouseReleased"/>
+                                  </Events>
+                                </Component>
+                              </SubComponents>
+                            </Container>
+                            <Component class="javax.swing.JButton" name="launchExcel">
                               <Properties>
                                 <Property name="text" type="java.lang.String" value="Launch Excel"/>
                                 <Property name="maximumSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
@@ -3519,44 +4192,26 @@
                                 </Property>
                               </Properties>
                               <Events>
-                                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="openExcelActionPerformed"/>
+                                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="launchExcelActionPerformed"/>
                               </Events>
                             </Component>
-                            <Container class="javax.swing.JScrollPane" name="resultScrollPane">
-                              <AuxValues>
-                                <AuxValue name="autoScrollPane" type="java.lang.Boolean" value="true"/>
-                              </AuxValues>
-
-                              <Layout class="org.netbeans.modules.form.compat2.layouts.support.JScrollPaneSupportLayout"/>
-                              <SubComponents>
-                                <Component class="javax.swing.JTable" name="resultTable">
-                                  <Properties>
-                                    <Property name="autoCreateRowSorter" type="boolean" value="true"/>
-                                    <Property name="model" type="javax.swing.table.TableModel" editor="org.netbeans.modules.form.editors2.TableModelEditor">
-                                      <Table columnCount="0" rowCount="0"/>
-                                    </Property>
-                                    <Property name="columnModel" type="javax.swing.table.TableColumnModel" editor="org.netbeans.modules.form.editors2.TableColumnModelEditor">
-                                      <TableColumnModel selectionModel="0">
-                                        <Column maxWidth="-1" minWidth="-1" prefWidth="-1" resizable="true">
-                                          <Title/>
-                                          <Editor/>
-                                          <Renderer/>
-                                        </Column>
-                                      </TableColumnModel>
-                                    </Property>
-                                    <Property name="tableHeader" type="javax.swing.table.JTableHeader" editor="org.netbeans.modules.form.editors2.JTableHeaderEditor">
-                                      <TableHeader reorderingAllowed="true" resizingAllowed="true"/>
-                                    </Property>
-                                  </Properties>
-                                  <Events>
-                                    <EventHandler event="mouseReleased" listener="java.awt.event.MouseListener" parameters="java.awt.event.MouseEvent" handler="resultTableMouseReleased"/>
-                                  </Events>
-                                  <AuxValues>
-                                    <AuxValue name="JavaCodeGenerator_VariableModifier" type="java.lang.Integer" value="1"/>
-                                  </AuxValues>
-                                </Component>
-                              </SubComponents>
-                            </Container>
+                            <Component class="javax.swing.JButton" name="exportTSV">
+                              <Properties>
+                                <Property name="text" type="java.lang.String" value="Export TSV"/>
+                                <Property name="maximumSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
+                                  <Dimension value="[100, 23]"/>
+                                </Property>
+                                <Property name="minimumSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
+                                  <Dimension value="[100, 23]"/>
+                                </Property>
+                                <Property name="preferredSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
+                                  <Dimension value="[100, 23]"/>
+                                </Property>
+                              </Properties>
+                              <Events>
+                                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="exportTSVActionPerformed"/>
+                              </Events>
+                            </Component>
                           </SubComponents>
                         </Container>
                         <Container class="javax.swing.JPanel" name="histogramPanel">
@@ -3572,12 +4227,16 @@
                             <DimensionLayout dim="0">
                               <Group type="103" groupAlignment="0" attributes="0">
                                   <Group type="102" attributes="0">
-                                      <EmptySpace max="-2" attributes="0"/>
+                                      <EmptySpace min="-2" max="-2" attributes="0"/>
                                       <Group type="103" groupAlignment="0" attributes="0">
                                           <Group type="102" attributes="0">
-                                              <Component id="histoAdjApplySingle" pref="182" max="32767" attributes="0"/>
+                                              <Component id="histoAdjApplySingle" pref="104" max="32767" attributes="0"/>
                                               <EmptySpace min="-2" max="-2" attributes="0"/>
-                                              <Component id="histoAdjApplyAll" pref="183" max="32767" attributes="0"/>
+                                              <Component id="histoAdjResetSingle" pref="103" max="32767" attributes="0"/>
+                                              <EmptySpace min="-2" max="-2" attributes="0"/>
+                                              <Component id="histoAdjApplyAll" pref="104" max="32767" attributes="0"/>
+                                              <EmptySpace min="-2" max="-2" attributes="0"/>
+                                              <Component id="histoAdjResetAll" pref="103" max="32767" attributes="0"/>
                                           </Group>
                                           <Component id="jSeparator9" alignment="1" max="32767" attributes="0"/>
                                           <Group type="102" alignment="0" attributes="0">
@@ -3585,10 +4244,10 @@
                                               <EmptySpace min="-2" max="-2" attributes="0"/>
                                               <Component id="histoAdjAutoAll" max="32767" attributes="0"/>
                                           </Group>
-                                          <Component id="histoImg" alignment="0" pref="419" max="32767" attributes="0"/>
-                                          <Component id="histoSliderPanel" alignment="1" pref="419" max="32767" attributes="0"/>
+                                          <Component id="histoImg" alignment="0" pref="432" max="32767" attributes="0"/>
+                                          <Component id="histoSliderPanel" alignment="1" pref="432" max="32767" attributes="0"/>
                                       </Group>
-                                      <EmptySpace max="-2" attributes="0"/>
+                                      <EmptySpace min="-2" max="-2" attributes="0"/>
                                   </Group>
                               </Group>
                             </DimensionLayout>
@@ -3596,13 +4255,15 @@
                               <Group type="103" groupAlignment="0" attributes="0">
                                   <Group type="102" alignment="0" attributes="0">
                                       <EmptySpace min="-2" max="-2" attributes="0"/>
-                                      <Component id="histoImg" pref="285" max="32767" attributes="0"/>
+                                      <Component id="histoImg" pref="291" max="32767" attributes="0"/>
                                       <EmptySpace min="-2" max="-2" attributes="0"/>
                                       <Component id="histoSliderPanel" min="-2" max="-2" attributes="0"/>
                                       <EmptySpace min="-2" pref="1" max="-2" attributes="0"/>
                                       <Group type="103" groupAlignment="3" attributes="0">
                                           <Component id="histoAdjApplySingle" alignment="3" min="-2" pref="32" max="-2" attributes="0"/>
                                           <Component id="histoAdjApplyAll" alignment="3" min="-2" pref="32" max="-2" attributes="0"/>
+                                          <Component id="histoAdjResetSingle" alignment="3" min="-2" pref="32" max="-2" attributes="0"/>
+                                          <Component id="histoAdjResetAll" alignment="3" min="-2" pref="32" max="-2" attributes="0"/>
                                       </Group>
                                       <EmptySpace min="-2" pref="5" max="-2" attributes="0"/>
                                       <Component id="jSeparator9" min="-2" max="-2" attributes="0"/>
@@ -3635,12 +4296,12 @@
                               <Layout>
                                 <DimensionLayout dim="0">
                                   <Group type="103" groupAlignment="0" attributes="0">
-                                      <Component id="histoLabel" alignment="0" pref="367" max="32767" attributes="0"/>
+                                      <Component id="histoLabel" alignment="0" max="32767" attributes="0"/>
                                   </Group>
                                 </DimensionLayout>
                                 <DimensionLayout dim="1">
                                   <Group type="103" groupAlignment="0" attributes="0">
-                                      <Component id="histoLabel" alignment="0" pref="233" max="32767" attributes="0"/>
+                                      <Component id="histoLabel" alignment="0" pref="287" max="32767" attributes="0"/>
                                   </Group>
                                 </DimensionLayout>
                               </Layout>
@@ -3727,7 +4388,7 @@
                               <Layout>
                                 <DimensionLayout dim="0">
                                   <Group type="103" groupAlignment="0" attributes="0">
-                                      <EmptySpace min="0" pref="371" max="32767" attributes="0"/>
+                                      <EmptySpace min="0" pref="0" max="32767" attributes="0"/>
                                   </Group>
                                 </DimensionLayout>
                                 <DimensionLayout dim="1">
@@ -3737,6 +4398,413 @@
                                 </DimensionLayout>
                               </Layout>
                             </Container>
+                            <Component class="javax.swing.JButton" name="histoAdjResetSingle">
+                              <Properties>
+                                <Property name="text" type="java.lang.String" value="Reset"/>
+                                <Property name="preferredSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
+                                  <Dimension value="[100, 23]"/>
+                                </Property>
+                              </Properties>
+                              <Events>
+                                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="histoAdjResetSingleActionPerformed"/>
+                              </Events>
+                            </Component>
+                            <Component class="javax.swing.JButton" name="histoAdjResetAll">
+                              <Properties>
+                                <Property name="text" type="java.lang.String" value="Reset all"/>
+                                <Property name="preferredSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
+                                  <Dimension value="[100, 23]"/>
+                                </Property>
+                              </Properties>
+                              <Events>
+                                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="histoAdjResetAllActionPerformed"/>
+                              </Events>
+                            </Component>
+                          </SubComponents>
+                        </Container>
+                        <Container class="javax.swing.JPanel" name="jPanel3">
+                          <Constraints>
+                            <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.support.JTabbedPaneSupportLayout" value="org.netbeans.modules.form.compat2.layouts.support.JTabbedPaneSupportLayout$JTabbedPaneConstraintsDescription">
+                              <JTabbedPaneConstraints tabName="Annotations">
+                                <Property name="tabTitle" type="java.lang.String" value="Annotations"/>
+                              </JTabbedPaneConstraints>
+                            </Constraint>
+                          </Constraints>
+
+                          <Layout>
+                            <DimensionLayout dim="0">
+                              <Group type="103" groupAlignment="0" attributes="0">
+                                  <Group type="102" attributes="0">
+                                      <EmptySpace max="-2" attributes="0"/>
+                                      <Group type="103" groupAlignment="0" attributes="0">
+                                          <Group type="102" alignment="1" attributes="0">
+                                              <Component id="annotDot" min="-2" max="-2" attributes="0"/>
+                                              <EmptySpace min="-2" pref="4" max="-2" attributes="0"/>
+                                              <Component id="annotLine" min="-2" max="-2" attributes="0"/>
+                                              <EmptySpace min="-2" pref="4" max="-2" attributes="0"/>
+                                              <Component id="annotShape" min="-2" max="-2" attributes="0"/>
+                                              <EmptySpace max="-2" attributes="0"/>
+                                              <Component id="jSeparator21" min="-2" max="-2" attributes="0"/>
+                                              <EmptySpace max="-2" attributes="0"/>
+                                              <Component id="annotGroup" max="32767" attributes="0"/>
+                                              <EmptySpace max="-2" attributes="0"/>
+                                              <Component id="annotRadius" max="32767" attributes="0"/>
+                                              <EmptySpace max="-2" attributes="0"/>
+                                              <Component id="annotColour" min="-2" max="-2" attributes="0"/>
+                                              <EmptySpace max="-2" attributes="0"/>
+                                              <Component id="jSeparator20" min="-2" max="-2" attributes="0"/>
+                                              <EmptySpace max="-2" attributes="0"/>
+                                              <Component id="annotVisible" min="-2" max="-2" attributes="0"/>
+                                              <EmptySpace max="-2" attributes="0"/>
+                                              <Component id="annotMove" min="-2" max="-2" attributes="0"/>
+                                              <EmptySpace min="-2" pref="4" max="-2" attributes="0"/>
+                                              <Component id="annotErase" min="-2" max="-2" attributes="0"/>
+                                              <EmptySpace min="-2" pref="4" max="-2" attributes="0"/>
+                                              <Component id="annotClearAll" min="-2" max="-2" attributes="0"/>
+                                          </Group>
+                                          <Component id="annoScrollPane" alignment="0" pref="0" max="32767" attributes="0"/>
+                                          <Group type="102" alignment="1" attributes="0">
+                                              <Component id="exportAnnot" max="32767" attributes="0"/>
+                                              <EmptySpace max="-2" attributes="0"/>
+                                              <Component id="importAnnot" max="32767" attributes="0"/>
+                                          </Group>
+                                      </Group>
+                                      <EmptySpace max="-2" attributes="0"/>
+                                  </Group>
+                              </Group>
+                            </DimensionLayout>
+                            <DimensionLayout dim="1">
+                              <Group type="103" groupAlignment="0" attributes="0">
+                                  <Group type="102" alignment="1" attributes="0">
+                                      <EmptySpace max="-2" attributes="0"/>
+                                      <Group type="103" groupAlignment="1" attributes="0">
+                                          <Component id="jSeparator20" min="-2" pref="32" max="-2" attributes="0"/>
+                                          <Group type="103" alignment="0" groupAlignment="3" attributes="0">
+                                              <Component id="annotClearAll" alignment="3" min="-2" max="-2" attributes="0"/>
+                                              <Component id="annotErase" alignment="3" min="-2" max="-2" attributes="0"/>
+                                              <Component id="annotMove" alignment="3" min="-2" max="-2" attributes="0"/>
+                                              <Component id="annotVisible" alignment="3" min="-2" max="-2" attributes="0"/>
+                                          </Group>
+                                          <Component id="jSeparator21" alignment="0" min="-2" pref="32" max="-2" attributes="0"/>
+                                          <Group type="103" alignment="0" groupAlignment="3" attributes="0">
+                                              <Component id="annotDot" alignment="3" min="-2" max="-2" attributes="0"/>
+                                              <Component id="annotLine" alignment="3" min="-2" max="-2" attributes="0"/>
+                                              <Component id="annotShape" alignment="3" min="-2" max="-2" attributes="0"/>
+                                          </Group>
+                                          <Group type="103" alignment="0" groupAlignment="3" attributes="0">
+                                              <Component id="annotColour" alignment="3" min="-2" max="-2" attributes="0"/>
+                                              <Component id="annotRadius" alignment="3" max="32767" attributes="0"/>
+                                              <Component id="annotGroup" alignment="3" max="32767" attributes="0"/>
+                                          </Group>
+                                      </Group>
+                                      <EmptySpace max="-2" attributes="0"/>
+                                      <Component id="annoScrollPane" pref="325" max="32767" attributes="0"/>
+                                      <EmptySpace max="-2" attributes="0"/>
+                                      <Group type="103" groupAlignment="3" attributes="0">
+                                          <Component id="importAnnot" alignment="3" min="-2" pref="32" max="-2" attributes="0"/>
+                                          <Component id="exportAnnot" alignment="3" min="-2" pref="32" max="-2" attributes="0"/>
+                                      </Group>
+                                      <EmptySpace min="-2" pref="6" max="-2" attributes="0"/>
+                                  </Group>
+                              </Group>
+                            </DimensionLayout>
+                          </Layout>
+                          <SubComponents>
+                            <Component class="javax.swing.JButton" name="exportAnnot">
+                              <Properties>
+                                <Property name="text" type="java.lang.String" value="Export annotations"/>
+                                <Property name="maximumSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
+                                  <Dimension value="[100, 23]"/>
+                                </Property>
+                                <Property name="minimumSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
+                                  <Dimension value="[100, 23]"/>
+                                </Property>
+                                <Property name="preferredSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
+                                  <Dimension value="[100, 23]"/>
+                                </Property>
+                              </Properties>
+                              <Events>
+                                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="exportAnnotActionPerformed"/>
+                              </Events>
+                            </Component>
+                            <Component class="javax.swing.JButton" name="importAnnot">
+                              <Properties>
+                                <Property name="text" type="java.lang.String" value="Import annotations"/>
+                                <Property name="maximumSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
+                                  <Dimension value="[100, 23]"/>
+                                </Property>
+                                <Property name="minimumSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
+                                  <Dimension value="[100, 23]"/>
+                                </Property>
+                                <Property name="preferredSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
+                                  <Dimension value="[100, 23]"/>
+                                </Property>
+                              </Properties>
+                              <Events>
+                                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="importAnnotActionPerformed"/>
+                              </Events>
+                            </Component>
+                            <Container class="javax.swing.JScrollPane" name="annoScrollPane">
+                              <AuxValues>
+                                <AuxValue name="autoScrollPane" type="java.lang.Boolean" value="true"/>
+                              </AuxValues>
+
+                              <Layout class="org.netbeans.modules.form.compat2.layouts.support.JScrollPaneSupportLayout"/>
+                              <SubComponents>
+                                <Component class="javax.swing.JTable" name="annoTableComponent">
+                                  <Properties>
+                                    <Property name="autoCreateRowSorter" type="boolean" value="true"/>
+                                    <Property name="model" type="javax.swing.table.TableModel" editor="org.netbeans.modules.form.editors2.TableModelEditor">
+                                      <Table columnCount="0" rowCount="0"/>
+                                    </Property>
+                                    <Property name="columnModel" type="javax.swing.table.TableColumnModel" editor="org.netbeans.modules.form.editors2.TableColumnModelEditor">
+                                      <TableColumnModel selectionModel="0">
+                                        <Column maxWidth="-1" minWidth="-1" prefWidth="-1" resizable="true">
+                                          <Title/>
+                                          <Editor/>
+                                          <Renderer/>
+                                        </Column>
+                                      </TableColumnModel>
+                                    </Property>
+                                    <Property name="tableHeader" type="javax.swing.table.JTableHeader" editor="org.netbeans.modules.form.editors2.JTableHeaderEditor">
+                                      <TableHeader reorderingAllowed="true" resizingAllowed="true"/>
+                                    </Property>
+                                  </Properties>
+                                  <Events>
+                                    <EventHandler event="mouseReleased" listener="java.awt.event.MouseListener" parameters="java.awt.event.MouseEvent" handler="annoTableComponentMouseReleased"/>
+                                  </Events>
+                                </Component>
+                              </SubComponents>
+                            </Container>
+                            <Component class="javax.swing.JButton" name="annotClearAll">
+                              <Properties>
+                                <Property name="icon" type="javax.swing.Icon" editor="org.netbeans.modules.form.editors2.IconEditor">
+                                  <Image iconType="3" name="/resourcePackage/tool/cross.png"/>
+                                </Property>
+                                <Property name="toolTipText" type="java.lang.String" value="Delete all annotations"/>
+                                <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
+                                  <Insets value="[-7, -9, -7, -9]"/>
+                                </Property>
+                                <Property name="maximumSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
+                                  <Dimension value="[32, 32]"/>
+                                </Property>
+                                <Property name="minimumSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
+                                  <Dimension value="[32, 32]"/>
+                                </Property>
+                                <Property name="preferredSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
+                                  <Dimension value="[32, 32]"/>
+                                </Property>
+                              </Properties>
+                              <Events>
+                                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="annotClearAllActionPerformed"/>
+                              </Events>
+                            </Component>
+                            <Component class="javax.swing.JSeparator" name="jSeparator20">
+                              <Properties>
+                                <Property name="orientation" type="int" value="1"/>
+                              </Properties>
+                            </Component>
+                            <Component class="javax.swing.JToggleButton" name="annotDot">
+                              <Properties>
+                                <Property name="icon" type="javax.swing.Icon" editor="org.netbeans.modules.form.editors2.IconEditor">
+                                  <Image iconType="3" name="/resourcePackage/tool/dots.png"/>
+                                </Property>
+                                <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
+                                  <Insets value="[-7, -9, -7, -9]"/>
+                                </Property>
+                                <Property name="maximumSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
+                                  <Dimension value="[32, 32]"/>
+                                </Property>
+                                <Property name="minimumSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
+                                  <Dimension value="[32, 32]"/>
+                                </Property>
+                                <Property name="preferredSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
+                                  <Dimension value="[32, 32]"/>
+                                </Property>
+                              </Properties>
+                              <Events>
+                                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="annotDotActionPerformed"/>
+                              </Events>
+                            </Component>
+                            <Component class="javax.swing.JToggleButton" name="annotLine">
+                              <Properties>
+                                <Property name="icon" type="javax.swing.Icon" editor="org.netbeans.modules.form.editors2.IconEditor">
+                                  <Image iconType="3" name="/resourcePackage/tool/lines.png"/>
+                                </Property>
+                                <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
+                                  <Insets value="[-7, -9, -7, -9]"/>
+                                </Property>
+                                <Property name="maximumSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
+                                  <Dimension value="[32, 32]"/>
+                                </Property>
+                                <Property name="minimumSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
+                                  <Dimension value="[32, 32]"/>
+                                </Property>
+                                <Property name="preferredSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
+                                  <Dimension value="[32, 32]"/>
+                                </Property>
+                              </Properties>
+                              <Events>
+                                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="annotLineActionPerformed"/>
+                              </Events>
+                            </Component>
+                            <Component class="javax.swing.JToggleButton" name="annotShape">
+                              <Properties>
+                                <Property name="icon" type="javax.swing.Icon" editor="org.netbeans.modules.form.editors2.IconEditor">
+                                  <Image iconType="3" name="/resourcePackage/tool/shapes.png"/>
+                                </Property>
+                                <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
+                                  <Insets value="[-7, -9, -7, -9]"/>
+                                </Property>
+                                <Property name="maximumSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
+                                  <Dimension value="[32, 32]"/>
+                                </Property>
+                                <Property name="minimumSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
+                                  <Dimension value="[32, 32]"/>
+                                </Property>
+                                <Property name="preferredSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
+                                  <Dimension value="[32, 32]"/>
+                                </Property>
+                              </Properties>
+                              <Events>
+                                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="annotShapeActionPerformed"/>
+                              </Events>
+                            </Component>
+                            <Component class="javax.swing.JSeparator" name="jSeparator21">
+                              <Properties>
+                                <Property name="orientation" type="int" value="1"/>
+                              </Properties>
+                            </Component>
+                            <Component class="javax.swing.JToggleButton" name="annotErase">
+                              <Properties>
+                                <Property name="icon" type="javax.swing.Icon" editor="org.netbeans.modules.form.editors2.IconEditor">
+                                  <Image iconType="3" name="/resourcePackage/tool/delete.png"/>
+                                </Property>
+                                <Property name="toolTipText" type="java.lang.String" value="Click an annotation to delete"/>
+                                <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
+                                  <Insets value="[-7, -9, -7, -9]"/>
+                                </Property>
+                                <Property name="maximumSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
+                                  <Dimension value="[32, 32]"/>
+                                </Property>
+                                <Property name="minimumSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
+                                  <Dimension value="[32, 32]"/>
+                                </Property>
+                                <Property name="preferredSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
+                                  <Dimension value="[32, 32]"/>
+                                </Property>
+                              </Properties>
+                              <Events>
+                                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="annotEraseActionPerformed"/>
+                              </Events>
+                            </Component>
+                            <Component class="javax.swing.JToggleButton" name="annotMove">
+                              <Properties>
+                                <Property name="icon" type="javax.swing.Icon" editor="org.netbeans.modules.form.editors2.IconEditor">
+                                  <Image iconType="3" name="/resourcePackage/tool/arrow.png"/>
+                                </Property>
+                                <Property name="selected" type="boolean" value="true"/>
+                                <Property name="toolTipText" type="java.lang.String" value="Select annotations"/>
+                                <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
+                                  <Insets value="[-7, -9, -7, -9]"/>
+                                </Property>
+                                <Property name="maximumSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
+                                  <Dimension value="[32, 32]"/>
+                                </Property>
+                                <Property name="minimumSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
+                                  <Dimension value="[32, 32]"/>
+                                </Property>
+                                <Property name="preferredSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
+                                  <Dimension value="[32, 32]"/>
+                                </Property>
+                              </Properties>
+                              <Events>
+                                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="annotMoveActionPerformed"/>
+                              </Events>
+                            </Component>
+                            <Component class="javax.swing.JButton" name="annotColour">
+                              <Properties>
+                                <Property name="icon" type="javax.swing.Icon" editor="org.netbeans.modules.form.editors2.IconEditor">
+                                  <Image iconType="3" name="/resourcePackage/tool/color.png"/>
+                                </Property>
+                                <Property name="toolTipText" type="java.lang.String" value="Annotation color"/>
+                                <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
+                                  <Insets value="[-7, -9, -7, -9]"/>
+                                </Property>
+                                <Property name="maximumSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
+                                  <Dimension value="[32, 32]"/>
+                                </Property>
+                                <Property name="minimumSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
+                                  <Dimension value="[32, 32]"/>
+                                </Property>
+                                <Property name="preferredSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
+                                  <Dimension value="[32, 32]"/>
+                                </Property>
+                              </Properties>
+                              <Events>
+                                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="annotColourActionPerformed"/>
+                              </Events>
+                            </Component>
+                            <Component class="javax.swing.JSpinner" name="annotRadius">
+                              <Properties>
+                                <Property name="toolTipText" type="java.lang.String" value="Annotation radius (for dot/polyline radius)"/>
+                                <Property name="minimumSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
+                                  <Dimension value="[30, 22]"/>
+                                </Property>
+                                <Property name="preferredSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
+                                  <Dimension value="[30, 32]"/>
+                                </Property>
+                                <Property name="value" type="java.lang.Object" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
+                                  <Connection code="Integer.valueOf(20)" type="code"/>
+                                </Property>
+                              </Properties>
+                              <Events>
+                                <EventHandler event="stateChanged" listener="javax.swing.event.ChangeListener" parameters="javax.swing.event.ChangeEvent" handler="annotRadiusStateChanged"/>
+                                <EventHandler event="mouseWheelMoved" listener="java.awt.event.MouseWheelListener" parameters="java.awt.event.MouseWheelEvent" handler="annotRadiusMouseWheelMoved"/>
+                              </Events>
+                            </Component>
+                            <Component class="javax.swing.JToggleButton" name="annotVisible">
+                              <Properties>
+                                <Property name="icon" type="javax.swing.Icon" editor="org.netbeans.modules.form.editors2.IconEditor">
+                                  <Image iconType="3" name="/resourcePackage/tool/eye.png"/>
+                                </Property>
+                                <Property name="selected" type="boolean" value="true"/>
+                                <Property name="toolTipText" type="java.lang.String" value="Toggle annotation visibility"/>
+                                <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
+                                  <Insets value="[-7, -9, -7, -9]"/>
+                                </Property>
+                                <Property name="maximumSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
+                                  <Dimension value="[32, 32]"/>
+                                </Property>
+                                <Property name="minimumSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
+                                  <Dimension value="[32, 32]"/>
+                                </Property>
+                                <Property name="preferredSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
+                                  <Dimension value="[32, 32]"/>
+                                </Property>
+                              </Properties>
+                              <Events>
+                                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="annotVisibleActionPerformed"/>
+                              </Events>
+                            </Component>
+                            <Component class="javax.swing.JSpinner" name="annotGroup">
+                              <Properties>
+                                <Property name="toolTipText" type="java.lang.String" value="Annotation group"/>
+                                <Property name="minimumSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
+                                  <Dimension value="[25, 22]"/>
+                                </Property>
+                                <Property name="preferredSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
+                                  <Dimension value="[25, 32]"/>
+                                </Property>
+                                <Property name="value" type="java.lang.Object" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
+                                  <Connection code="Integer.valueOf(1)" type="code"/>
+                                </Property>
+                              </Properties>
+                              <Events>
+                                <EventHandler event="stateChanged" listener="javax.swing.event.ChangeListener" parameters="javax.swing.event.ChangeEvent" handler="annotGroupStateChanged"/>
+                                <EventHandler event="mouseWheelMoved" listener="java.awt.event.MouseWheelListener" parameters="java.awt.event.MouseWheelEvent" handler="annotGroupMouseWheelMoved"/>
+                              </Events>
+                            </Component>
                           </SubComponents>
                         </Container>
                       </SubComponents>
