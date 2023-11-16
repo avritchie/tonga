@@ -115,7 +115,14 @@ public abstract class Importer {
     }
 
     private MappedImage source() throws IOException, FileNotFoundException, ServiceException, FormatException {
-        return IO.getImageFromFile(file);
+        if (file.getAbsolutePath().toLowerCase().endsWith(".mrxs")) {
+            Tonga.log.info("This image seems to be a Mirax file");
+            return IO.getMiraxPreviewImage(file);
+        } else {
+            return IO.getImageFromFile(file);
+        }
+    }
+
     private void scale(int imagesBeginning, int imagesNow) {
         if (Settings.settingAutoscaleType() == Settings.Autoscale.CHANNEL) {
             int newImgs = imagesNow - imagesBeginning;

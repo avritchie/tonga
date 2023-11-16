@@ -574,6 +574,19 @@ public class IO {
         }
     }
 
+    public static MappedImage getMiraxPreviewImage(File file) throws FileNotFoundException, ServiceException, FormatException, IOException {
+        if (file.exists()) {
+            try {
+                ImageData thumbnail = IO.getImageDataFromFile(file);
+                MRXSSlide slide = new MRXSSlide(IO.folderPath(file.getAbsolutePath()) + "\\Slidedat.ini");
+                ImageData preview = Mirax.renderPreview(slide, thumbnail);
+                MappedImage mi = preview.toCachedImage();
+                mi.source = thumbnail.ref.source;
+                mi.scale = preview.ref.scale;
+                return mi;
+            } catch (Exception ex) {
+                Tonga.log.debug("Unable to import Mirax thumbnail {}", file.toString());
+                return null;
             }
         } else {
             throw new FileNotFoundException();
@@ -912,5 +925,9 @@ public class IO {
             n = "null";
         }
         return n;
+    }
+
+    static String folderPath(String fp) {
+        return Tonga.formatPath(fp.replaceAll("(?i)(\\.mrxs)", "\\\\"));
     }
 }

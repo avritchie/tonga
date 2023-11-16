@@ -97,25 +97,10 @@ public abstract class Processor {
         return getProcessedImages();
     }
 
-    protected void setSources(TongaImage sourceImage, TongaLayer[] sourceLayers) {
-        this.sourceImage = sourceImage;
-        this.sourceLayer = sourceLayers;
-        this.sourceData = null;
-    }
-
-    protected void setSources(TongaImage sourceImage, ImageData[] sourceDatas) {
-        this.sourceImage = sourceImage;
-        this.sourceLayer = null;
-        this.sourceData = sourceDatas;
-    }
-
-    public static void applyOperator(ImageData id, ImageData dest, UnaryOperator<Integer> op) {
-        Iterate.pixels(id, (int p) -> {
-            dest.pixels32[p] = op.apply(p);
-        });
-    }
-
-    private void processorInit() {
+    protected void setSources(TongaImage sImage, Object[] sContainers) {
+        sourceImage = sImage;
+        sourceLayer = sContainers instanceof TongaLayer[] ? (TongaLayer[]) sContainers : null;
+        sourceData = sContainers instanceof ImageData[] ? (ImageData[]) sContainers : null;
         if (sourceLayer != null) {
             //executed normally with TongaLayers
             if (Settings.settingBatchProcessing()) {
@@ -147,7 +132,18 @@ public abstract class Processor {
         setProcessorImages();
     }
 
-    private void processorFinalize() {
+    public static void applyOperator(ImageData id, ImageData dest, UnaryOperator<Integer> op) {
+        Iterate.pixels(id, (int p) -> {
+            dest.pixels32[p] = op.apply(p);
+        });
+    }
+
+    protected void processorInit() {
+        // executed before starting processing
+    }
+
+    protected void processorFinalize() {
+        // executed after finishing processing
         if (Settings.settingBatchProcessing()) {
             Arrays.stream(sourceLayer).forEach(p -> {
                 p.layerImage = null;
@@ -155,11 +151,18 @@ public abstract class Processor {
         }
     }
 
+    protected void methodLoad() {
+        // executed for all processors before any processing is done
+        // no setup needed
+    }
+
     protected void methodInit() {
+        // executed before pixelprocessor
         // no processing needed
     }
 
     protected void methodFinal() {
+        // executed after pixelprocessor
         // no processing needed
     }
 

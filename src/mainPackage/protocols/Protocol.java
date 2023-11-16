@@ -93,14 +93,16 @@ public abstract class Protocol {
         //init processors for every image + general processor vals
         Processor[] processors = new Processor[iters];
         for (int imageId = startid; imageId < iters + startid; imageId++) {
-            processors[all ? imageId : 0] = getProcessor();
+            TongaImage sourceImage = Tonga.getImageList().get(imageId);
+            TongaLayer[] sourceLayers = getLayers(param.layer, sourceImage);
+            processors[all ? imageId : 0] = bootProcessor(sourceImage, sourceLayers);
         }
-        int procIterations = processors[0].iterations;
+        int procIterations = Arrays.stream(processors).mapToInt(p -> p.iterations).sum();
         int procOutputImages = processors[0].outputImageNumber;
         //init data storage for result outputs
         List<TableData>[] procdatas = new List[iters];
         //set target value for the progress bar
-        Tonga.loader().setIterations(procIterations * iters);
+        Tonga.loader().setIterations(procIterations);
         List<Integer> procImgs = new ArrayList<>();
         //perform the processing for every image
         for (int imageId = startid; imageId < iters + startid; imageId++) {
@@ -116,6 +118,11 @@ public abstract class Protocol {
                 @Override
                 public void action(int imageId) {
                     execute(imageId, processors, procdatas, all ? imageId : 0);
+                }
+
+                @Override
+                public boolean evaluate(int i, int j) {
+                    return true;
                 }
             }.runThreaded(procImgs, getName());
         }
@@ -144,6 +151,15 @@ public abstract class Protocol {
         }
     }
 
+    private Processor bootProcessor(TongaImage sourceImage, Object[] sourceLayers) {
+        Processor processor = getProcessor();
+        processor.setSources(sourceImage, sourceLayers);
+        processor.localParameters(param);
+        processor.internalParameters(param);
+        processor.methodLoad();
+        return processor;
+    }
+
     public final void runSilentTo(TongaImage imageSource, ImageData[] layerSources, ImageData imageDest, Object... parameters) {
         ImageData[] ids = runSilent(imageSource, layerSources, parameters);
         imageDest.pixels32 = ids[0].pixels32;
@@ -153,9 +169,7 @@ public abstract class Protocol {
 
     public final ImageData[] runSilent(TongaImage imageSource, ImageData[] layerSources, Object... parameters) {
         param.setFilterParameters(this.parameters, parameters);
-        Processor processor = getProcessor();
-        //TongaLayer[] layerDataSources = ImageData.convertToLayers(layerSources);
-        processor.setSources(imageSource, layerSources);
+        Processor processor = bootProcessor(imageSource, layerSources);
         ImageData[] processed = processor.internalProcessing();
         results = collectData(processor);
         return processed;
