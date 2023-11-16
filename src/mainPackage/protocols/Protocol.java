@@ -1,6 +1,5 @@
 package mainPackage.protocols;
 
-import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.io.File;
 import java.io.IOException;
@@ -10,11 +9,8 @@ import java.util.List;
 import java.util.function.Supplier;
 import javafx.scene.image.Image;
 import javax.imageio.ImageIO;
-import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
-import mainPackage.utils.COL;
-import mainPackage.MappedImage;
 import mainPackage.ImageData;
 import mainPackage.MappingManager;
 import mainPackage.PanelControl;
@@ -33,7 +29,6 @@ import mainPackage.counters.TableData;
 
 public abstract class Protocol {
 
-    ArrayList<JComboBox<String>> layerCombos;
     private boolean doNotChangeButtonColor;
     private boolean fullOutput;
     public ControlReference[] parameters;
@@ -42,7 +37,6 @@ public abstract class Protocol {
     public TableData results;
 
     public Protocol() {
-        layerCombos = new ArrayList<>();
         parameters = getParameters();
         param = new PanelParams(parameters);
     }
@@ -74,9 +68,6 @@ public abstract class Protocol {
 
     private void execute(int imageId, Processor[] processors, List<TableData>[] procdatas, int pid) {
         Processor processor = processors[pid];
-        TongaImage sourceImage = Tonga.getImageList().get(imageId);
-        TongaLayer[] sourceLayers = getLayers(param.layer, sourceImage.layerList);
-        processor.setSources(sourceImage, sourceLayers);
         ImageData[] processed = processor.internalProcessing();
         injectAsLayers(processed, imageId);
         procdatas[pid] = processor.datas;
@@ -211,25 +202,12 @@ public abstract class Protocol {
         }
     }
 
-    public final void updateComponents() {
-        layerCombos.forEach(c -> {
-            int i = c.getSelectedIndex();
-            updateComboLayerList(c);
-            if (i >= 0 && i < c.getItemCount()) {
-                c.setSelectedIndex(i);
-            } else {
-                c.setSelectedIndex(c.getItemCount() - 1);
-            }
-        });
-    }
-
     private void setLayerSelectors() {
         int howMany = (int) Arrays.stream(parameters).filter(p -> p.type == ControlType.LAYER).count();
         for (int i = 0; i < parameters.length; i++) {
             if (parameters[i].type == ControlType.LAYER) {
                 JComboBox<String> combo = (JComboBox) panelCreator.getControls().get(i).comp;
-                layerCombos.add(combo);
-                updateComboLayerList(combo);
+                PanelUtils.updateComboLayerList(combo);
                 if (howMany == 1) {
                     combo.setSelectedIndex(Tonga.getLayerIndex());
                 } else {
@@ -254,64 +232,16 @@ public abstract class Protocol {
                         });
                         combo.addActionListener((ActionEvent evt) -> {
                             if (!doNotChangeButtonColor) {
-                                updateColorButtonColour(button, combo);
+                                PanelUtils.updateColorButtonColour(button, combo);
                             }
                         });
-                        updateColorButtonColour(button, combo);
+                        PanelUtils.updateColorButtonColour(button, combo);
                     } else {
                         Tonga.log.warn("The interaction parameter supplied to COLOUR must be of type LAYER");
                     }
                 }
             }
         }
-    }
-
-    /*
-    public final void assignLayerCombo(int controlindex, int select) {
-        if (Tonga.thereIsImage()) {
-            JComboBox<String> combo = (JComboBox) panelCreator.getControls().get(controlindex).comp;
-            layerCombos.add(combo);
-            updateComboLayerList(combo);
-            if (select < combo.getItemCount()) {
-                combo.setSelectedIndex(select);
-            } else {
-                combo.setSelectedIndex(0);
-            }
-        }
-    }
-    public void setColorControlByLayer(int buttonindex, int comboindex) {
-        JButton button = (JButton) panelCreator.getControls().get(buttonindex).comp;
-        JComboBox<String> combo = (JComboBox) panelCreator.getControls().get(comboindex).comp;
-        doNotChangeButtonColor = false;
-        button.addActionListener((ActionEvent evt) -> {
-            doNotChangeButtonColor = true;
-        });
-        combo.addActionListener((ActionEvent evt) -> {
-            if (!doNotChangeButtonColor) {
-                updateColorButtonColour(button, combo);
-            }
-        });
-        updateColorButtonColour(button, combo);
-    }*/
-    private static void updateColorButtonColour(JButton button, JComboBox combo) {
-        Color c;
-        if (Tonga.thereIsImage() && !Settings.settingBatchProcessing()) {
-            MappedImage img = Tonga.getLayerList(Tonga.getImageIndex()).get(combo.getSelectedIndex()).layerImage;
-            c = COL.layerCornerColour(img);
-        } else {
-            c = Color.BLACK;
-        }
-        button.setBackground(c);
-    }
-
-    private static void updateComboLayerList(JComboBox<String> combo) {
-        ArrayList<TongaLayer> layers = Tonga.getLayerList();
-        int lsize = layers == null ? 0 : layers.size();
-        TongaLayer[] list = new TongaLayer[lsize];
-        for (int j = 0; j < lsize; j++) {
-            list[j] = layers.get(j);
-        }
-        combo.setModel(new DefaultComboBoxModel(list));
     }
 
     public boolean checkEqualSize() {

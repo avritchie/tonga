@@ -121,6 +121,27 @@ public class PanelUtils {
         }
     }
 
+    public static void updateColorButtonColour(JButton button, JComboBox combo) {
+        Color c;
+        if (Tonga.thereIsImage() && !Settings.settingBatchProcessing()) {
+            MappedImage img = Tonga.getLayerList(Tonga.getImageIndex()).get(combo.getSelectedIndex()).layerImage;
+            c = COL.layerCornerColour(img);
+        } else {
+            c = Color.BLACK;
+        }
+        button.setBackground(c);
+    }
+
+    public static void updateComboLayerList(JComboBox<String> combo) {
+        ArrayList<TongaLayer> layers = Tonga.getLayerList();
+        int lsize = layers == null ? 0 : layers.size();
+        TongaLayer[] list = new TongaLayer[lsize];
+        for (int j = 0; j < lsize; j++) {
+            list[j] = layers.get(j);
+        }
+        combo.setModel(new DefaultComboBoxModel(list));
+    }
+
     public static void updateComboAnnotationList(JComboBox<String> combo, Object[] allowedTypes) {
         TongaAnnotation[] list;
         if (Tonga.getImage() == null) {
