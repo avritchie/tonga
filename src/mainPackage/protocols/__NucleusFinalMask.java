@@ -215,10 +215,10 @@ public class __NucleusFinalMask extends Protocol {
                 quantSet.filterOutDimSmallObjects(largeLimit - largeErodedLimit, quantSet.avgStain() * 0.5);
                 //since we used erosion, restore the original masks for anything that was not removed
                 quantSet = quantSet.getPositionFilteredSet(aMask, COL.BLACK, false);
-                if (removeDead) {
+                if (removeDead && quantSet.objectsCount() > 0) {
                     quantSet.filterDeadDividing(inImage[1]);
                 }
-                if (removeEdge) {
+                if (removeEdge && quantSet.objectsCount() > 0) {
                     quantSet.removeEdgeTouchers();
                 }
                 quantSet.filterOutSmallObjectsEdgeAdjusted(smallLimit);
