@@ -32,6 +32,7 @@ import javax.imageio.ImageReader;
 import javax.imageio.ImageTypeSpecifier;
 import javax.imageio.stream.ImageInputStream;
 import mainPackage.utils.RGB;
+import ome.units.quantity.Length;
 
 public class MappedImage extends BufferedImage {
 
@@ -42,6 +43,7 @@ public class MappedImage extends BufferedImage {
     int max;
     private boolean mapped;
     public String source;
+    public Length scale;
 
     private MappedImage(int width, int height, boolean bits, DataBuffer db) {
         super(getColor(bits), new WrappedRaster(getSample(width, height, bits), db), !bits, null);

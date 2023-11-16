@@ -47,11 +47,31 @@ public class TongaImage {
     }
 
     public final void addLayer(TongaLayer tongaLayer) {
+        updateScaleInfo(tongaLayer);
         layerList.add(tongaLayer);
     }
 
     public final void addLayer(int position, TongaLayer tongaLayer) {
+        updateScaleInfo(tongaLayer);
         layerList.add(position, tongaLayer);
+    }
+
+    private void updateScaleInfo(TongaLayer tl) {
+        Length newScale = tl.layerImage.scale;
+        if (newScale != null) {
+            if (imageScaling == null) {
+                imageScaling = tl.layerImage.scale;
+                Tonga.log.info("Updated {} scaling to {}{}/px", imageName, imageScaling.value().doubleValue(), imageScaling.unit().getSymbol());
+            } else {
+                if (imageScaling.equals(newScale)) {
+                    //all good
+                } else {
+                    Tonga.log.warn("Image {} with scaling {}{}/px was presented with a layer with conflicting scaling {}{}/px", new Object[]{
+                        imageName, imageScaling.value().doubleValue(), imageScaling.unit().getSymbol(),
+                        imageScaling.value().doubleValue(), imageScaling.unit().getSymbol()});
+                }
+            }
+        }
     }
 
     public final TongaLayer getLayer(int index) {
