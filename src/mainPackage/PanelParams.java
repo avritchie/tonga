@@ -243,6 +243,8 @@ public class PanelParams {
                 } catch (ClassCastException ex) {
                     Tonga.log.warn("Passed a parameter which is not compatible with the method parameters");
                 }
+            } else {
+                Tonga.log.warn("Passed a parameter which was null");
             }
         }
     }
