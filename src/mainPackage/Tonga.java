@@ -1420,8 +1420,9 @@ public class Tonga {
             String message;
             if (ex instanceof NoClassDefFoundError) {
                 fatal = true;
-                message = "Tonga did not start correctly because an external class could not be found.\n"
-                        + "Please make sure you are not trying to launch the JAR file directly.";
+                message = "Tonga did not " + (happyBoot ? "exit" : "start") + " correctly because an external class could not be found.\n"
+                        + (happyBoot ? "Please make sure you are not trying to launch the JAR file directly."
+                                : "This is probably due to misconfigured compilation.");
             } else {
                 message = "Tonga did not " + (happyBoot ? "exit" : "start") + " correctly because an unexpected "
                         + ex.getClass().getSimpleName() + " occured." + (msg == null ? "" : "\n" + msg) + ".\nSome functions may not work correctly.";
