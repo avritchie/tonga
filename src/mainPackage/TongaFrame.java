@@ -1062,7 +1062,9 @@ public class TongaFrame extends JFrame {
         jSeparator18 = new javax.swing.JPopupMenu.Separator();
         menuFileImportStacks = new javax.swing.JMenuItem();
         menuFileImportMultichannel = new javax.swing.JMenuItem();
+        jSeparator30 = new javax.swing.JPopupMenu.Separator();
         jMenuItem147 = new javax.swing.JMenuItem();
+        jMenuItem155 = new javax.swing.JMenuItem();
         menuExport = new javax.swing.JMenu();
         menuExportSingle = new javax.swing.JMenu();
         menuExportSingleLayer = new javax.swing.JMenuItem();
@@ -1078,6 +1080,8 @@ public class TongaFrame extends JFrame {
         jSeparator29 = new javax.swing.JPopupMenu.Separator();
         jMenuItem152 = new javax.swing.JMenuItem();
         jMenuItem123 = new javax.swing.JMenuItem();
+        jSeparator31 = new javax.swing.JPopupMenu.Separator();
+        jMenuItem154 = new javax.swing.JMenuItem();
         jSeparator8 = new javax.swing.JPopupMenu.Separator();
         jMenuItem83 = new javax.swing.JMenuItem();
         jMenuItem88 = new javax.swing.JMenuItem();
@@ -3024,6 +3028,7 @@ public class TongaFrame extends JFrame {
             }
         });
         menuImport.add(menuFileImportMultichannel);
+        menuImport.add(jSeparator30);
 
         jMenuItem147.setText("Annotations");
         jMenuItem147.addActionListener(new java.awt.event.ActionListener() {
@@ -3032,6 +3037,14 @@ public class TongaFrame extends JFrame {
             }
         });
         menuImport.add(jMenuItem147);
+
+        jMenuItem155.setText("Results");
+        jMenuItem155.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jMenuItem155ActionPerformed(evt);
+            }
+        });
+        menuImport.add(jMenuItem155);
 
         menuFile.add(menuImport);
 
@@ -3132,6 +3145,15 @@ public class TongaFrame extends JFrame {
         menuExportAll.add(jMenuItem123);
 
         menuExport.add(menuExportAll);
+        menuExport.add(jSeparator31);
+
+        jMenuItem154.setText("Results");
+        jMenuItem154.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jMenuItem154ActionPerformed(evt);
+            }
+        });
+        menuExport.add(jMenuItem154);
 
         menuFile.add(menuExport);
         menuFile.add(jSeparator8);
@@ -6377,6 +6399,14 @@ public class TongaFrame extends JFrame {
         launchProtocol(ISHMirax::new, evt);
     }//GEN-LAST:event_jMenuItem138ActionPerformed
 
+    private void jMenuItem154ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem154ActionPerformed
+        IO.exportTable(resultTableComponent, false);
+    }//GEN-LAST:event_jMenuItem154ActionPerformed
+
+    private void jMenuItem155ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem155ActionPerformed
+        IO.importResults();
+    }//GEN-LAST:event_jMenuItem155ActionPerformed
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
     protected javax.swing.JScrollPane annoScrollPane;
     protected javax.swing.JTable annoTableComponent;
@@ -6596,6 +6626,8 @@ public class TongaFrame extends JFrame {
     protected javax.swing.JMenuItem jMenuItem151;
     protected javax.swing.JMenuItem jMenuItem152;
     protected javax.swing.JMenuItem jMenuItem153;
+    protected javax.swing.JMenuItem jMenuItem154;
+    protected javax.swing.JMenuItem jMenuItem155;
     protected javax.swing.JMenuItem jMenuItem16;
     protected javax.swing.JMenuItem jMenuItem17;
     protected javax.swing.JMenuItem jMenuItem18;
@@ -6717,6 +6749,8 @@ public class TongaFrame extends JFrame {
     protected javax.swing.JPopupMenu.Separator jSeparator28;
     protected javax.swing.JPopupMenu.Separator jSeparator29;
     protected javax.swing.JPopupMenu.Separator jSeparator3;
+    protected javax.swing.JPopupMenu.Separator jSeparator30;
+    protected javax.swing.JPopupMenu.Separator jSeparator31;
     protected javax.swing.JSeparator jSeparator4;
     protected javax.swing.JPopupMenu.Separator jSeparator5;
     protected javax.swing.JPopupMenu.Separator jSeparator6;

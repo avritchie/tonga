@@ -719,12 +719,22 @@
                     <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="menuFileImportMultichannelActionPerformed"/>
                   </Events>
                 </MenuItem>
+                <MenuItem class="javax.swing.JPopupMenu$Separator" name="jSeparator30">
+                </MenuItem>
                 <MenuItem class="javax.swing.JMenuItem" name="jMenuItem147">
                   <Properties>
                     <Property name="text" type="java.lang.String" value="Annotations"/>
                   </Properties>
                   <Events>
                     <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jMenuItem147ActionPerformed"/>
+                  </Events>
+                </MenuItem>
+                <MenuItem class="javax.swing.JMenuItem" name="jMenuItem155">
+                  <Properties>
+                    <Property name="text" type="java.lang.String" value="Results"/>
+                  </Properties>
+                  <Events>
+                    <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jMenuItem155ActionPerformed"/>
                   </Events>
                 </MenuItem>
               </SubComponents>
@@ -842,6 +852,16 @@
                     </MenuItem>
                   </SubComponents>
                 </Menu>
+                <MenuItem class="javax.swing.JPopupMenu$Separator" name="jSeparator31">
+                </MenuItem>
+                <MenuItem class="javax.swing.JMenuItem" name="jMenuItem154">
+                  <Properties>
+                    <Property name="text" type="java.lang.String" value="Results"/>
+                  </Properties>
+                  <Events>
+                    <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jMenuItem154ActionPerformed"/>
+                  </Events>
+                </MenuItem>
               </SubComponents>
             </Menu>
             <MenuItem class="javax.swing.JPopupMenu$Separator" name="jSeparator8">

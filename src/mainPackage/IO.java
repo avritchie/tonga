@@ -682,6 +682,22 @@ public class IO {
         }
     }
 
+    public static void importResults() {
+        File[] file = IO.getFile(pathParent(), false, new FileFilter() {
+
+            public String getDescription() {
+                return "Tonga Annotation File (*.tsv)";
+            }
+
+            public boolean accept(File f) {
+                return f.getName().toLowerCase().endsWith(".tsv") || f.isDirectory();
+            }
+        });
+        if (file != null) {
+            Tonga.frame().resultTable.importData(file[0]);
+        }
+    }
+
     public static void importAnnos() {
         File[] file = IO.getFile(pathParent(), true, new FileFilter() {
 
