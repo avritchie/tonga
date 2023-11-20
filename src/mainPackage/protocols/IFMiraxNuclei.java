@@ -43,7 +43,7 @@ public class IFMiraxNuclei extends Protocol {
         return new ControlReference[]{
             new ControlReference(LAYER, "Preview image is on which layer"),
             new ControlReference(FOLDER, "Folder of the Mirax pieces"),
-            new ControlReference(COMBO, new String[]{"0", "1", "2", "3", "4", "5", "6", "7", "8", "9"}, "Mirax zoom level", 2),
+            new ControlReference(COMBO, new String[]{"0", "1", "2", "3", "4", "5", "6", "7", "8", "9"}, "Mirax zoom level", 0),
             new ControlReference(SPINNER, "Nucleus size (pixels)", 40),
             new ControlReference(TOGGLE, "Binary staining", 1, new int[]{5, 1}),
             new ControlReference(SLIDER, "Positivity threshold (%)"),
