@@ -775,7 +775,7 @@ public class IO {
     }
 
     public static String generateFilename(String name) {
-        return name + new SimpleDateFormat("ddMMyyyHHmmss").format(new Date());
+        return name + " " + new SimpleDateFormat("dd-MM-yyy (HH.mm.ss)").format(new Date());
     }
 
     public static void exportBytes(byte[] bytes, String path) {
