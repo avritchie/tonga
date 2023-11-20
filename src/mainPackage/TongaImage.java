@@ -57,6 +57,10 @@ public class TongaImage {
     }
 
     private void updateScaleInfo(TongaLayer tl) {
+        if (Settings.settingBatchProcessing()) {
+            //can't embed scale data to image which has not been loaded
+            return;
+        }
         Length newScale = tl.layerImage.scale;
         if (newScale != null) {
             if (imageScaling == null) {

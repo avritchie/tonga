@@ -180,7 +180,7 @@ public class TongaFrame extends JFrame {
             return;
         }
         boolean how = false;
-        if (tl != null && tl.layerImage.bits == 16) {
+        if (tl != null && !Settings.settingBatchProcessing() && tl.layerImage.bits == 16) {
             how = true;
         }
         histoAdjResetSingle.setEnabled(how);

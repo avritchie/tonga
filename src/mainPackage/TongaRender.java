@@ -370,7 +370,7 @@ public class TongaRender {
     }
 
     private static void getPixelColourIntensity(int xx, int yy) {
-        if (Tonga.thereIsVisibleImage() && xx >= 0 && yy >= 0) {
+        if (Tonga.thereIsVisibleImage() && !Settings.settingBatchProcessing() && xx >= 0 && yy >= 0) {
             PixelReader renderReader = getCurrentRender().getPixelReader();
             int val = renderReader.getArgb(xx, yy);
             imgint = RGB.brightness(val);

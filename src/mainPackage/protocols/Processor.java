@@ -81,7 +81,7 @@ public abstract class Processor {
         //create local parameters for parameters which depend on the image
         //these cannot be derived from the panel directly
         lparam = new PanelParams(paramParent);
-        lparam.setImageFilterParameters(paramParent,sourceImage);
+        lparam.setImageFilterParameters(paramParent, sourceImage);
     }
 
     protected void internalParameters(PanelParams param) {
@@ -147,7 +147,8 @@ public abstract class Processor {
 
     protected void processorFinalize() {
         // executed after finishing processing
-        if (Settings.settingBatchProcessing()) {
+        // skip if no sourcelayer because silent protocols don't have it
+        if (Settings.settingBatchProcessing() && sourceLayer != null) {
             Arrays.stream(sourceLayer).forEach(p -> {
                 p.layerImage = null;
             });
