@@ -83,7 +83,9 @@ public class IFCorrectAll extends Protocol {
                         }
                         case 2: {
                             //combine the result with the binary from the first method
-                            applyOperator(binar, binar, p -> temp.pixels32[p] != COL.BLACK || binar.pixels32[p] == COL.BLACK ? COL.BLACK : COL.WHITE);
+                            if (param.toggle[0]) {
+                                applyOperator(binar, binar, p -> temp.pixels32[p] != COL.BLACK || binar.pixels32[p] == COL.BLACK ? COL.BLACK : COL.WHITE);
+                            }
                             break;
                         }
                     }
