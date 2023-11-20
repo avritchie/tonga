@@ -6079,7 +6079,9 @@ public class TongaFrame extends JFrame {
     }//GEN-LAST:event_annoTableComponentMouseReleased
 
     private void annotClearAllActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_annotClearAllActionPerformed
+        UndoRedo.start();
         TongaAnnotator.deleteAll();
+        UndoRedo.end();
     }//GEN-LAST:event_annotClearAllActionPerformed
 
     private void annotDotActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_annotDotActionPerformed

@@ -66,6 +66,7 @@ public class UndoRedo {
         ArrayList<String> nameList;
         ArrayList<Object> referenceList;
         TableData results;
+        TongaAnnotations annotations;
 
         public TongaStructure() {
             size = Tonga.picList.size();
@@ -88,6 +89,7 @@ public class UndoRedo {
             subList = null;
             nameList = new ArrayList<>();
             referenceList = new ArrayList<>();
+            annotations = TongaStructure.getAnnotations(ti);
             ti.getLayerStream().forEach((TongaLayer tl) -> {
                 nameList.add(tl.layerName);
                 referenceList.add(tl);
@@ -101,6 +103,11 @@ public class UndoRedo {
             } else {
                 return td.copy();
             }
+        }
+
+        private static TongaAnnotations getAnnotations(TongaImage ti) {
+            TongaAnnotations ta = ti.annotations;
+            return new TongaAnnotations(ta.getAnnotations());
         }
 
         public static ArrayList<TongaAction> getActionList(TongaStructure cs) {
@@ -125,7 +132,11 @@ public class UndoRedo {
                 }
             } else {
                 for (int r = 0; r < cs.size; r++) {
-                    if (!cs.nameList.get(r).equals(Tonga.picList.get(r).imageName)) {
+                    TongaImage ti = Tonga.picList.get(r);
+                    if (!cs.subList.get(r).annotations.equals(ti.annotations)) {
+                        al.add(new TongaAction(Action.ANNOTATION, cs.subList.get(r).annotations, r));
+                    }
+                    if (!cs.nameList.get(r).equals(ti.imageName)) {
                         al.add(new TongaAction(Action.RENAME, cs.nameList.get(r), r));
                         rename = true;
                     }
@@ -179,7 +190,8 @@ public class UndoRedo {
         ADD,
         DELETE,
         SELECT,
-        TABLE
+        TABLE,
+        ANNOTATION
     }
 
     public static class TongaAction {
@@ -222,6 +234,7 @@ public class UndoRedo {
                 processAction(al, i, true);
             }
             Tonga.refreshCanvases();
+            TongaAnnotator.update();
         }
 
         private static void processAction(ArrayList<TongaAction> al, int i, boolean processSelections) {
@@ -251,6 +264,8 @@ public class UndoRedo {
                     } else {
                         Tonga.frame().resultTable.overwriteData((TableData) ac.container);
                     }
+                } else if (ac.type == Action.ANNOTATION) {
+                    Tonga.picList.get(ac.position).annotations.setAnnotations((TongaAnnotations) ac.container);
                 } else if (ac.imageId == -1) {
                     switch (ac.type) {
                         case DELETE:

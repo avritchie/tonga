@@ -20,8 +20,17 @@ public class TongaAnnotations {
         annos = new ArrayList<>();
     }
 
+    public TongaAnnotations(List<TongaAnnotation> anno) {
+        annos = new ArrayList<>();
+        annos.addAll(anno);
+    }
+
     public List<TongaAnnotation> getAnnotations() {
         return annos;
+    }
+
+    public void setAnnotations(TongaAnnotations anno) {
+        annos = anno.getAnnotations();
     }
 
     public boolean isEmpty() {
@@ -55,6 +64,7 @@ public class TongaAnnotations {
     }
 
     protected void removeHovered() {
+        UndoRedo.start();
         boolean modif = false;
         Map<TongaAnnotation, Double> annoDists = new HashMap<>();
         for (TongaAnnotation anno : annos) {
@@ -70,6 +80,7 @@ public class TongaAnnotations {
         if (modif) {
             update();
         }
+        UndoRedo.end();
     }
 
     protected void annotationCollision() {

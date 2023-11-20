@@ -347,18 +347,16 @@ public class TongaAnnotator {
         int newHash = generateHash();
         if (newHash != hash) {
             hash = newHash;
-            retable(ti);
+            if (!ti.annotations.isEmpty()) {
+                ti.annotations.tableAnnotations();
+            } else {
+                clearTable();
+            }
+        } else if (!Tonga.frame().annotationTable.isData() && !ti.annotations.isEmpty()) {
+            ti.annotations.tableAnnotations();
         }
         Tonga.frame().updatePanels();
         TongaRender.redraw();
-    }
-
-    private static void retable(TongaImage ti) {
-        if (!ti.annotations.isEmpty()) {
-            ti.annotations.tableAnnotations();
-        } else {
-            clearTable();
-        }
     }
 
     public static void updateHash() {

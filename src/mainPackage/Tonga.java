@@ -422,6 +422,7 @@ public class Tonga {
                         img.activeLayers = new int[]{img.layerCount() - 1};
                     }
                     TongaRender.copyFromCache();
+                    TongaAnnotator.update();
                     selectLayer(img.activeLayers);
                 }
             }
@@ -608,14 +609,17 @@ public class Tonga {
 
     static void selectImage(int i) {
         mainFrame.imagesList.setSelectedIndex(i);
+        TongaAnnotator.update();
     }
 
     static void selectImage(int[] i) {
         mainFrame.imagesList.setSelectedIndices(i);
+        TongaAnnotator.update();
     }
 
     static void selectImagesAll() {
         mainFrame.imagesList.setSelectionInterval(0, mainFrame.imagesList.getModel().getSize() - 1);
+        TongaAnnotator.update();
     }
 
     static void selectLayersAll() {
