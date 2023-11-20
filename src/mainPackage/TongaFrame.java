@@ -6307,8 +6307,12 @@ public class TongaFrame extends JFrame {
     }//GEN-LAST:event_histoAdjResetAllActionPerformed
 
     private void batchToggleMouseReleased(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_batchToggleMouseReleased
-        UndoRedo.clear();
-        refresh();
+        if (!Tonga.picList.isEmpty()) {
+            Tonga.setStatus("You can't process images in the batch mode if you have opened images in the normal mode. Delete the currently open images.");
+        } else {
+            UndoRedo.clear();
+            refresh();
+        }
     }//GEN-LAST:event_batchToggleMouseReleased
 
     private void jMenuItem144ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem144ActionPerformed
