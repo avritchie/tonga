@@ -32,7 +32,7 @@ public class ISHNuclei extends Protocol {
         return new ControlReference[]{
             new ControlReference(LAYER, "Image is on which layer"),
             new ControlReference(SPINNER, "Target size (pixels)", 25),
-            new ControlReference(TOGGLE, "Use gradient", 1),
+            new ControlReference(TOGGLE, "Use gradient detection", 1),
             new ControlReference(SLIDER, new Object[]{0.1, 1, 10, 36}, "Remove small objects (multiplier)", 26),
             new ControlReference(TOGGLE, "Use sum threshold", 0, new int[]{5, 0, 6, 1}),
             new ControlReference(SLIDER, "Binary threshold (%)"),
@@ -48,7 +48,7 @@ public class ISHNuclei extends Protocol {
         int sumthresh = param.spinner[1];
         double thresh = param.slider[1];
 
-        return new ProcessorFast(8, "Nuclei", 254) {
+        return new ProcessorFast(fullOutput() ? 8 : 2, "Nuclei", 254) {
 
             ImageData temp, temp2, adjusted;
             Protocol eprot;
@@ -112,7 +112,7 @@ public class ISHNuclei extends Protocol {
                 //quantify results
                 eprot = Protocol.load(_ObjectIntensity::new);
                 separation = eprot.runSilent(sourceImage, temp, COL.BLACK, true, sumth, thresh, sumthresh, false);
-                setSampleOutputBy(separation[0], 1);
+                setOutputBy(separation[0], 1);
                 addResultData(eprot.results);
                 //render the outlines to the original image
                 eprot = Protocol.load(ObjectEdges::new);

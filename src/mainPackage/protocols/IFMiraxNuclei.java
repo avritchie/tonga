@@ -55,7 +55,7 @@ public class IFMiraxNuclei extends Protocol {
     @Override
     protected Processor getProcessor() {
 
-        return new ProcessorMirax(11, "Positive Nuclei", 198, 178) {
+        return new ProcessorMirax(fullOutput() ? 11 : 2, "Positive Nuclei", 198, 178) {
 
             int dapi = param.combo[1];
             int stain = param.combo[2];
@@ -92,8 +92,8 @@ public class IFMiraxNuclei extends Protocol {
                 stainstretch[0] = (int) crs[7];
                 stainstretch[1] = (int) crs[8];
                 maxstain = (int) GEO.circleArea(nsize) * stainstretch[1] / 255;
-                setOutputBy(matrices[dapi], 2);
-                setOutputBy(matrices[stain], 3);
+                setSampleOutputBy(matrices[dapi], 2);
+                setSampleOutputBy(matrices[stain], 3);
                 Tonga.log.info("Background is " + backgrounds[dapi] + " for DAPI and " + backgrounds[stain] + " for stain");
                 Tonga.log.info("Average DAPI is " + dapiavg + " for corrected and " + rdapiavg + " for raw");
                 Tonga.log.info("Stretch values are " + stainstretch[0] + " and " + stainstretch[1] + " for stain");
@@ -229,7 +229,7 @@ public class IFMiraxNuclei extends Protocol {
                 setOutputBy(Blender.renderBlend(new ImageData[]{dapii, staini}, Blend.ADD), 1);
                 addResultData(sourceImage);
                 //render the histo image
-                if (!bins) {
+                if (!bins && fullOutput()) {
                     renderIntScale(10);
                 }
             }
@@ -320,16 +320,16 @@ public class IFMiraxNuclei extends Protocol {
                 bid = FiltersPass.edgeErode().runSingle(bid, COL.BLACK, 6 - miraxPreviewLevel, true);
                 bid = FiltersSet.filterObjectSize().runSingle(bid, COL.BLACK, tsize * 30 / (miraxPreviewLevel + 1), false, 0);
                 bid = FiltersPass.edgeDilate().runSingle(bid, COL.BLACK, 6 - miraxPreviewLevel, true, true);
-                setOutputBy(bid, 4);
+                setSampleOutputBy(bid, 4);
                 mid = nprm.runSilent(sourceImage, did, tsize)[0];
-                setOutputBy(did, 5);
+                setSampleOutputBy(did, 5);
                 eid = Filters.autoscaleWithPixelAdapt().runSingle(did, 50, false, true);
                 eid = Filters.multiply().runSingle(eid, 200, true);
                 eid = Filters.thresholdBright().runSingle(eid, 70);
                 eid = FiltersSet.filterObjectSize().runSingle(eid, COL.BLACK, tsize * 30 / (miraxPreviewLevel + 1), false, 0);
                 mxs[2] = FiltersPass.edgeDilate().runSingle(eid, COL.BLACK, 6 - miraxPreviewLevel, true, true);
                 //mxs[2] = objc.runSilent(sourceImage, new ImageData[]{mxs[2], eid}, COL.BLACK, 0)[0];
-                setOutputBy(mxs[2], 6);
+                setSampleOutputBy(mxs[2], 6);
                 eid = FiltersPass.edgeDilate().runSingle(mid, COL.BLACK, Math.max(2, 8 - miraxPreviewLevel), true);
                 int dilv = 4 - miraxPreviewLevel;
                 if (dilv > 0) {
@@ -342,16 +342,16 @@ public class IFMiraxNuclei extends Protocol {
                 Filters.invert().runTo(mid);
                 vid = Blender.renderBlend(new ImageData[]{eid, mid, sid, bid}, Blend.MULTIPLY);
                 int stainbg = (int) Filters.averageIntensity(vid, vid.pixels32, COL.BLACK);
-                //setOutputBy(vid, 6);
+                //setSampleOutputBy(vid, 6);
                 for (int i = 0; i < 5; i++) {
                     vid = Filters.blurConditional().runSingle(vid, COL.BLACK, 2, false);
                 }
-                setOutputBy(vid, 7);
+                setSampleOutputBy(vid, 7);
                 vid = FiltersPass.getCorrectionMatrix().runSingle(vid, stainchannel, tsize, true, false);
-                setOutputBy(vid, 8);
+                setSampleOutputBy(vid, 8);
                 mxs[1] = Blender.renderBlend(bid, vid, Blend.MULTIPLY);
                 sid = Protocol.load(ApplyMatrix::new).runSilent(sourceImage, new ImageData[]{sid, mxs[1]}, true)[0];
-                setOutputBy(sid, 9);
+                setSampleOutputBy(sid, 9);
                 int[] begEnd = HISTO.getMinMaxAdapt(HISTO.getHistogram(sid.pixels32), 0.1);
                 return new Object[]{mxs[0], dapibg, mxs[1], stainbg, mxs[2], davg, ravg, begEnd[0], begEnd[1]};
             }
