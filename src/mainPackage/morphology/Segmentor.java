@@ -894,8 +894,9 @@ public class Segmentor {
                 p2 = pool.get(j);
                 if (!p1.equals(p2)) {
                     if (!p1.pairings.intersectors.contains(p2) && !p1.pairings.intersectorsSecondary.contains(p2)) {
-                        if ((p1.pairings.closestAny.equals(p2) && p1.pairings.closestAnyDistance < partOfAvg(15))
-                                || (p2.pairings.closestAny.equals(p1) && p2.pairings.closestAnyDistance < partOfAvg(15))) {
+                        if ((p1.pairings.closestAny != null && p2.pairings.closestAny != null)
+                                && ((p1.pairings.closestAny.equals(p2) && p1.pairings.closestAnyDistance < partOfAvg(15))
+                                || (p2.pairings.closestAny.equals(p1) && p2.pairings.closestAnyDistance < partOfAvg(15)))) {
                             //not an intersector, but extremely close to the pool
                         } else {
                             Tonga.log.trace("Only close or common intersections NOT detected for pool {}", pool);
