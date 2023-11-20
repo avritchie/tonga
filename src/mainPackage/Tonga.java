@@ -639,7 +639,7 @@ public class Tonga {
 
     static void selectLayer(int i) {
         mainFrame.layersList.setSelectedIndex(i);
-        Tonga.getImage().activeLayers = new int[]{i};
+        selectActiveLayer(new int[]{i});
     }
 
     static void selectLayer(TongaImage i) {
@@ -648,15 +648,22 @@ public class Tonga {
             t[j] = j;
         }
         mainFrame.layersList.setSelectedIndices(t);
-        Tonga.getImage().activeLayers = t;
+        selectActiveLayer(t);
     }
 
     static void selectLayer(int[] i) {
         int[] tempLayer = currentLayer;
         mainFrame.layersList.setSelectedIndices(i);
-        Tonga.getImage().activeLayers = i;
+        selectActiveLayer(i);
         previousLayer = tempLayer;
         currentLayer = i;
+    }
+
+    private static void selectActiveLayer(int[] i) {
+        TongaImage ti = Tonga.getImage();
+        if (ti != null) {
+            ti.activeLayers = i;
+        }
     }
 
     public static void injectNewImage(TongaImage image) {
@@ -775,7 +782,6 @@ public class Tonga {
             });
         }
         Tonga.frame().updatePanels();
-        TongaAnnotator.update();
     }
 
     protected static void refreshChanges(File path, String string) {
