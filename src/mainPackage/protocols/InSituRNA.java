@@ -1,6 +1,7 @@
 package mainPackage.protocols;
 
 import mainPackage.Blender;
+import mainPackage.Blender.Blend;
 import mainPackage.utils.COL;
 import mainPackage.ImageData;
 import mainPackage.PanelCreator.ControlReference;
@@ -158,30 +159,29 @@ public class InSituRNA extends Protocol {
             @Override
             protected void methodFinal() {
                 switch (tissueMethod) {
-                    case 0: {//twostep
-                        layer = Filters.invert().runSingle(inImage[0]);
-                        applyOperator(layer, layer, p -> layer.pixels32[p] & 0xFFFF0000);
-                        layer = Filters.autoscaleWithAdapt().runSingle(layer, 2.0);
-                        layer = Filters.cutFilter().runSingle(layer, new Object[]{75, 255});
-                        layer = FiltersPass.dogSementing().runSingle(layer, (int) threshTissue, 100, 0, true);
-                        layer = Filters.thresholdBiol().runSingle(layer, 99);
-                        layer = Filters.gaussApprox().runSingle(layer, 2., true);
-                        layer = Filters.thresholdBright().runSingle(layer, 60);
-                        layer = FiltersSet.filterObjectSize().runSingle(layer, COL.BLACK, 100, false, 0);
-                    }
-                    break;
+                    case 0:
                     case 1: {//goodcontrast
-                        layer2 = tissueVals;
                         layer = Filters.autoscaleWithAdapt().runSingle(tissueVals, 5);
                         layer = Filters.cutFilter().runSingle(layer, new Object[]{0, 225});
                         layer = Filters.invert().runSingle(layer);
-                        layer3 = layer;
                         layer = Filters.multiply().runSingle(layer, 800.);
                         layer = Filters.box().runSingle(layer, 2.);
                         layer = Filters.thresholdBright().runSingle(layer, (int) threshTissue);
                         layer = Filters.gaussApprox().runSingle(layer, 3., true);
                         layer = Filters.thresholdBright().runSingle(layer, 33);
                         layer = FiltersSet.filterObjectSize().runSingle(layer, COL.BLACK, 500, false, 0);
+                        if (tissueMethod == 0) {
+                            layer2 = Filters.invert().runSingle(inImage[0]);
+                            applyOperator(layer2, layer2, p -> layer2.pixels32[p] & 0xFFFF0000);
+                            layer2 = Filters.autoscaleWithAdapt().runSingle(layer2, 2.0);
+                            layer2 = Filters.cutFilter().runSingle(layer2, new Object[]{75, 255});
+                            layer2 = FiltersPass.dogSementing().runSingle(layer2, (int) threshTissue, 100, 0, true);
+                            layer2 = Filters.thresholdBiol().runSingle(layer2, 99);
+                            layer2 = Filters.gaussApprox().runSingle(layer2, 2., true);
+                            layer2 = Filters.thresholdBright().runSingle(layer2, 60);
+                            layer2 = FiltersSet.filterObjectSize().runSingle(layer2, COL.BLACK, 100, false, 0);
+                            layer = Blender.renderBlend(layer, layer2, Blend.MULTIPLY);
+                        }
                     }
                     break;
                     case 2: {//lowcontrast
@@ -235,7 +235,7 @@ public class InSituRNA extends Protocol {
     private int calculateIterations() {
         switch (param.select[1]) {
             case 0:
-                return 46;
+                return 59;
             case 1:
                 return 14;
             case 2:
