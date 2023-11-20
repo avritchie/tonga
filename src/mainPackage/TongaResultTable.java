@@ -8,7 +8,6 @@ import java.util.LinkedHashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import javax.swing.JTable;
-import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableColumnModel;
 import mainPackage.counters.TableData;
 
@@ -20,26 +19,6 @@ public class TongaResultTable extends TongaTable {
 
     public void publishData(TableData tableData) {
         publishData(tableData, Settings.settingResultsAppend());
-    }
-
-    @Override
-    public DefaultTableModel newTableModel(TableData tableData) {
-        return new DefaultTableModel(tableData.getAsArray(), tableData.columns) {
-            @Override
-            public Class getColumnClass(int columnIndex) {
-                try {
-                    return tableData.rows.get(0)[columnIndex].getClass();
-                } catch (ArrayIndexOutOfBoundsException ex) {
-                    Tonga.log.warn("Illegal column index access.");
-                    return Object.class;
-                }
-            }
-        };
-    }
-
-    @Override
-    public TableColumnModel newColumnModel(TableData tableData) {
-        return getTableComponent().getColumnModel();
     }
 
     public void importData(File file) {
@@ -196,12 +175,17 @@ public class TongaResultTable extends TongaTable {
     }
 
     @Override
-    protected void deleteEvent(int[] row) {
+    protected void backendDelete(int[] row) {
         //
     }
 
     @Override
-    protected void clearEvent() {
+    protected void backendClear() {
+        //
+    }
+
+    @Override
+    public void setColumnProperties(TableColumnModel tcm) {
         //
     }
 }

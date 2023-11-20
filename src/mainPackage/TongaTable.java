@@ -14,6 +14,7 @@ public abstract class TongaTable {
     private int hoverIndex = -1;
     private DefaultTableModel tableModel;
     private TableColumnModel columnModel;
+    private int[] columnWidth;
     protected TableData tableData;
 
     public TongaTable(JTable table, int index) {
@@ -21,6 +22,24 @@ public abstract class TongaTable {
         this.tableComponentIndex = index;
         this.tableData = null;
     }
+
+    private DefaultTableModel newTableModel(TableData tableData) {
+        return new DefaultTableModel(tableData.getAsArray(), tableData.columns) {
+            @Override
+            public boolean isCellEditable(int rowIndex, int columnIndex) {
+                return false;
+            }
+        };
+    }
+
+    public TableColumnModel newColumnModel(TableData tableData) {
+        TableColumnModel tcm = getTableComponent().getColumnModel();
+        setColumnProperties(tcm);
+        return tcm;
+    }
+
+    //implement custom column renderers for each subclass
+    public abstract void setColumnProperties(TableColumnModel tcm);
 
     public TableData getData() {
         return tableData;
@@ -80,42 +99,49 @@ public abstract class TongaTable {
         return tableModel;
     }
 
-    public abstract DefaultTableModel newTableModel(TableData tableData);
-
     public TableColumnModel createColumnModel(TableData tableData) {
         columnModel = newColumnModel(tableData);
         return columnModel;
     }
 
-    public abstract TableColumnModel newColumnModel(TableData tableData );
-
-    public void overwriteData(TableData tableData) {
-        SwingUtilities.invokeLater(() -> {
-            tableComponent.setModel(createTableModel(tableData));
-            tableComponent.setColumnModel(createColumnModel(tableData));
-            this.tableData = tableData;
-        });
+    private void changeElement(Runnable action) {
+        //allow event invoking either from the ED thread (through GUI)
+        //or from other threads (protocols etc.)
+        if (SwingUtilities.isEventDispatchThread()) {
+            action.run();
+        } else {
+            SwingUtilities.invokeLater(action);
+        }
     }
 
-    public void appendData(TableData tableData) {
-        SwingUtilities.invokeLater(() -> {
-            tableData.rows.forEach(d -> {
-                addRow(d);
-            });
+    public void overwriteData(TableData tableData) {
+        this.tableData = tableData;
+        changeElement(() -> {
+            tableComponent.setModel(createTableModel(tableData));
+            tableComponent.setColumnModel(createColumnModel(tableData));
         });
     }
 
     public void clearData() {
-        clearEvent();
-        SwingUtilities.invokeLater(() -> {
+        backendClear();
+        tableData = null;
+        changeElement(() -> {
             tableComponent.setModel(new DefaultTableModel());
-            tableData = null;
         });
     }
 
     public void addRow(Object[] data) {
-        tableModel.addRow(data);
         tableData.newRow(data);
+        changeElement(() -> {
+            tableModel.addRow(data);
+        });
+    }
+
+    public void deleteRow(int index) {
+        tableData.delRow(index);
+        changeElement(() -> {
+            tableModel.removeRow(index);
+        });
     }
 
     public void addRows(Object[][] data) {
@@ -124,13 +150,10 @@ public abstract class TongaTable {
         }
     }
 
-    protected abstract void clearEvent();
-
-    protected abstract void deleteEvent(int[] row);
-
-    public void deleteRow(int index) {
-        tableModel.removeRow(index);
-        tableData.delRow(index);
+    public void appendData(TableData tableData) {
+        tableData.rows.forEach(d -> {
+            addRow(d);
+        });
     }
 
     public void deleteRows(int[] indices) {
@@ -153,16 +176,22 @@ public abstract class TongaTable {
 
     //externally invoked deletion
     public void removeRow(int index) {
-        deleteEvent(new int[]{index});
+        backendDelete(new int[]{index});
         deleteRow(index);
     }
 
     //externally invoked deletion
     public void removeSelectedRows() {
         int[] indices = getSortedRows(tableComponent.getSelectedRows());
-        deleteEvent(indices);
+        backendDelete(indices);
         deleteRows(indices);
     }
+
+    //when deleted data from the model/gui ensure deletion of the backend data structure
+    protected abstract void backendClear();
+
+    //when deleted data from the model/gui ensure deletion of the backend data structure
+    protected abstract void backendDelete(int[] row);
 
     private int[] getSortedRows(int[] viewRows) {
         int[] modelRows = new int[viewRows.length];
@@ -174,9 +203,8 @@ public abstract class TongaTable {
     }
 
     public void focus() {
-        SwingUtilities.invokeLater(() -> {
+        changeElement(() -> {
             Tonga.frame().tabbedPane.setSelectedIndex(tableComponentIndex);
-            //Tonga.frame().tabbedPane.repaint();
         });
     }
 

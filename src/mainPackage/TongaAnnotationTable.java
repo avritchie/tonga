@@ -3,35 +3,23 @@ package mainPackage;
 import java.awt.Component;
 import javax.swing.JTable;
 import javax.swing.table.DefaultTableCellRenderer;
-import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableColumnModel;
 import mainPackage.counters.TableData;
 
 public class TongaAnnotationTable extends TongaTable {
+
+    private int[] colWids = new int[]{40, 80, 60, 60, 80, 80, 100, 60, 80, 80, 60, 40};
 
     public TongaAnnotationTable(JTable table, int index) {
         super(table, index);
     }
 
     @Override
-    public DefaultTableModel newTableModel(TableData tableData) {
-        return new DefaultTableModel(tableData.getAsArray(), tableData.columns) {
-            @Override
-            public boolean isCellEditable(int rowIndex, int columnIndex) {
-                return false;
-            }
-        };
-    }
-
-    @Override
-    public TableColumnModel newColumnModel(TableData tableData) {
-        TableColumnModel tcm = getTableComponent().getColumnModel();
-        int[] colWids = new int[]{40, 80, 60, 60, 80, 80, 100, 60, 80, 80, 60, 40};
+    public void setColumnProperties(TableColumnModel tcm) {
         for (int i = 0; i < tcm.getColumnCount(); i++) {
             tcm.getColumn(i).setPreferredWidth(colWids[i]);
         }
         tcm.getColumn(11).setCellRenderer(new CellColorRenderer());
-        return tcm;
     }
 
     private class CellColorRenderer extends DefaultTableCellRenderer {
@@ -58,12 +46,12 @@ public class TongaAnnotationTable extends TongaTable {
     }
 
     @Override
-    protected void deleteEvent(int[] rows) {
+    protected void backendDelete(int[] rows) {
         TongaAnnotator.delete(rows);
     }
 
     @Override
-    protected void clearEvent() {
+    protected void backendClear() {
         TongaAnnotator.deleteAll();
     }
 }
