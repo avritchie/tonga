@@ -32,7 +32,7 @@ public class __NucleusPrimaryMask extends Protocol {
         int nucleusSize = param.spinner[0];
         int iter = nucleusSize < 34 ? 52 : 70;
 
-        return new ProcessorFast(fullOutput() ? 13 : 2, new String[]{"Nucleus Mask"}, iter) {
+        return new ProcessorFast(fullOutput() ? 14 : 2, new String[]{"Nucleus Mask"}, iter) {
 
             ImageData layerCorrect, layerBackground, layerNuclei, layerComb, layerDog;
             ROISet quantSet, fillSet;
@@ -103,10 +103,11 @@ public class __NucleusPrimaryMask extends Protocol {
                 Filters.dog().runTo(layerBackground, 1, maxEdge, false);
                 setSampleOutputBy(layerBackground, 9);
                 Filters.dog().runTo(layerBackground, 1, maxEdge, false);
+                setSampleOutputBy(layerNuclei, 10);
                 // stack
                 applyOperator(inImage[0], layerNuclei, p
                         -> (layerBackground.pixels32[p] & 0xFF) >= 1 || layerComb.pixels32[p] == COL.BLACK ? COL.BLACK : COL.WHITE);
-                setSampleOutputBy(layerNuclei, 10);
+                setSampleOutputBy(layerNuclei, 11);
                 fillSet = FiltersSet.fillInnerAreasSizeShape().runSet(layerNuclei, COL.BLACK, inRem, 90, false, 0, true);
                 //setSampleOutputBy(layerBackground, 10);// remove nuclei or other irregular holes on nuclei edges
                 if (noise > 0) {
@@ -117,9 +118,9 @@ public class __NucleusPrimaryMask extends Protocol {
                     layerBackground = fillSet.drawToImageData(true);
                 }
                 //fill inner shapes most likely NOT background
-                setSampleOutputBy(layerBackground, 11);
-                Protocol.load(BrightRemover::new).runSilentTo(sourceImage, new ImageData[]{layerBackground, layerDog}, layerBackground, COL.WHITE, dilate, 1.0);
                 setSampleOutputBy(layerBackground, 12);
+                Protocol.load(BrightRemover::new).runSilentTo(sourceImage, new ImageData[]{layerBackground, layerDog}, layerBackground, COL.WHITE, dilate, 1.0);
+                setSampleOutputBy(layerBackground, 13);
                 // smooth the masks but on convex areas only
                 if (smooth > 0) {
                     Filters.gaussApprox().runTo(layerBackground, layerNuclei, smooth, true);
