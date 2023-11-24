@@ -184,7 +184,8 @@ public class StackImporter {
     private static BufferedImageReader determineChannelReaderType(BufferedImageReader input, OMEXMLMetadata xml, File file) {
         String name = xml.getImageName(0) == null ? file.getName() : xml.getImageName(0);
         input.setSeries(0);
-        if (!name.equals(file.getName()) || input.getSeriesCount() > 1) {
+        Tonga.log.debug("This image contains {} RGB channels and {} separate channels", input.getRGBChannelCount(), input.getEffectiveSizeC());
+        if (!name.equals(file.getName()) || input.getSeriesCount() > 1 || input.getEffectiveSizeC() > 1) {
             input = new BufferedImageReader(new ChannelSeparator(input));
             Tonga.log.debug("Channels will be separated");
         } else {
