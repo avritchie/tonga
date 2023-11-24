@@ -278,9 +278,12 @@ public class ROI {
         Iterate.areaPixels(this, (int p) -> {
             boolean bits = img.bits == 16;
             int v = bits
-                    ? img.pixels16[p] & COL.UWHITE
+                    ? img.pixels16[p] & 0xFFFF
                     : RGB.brightness(img.pixels32[p]);
-            quant.measure(v, bits);
+            //TODO: scale 8-bit and 16-bit the same way
+            //now for clarity use the 16-bit scaling window for balancing
+            //otherwise things don't make sense atm
+            quant.measure(v, bits ? img.min : 0, bits ? img.max : 255);
         });
         quant.saveValues();
     }
@@ -291,9 +294,12 @@ public class ROI {
             if (exclude.pixels32[p] == excludeColor) {
                 boolean bits = img.bits == 16;
                 int v = bits
-                        ? img.pixels16[p] & COL.UWHITE
+                        ? img.pixels16[p] & 0xFFFF
                         : RGB.brightness(img.pixels32[p]);
-                quant.measure(v, bits);
+                //TODO: scale 8-bit and 16-bit the same way
+                //now for clarity use the 16-bit scaling window for balancing
+                //otherwise things don't make sense atm
+                quant.measure(v, bits ? img.min : 0, bits ? img.max : 255);
             }
         });
         quant.saveValues();
@@ -333,6 +339,12 @@ public class ROI {
         public void measure(int v, boolean is16bit) {
             pixelstain[pixels] = v;
             stain += v / (is16bit ? 65535. : 255.);
+            pixels++;
+        }
+
+        public void measure(int v, int min, int max) {
+            pixelstain[pixels] = v;
+            stain += (v - min) / (double) (max - min);
             pixels++;
         }
 

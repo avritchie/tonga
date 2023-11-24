@@ -54,7 +54,7 @@ public class BrightRemover extends Protocol {
                 boolean bits = inImage[1].bits == 16;
                 Iterate.pixels(inImage[0], (int p) -> {
                     int ind = inImage[0].pixels32[p] == param.colorARGB[0] ? 1 : 0;
-                    bfi[ind] += bits ? inImage[1].pixels16[p] & COL.UWHITE : RGB.brightness(inImage[1].pixels32[p]);
+                    bfi[ind] += bits ? inImage[1].pixels16[p] & 0xFFFF : RGB.brightness(inImage[1].pixels32[p]);
                     bfc[ind]++;
                 });
                 return new double[]{
