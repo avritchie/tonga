@@ -67,11 +67,17 @@ public abstract class Threader {
                     try {
                         loopSem.acquire();
                         int id = loopSem.availablePermits();
+                        Tonga.log.debug("Acquired and {} remaining", id);
                         Thread mthread = new Thread((new MiraxExecutor(xt, yt, md) {
                             @Override
                             public void run() {
-                                action(tiley * xloop + tilex);
+                                try {
+                                    action(tiley * xloop + tilex);
+                                } catch (Exception ex) {
+                                    Tonga.catchError(ex, "Tile processing for x=" + tilex + " and y=" + tiley + " failed.");
+                                }
                                 loopSem.release();
+                                Tonga.log.debug("Released from a thread set when {} were remaining.", id);
                             }
                         }));
                         mthread.setName("MiraxCore" + (threads - id - 1));
