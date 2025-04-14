@@ -63,7 +63,8 @@ public class StackImporter {
         OMEXMLMetadata xml;
         Color channelColor;
         int imageNumber; // images in a file
-        int channelNumber; // channels in a image
+        int channelNumber; // channels in a image (eg. RGB = 3)
+        int metaChannels; // annotated channel number (eg. RGB = 1)
         int splitChannelNumber; // how many new channels were split
         int timeNumber; // time points in a image
         int sliceNumber; // z-slices in a channel
@@ -85,6 +86,7 @@ public class StackImporter {
             imageName = IO.fileName(xml.getImageName(i) == null ? file.getName() : xml.getImageName(i));
             input.setSeries(i);
             channelNumber = input.getEffectiveSizeC();
+            metaChannels = xml.getChannelCount(i);
             splitChannelNumber = 0;
             timeNumber = input.getSizeT();
             sliceNumber = input.getSizeZ();
@@ -109,7 +111,7 @@ public class StackImporter {
                     // read basic data
                     MappedImage image;
                     BufferedImage channel;
-                    channelColor = xml.getChannelColor(i, c);
+                    channelColor = xml.getChannelColor(i, c / (channelNumber / metaChannels));
                     // handle z
                     if (sliceNumber > 1) {
                         // create a z-projection if necessary
@@ -184,8 +186,9 @@ public class StackImporter {
     private static BufferedImageReader determineChannelReaderType(BufferedImageReader input, OMEXMLMetadata xml, File file) {
         String name = xml.getImageName(0) == null ? file.getName() : xml.getImageName(0);
         input.setSeries(0);
-        Tonga.log.debug("This image contains {} RGB channels and {} separate channels", input.getRGBChannelCount(), input.getEffectiveSizeC());
-        if (!name.equals(file.getName()) || input.getSeriesCount() > 1 || input.getEffectiveSizeC() > 1) {
+        Tonga.log.debug("This image contains {} series of {} RGB channels and {} separate channels",
+                input.getSeriesCount(), input.getRGBChannelCount(), input.getEffectiveSizeC());
+        if (input.getEffectiveSizeC() > 1 || (input.getRGBChannelCount()!=3 && input.getRGBChannelCount()!=4)) {
             input = new BufferedImageReader(new ChannelSeparator(input));
             Tonga.log.debug("Channels will be separated");
         } else {
