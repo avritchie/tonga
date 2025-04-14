@@ -876,7 +876,7 @@ public class Segmentor {
                 if (!p1.equals(p2) && !p1.pairings.intersectors.contains(p2) && !p1.pairings.intersectorsSecondary.contains(p2)) {
                     Tonga.log.trace("Only common intersections NOT detected for pool {}", pool);
                     return false;
-                } else if (!pool.contains(p1.pairings.closest(0)) && p1.pairings.intersectors.contains(p1.pairings.closest(0))) {
+                } else if (!p1.pairings.closest.isEmpty() && !pool.contains(p1.pairings.closest(0)) && p1.pairings.intersectors.contains(p1.pairings.closest(0))) {
                     Tonga.log.trace("Pool violation for pool {}", pool);
                     return false;
                 }
