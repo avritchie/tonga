@@ -1062,6 +1062,7 @@ public class TongaFrame extends JFrame {
         jSeparator18 = new javax.swing.JPopupMenu.Separator();
         menuFileImportStacks = new javax.swing.JMenuItem();
         menuFileImportMultichannel = new javax.swing.JMenuItem();
+        jMenuItem158 = new javax.swing.JMenuItem();
         jSeparator30 = new javax.swing.JPopupMenu.Separator();
         jMenuItem147 = new javax.swing.JMenuItem();
         jMenuItem155 = new javax.swing.JMenuItem();
@@ -3028,6 +3029,14 @@ public class TongaFrame extends JFrame {
             }
         });
         menuImport.add(menuFileImportMultichannel);
+
+        jMenuItem158.setText("Raw data as an image");
+        jMenuItem158.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jMenuItem158ActionPerformed(evt);
+            }
+        });
+        menuImport.add(jMenuItem158);
         menuImport.add(jSeparator30);
 
         jMenuItem147.setText("Annotations");
@@ -6413,6 +6422,13 @@ public class TongaFrame extends JFrame {
         IO.importResults();
     }//GEN-LAST:event_jMenuItem155ActionPerformed
 
+    private void jMenuItem158ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem158ActionPerformed
+        File[] files = IO.getFile(System.getProperty("user.dir"), true);
+        if (files != null) {
+            IO.importRaw(Arrays.asList(files));
+        }
+    }//GEN-LAST:event_jMenuItem158ActionPerformed
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
     protected javax.swing.JScrollPane annoScrollPane;
     protected javax.swing.JTable annoTableComponent;
@@ -6634,6 +6650,7 @@ public class TongaFrame extends JFrame {
     protected javax.swing.JMenuItem jMenuItem153;
     protected javax.swing.JMenuItem jMenuItem154;
     protected javax.swing.JMenuItem jMenuItem155;
+    protected javax.swing.JMenuItem jMenuItem158;
     protected javax.swing.JMenuItem jMenuItem16;
     protected javax.swing.JMenuItem jMenuItem17;
     protected javax.swing.JMenuItem jMenuItem18;

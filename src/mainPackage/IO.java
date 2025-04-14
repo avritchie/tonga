@@ -303,6 +303,39 @@ public class IO {
         }
     }
 
+    public static void importRaw(List<File> files) {
+        new Importer() {
+            @Override
+            void iterate() {
+                for (int i = 0; i < files.size(); i++) {
+                    file = files.get(i);
+                    rawImport(false);
+                }
+            }
+
+            @Override
+            void read(MappedImage mi) throws Exception {
+                picList.add(new TongaImage(mi, file.getName(), "Original"));
+                images++;
+            }
+
+            @Override
+            void readBatch() throws Exception {
+                throw new FormatException("Attempted to import raw data in the batch mode.");
+            }
+
+            @Override
+            boolean readStack(boolean force) throws IOException, FormatException, ServiceException {
+                throw new FormatException("Attempted to import raw data as stacks.");
+            }
+
+            @Override
+            String message() {
+                return "Imported " + (images > 0 ? images + " new images" : "");
+            }
+        }.importFile(files);
+    }
+
     public static void importImages(List<File> files) {
         if (files.size() > 50 && picList.isEmpty() && !Settings.settingBatchProcessing()
                 && Tonga.askYesNo("Use the batch mode", "You are trying to import a large number of images at once."
@@ -400,7 +433,7 @@ public class IO {
         }
     }
 
-    public static Object[] askFormat(File file) {
+    public static Object[] askFormat(File file,boolean explain) {
         long size = 0;
         try {
             size = (int) Files.size(file.toPath());
@@ -408,7 +441,9 @@ public class IO {
         }
         final int s = (int) size;
         int sq = (int) Math.sqrt(s / 4);
-        String inputText = "<html><body><p style='width: 250px;'>" + "The format of the file " + file.getName() + " could not be identified. Please input the width and the format of this image manually.<br><br>";
+        String inputText = "<html><body><p style='width: 250px;'>" + ""
+                + (explain ? "The format of the file " + file.getName() + " could not be identified. " : file.getName() + "<br><br>")
+                + "Please input the width and the format of this image manually.<br><br>";
         JLabel labelw = new JLabel();
         labelw.setText("Width: ");
         JLabel labelh = new JLabel();

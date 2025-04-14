@@ -93,7 +93,7 @@ public abstract class Importer {
                 } else if (fs == 0) {
                     Tonga.catchError(ex, "The file is empty.");
                 } else {
-                    boolean success = rawImport();
+                    boolean success = rawImport(true);
                     if (!success) {
                         if (ex instanceof FormatException || ex instanceof IllegalStateException) {
                             formatissue = true;
@@ -136,7 +136,7 @@ public abstract class Importer {
                 for (int i = 0; i < expLayerCount; i++) {
                     indexes[i] = i;
                 }
-                if (!Tonga.layerStructureMatches(imagesBeginning, imagesNow-1, indexes)) {
+                if (!Tonga.layerStructureMatches(imagesBeginning, imagesNow - 1, indexes)) {
                     Tonga.log.info("The new images don't share a layer structure. No scaling will be performed.");
                     return;
                 }
@@ -149,8 +149,8 @@ public abstract class Importer {
         }
     }
 
-    private boolean rawImport() {
-        Object[] params = IO.askFormat(file);
+    protected boolean rawImport(boolean explain) {
+        Object[] params = IO.askFormat(file,explain);
         boolean ok = (boolean) params[0];
         if (ok) {
             int w = (int) params[1];
