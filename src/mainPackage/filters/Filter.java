@@ -85,6 +85,24 @@ public abstract class Filter {
 
     abstract protected Object handleImage(Object img);
 
+    public void run(boolean all) {
+        int selectedImage = Tonga.getImageIndex();
+        int[] selectedIndexes = Tonga.imageAsSelectedLayerArray(Tonga.getImage());
+        int totalImages = all ? Tonga.getImageList().size() : 1;
+        Tonga.loader().setIterations(calculateIterations(all));
+        ImageData[] data = new ImageData[selectedIndexes.length];
+        for (int imageIndex = all ? 0 : selectedImage; imageIndex < (all ? 0 : selectedImage) + totalImages; imageIndex++) {
+            if (Thread.currentThread().isInterrupted()) {
+                break;
+            }
+            if (!all || Tonga.layerStructureMatches(selectedImage, imageIndex, selectedIndexes)) {
+                data = runSingle(imageIndex, selectedIndexes);
+                output(data, imageIndex, getName());
+            }
+        }
+    }
+
+    @Deprecated
     public ImageData[][] runSingle() {
         int selectedImage = Tonga.getImageIndex();
         int[] selectedIndexes = Tonga.imageAsSelectedLayerArray(Tonga.getImage());
@@ -92,6 +110,7 @@ public abstract class Filter {
         return new ImageData[][]{runSingle(selectedImage, selectedIndexes)};
     }
 
+    @Deprecated
     public ImageData[][] runAll() {
         int selectedImage = Tonga.getImageIndex();
         int[] selectedIndexes = Tonga.imageAsSelectedLayerArray(Tonga.getImage());
@@ -232,31 +251,35 @@ public abstract class Filter {
         return handled;
     }
 
-    public final static void publish(ImageData[][] images, String name) {
-        Tonga.loader().maxProgress();
-        if (Thread.currentThread().isInterrupted()) {
-            return;
-        }
-        for (int image = 0; image < images.length; image++) {
-            if (images[image] != null) {
-                for (ImageData i : images[image]) {
-                    if (i != null) {
-                        int index = images.length == 1 ? Tonga.getImageIndex() : image;
-                        if (Settings.settingBatchProcessing()) {
-                            String file = i.name.replaceAll("/", "-") + ".png";
-                            try {
-                                ImageIO.write(i.toStreamedImage(), "png", new File(file));
-                            } catch (IOException ex) {
-                                Tonga.catchError(ex, "Unable to write the file " + file);
-                            }
-                            Tonga.injectNewLayer(new TongaLayer(file, name), index);
-                        } else {
-                            Tonga.injectNewLayer(i.toLayer(), index);
-                        }
+    private static void output(ImageData[] images, int index, String name) {
+        for (ImageData i : images) {
+            if (i != null) {
+                if (Settings.settingBatchProcessing()) {
+                    String file = i.name.replaceAll("/", "-") + ".png";
+                    try {
+                        ImageIO.write(i.toStreamedImage(), "png", new File(file));
+                    } catch (IOException ex) {
+                        Tonga.catchError(ex, "Unable to write the file " + file);
                     }
+                    Tonga.injectNewLayer(new TongaLayer(file, name), index);
+                } else {
+                    Tonga.injectNewLayer(i.toLayer(), index);
                 }
             }
         }
+    }
+
+    public final static void publish() {
+        Tonga.loader().maxProgress();
+//        if (Thread.currentThread().isInterrupted()) {
+//            return;
+//        }
+//        for (int image = 0; image < images.length; image++) {
+//            if (images[image] != null) {
+//                int index = images.length == 1 ? Tonga.getImageIndex() : image;
+//                output(images[image], index, name);
+//            }
+//        }
         Tonga.getImage().stack = false;
         Tonga.publishLayerList();
     }

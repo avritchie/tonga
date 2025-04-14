@@ -277,7 +277,8 @@ public class TongaFrame extends JFrame {
             Thread thread = new Thread(() -> {
                 instaFilter.param.setFilterParameters(instaFilter.parameterData, parameters);
                 try {
-                    Filter.publish(all ? instaFilter.runAll() : instaFilter.runSingle(), instaFilter.getName());
+                    instaFilter.run(all);
+                    Filter.publish();
                 } catch (Exception ex) {
                     Tonga.loader().majorFail();
                     Tonga.catchError(ex, "The filter crashed.");
@@ -312,7 +313,8 @@ public class TongaFrame extends JFrame {
             if (true) {
                 Thread thread = new Thread(() -> {
                     try {
-                        Filter.publish(all ? currentFilter.runAll() : currentFilter.runSingle(), currentFilter.getName());
+                        currentFilter.run(all);
+                        Filter.publish();
                     } catch (Exception ex) {
                         Tonga.loader().majorFail();
                         Tonga.catchError(ex, "The filter crashed.");
@@ -335,7 +337,8 @@ public class TongaFrame extends JFrame {
                                 histoRange.getValue(), histoRange.getUpperValue());
                     }
                     try {
-                        Filter.publish(all ? filter.runAll() : filter.runSingle(), filter.getName());
+                        filter.run(all);
+                        Filter.publish();
                     } catch (Exception ex) {
                         Tonga.loader().majorFail();
                         Tonga.catchError(ex, "The scaler crashed.");

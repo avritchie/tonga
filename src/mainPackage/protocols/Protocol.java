@@ -82,13 +82,15 @@ public abstract class Protocol {
         int iters = all ? Tonga.getImageList().size() : 1;
         int startid = all ? 0 : Tonga.frame().imagesList.getSelectedIndex();
         //init processors for every image + general processor vals
+        //do this in non-batch mode to reserve memory and resources before processing
+        //in batch only do the first one to query for iterations
         Processor[] processors = new Processor[iters];
-        for (int imageId = startid; imageId < iters + startid; imageId++) {
+        for (int imageId = startid; imageId < (Settings.settingBatchProcessing() ? 1 : iters) + startid; imageId++) {
             TongaImage sourceImage = Tonga.getImageList().get(imageId);
             TongaLayer[] sourceLayers = getLayers(param.layer, sourceImage);
             processors[all ? imageId : 0] = bootProcessor(sourceImage, sourceLayers);
         }
-        int procIterations = Arrays.stream(processors).mapToInt(p -> p.iterations).sum();
+        int procIterations = processors[0].iterations * iters;
         int procOutputImages = processors[0].outputImageNumber;
         //init data storage for result outputs
         List<TableData>[] procdatas = new List[iters];
@@ -100,7 +102,7 @@ public abstract class Protocol {
             if (multithreading) {
                 procImgs.add(imageId);
             } else {
-                execute(imageId, processors, procdatas, all ? imageId : 0);
+                executeProtocol(imageId, processors, procdatas, all);
             }
         }
         //run multithreaded
@@ -108,7 +110,7 @@ public abstract class Protocol {
             new Threader() {
                 @Override
                 public void action(int imageId) {
-                    execute(imageId, processors, procdatas, all ? imageId : 0);
+                    executeProtocol(imageId, processors, procdatas, all);
                 }
 
                 @Override
@@ -140,6 +142,19 @@ public abstract class Protocol {
                 Tonga.publishLayerList();
             }
         }
+    }
+
+    private void executeProtocol(int imageId, Processor[] processors, List<TableData>[] procdatas, boolean all) {
+        if (Settings.settingBatchProcessing()) {
+            processors[all ? imageId : 0] = processors[all ? imageId : 0] == null ? bootProcessor(imageId) : processors[all ? imageId : 0];
+        }
+        execute(imageId, processors, procdatas, all ? imageId : 0);
+    }
+
+    private Processor bootProcessor(int imageId) {
+        TongaImage sourceImage = Tonga.getImageList().get(imageId);
+        TongaLayer[] sourceLayers = getLayers(param.layer, sourceImage);
+        return bootProcessor(sourceImage, sourceLayers);
     }
 
     private Processor bootProcessor(TongaImage sourceImage, Object[] sourceLayers) {
