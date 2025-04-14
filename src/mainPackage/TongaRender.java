@@ -711,7 +711,9 @@ public class TongaRender {
             min[i] = 65535;
         }
         for (TongaImage ti : returnableImages) {
-            for (int j = 0; j < ti.layerCount(); j++) {
+            //limit to the maximum number of channels (channels of the first image)
+            //ignore possible additional channels in other images
+            for (int j = 0; j < Math.min(maxChannels, ti.layerCount()); j++) {
                 MappedImage ci = ti.getLayer(j).layerImage;
                 if (ci.bits == 16) {
                     int[] hist = HISTO.getHistogram(ci.getShorts());
@@ -725,7 +727,7 @@ public class TongaRender {
             Tonga.log.debug("Common scaling for channel {} will be between {} and {}", i, min[i], max[i]);
         }
         for (TongaImage ti : returnableImages) {
-            for (int j = 0; j < ti.layerCount(); j++) {
+            for (int j = 0; j < Math.min(maxChannels, ti.layerCount()); j++) {
                 MappedImage ci = ti.getLayer(j).layerImage;
                 if (ci.bits == 16) {
                     ci.min = min[j];
