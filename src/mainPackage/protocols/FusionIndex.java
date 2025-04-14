@@ -51,7 +51,7 @@ public class FusionIndex extends Protocol {
                 pt = Protocol.load(_BackgroundArea::new);
                 //bg should be calculated on a 8-bit image
                 temp3 = inImage[1].bits == 16 ? inImage[1].copy8bit() : inImage[1];
-                temp3 = pt.runSilent(sourceImage, new ImageData[]{temp3, temp3}, 20)[0];
+                temp3 = pt.runSilent(sourceImage, new ImageData[]{temp3, temp3}, 20, nuclSize)[0];
                 int bgval = (int) (pt.results.getDouble(0, 4));
                 Filters.reduce().runTo(temp2, bgval, true);
                 Filters.crapCleaner().runTo(temp2, temp, 2.0);
@@ -114,7 +114,7 @@ public class FusionIndex extends Protocol {
                         : (temp.pixels32[p] == COL.WHITE ? COL.GREEN : COL.RED));
                 /*pt = Protocol.load(ObjectEdges::new);
                 temp = pt.runSilent(sourceImage, new ImageData[]{temp, temp2}, COL.GREEN, COL.RED)[0];*/
-                setOutputBy(temp,0);
+                setOutputBy(temp, 0);
             }
 
         };

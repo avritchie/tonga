@@ -1013,6 +1013,14 @@ public class ROISet {
         }
     }
 
+    public double avgDiameter() {
+        try {
+            return list.stream().mapToDouble(l -> Math.sqrt(l.getSize())).average().getAsDouble();
+        } catch (NoSuchElementException ex) {
+            return 0;
+        }
+    }
+
     public double avgStain() {
         try {
             return list.stream().mapToDouble(l -> l.getStainAvg()).average().getAsDouble();

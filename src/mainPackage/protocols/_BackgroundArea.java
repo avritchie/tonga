@@ -21,7 +21,8 @@ public class _BackgroundArea extends Protocol {
         return new ControlReference[]{
             new ControlReference(LAYER, "Stack/DAPI etc. to use to estimate the area"),
             new ControlReference(LAYER, "The stain to calculate the background for"),
-            new ControlReference(SLIDER, "Strictness", 80)};
+            new ControlReference(SLIDER, "Strictness", 80),
+            new ControlReference(SPINNER, "Object size", 30)};
     }
 
     @Override
@@ -29,16 +30,17 @@ public class _BackgroundArea extends Protocol {
         return new ProcessorFast("Background", 14) {
 
             ImageData temp;
+            int objSize = param.spinner[0];
 
             @Override
             protected void methodInit() {
-                temp = Filters.dog().runSingle(inImage[0], 10, 30, false);
-                temp = Filters.autoscaleWithAdapt().runSingle(temp, 50);
+                temp = Filters.dog().runSingle(inImage[0], objSize / 3, objSize, false);
+                temp = Filters.autoscaleWithAdapt().runSingle(temp, 50, true, true);
                 temp = Filters.thresholdBright().runSingle(temp, 5);
-                temp = Filters.box().runSingle(temp, (param.slider[0] + 40) / 3, true);
+                temp = Filters.box().runSingle(temp, (param.slider[0] + objSize) / 3, true);
                 temp = Filters.thresholdBright().runSingle(temp, 1);
-                temp = Filters.box().runSingle(temp, (param.slider[0] + 40) / 6, true);
-                temp = Filters.gaussApprox().runSingle(temp, (param.slider[0] + 40) / 3, true);
+                temp = Filters.box().runSingle(temp, (param.slider[0] + objSize) / 6, true);
+                temp = Filters.gaussApprox().runSingle(temp, (param.slider[0] + objSize) / 3, true);
             }
 
             @Override

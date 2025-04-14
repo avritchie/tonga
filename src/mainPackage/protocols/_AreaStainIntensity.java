@@ -52,11 +52,11 @@ public class _AreaStainIntensity extends Protocol {
                     // get the background mask and value
                     ImageData r = Blender.renderBlend(inImage[1], inImage[2]);
                     Protocol a = Protocol.load(_BackgroundArea::new);
-                    bgid = a.runSilent(sourceImage, new ImageData[]{r, inImage[1]}, 80)[0];
+                    bgid = a.runSilent(sourceImage, new ImageData[]{r, inImage[1]}, 10, set.avgDiameter())[0];
                     bgval = (double) a.results.getVal(0, 3) / 100.;
                 }
                 if (binst) {
-                    outImage[0].pixels32 = set.drawStainArray(thresh, false, false);
+                    outImage[0].pixels32 = set.drawStainArray(rembg ? thresh + bgval : thresh, false, false);
                     if (rembg) {
                         addResultData(SetCounters.countObjectPositiveBG(set, bgval, thresh).runSingle(sourceImage));
                     } else {
