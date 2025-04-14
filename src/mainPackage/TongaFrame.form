@@ -1648,11 +1648,19 @@
                   <SubComponents>
                     <MenuItem class="javax.swing.JMenuItem" name="jMenuItem56">
                       <Properties>
-                        <Property name="text" type="java.lang.String" value="Global illumination correction"/>
+                        <Property name="text" type="java.lang.String" value="Global illumination correction (general)"/>
                         <Property name="toolTipText" type="java.lang.String" value="Correct uneven background lighting"/>
                       </Properties>
                       <Events>
                         <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jMenuItem56ActionPerformed"/>
+                      </Events>
+                    </MenuItem>
+                    <MenuItem class="javax.swing.JMenuItem" name="jMenuItem157">
+                      <Properties>
+                        <Property name="text" type="java.lang.String" value="Global illumination correction (nuclei)"/>
+                      </Properties>
+                      <Events>
+                        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jMenuItem157ActionPerformed"/>
                       </Events>
                     </MenuItem>
                     <MenuItem class="javax.swing.JMenuItem" name="jMenuItem90">

@@ -1178,6 +1178,7 @@ public class TongaFrame extends JFrame {
         jMenuItem108 = new javax.swing.JMenuItem();
         jMenu32 = new javax.swing.JMenu();
         jMenuItem56 = new javax.swing.JMenuItem();
+        jMenuItem157 = new javax.swing.JMenuItem();
         jMenuItem90 = new javax.swing.JMenuItem();
         jMenuItem97 = new javax.swing.JMenuItem();
         jMenuItem101 = new javax.swing.JMenuItem();
@@ -3867,7 +3868,7 @@ public class TongaFrame extends JFrame {
 
         jMenu32.setText("Illumination correction");
 
-        jMenuItem56.setText("Global illumination correction");
+        jMenuItem56.setText("Global illumination correction (general)");
         jMenuItem56.setToolTipText("Correct uneven background lighting");
         jMenuItem56.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -3875,6 +3876,14 @@ public class TongaFrame extends JFrame {
             }
         });
         jMenu32.add(jMenuItem56);
+
+        jMenuItem157.setText("Global illumination correction (nuclei)");
+        jMenuItem157.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jMenuItem157ActionPerformed(evt);
+            }
+        });
+        jMenu32.add(jMenuItem157);
 
         jMenuItem90.setText("Tissue illumination correction (nonlinear)");
         jMenuItem90.setToolTipText("Correct uneven staining for multichannel images due to uneven fixation/deparaffinization etc. using a nonlinear DAPI normalization");
@@ -6422,6 +6431,10 @@ public class TongaFrame extends JFrame {
         IO.importResults();
     }//GEN-LAST:event_jMenuItem155ActionPerformed
 
+    private void jMenuItem157ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem157ActionPerformed
+        launchFilter(FiltersPass::illuminationCorrectionCells, evt);
+    }//GEN-LAST:event_jMenuItem157ActionPerformed
+
     private void jMenuItem158ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem158ActionPerformed
         File[] files = IO.getFile(System.getProperty("user.dir"), true);
         if (files != null) {
@@ -6650,6 +6663,7 @@ public class TongaFrame extends JFrame {
     protected javax.swing.JMenuItem jMenuItem153;
     protected javax.swing.JMenuItem jMenuItem154;
     protected javax.swing.JMenuItem jMenuItem155;
+    protected javax.swing.JMenuItem jMenuItem157;
     protected javax.swing.JMenuItem jMenuItem158;
     protected javax.swing.JMenuItem jMenuItem16;
     protected javax.swing.JMenuItem jMenuItem17;

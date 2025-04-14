@@ -7,6 +7,7 @@ package mainPackage.filters;
 
 import java.awt.Point;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import mainPackage.Blender;
 import mainPackage.Blender.Blend;
@@ -20,6 +21,7 @@ import mainPackage.PanelCreator.ControlReference;
 import static mainPackage.PanelCreator.ControlType.*;
 import mainPackage.TongaAnnotator;
 import mainPackage.TongaAnnotation;
+import mainPackage.counters.TableData;
 import static mainPackage.filters.Filter.bgcol;
 import static mainPackage.filters.Filter.noParams;
 import mainPackage.filters.FilterSet.OutputType;
@@ -31,9 +33,12 @@ import mainPackage.protocols.AverageMaskThreshold;
 import mainPackage.protocols.DimRemover;
 import mainPackage.protocols.NucleusEdUCounter;
 import mainPackage.protocols.Protocol;
+import mainPackage.protocols._EstimateNucleusSize;
+import mainPackage.protocols.__NucleusPrimaryMask;
 import mainPackage.utils.DRAW;
 import mainPackage.utils.HISTO;
 import mainPackage.utils.RGB;
+import mainPackage.utils.STAT;
 
 /**
  *
@@ -461,6 +466,54 @@ public class FiltersPass {
                         outData.pixels32[pos] = temp2.pixels32[pos] == COL.WHITE && temp.pixels32[pos] == COL.BLACK ? COL.BLACK : COL.WHITE;
                     });
                 }
+            }
+
+            @Override
+            protected void processor16() {
+                throw new UnsupportedOperationException("No 16-bit version available");
+            }
+        };
+    }
+
+    public static FilterFast illuminationCorrectionCells() {
+        return new FilterFast("Lighting correction", new ControlReference[]{
+            new ControlReference(SPINNER, "Correction radius (px)", 500),
+            new ControlReference(TOGGLE, "Guess automatically", 1, new int[]{0, 0})}, 69) {
+
+            ImageData temp;
+
+            @Override
+            protected void processor() {
+                Protocol subprotocol = Protocol.load(_EstimateNucleusSize::new);
+                subprotocol.runSilent(Tonga.getImage(), inData);
+                double nuclSize = TableData.getType(subprotocol.results.getVal(0, 1));
+                subprotocol = Protocol.load(__NucleusPrimaryMask::new);
+                temp = subprotocol.runSilent(Tonga.getImage(), inData, nuclSize)[0];
+                temp = Filters.invert().runSingle(temp);
+                temp = Blender.renderBlend(temp, inData, Blend.MULTIPLY);
+                double avg = Filters.averageIntensity(temp, temp.pixels32, COL.BLACK);
+                int rgb = RGB.argb((int) avg);
+                Iterate.pixels(this, (int pos) -> {
+                    temp.pixels32[pos] = temp.pixels32[pos] == COL.BLACK ? rgb : temp.pixels32[pos];
+                });
+                //this is just copy paste, TODO fixit
+                int rad = param.toggle[0] ? (inData.width * inData.height / 10000) : param.spinner[0];
+                int[] gauss = new Blur().gauss(temp, rad, false);
+                int[] a = Arrays.stream(gauss).map(i -> i >> 24 & 0xFF).toArray();
+                int[] r = Arrays.stream(gauss).map(i -> i >> 16 & 0xFF).toArray();
+                int[] g = Arrays.stream(gauss).map(i -> i >> 8 & 0xFF).toArray();
+                int[] b = Arrays.stream(gauss).map(i -> i & 0xFF).toArray();
+                int avga = (int) new STAT(a).getMean();
+                int avgr = (int) new STAT(r).getMean();
+                int avgg = (int) new STAT(g).getMean();
+                int avgb = (int) new STAT(b).getMean();
+                Iterate.pixels(this, (int pos) -> {
+                    out32[pos] = RGB.argb(
+                            Math.min(0xFF, Math.max(0x00, (in32[pos] >> 16 & 0xFF) - (gauss[pos] >> 16 & 0xFF) + avgr)),
+                            Math.min(0xFF, Math.max(0x00, (in32[pos] >> 8 & 0xFF) - (gauss[pos] >> 8 & 0xFF) + avgg)),
+                            Math.min(0xFF, Math.max(0x00, (in32[pos] & 0xFF) - (gauss[pos] & 0xFF) + avgb)),
+                            Math.min(0xFF, Math.max(0x00, (in32[pos] >> 24 & 0xFF) - (gauss[pos] >> 24 & 0xFF) + avga)));
+                });
             }
 
             @Override
