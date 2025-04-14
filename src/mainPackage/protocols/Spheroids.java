@@ -38,7 +38,7 @@ public class Spheroids extends Protocol {
 
             @Override
             protected void pixelProcessor() {
-                temp = Filters.illuminationCorrection().runSingle(inImage[0]);
+                temp = Filters.illuminationCorrection().runSingle(inImage[0], 0, true);
                 Filters.invert().runTo(temp);
                 setSampleOutputBy(temp, 1);
                 Filters.dog().runTo(temp, minSize, targetSize, false);

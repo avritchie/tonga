@@ -1,9 +1,6 @@
 package mainPackage.protocols;
 
-import java.io.File;
-import java.io.IOException;
 import java.util.Arrays;
-import javax.imageio.ImageIO;
 import mainPackage.Blender;
 import mainPackage.Blender.Blend;
 import mainPackage.ImageData;
@@ -48,6 +45,8 @@ public class IFMiraxNuclei extends Protocol {
             new ControlReference(TOGGLE, "Binary staining", 1, new int[]{5, 1}),
             new ControlReference(SLIDER, "Positivity threshold (%)"),
             new ControlReference(TOGGLE, "Exclude low-density areas", 0),
+            new ControlReference(TOGGLE, "Correct uneven staining", 0),
+            new ControlReference(TOGGLE, "Stretch intensity values", 0),
             new ControlReference(COMBO, new String[]{"Red", "Green", "Blue"}, "DAPI is on which channel", 2),
             new ControlReference(COMBO, new String[]{"Red", "Green", "Blue"}, "Stain is on which channel", 0)};
     }
@@ -55,13 +54,15 @@ public class IFMiraxNuclei extends Protocol {
     @Override
     protected Processor getProcessor() {
 
-        return new ProcessorMirax(fullOutput() ? 11 : 2, "Positive Nuclei", 198, 178) {
+        return new ProcessorMirax(fullOutput() ? 12 : 2, "Positive Nuclei", 198, 178) {
 
             int dapi = param.combo[1];
             int stain = param.combo[2];
             int nsize = param.spinner[0];
             boolean bins = param.toggle[0];
             boolean elda = param.toggle[1];
+            boolean matrix = param.toggle[2];
+            boolean stretch = param.toggle[3];
             double thresh = param.slider[0] / 100.;
             ImageData[] matrices = new ImageData[3];
             ImageData denses;
@@ -73,12 +74,14 @@ public class IFMiraxNuclei extends Protocol {
 
             @Override
             protected void methodInit() {
-                tsize = 30 - miraxPreviewLevel * 3;
+                //tsize = 30 - miraxPreviewLevel * 3;
+                tsize = (int) (70 * Math.pow(1.33, -miraxPreviewLevel));
                 segm = Protocol.load(__NucleusMaskOfSize::new);
                 nprm = Protocol.load(__NucleusPrimaryMask::new);
                 asgm = Protocol.load(__ObjectSegment::new);
-                bgcr = Protocol.load(_BackgroundArea::new);
+                //bgcr = Protocol.load(_BackgroundArea::new);
                 objc = Protocol.load(ObjectsCommon::new);
+                Tonga.log.info("Starting general corrections for " + miraxSlide.slideName);
                 Object[] crs = (Object[]) getCorrections(dapi, stain);
                 matrices[dapi] = (ImageData) crs[0];
                 matrices[stain] = (ImageData) crs[2];
@@ -92,8 +95,6 @@ public class IFMiraxNuclei extends Protocol {
                 stainstretch[0] = (int) crs[7];
                 stainstretch[1] = (int) crs[8];
                 maxstain = (int) GEO.circleArea(nsize) * stainstretch[1] / 255;
-                setSampleOutputBy(matrices[dapi], 2);
-                setSampleOutputBy(matrices[stain], 3);
                 Tonga.log.info("Background is " + backgrounds[dapi] + " for DAPI and " + backgrounds[stain] + " for stain");
                 Tonga.log.info("Average DAPI is " + dapiavg + " for corrected and " + rdapiavg + " for raw");
                 Tonga.log.info("Stretch values are " + stainstretch[0] + " and " + stainstretch[1] + " for stain");
@@ -109,13 +110,15 @@ public class IFMiraxNuclei extends Protocol {
                 //dapi masks
                 dump(dapitile, xpos, ypos, 1);
                 dump(staintile, xpos, ypos, 2);
-                double[] dapirb = applyFromPreview(xpos, ypos, dapitile, dapi);
-                applyFromPreview(xpos, ypos, staintile, stain);
+                double[] dapirb = applyFromPreview(xpos, ypos, dapitile, dapi, true);
+                applyFromPreview(xpos, ypos, staintile, stain, matrix);
                 dump(dapitile, xpos, ypos, 3);
                 dump(staintile, xpos, ypos, 4);
                 //do stretching
-                applyOperator(staintile, staintile,
-                        p -> RGB.argb(cut((staintile.pixels32[p] & 0xFF), stainstretch[1] - backgrounds[stain], 0)));
+                if (stretch) {
+                    applyOperator(staintile, staintile,
+                            p -> RGB.argb(cut((staintile.pixels32[p] & 0xFF), stainstretch[1] - backgrounds[stain], 0)));
+                }
                 //combine corrected channels to one
                 applyOperator(tile, tile,
                         p -> 0xFF000000
@@ -177,7 +180,7 @@ public class IFMiraxNuclei extends Protocol {
                 }*/
             }
 
-            private double[] applyFromPreview(int xpos, int ypos, ImageData tile, int channel) {
+            private double[] applyFromPreview(int xpos, int ypos, ImageData tile, int channel, boolean matrix) {
                 double[] rbvals = new double[3];
                 Iterate.pixels(tile, (int p) -> {
                     int px = p % tile.width, py = p / tile.width;
@@ -186,20 +189,27 @@ public class IFMiraxNuclei extends Protocol {
                     int mp = xpos * miraxBlockWidth + px + ((ypos * miraxBlockHeight + py) * inImage[0].width);
                     boolean include = elda ? denses.pixels32[mp] == COL.WHITE : true;
                     if (include) {
-                        int reduce = (matrices[channel].pixels32[mp]) & 0xFF;
-                        int adduce = (matrices[channel].pixels32[mp] >> 16) & 0xFF;
-                        double re = (100. / (100 + reduce));
-                        double ad = (100. / (100 - adduce));
-                        if (adduce == 100) {
+                        int brightness;
+                        int bg = backgrounds[channel];
+                        double re, ad;
+                        if (matrix) {
+                            int reduce = (matrices[channel].pixels32[mp]) & 0xFF;
+                            int adduce = (matrices[channel].pixels32[mp] >> 16) & 0xFF;
+                            re = (100. / (100 + reduce));
+                            ad = (100. / (100 - adduce));
+                            if (adduce == 100) {
+                                ad = 1;
+                            }
+                            if (reduce != 0 || adduce != 0) {
+                                rbvals[0] += re;
+                                rbvals[1] += ad;
+                                rbvals[2]++;
+                            }
+                        } else {
+                            re = 1;
                             ad = 1;
                         }
-                        if (reduce != 0 || adduce != 0) {
-                            rbvals[0] += re;
-                            rbvals[1] += ad;
-                            rbvals[2]++;
-                        }
-                        int bg = backgrounds[channel];
-                        int brightness = (int) Math.max(0, Math.min(255, (RGB.brightness(tile.pixels32[p]) * re * ad) - bg));
+                        brightness = (int) Math.max(0, Math.min(255, (RGB.brightness(tile.pixels32[p]) * re * ad) - bg));
                         tile.pixels32[p] = RGB.argb(brightness);
                     } else {
                         tile.pixels32[p] = COL.BLACK;
@@ -223,14 +233,15 @@ public class IFMiraxNuclei extends Protocol {
 
             @Override
             protected void methodFinal() {
+                Tonga.log.info("Finalizing " + miraxSlide.slideName);
                 ImageData dapii = Filters.separateChannel().runSingle(outImage[1], dapi, false);
                 ImageData staini = Filters.separateChannel().runSingle(outImage[1], stain, false);
-                Filters.scaleRGB().runTo(dapii, 20);
+                //Filters.scaleRGB().runTo(dapii, 20);
                 setOutputBy(Blender.renderBlend(new ImageData[]{dapii, staini}, Blend.ADD), 1);
                 addResultData(sourceImage);
                 //render the histo image
                 if (!bins && fullOutput()) {
-                    renderIntScale(10);
+                    renderIntScale(11);
                 }
             }
 
@@ -300,60 +311,78 @@ public class IFMiraxNuclei extends Protocol {
                 };
             }
 
-            private ImageData getMatrix(int channel) {
-                ImageData id;
-                id = Filters.separateChannel().runSingle(inImage[0], channel, true);
-                id = FiltersPass.getCorrectionMatrix().runSingle(id, channel, tsize, true, true);
-                return id;
-            }
-
             private Object getCorrections(int dapichannel, int stainchannel) {
-                ImageData did, sid, vid, bid, aid, mid, rid, eid;
-                ImageData[] mxs = new ImageData[3];
-                rid = Filters.separateChannel().runSingle(inImage[0], dapichannel, false);
-                mxs[0] = FiltersPass.getCorrectionMatrix().runSingle(rid, dapichannel, tsize, true, true);
-                sid = Filters.separateChannel().runSingle(inImage[0], stainchannel, false);
-                did = Protocol.load(ApplyMatrix::new).runSilent(sourceImage, new ImageData[]{rid, mxs[0]}, true)[0];
-                int dapibg = 0;//HISTO.getHighestPointIndex(HISTO.getHistogram(did.pixels32), true);
-                bid = Filters.thresholdBright().runSingle(did, 2);
-                bid = FiltersPass.gaussSmoothing().runSingle(bid, 10 / (miraxPreviewLevel + 1), 1);
-                bid = FiltersPass.edgeErode().runSingle(bid, COL.BLACK, 6 - miraxPreviewLevel, true);
-                bid = FiltersSet.filterObjectSize().runSingle(bid, COL.BLACK, tsize * 30 / (miraxPreviewLevel + 1), false, 0);
-                bid = FiltersPass.edgeDilate().runSingle(bid, COL.BLACK, 6 - miraxPreviewLevel, true, true);
-                setSampleOutputBy(bid, 4);
-                mid = nprm.runSilent(sourceImage, did, tsize)[0];
-                setSampleOutputBy(did, 5);
-                eid = Filters.autoscaleWithPixelAdapt().runSingle(did, 50, false, true);
-                eid = Filters.multiply().runSingle(eid, 200, true);
-                eid = Filters.thresholdBright().runSingle(eid, 70);
-                eid = FiltersSet.filterObjectSize().runSingle(eid, COL.BLACK, tsize * 30 / (miraxPreviewLevel + 1), false, 0);
-                mxs[2] = FiltersPass.edgeDilate().runSingle(eid, COL.BLACK, 6 - miraxPreviewLevel, true, true);
-                //mxs[2] = objc.runSilent(sourceImage, new ImageData[]{mxs[2], eid}, COL.BLACK, 0)[0];
-                setSampleOutputBy(mxs[2], 6);
-                eid = FiltersPass.edgeDilate().runSingle(mid, COL.BLACK, Math.max(2, 8 - miraxPreviewLevel), true);
-                int dilv = 4 - miraxPreviewLevel;
-                if (dilv > 0) {
-                    mid = FiltersPass.edgeDilate().runSingle(mid, COL.BLACK, dilv, true);
-                }
-                aid = Blender.renderBlend(new ImageData[]{mid, did}, Blend.MULTIPLY);
-                int davg = (int) Filters.averageIntensity(aid, aid.pixels32, COL.BLACK);
-                aid = Blender.renderBlend(new ImageData[]{mid, rid}, Blend.MULTIPLY);
-                int ravg = (int) Filters.averageIntensity(aid, aid.pixels32, COL.BLACK);
-                Filters.invert().runTo(mid);
-                vid = Blender.renderBlend(new ImageData[]{eid, mid, sid, bid}, Blend.MULTIPLY);
-                int stainbg = (int) Filters.averageIntensity(vid, vid.pixels32, COL.BLACK);
-                //setSampleOutputBy(vid, 6);
+                ImageData dapiCorrected, dapiRaw, dapiMatrix, stainCorrected, stainRaw, stainMatrix;
+                ImageData maskDense, maskBackground, maskGradient;
+                ImageData temp, temp2;
+                int dapiBackground, stainBackgound, dapiRawAverage, dapiCorrectedAverage;
+                int[] stainAdapt;
+                //separate dapi and stain channels
+                dapiRaw = Filters.separateChannel().runSingle(inImage[0], dapichannel, false);
+                stainRaw = Filters.separateChannel().runSingle(inImage[0], stainchannel, false);
+                //make gradient mask from uncorrected dapi
+                maskGradient = FiltersPass.intensityGradientSegmenting().runSingle(dapiRaw, Math.max(1, 4 - miraxPreviewLevel), 5);
+                setSampleOutputBy(maskGradient, 2);
+                //make dapi correction matrix and correct dapi with it
+                temp = Blender.renderBlend(new ImageData[]{dapiRaw, maskGradient}, Blend.MULTIPLY);
+                dapiBackground = 0;
+                dapiMatrix = FiltersPass.getCorrectionMatrix().runSingle(temp, dapichannel, tsize, true, true);
+                dapiCorrected = Protocol.load(ApplyMatrix::new).runSilent(sourceImage, new ImageData[]{dapiRaw, dapiMatrix}, true)[0];
+                setSampleOutputBy(dapiMatrix, 7);
+                setSampleOutputBy(dapiCorrected, 8);
+                //measure avarage DAPI intensities
+                temp = Blender.renderBlend(new ImageData[]{maskGradient, dapiCorrected}, Blend.MULTIPLY);
+                dapiCorrectedAverage = (int) Filters.averageIntensity(temp, temp.pixels32, COL.BLACK);
+                temp = Blender.renderBlend(new ImageData[]{maskGradient, dapiRaw}, Blend.MULTIPLY);
+                dapiRawAverage = (int) Filters.averageIntensity(temp, temp.pixels32, COL.BLACK);
+                //create a major tissue mask from the corrected and matrix-balanced dapi layer (major tissue areas, little detail)
+                /*temp = Filters.thresholdBright().runSingle(dapiCorrected, 2);
+                temp = FiltersPass.gaussSmoothing().runSingle(temp, 10 / (miraxPreviewLevel + 1), 1);
+                temp = FiltersPass.edgeErode().runSingle(temp, COL.BLACK, 6 - miraxPreviewLevel, true);
+                temp = FiltersSet.filterObjectSize().runSingle(temp, COL.BLACK, tsize * 30 / (miraxPreviewLevel + 1), false, 0);
+                maskMajor = FiltersPass.edgeDilate().runSingle(temp, COL.BLACK, 6 - miraxPreviewLevel, true, true);
+                setSampleOutputBy(maskMajor, 3);*/
+                //create a mask for the background (areas immediately surrounding nuclei)
+                /*
+                temp = nprm.runSilent(sourceImage, dapiCorrected, tsize)[0];
+                temp2 = Blender.renderBlend(maskGradient, temp, Blend.MULTIPLY);
+                temp = FiltersPass.edgeDilate().runSingle(temp2, COL.BLACK, Math.max(2, 8 - miraxPreviewLevel), true);
+                temp2 = (4 - miraxPreviewLevel > 0) ? FiltersPass.edgeDilate().runSingle(temp2, COL.BLACK, 4 - miraxPreviewLevel, true) : temp2;
+                maskBackground = Blender.renderBlend(temp, temp2, Blend.DIFFERENCE);
+                setSampleOutputBy(maskBackground, 5);*/
+                temp = Blender.renderBlend(dapiCorrected, maskGradient, Blend.MULTIPLY);
+                temp = Filters.scaleRGB().runSingle(temp, 70, 2);
+                temp = Filters.thresholdBright().runSingle(temp, 70 + Math.min(2, Math.max(0, (miraxPreviewLevel - 1) / 2)) * 5);
+                //temp2 = FiltersPass.edgeErode().runSingle(maskGradient, COL.BLACK, Math.max(1, ((4 - miraxPreviewLevel))), true, true);
+                maskBackground = Blender.renderBlend(temp, maskGradient, Blend.DIFFERENCE);
+                setSampleOutputBy(maskBackground, 5);
+                //record average stain background using the background mask limited to nucleus area
+                temp = Blender.renderBlend(stainRaw, maskBackground, Blend.MULTIPLY);
+                stainBackgound = (int) Filters.averageIntensity(temp, temp.pixels32, COL.BLACK);
+                //make stain correction matrix using non-nuclear areas and correct stain with it
+                //must use non-nuclear areas or otherwise it will correct based on the real differences in the signal
+                temp = Filters.blurConditional().runSingle(temp, COL.BLACK, 4, true);
                 for (int i = 0; i < 5; i++) {
-                    vid = Filters.blurConditional().runSingle(vid, COL.BLACK, 2, false);
+                    temp = Filters.blurConditional().runSingle(temp, COL.BLACK, 2, false);
                 }
-                setSampleOutputBy(vid, 7);
-                vid = FiltersPass.getCorrectionMatrix().runSingle(vid, stainchannel, tsize, true, false);
-                setSampleOutputBy(vid, 8);
-                mxs[1] = Blender.renderBlend(bid, vid, Blend.MULTIPLY);
-                sid = Protocol.load(ApplyMatrix::new).runSilent(sourceImage, new ImageData[]{sid, mxs[1]}, true)[0];
-                setSampleOutputBy(sid, 9);
-                int[] begEnd = HISTO.getMinMaxAdapt(HISTO.getHistogram(sid.pixels32), 0.1);
-                return new Object[]{mxs[0], dapibg, mxs[1], stainbg, mxs[2], davg, ravg, begEnd[0], begEnd[1]};
+                setSampleOutputBy(temp, 6);
+                temp2 = FiltersPass.adaptiveThreshold().runSingle(temp, COL.BLACK, 1.0, 10, false);
+                temp = Blender.renderBlend(temp, temp2, Blend.MULTIPLY);
+                temp = Filters.blurConditional().runSingle(temp, COL.BLACK, tsize, false);
+                stainMatrix = FiltersPass.getCorrectionMatrixIntensity().runSingle(temp, stainBackgound, false, true);
+                stainCorrected = Protocol.load(ApplyMatrix::new).runSilent(sourceImage, new ImageData[]{stainRaw, stainMatrix}, true)[0];
+                setSampleOutputBy(stainMatrix, 9);
+                setSampleOutputBy(stainCorrected, 10);
+                //calculate stain stretching values
+                stainAdapt = HISTO.getMinMaxAdapt(HISTO.getHistogram(stainCorrected.pixels32), 0.1);
+                //create a dense tissue mask from the corrected and matrix-balanced dapi layer for removal of low-density areas
+                temp = Filters.autoscaleWithPixelAdapt().runSingle(dapiCorrected, 50, false, true);
+                temp = Filters.multiply().runSingle(temp, 200, true);
+                temp = Filters.thresholdBright().runSingle(temp, 70);
+                temp = FiltersSet.filterObjectSize().runSingle(temp, COL.BLACK, tsize * 30 / (miraxPreviewLevel + 1), false, 0);
+                maskDense = FiltersPass.edgeDilate().runSingle(temp, COL.BLACK, 6 - miraxPreviewLevel, true, true);
+                setSampleOutputBy(maskDense, 4);
+                return new Object[]{dapiMatrix, dapiBackground, stainMatrix, stainBackgound, maskDense, dapiCorrectedAverage, dapiRawAverage, stainAdapt[0], stainAdapt[1]};
             }
 
             private int[][] getPeaks() {

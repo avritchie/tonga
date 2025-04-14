@@ -1189,6 +1189,7 @@ public class TongaFrame extends JFrame {
         jMenu1 = new javax.swing.JMenu();
         jMenuItem106 = new javax.swing.JMenuItem();
         jMenuItem95 = new javax.swing.JMenuItem();
+        jMenuItem156 = new javax.swing.JMenuItem();
         jMenuItem109 = new javax.swing.JMenuItem();
         jMenu11 = new javax.swing.JMenu();
         jMenuItem10 = new javax.swing.JMenuItem();
@@ -2119,7 +2120,7 @@ public class TongaFrame extends JFrame {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(protocolNameSeparator, javax.swing.GroupLayout.PREFERRED_SIZE, 5, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(8, 8, 8)
-                .addComponent(protocolSettingsPanel, javax.swing.GroupLayout.DEFAULT_SIZE, 317, Short.MAX_VALUE)
+                .addComponent(protocolSettingsPanel, javax.swing.GroupLayout.DEFAULT_SIZE, 313, Short.MAX_VALUE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(protocolSettingsSeparator, javax.swing.GroupLayout.PREFERRED_SIZE, 5, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(3, 3, 3)
@@ -2226,7 +2227,7 @@ public class TongaFrame extends JFrame {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(filterNameSeparator, javax.swing.GroupLayout.PREFERRED_SIZE, 5, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(8, 8, 8)
-                .addComponent(filterSettingsPanel, javax.swing.GroupLayout.DEFAULT_SIZE, 314, Short.MAX_VALUE)
+                .addComponent(filterSettingsPanel, javax.swing.GroupLayout.DEFAULT_SIZE, 310, Short.MAX_VALUE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(filterSettingsSeparator, javax.swing.GroupLayout.PREFERRED_SIZE, 5, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(3, 3, 3)
@@ -2635,7 +2636,7 @@ public class TongaFrame extends JFrame {
             histogramPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(histogramPanelLayout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(histoImg, javax.swing.GroupLayout.DEFAULT_SIZE, 291, Short.MAX_VALUE)
+                .addComponent(histoImg, javax.swing.GroupLayout.DEFAULT_SIZE, 287, Short.MAX_VALUE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(histoSliderPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(1, 1, 1)
@@ -3945,6 +3946,14 @@ public class TongaFrame extends JFrame {
             }
         });
         jMenu1.add(jMenuItem95);
+
+        jMenuItem156.setText("Gradient segmentation");
+        jMenuItem156.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jMenuItem156ActionPerformed(evt);
+            }
+        });
+        jMenu1.add(jMenuItem156);
 
         jMenuItem109.setText("Binning by radius");
         jMenuItem109.addActionListener(new java.awt.event.ActionListener() {
@@ -6434,6 +6443,10 @@ public class TongaFrame extends JFrame {
         IO.importResults();
     }//GEN-LAST:event_jMenuItem155ActionPerformed
 
+    private void jMenuItem156ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem156ActionPerformed
+        launchFilter(FiltersPass::intensityGradientSegmenting, evt);
+    }//GEN-LAST:event_jMenuItem156ActionPerformed
+
     private void jMenuItem157ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem157ActionPerformed
         launchFilter(FiltersPass::illuminationCorrectionCells, evt);
     }//GEN-LAST:event_jMenuItem157ActionPerformed
@@ -6666,6 +6679,7 @@ public class TongaFrame extends JFrame {
     protected javax.swing.JMenuItem jMenuItem153;
     protected javax.swing.JMenuItem jMenuItem154;
     protected javax.swing.JMenuItem jMenuItem155;
+    protected javax.swing.JMenuItem jMenuItem156;
     protected javax.swing.JMenuItem jMenuItem157;
     protected javax.swing.JMenuItem jMenuItem158;
     protected javax.swing.JMenuItem jMenuItem16;

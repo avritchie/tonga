@@ -523,6 +523,43 @@ public class FiltersPass {
         };
     }
 
+    public static FilterFast intensityGradientSegmenting() {
+        return new FilterFast("Gradient segmented", new ControlReference[]{
+            new ControlReference(SPINNER, "Radius", 1),
+            new ControlReference(SLIDER, new Object[]{0, 50}, "Sensitivity", 10)}, 8) {
+
+            ImageData temp, temp2, edges;
+            int rad, thresh;
+
+            @Override
+            protected void processor() {
+                rad = param.spinner[0];
+                thresh = param.slider[0];
+                temp = Filters.colorize().runSingle(inData, COL.BLUE);
+                temp2 = Filters.colorize().runSingle(inData, COL.WHITE);
+                edges = Filters.maximumDiffEdge().runSingle(temp, 1, rad + 1, true, 1);
+                temp = Filters.maximumDiffEdge().runSingle(temp, 0, rad, false, thresh);
+                temp = Blender.renderBlend(new ImageData[]{temp2, temp}, Blend.MINIMUM);
+                temp2 = Filters.gaussApprox().runSingle(temp, rad, true);
+                temp2 = Filters.maximumDiffEdge().runSingle(temp2, 0, rad, false, thresh);
+                temp = Blender.renderBlend(new ImageData[]{temp, temp}, Blend.ADD);
+                temp = Blender.renderBlend(new ImageData[]{temp, temp2}, Blend.SUBTRACT);
+                temp = Blender.renderBlend(new ImageData[]{temp, temp2}, Blend.SUBTRACT);
+                temp = Filters.thresholdBright().runSingle(temp, thresh);
+                temp = FiltersPass.gaussSmoothing().runSingle(temp, 1, 1);
+                Iterate.pixels(this, (int pos) -> {
+                    temp.pixels32[pos] = edges.pixels32[pos] == COL.WHITE || temp.pixels32[pos] == COL.BLACK ? COL.BLACK : temp.pixels32[pos];
+                });
+                setOutputBy(temp);
+            }
+
+            @Override
+            protected void processor16() {
+                throw new UnsupportedOperationException("No 16-bit version available");
+            }
+        };
+    }
+
     public static FilterFast maxDiffCorrect() {
         return new FilterFast("Background removal", new ControlReference[]{
             new ControlReference(SPINNER, "Radius", 40)}, 14) {
@@ -780,37 +817,17 @@ public class FiltersPass {
             @Override
             protected void processor() {
                 tc = Filters.thresholdBright().runSingle(inData, 1);
-                tc = FiltersPass.edgeErode().runSingle(tc, COL.BLACK, 2, true, false);
+                tc = FiltersPass.edgeErode().runSingle(tc, COL.BLACK, param.spinner[0] / 20, true, false);
                 bc = Blender.renderBlend(tc, inData, Blend.MULTIPLY);
                 bc = FiltersPass.adaptiveThreshold().runSingle(bc, COL.BLACK, 1.0, 10, false);
                 ec = Filters.separateChannel().runSingle(inData, param.combo[0], true);
                 ec = Blender.renderBlend(bc, ec, Blend.MULTIPLY);
                 ec = Filters.blurConditional().runSingle(ec, COL.BLACK, param.spinner[0], false);
-                bc = Blender.renderBlend(bc, ec, Blend.MULTIPLY);
-                if (!param.toggle[1]) {
-                    IMG.fillArray(tc.pixels32, tc.width, tc.height, COL.WHITE);
-                }
-                if (param.toggle[0]) {
-                    double ai = Math.max(0.1, Filters.averageIntensity(bc, ec.pixels32, COL.BLACK));
+                //bc = Blender.renderBlend(bc, ec, Blend.MULTIPLY);
+                setOutputBy(FiltersPass.getCorrectionMatrixIntensity().runSingle(ec, 0, true, true));
+                if (param.toggle[1]) {
                     Iterate.pixels(ec, (int p) -> {
-                        int bb = Math.min(255, (int) (((ec.pixels32[p] & 0xFF) / ai - 1) * 100)), ob;
-                        if (bb < 0) {
-                            ob = 0xFF000000 | (Math.abs(bb) << 16);
-                        } else {
-                            ob = 0xFF000000 | Math.abs(bb);
-                        }
-                        outData.pixels32[p] = tc.pixels32[p] == COL.BLACK ? COL.BLACK : ob;
-                    });
-                } else {
-                    int ai = (int) Filters.averageIntensity(bc, ec.pixels32, COL.BLACK);
-                    Iterate.pixels(ec, (int p) -> {
-                        int bb = (ec.pixels32[p] & 0xFF) - ai, ob;
-                        if (bb < 0) {
-                            ob = 0xFF000000 | (Math.abs(bb) << 16);
-                        } else {
-                            ob = 0xFF000000 | Math.abs(bb);
-                        }
-                        outData.pixels32[p] = tc.pixels32[p] == COL.BLACK ? COL.BLACK : ob;
+                        outData.pixels32[p] = tc.pixels32[p] == COL.BLACK ? COL.BLACK : outData.pixels32[p];
                     });
                 }
             }
@@ -823,20 +840,37 @@ public class FiltersPass {
     }
 
     public static FilterFast getCorrectionMatrixIntensity() {
-        return new FilterFast("Matrix", noParams, 2) {
+        return new FilterFast("Matrix", new ControlReference[]{
+            new ControlReference(SPINNER, "Value to generate against", 30),
+            new ControlReference(TOGGLE, "Measure", 1, new int[]{0, 0}),
+            new ControlReference(TOGGLE, "Ratios", 0)}, 2) {
 
             @Override
             protected void processor() {
-                int ai = (int) Filters.averageIntensity(inData, inData.pixels32, COL.BLACK);
-                Iterate.pixels(inData, (int p) -> {
-                    int bb = (inData.pixels32[p] & 0xFF) - ai, ob;
-                    if (bb < 0) {
-                        ob = 0xFF000000 | (Math.abs(bb) << 16);
-                    } else {
-                        ob = 0xFF000000 | Math.abs(bb);
-                    }
-                    outData.pixels32[p] = inData.pixels32[p] == COL.BLACK ? COL.BLACK : ob;
-                });
+                double average = param.toggle[0] ? Filters.averageIntensity(inData, inData.pixels32, COL.BLACK) : param.spinner[0];
+                if (param.toggle[1]) {
+                    double ai = Math.max(0.1, average);
+                    Iterate.pixels(inData, (int p) -> {
+                        int bb = Math.min(255, (int) (((inData.pixels32[p] & 0xFF) / ai - 1) * 100)), ob;
+                        if (bb < 0) {
+                            ob = 0xFF000000 | (Math.abs(bb) << 16);
+                        } else {
+                            ob = 0xFF000000 | Math.abs(bb);
+                        }
+                        outData.pixels32[p] = inData.pixels32[p] == COL.BLACK ? COL.BLACK : ob;
+                    });
+                } else {
+                    int ai = (int) average;
+                    Iterate.pixels(inData, (int p) -> {
+                        int bb = (inData.pixels32[p] & 0xFF) - ai, ob;
+                        if (bb < 0) {
+                            ob = 0xFF000000 | (Math.abs(bb) << 16);
+                        } else {
+                            ob = 0xFF000000 | Math.abs(bb);
+                        }
+                        outData.pixels32[p] = inData.pixels32[p] == COL.BLACK ? COL.BLACK : ob;
+                    });
+                }
             }
 
             @Override

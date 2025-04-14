@@ -116,7 +116,7 @@ public abstract class ProcessorMirax extends ProcessorFast {
                             Tonga.log.info("Tile x={},y={} processed successfully.", xt, yt);
                         }
                     } catch (Exception ex) {
-                        Tonga.catchError(ex, "Failed to read the Mirax tile x=" + xt + ",y=" + yt + " at level " + miraxTileZoom + ".");
+                        Tonga.catchError(ex, "Failed to read the Mirax tile x=" + xt + ",y=" + yt + " at level " + miraxTileZoom + " of " + miraxSlide.slideName + ".");
                     }
                 }
 
