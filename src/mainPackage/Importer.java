@@ -33,7 +33,6 @@ public abstract class Importer {
             Tonga.loader().setIterations(files.size());
             int imagesNow = Tonga.picList.size();
             iterate();
-            scale(imagesNow, Tonga.picList.size());
             if (!cancelled) {
                 if (Settings.settingBatchProcessing()) {
                     if (failures == files.size()) {
@@ -42,6 +41,7 @@ public abstract class Importer {
                         Tonga.refreshChanges(files.get(0), message() + " as file pointers.");
                     }
                 } else {
+                    scale(imagesNow, Tonga.picList.size());
                     if (failures == files.size()) {
                         Tonga.refreshChanges(files.get(0), "<font color=\"red\">Image importing failed.</font> "
                                 + (stackissue ? "Stack images can not be imported as layers." : "")
