@@ -505,12 +505,12 @@ public class AnnoCounters {
 
             private void normalizeAndPublish() {
                 List<Double> finAnValues = anValues;
-                if (param.toggle[1]) {
-                    double frac = anValues.size() / (double) param.spinner[1];
+                if (param.toggle[0]) {
+                    double frac = anValues.size() / (double) param.spinner[0];
                     double stv = 0;
                     double env = 0;
                     finAnValues = new ArrayList<>();
-                    for (int i = 0; i < param.spinner[1]; i++) {
+                    for (int i = 0; i < param.spinner[0]; i++) {
                         double nv = 0;
                         stv = env;
                         env = stv + frac;
